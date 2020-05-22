@@ -1,0 +1,23 @@
+builds:
+  - goos:
+      - linux
+      - windows
+      - darwin
+    flags:
+      - -tags=release
+      - -v
+    main: '.'
+    ldflags:
+      - -s -w -X fisherman/internal/constants.Version={{.Version}}
+
+archives:
+  - replacements:
+      386: x86
+      amd64: x64
+    format: zip
+
+source:
+  enabled: false
+
+changelog:
+  skip: true

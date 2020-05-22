@@ -1,0 +1,84 @@
+# https://taskfile.dev
+
+version: '3'
+
+env:
+  GO_HELPER_PROCESS: 0
+
+vars:
+  GIT_COMMIT:
+    sh: git log -n 1 --format=%h
+  VERSION_PATH: fisherman/internal/constants.Version
+  ENTRY_POINT: ./main.go
+  OUTPUT_FILE: fisherman{{exeExt}}
+
+tasks:
+  build:
+    desc: Builds the go binary in developer mode.
+    cmds:
+      - go build -v -tags=debug -o {{ .OUTPUT_FILE }} -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+
+  build:ci:
+    desc: '[For CI] Builds the go binary in production mode (NOT REALISE)'
+    cmds:
+      - go build -v -o {{ .OUTPUT_FILE }} -ldflags="-s -w -X {{ .VERSION_PATH }}=ci-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+
+  test:
+    desc: Runs all tests
+    cmds:
+      - go test -timeout 1m -cover ./...
+
+  test:ci:
+    desc: '[For CI] Run all tests with coverage and race detection'
+    cmds:
+      - go test -timeout 1m -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+
+  test:docker:
+    desc: ' Run all tests in docker container'
+    cmds:
+      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test ./...
+
+  test:docker-cover:
+    desc: ' Run all tests with coverage and race detection in docker container'
+    cmds:
+      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test -timeout 1m -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+
+  lint:
+    desc: Lints all code
+    cmds:
+      - golangci-lint run ./...
+
+  check:
+    desc: Runs build, lint and test tasks
+    cmds:
+      - task: build
+      - task: lint
+      - GOOS=windows golangci-lint run --fix
+      - GOOS=linux golangci-lint run --fix
+      - GOOS=darwin golangci-lint run --fix
+      - task: lint-docs
+
+  install:
+    desc: Installs applications on the local computer using GO.
+    cmds:
+      - go install -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+
+  lint-docs:
+    desc: Lint all markdown files
+    cmds:
+      - markdownlint-cli2
+
+  generate:
+    desc: Generates mocks
+    cmds:
+      - minimock -i fisherman/internal.CliCommand -o ./testing/mocks/cli_command_mock.go
+      - minimock -i fisherman/internal/expression.Engine -o ./testing/mocks/engine_mock.go
+      - minimock -i fisherman/internal/handling.Handler -o ./testing/mocks/handler_mock.go
+      - minimock -i fisherman/internal.Repository -o ./testing/mocks/repository_mock.go
+      - minimock -i fisherman/internal/configuration.Rule -o ./testing/mocks/rule_mock.go
+      - minimock -i github.com/go-git/go-billy/v5.Filesystem -o ./testing/mocks/filesystem_mock.go
+      - minimock -i github.com/go-git/go-billy/v5.File -o ./testing/mocks/file_mock.go
+      - minimock -i fisherman/pkg/vcs.GoGitRepository -o ./testing/mocks/go_git_repository_mock.go
+      - minimock -i fisherman/pkg/shell.ShellStrategy -o ./testing/mocks/shell_strategy_mock.go -n ShellStrategyMock
+      - minimock -i golang.org/x/text/transform.Transformer -o ./testing/mocks/transformer_mock.go -n TransformerMock
+      - minimock -i golang.org/x/text/encoding.Encoding -o ./testing/mocks/encoding_mock.go -n EncodingMock

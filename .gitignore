@@ -13,3 +13,18 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+.idea
+.fisherman.yaml
+.fisherman.yml
+*.cov
+
+# Vscode
+.vscode\debug-data
+*.log
+__debug_bin
+
+# goreleaser output
+dist
+coverage.xml
+fisherman
+.DS_Store
