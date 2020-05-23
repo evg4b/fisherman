@@ -2,12 +2,9 @@ package init
 
 import (
 	"fisherman/commands"
-	"fisherman/config"
+	"fisherman/constants"
 	"flag"
 	"fmt"
-	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
 )
 
 type Command struct {
@@ -27,20 +24,21 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 }
 
 func (c *Command) Run(ctx commands.Context) error {
+	fmt.Println(constants.Logo)
 	info, err := ctx.GetGitInfo()
+	accessor := ctx.GetFileAccessor()
 	if err != nil {
 		return err
 	}
 
-	err = WriteHooks(info.Path, ctx.GetFileAccessor(), c.force)
+	err = WriteHooks(info.Path, accessor, c.force)
 	if err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal(config.DefaultConfig)
-	err = ioutil.WriteFile(".fisherman.yml", data, 0777)
+	err = WriteFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, accessor)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	return nil

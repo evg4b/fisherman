@@ -7,8 +7,8 @@ import (
 )
 
 func TestBuildHook(t *testing.T) {
-	testData := []struct{
-		hookName string
+	testData := []struct {
+		hookName     string
 		expectedHook string
 	}{
 		{"applypatch-msg", "#!/bin/sh\nfisherman handle --hook applypatch-msg $@"},

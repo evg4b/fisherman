@@ -3,11 +3,13 @@ package handle
 import (
 	"fisherman/commands"
 	"flag"
+	"os"
 )
 
 type Command struct {
 	fs   *flag.FlagSet
 	hook string
+	args []string
 }
 
 func NewCommand(handling flag.ErrorHandling) *Command {
@@ -18,7 +20,11 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 }
 
 func (c *Command) Init(args []string) error {
-	return c.fs.Parse(args)
+	err := c.fs.Parse(args)
+	if err == nil {
+		c.args = c.fs.Args()
+	}
+	return err
 }
 
 func (c *Command) Run(ctx commands.Context) error {

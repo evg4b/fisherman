@@ -1,5 +1,5 @@
 package config
 
 type FishermanConfig struct {
-	Hooks HooksConfig `yaml:hooks`
+	Hooks HooksConfig `yaml:"hooks"`
 }

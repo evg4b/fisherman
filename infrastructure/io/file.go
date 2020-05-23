@@ -35,7 +35,11 @@ func NewFileAccessor() *LocalFileAccessor {
 }
 
 func (f *LocalFileAccessor) ReadFile(path string) (string, error) {
-	panic("implement me")
+	data, err := ioutil.ReadFile(path)
+	if err != nil{
+		return "", err
+	}
+	return string(data), nil
 }
 
 func (f *LocalFileAccessor) WriteFile(path, content string) error {

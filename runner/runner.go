@@ -9,14 +9,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
 )
 
 type Runner struct {
 	fileAccessor io.FileAccessor
+	usr          *user.User
 }
 
-func NewRunner(fileAccessor io.FileAccessor) *Runner {
-	return &Runner{fileAccessor: fileAccessor}
+func NewRunner(fileAccessor io.FileAccessor, usr *user.User) *Runner {
+	return &Runner{fileAccessor, usr}
 }
 
 func (runner *Runner) Run(args []string) error {
@@ -47,7 +49,7 @@ func (runner *Runner) Run(args []string) error {
 				return err
 			}
 
-			context := commands.NewContext(info, runner.fileAccessor)
+			context := commands.NewContext(info, runner.fileAccessor, runner.usr)
 			return cmd.Run(context)
 		}
 	}

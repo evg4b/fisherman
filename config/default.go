@@ -1,5 +1,8 @@
 package config
 
 var DefaultConfig = FishermanConfig{
-	Hooks: HooksConfig{},
+	Hooks: HooksConfig{
+		PreCommitHook: &struct{}{},
+		CommitMsgHook: &struct{}{},
+	},
 }
