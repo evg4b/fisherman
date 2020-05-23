@@ -2,6 +2,6 @@ package commands
 
 type CliCommand interface {
 	Init([]string) error
-	Run() error
+	Run(ctx Context) error
 	Name() string
 }
