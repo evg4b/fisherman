@@ -22,12 +22,19 @@ func (c *Command) Init(args []string) error {
 }
 
 func (c *Command) Run(ctx commands.Context) error {
-	print("################")
-	print(c.hook)
-	print("################")
+	c.header()
 	return nil
 }
 
 func (c *Command) Name() string {
 	return c.fs.Name()
+}
+
+func (c *Command) header() {
+	info := HookInfo{
+		Hook:             c.hook,
+		GlobalConfigPath: "demo/",
+		Version:          "0.0.1",
+	}
+	printHookHeader(&info, os.Stdout)
 }
