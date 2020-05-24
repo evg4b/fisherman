@@ -13,14 +13,14 @@ var Logo = `
 
 var HookHeader = `
 
-         .d8d.   |
-        d88888b  | Hook: {{.Hook}}
-        "Y888Y"  | 
- .        888    | Global config: {{.GlobalConfigPath}}
- 8b.      888    | Repo config: {{.RepoConfigPath}}
- 888b.    888    | Local config: {{.LocalConfigPath}}
- 888     .88P    |
- 888....d88P"    | Fisherman: {{.Version}}
- 'Y888888P"      |
+           .d8d.  |
+          d88888b | Hook: {{.Hook}}
+          "Y888Y" | 
+ .          888   | Global config: {{.GlobalConfigPath}}
+ 8b.        888   | Repo config: {{.RepoConfigPath}}
+ 888b.      888   | Local config: {{.LocalConfigPath}}
+ 888       .88P   |
+ "Y8b.....d88P"   | Fisherman: {{.Version}}
+  "Y8988888P"     |
 
 `
