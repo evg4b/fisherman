@@ -4,6 +4,7 @@ import (
 	"fisherman/config"
 	"fisherman/infrastructure/git"
 	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/path"
 	"os/user"
 )
 
@@ -11,22 +12,44 @@ type Context interface {
 	GetGitInfo() (*git.RepositoryInfo, error)
 	GetFileAccessor() io.FileAccessor
 	GetCurrentUser() *user.User
+	GetCwd() string
+	GetAppInfo() *AppInfo
 }
 
-type ConfigPaths struct {
-	GlobalConfigPath *string
-	RepoConfigPath   *string
-	LocalConfigPath  *string
+type AppInfo struct {
+	AppPath            string
+	IsRegisteredInPath bool
+	GlobalConfigPath   *string
+	RepoConfigPath     *string
+	LocalConfigPath    *string
 }
 
 type CliCommandContext struct {
-	repoInfo     *git.RepositoryInfo
-	fileAccessor io.FileAccessor
-	usr          *user.User
-	cwd          string
-	appPath      string
-	config       *config.FishermanConfig
-	configPaths  *ConfigPaths
+	repoInfo         *git.RepositoryInfo
+	fileAccessor     io.FileAccessor
+	usr              *user.User
+	cwd              string
+	config           *config.FishermanConfig
+	appPath          string
+	globalConfigPath *string
+	repoConfigPath   *string
+	localConfigPath  *string
+	path             string
+}
+
+func (ctx *CliCommandContext) GetAppInfo() *AppInfo {
+	isRegistered, err := path.IsRegisteredInPath(ctx.path, ctx.appPath)
+	if err != nil {
+		// TODO Add correct error handling
+		panic(err)
+	}
+	return &AppInfo{
+		GlobalConfigPath:   ctx.globalConfigPath,
+		LocalConfigPath:    ctx.localConfigPath,
+		RepoConfigPath:     ctx.repoConfigPath,
+		IsRegisteredInPath: isRegistered,
+		AppPath: ctx.appPath,
+	}
 }
 
 type CliCommandContextParams struct {
@@ -36,24 +59,27 @@ type CliCommandContextParams struct {
 	Cwd          string
 	AppPath      string
 	ConfigInfo   *config.LoadInfo
+	Path         string
 }
 
 func NewContext(params CliCommandContextParams) *CliCommandContext {
 	configInfo := params.ConfigInfo
-	configPaths := ConfigPaths{
-		configInfo.GlobalConfigPath,
-		configInfo.RepoConfigPath,
-		configInfo.LocalConfigPath,
-	}
 	return &CliCommandContext{
 		params.RepoInfo,
 		params.FileAccessor,
 		params.Usr,
 		params.Cwd,
-		params.AppPath,
 		configInfo.Config,
-		&configPaths,
+		params.AppPath,
+		configInfo.GlobalConfigPath,
+		configInfo.RepoConfigPath,
+		configInfo.LocalConfigPath,
+		params.Path,
 	}
+}
+
+func (ctx *CliCommandContext) GetCwd() string {
+	return ctx.cwd
 }
 
 func (ctx *CliCommandContext) GetGitInfo() (*git.RepositoryInfo, error) {
