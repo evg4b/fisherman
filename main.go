@@ -13,7 +13,7 @@ func main() {
 	usr, err := user.Current()
 	handleError(err)
 	r := runner.NewRunner(fileAccessor, usr)
-	handleError(r.Run(os.Args[1:]))
+	handleError(r.Run(os.Args))
 }
 
 func handleError(err error) {

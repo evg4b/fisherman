@@ -2,7 +2,6 @@ package init
 
 import (
 	"fisherman/commands"
-	"fisherman/constants"
 	"flag"
 	"fmt"
 )
@@ -24,9 +23,8 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 }
 
 func (c *Command) Run(ctx commands.Context) error {
-	fmt.Println(constants.Logo)
-	info, err := ctx.GetGitInfo()
 	accessor := ctx.GetFileAccessor()
+	info, err := ctx.GetGitInfo()
 	if err != nil {
 		return err
 	}
