@@ -5,9 +5,10 @@ import (
 	"fisherman/common/vcs"
 	"fisherman/infrastructure/reporter"
 	"fmt"
+	"sync"
+
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"sync"
 )
 
 type CommitMsgHookConfig struct {
@@ -18,14 +19,13 @@ type CommitMsgHookConfig struct {
 }
 
 func (c *CommitMsgHookConfig) BuildRules() validation.ValidationRule {
-
 	return func(wg *sync.WaitGroup, snapshot vcs.Snapshot, reporter reporter.Reporter) {
 		defer wg.Done()
 		info := snapshot.GetHookData()
 		message := info["message"]
 
 		validationRules := make([]validate.Validator, 10)
-		if c.NotEmpty == false {
+		if c.NotEmpty {
 			validationRules = append(validationRules, &validators.StringIsPresent{
 				Name:    "Commit message",
 				Field:   message,
@@ -36,7 +36,7 @@ func (c *CommitMsgHookConfig) BuildRules() validation.ValidationRule {
 		validationRules = append(validationRules, &validators.StringIsPresent{
 			Name:    "Commit prefix",
 			Field:   message,
-			Message: fmt.Sprintf("Commit message should have prefix '%s'."),
+			Message: fmt.Sprintf("Commit message should have prefix '%s'.", message),
 		})
 
 		// errors := validate.Validate(validationRules)

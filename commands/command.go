@@ -1,7 +1,9 @@
 package commands
 
+import "fisherman/commands/context"
+
+// CliCommand is base command interface
 type CliCommand interface {
-	Init([]string) error
-	Run(ctx Context) error
+	Run(ctx context.Context, args []string) error
 	Name() string
 }

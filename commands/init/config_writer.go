@@ -3,11 +3,12 @@ package init
 import (
 	"fisherman/config"
 	"fisherman/infrastructure/io"
-	"gopkg.in/yaml.v2"
 	"os/user"
+
+	"gopkg.in/yaml.v2"
 )
 
-func WriteFishermanConfig(cwd string, usr *user.User, mode string, accessor io.FileAccessor) error {
+func writeFishermanConfig(cwd string, usr *user.User, mode string, accessor io.FileAccessor) error {
 	configPath, err := config.BuildFileConfigPath(cwd, usr, mode)
 	if err != nil {
 		return err

@@ -2,10 +2,10 @@ package init
 
 import "strings"
 
-func buildHook(fishermanCommand, hookName string) string {
+func buildHook(binaryPath, hookName string) string {
 	return rows([]string{
 		"#!/bin/sh",
-		command([]string{fishermanCommand, "handle", "--hook", hookName, "$@"}),
+		command([]string{binaryPath, "handle", "--hook", hookName, "$@"}),
 	})
 }
 

@@ -3,9 +3,10 @@ package config
 import (
 	"fisherman/infrastructure/io"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os/user"
 	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
 const configFileName = ".fisherman.yaml"
@@ -20,15 +21,15 @@ type LoadInfo struct {
 func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*LoadInfo, error) {
 	config := FishermanConfig{}
 
-	global, err := UnmarshlIfExist(cwd, usr, GlobalMode, accessor, &config)
+	global, err := unmarshlIfExist(cwd, usr, GlobalMode, accessor, &config)
 	if err != nil {
 		return nil, err
 	}
-	repo, err := UnmarshlIfExist(cwd, usr, RepoMode, accessor, &config)
+	repo, err := unmarshlIfExist(cwd, usr, RepoMode, accessor, &config)
 	if err != nil {
 		return nil, err
 	}
-	local, err := UnmarshlIfExist(cwd, usr, LocalMode, accessor, &config)
+	local, err := unmarshlIfExist(cwd, usr, LocalMode, accessor, &config)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*LoadInfo
 	}, nil
 }
 
-func UnmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (*string, error) {
+func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (*string, error) {
 	path, err := getPathIfExist(cwd, usr, mode, accessor)
 	if err != nil {
 		return nil, err

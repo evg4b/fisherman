@@ -1,5 +1,9 @@
 package constants
 
+// Version is constant to define app version
+var Version = "x.x.x"
+
+// Logo is string width logo
 var Logo = `
  .d888  d8b          888
  d88P"  Y8P          888
@@ -11,6 +15,7 @@ var Logo = `
  888    888  88888P' 888  888  "Y8888  888     888  888  888 "Y888888 888  888
 `
 
+// HookHeader is string width header for hook
 var HookHeader = `
 
            .d8d.  |

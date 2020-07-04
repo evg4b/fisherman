@@ -1,10 +1,11 @@
 package init
 
 import (
-	"fisherman/commands"
+	"fisherman/commands/context"
 	"flag"
 )
 
+// Command is structure for storage information about init command
 type Command struct {
 	fs       *flag.FlagSet
 	mode     string
@@ -12,6 +13,7 @@ type Command struct {
 	force    bool
 }
 
+// NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
 	fs := flag.NewFlagSet("init", handling)
 	c := &Command{fs: fs}
@@ -21,19 +23,24 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	return c
 }
 
-func (c *Command) Run(ctx commands.Context) error {
+// Run executes init command
+func (c *Command) Run(ctx context.Context, args []string) error {
+	c.fs.Parse(args)
 	accessor := ctx.GetFileAccessor()
 	info, err := ctx.GetGitInfo()
 	if err != nil {
 		return err
 	}
-
-	err = WriteHooks(info.Path, accessor, c.force)
+	appInfo, err := ctx.GetAppInfo()
+	if err != nil {
+		return err
+	}
+	err = writeHooks(info.Path, appInfo, accessor, c.force)
 	if err != nil {
 		return err
 	}
 
-	err = WriteFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, accessor)
+	err = writeFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, accessor)
 	if err != nil {
 		return err
 	}
@@ -41,10 +48,7 @@ func (c *Command) Run(ctx commands.Context) error {
 	return nil
 }
 
+// Name returns namand name
 func (c *Command) Name() string {
 	return c.fs.Name()
-}
-
-func (c *Command) Init(args []string) error {
-	return c.fs.Parse(args)
 }
