@@ -142,7 +142,8 @@
             "args": [
                 "handle",
                 "--hook",
-                "prepare-commit-msg"
+                "prepare-commit-msg",
+                "${workspaceFolder}/.vscode/debug-data/message.txt"
             ]
         },
         {
