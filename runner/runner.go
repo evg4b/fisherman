@@ -8,6 +8,7 @@ import (
 	"fisherman/constants"
 	"fisherman/infrastructure/git"
 	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/reporter"
 	"flag"
 	"fmt"
 	"os"
@@ -16,17 +17,18 @@ import (
 
 type Runner struct {
 	fileAccessor io.FileAccessor
-	usr          *user.User
+	systemUser   *user.User
+	reporter     reporter.Reporter
 }
 
-func NewRunner(fileAccessor io.FileAccessor, usr *user.User) *Runner {
-	return &Runner{fileAccessor, usr}
+func NewRunner(fileAccessor io.FileAccessor, systemUser *user.User, reporter reporter.Reporter) *Runner {
+	return &Runner{fileAccessor, systemUser, reporter}
 }
 
 func (runner *Runner) Run(args []string) error {
 	commandList := registerCommands()
 	if len(args) < 2 {
-		fmt.Print(constants.Logo)
+		runner.reporter.Info(constants.Logo)
 		flag.Parse()
 		flag.PrintDefaults()
 		return nil
@@ -60,14 +62,14 @@ func (runner *Runner) buildContext(appPath string) (*commands.CliCommandContext,
 	if err != nil {
 		return nil, err
 	}
-	configInfo, err := config.LoadConfig(cwd, runner.usr, runner.fileAccessor)
+	configInfo, err := config.LoadConfig(cwd, runner.systemUser, runner.fileAccessor)
 	if err != nil {
 		return nil, err
 	}
 	context := commands.NewContext(commands.CliCommandContextParams{
 		RepoInfo:     info,
 		FileAccessor: runner.fileAccessor,
-		Usr:          runner.usr,
+		Usr:          runner.systemUser,
 		Cwd:          cwd,
 		AppPath:      appPath,
 		ConfigInfo:   configInfo,

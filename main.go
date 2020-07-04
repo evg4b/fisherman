@@ -2,6 +2,7 @@ package main
 
 import (
 	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/reporter"
 	"fisherman/runner"
 	"fmt"
 	"os"
@@ -12,7 +13,8 @@ func main() {
 	fileAccessor := io.NewFileAccessor()
 	usr, err := user.Current()
 	handleError(err)
-	r := runner.NewRunner(fileAccessor, usr)
+	consoleReporter := &reporter.ConsoleReporter{}
+	r := runner.NewRunner(fileAccessor, usr, consoleReporter)
 	handleError(r.Run(os.Args))
 }
 

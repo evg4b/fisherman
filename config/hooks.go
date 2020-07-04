@@ -1,15 +1,20 @@
 package config
 
+import (
+	"fisherman/common/rules"
+	. "fisherman/config/hooks"
+)
+
 type HooksConfig struct {
-	ApplyPatchMsgHook     *struct{} `yaml:"applypatch-msg,omitempty"`
-	CommitMsgHook         *struct{} `yaml:"commit-msg,omitempty"`
-	FsMonitorWatchmanHook *struct{} `yaml:"fsmonitor-watchman,omitempty"`
-	PostUpdateHook        *struct{} `yaml:"post-update,omitempty"`
-	PreApplyPatchHook     *struct{} `yaml:"pre-applypatch,omitempty"`
-	PreCommitHook         *struct{} `yaml:"pre-commit,omitempty"`
-	PrePushHook           *struct{} `yaml:"pre-push,omitempty"`
-	PreRebaseHook         *struct{} `yaml:"pre-rebase,omitempty"`
-	PreReceiveHook        *struct{} `yaml:"pre-receive,omitempty"`
-	PrepareCommitMsgHook  *struct{} `yaml:"prepare-commit-msg,omitempty"`
-	UpdateHook            *struct{} `yaml:"update,omitempty"`
+	ApplyPatchMsgHook     *ApplyPatchMsgHookConfig     `yaml:"applypatch-msg,omitempty"`
+	CommitMsgHook         *rules.CommitMsgHookConfig   `yaml:"commit-msg,omitempty"`
+	FsMonitorWatchmanHook *FsMonitorWatchmanHookConfig `yaml:"fsmonitor-watchman,omitempty"`
+	PostUpdateHook        *PostUpdateHookConfig        `yaml:"post-update,omitempty"`
+	PreApplyPatchHook     *PreApplyPatchHookConfig     `yaml:"pre-applypatch,omitempty"`
+	PreCommitHook         *PreCommitHookConfig         `yaml:"pre-commit,omitempty"`
+	PrePushHook           *PrePushHookConfig           `yaml:"pre-push,omitempty"`
+	PreRebaseHook         *PreRebaseHookConfig         `yaml:"pre-rebase,omitempty"`
+	PreReceiveHook        *PreReceiveHookConfig        `yaml:"pre-receive,omitempty"`
+	PrepareCommitMsgHook  *PrepareCommitMsgHookConfig  `yaml:"prepare-commit-msg,omitempty"`
+	UpdateHook            *UpdateHookConfig            `yaml:"update,omitempty"`
 }

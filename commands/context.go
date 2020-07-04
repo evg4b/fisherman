@@ -14,6 +14,7 @@ type Context interface {
 	GetCurrentUser() *user.User
 	GetCwd() string
 	GetAppInfo() *AppInfo
+	GetConfiguration() *config.FishermanConfig
 }
 
 type AppInfo struct {
@@ -37,6 +38,10 @@ type CliCommandContext struct {
 	path             string
 }
 
+func (ctx *CliCommandContext) GetConfiguration() *config.FishermanConfig {
+	return ctx.config
+}
+
 func (ctx *CliCommandContext) GetAppInfo() *AppInfo {
 	isRegistered, err := path.IsRegisteredInPath(ctx.path, ctx.appPath)
 	if err != nil {
@@ -48,7 +53,7 @@ func (ctx *CliCommandContext) GetAppInfo() *AppInfo {
 		LocalConfigPath:    ctx.localConfigPath,
 		RepoConfigPath:     ctx.repoConfigPath,
 		IsRegisteredInPath: isRegistered,
-		AppPath: ctx.appPath,
+		AppPath:            ctx.appPath,
 	}
 }
 

@@ -3,6 +3,7 @@ package handle
 import (
 	"fisherman/commands"
 	"flag"
+	"fmt"
 	"os"
 )
 
@@ -28,7 +29,11 @@ func (c *Command) Init(args []string) error {
 }
 
 func (c *Command) Run(ctx commands.Context) error {
-	c.header()
+	c.header(ctx)
+
+	dd := ctx.GetConfiguration()
+	fmt.Println(dd)
+
 	return nil
 }
 
@@ -36,11 +41,21 @@ func (c *Command) Name() string {
 	return c.fs.Name()
 }
 
-func (c *Command) header() {
+func (c *Command) header(ctx commands.Context) {
+	app := ctx.GetAppInfo()
 	info := HookInfo{
 		Hook:             c.hook,
-		GlobalConfigPath: "demo/",
+		GlobalConfigPath: formatNA(app.GlobalConfigPath),
+		LocalConfigPath:  formatNA(app.LocalConfigPath),
+		RepoConfigPath:   formatNA(app.RepoConfigPath),
 		Version:          "0.0.1",
 	}
 	printHookHeader(&info, os.Stdout)
+}
+
+func formatNA(path *string) string {
+	if path == nil {
+		return "N/A"
+	}
+	return *path
 }

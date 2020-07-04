@@ -3,7 +3,6 @@ package init
 import (
 	"fisherman/commands"
 	"flag"
-	"fmt"
 )
 
 type Command struct {

@@ -1,8 +1,13 @@
 package config
 
+import (
+	"fisherman/common/rules"
+)
+
 var DefaultConfig = FishermanConfig{
 	Hooks: HooksConfig{
-		PreCommitHook: &struct{}{},
-		CommitMsgHook: &struct{}{},
+		CommitMsgHook: &rules.CommitMsgHookConfig{
+			CommitPrefix: "[fisherman]",
+		},
 	},
 }
