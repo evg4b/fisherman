@@ -1,6 +1,7 @@
 package path
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -11,7 +12,7 @@ func IsRegisteredInPath(path, app string) (bool, error) {
 		return false, err
 	}
 
-	parts := strings.Split(path, ";")
+	parts := strings.Split(path, string(os.PathListSeparator))
 	for _, pathItem := range parts {
 		normalized, err := filepath.Abs(pathItem)
 		if err != nil {

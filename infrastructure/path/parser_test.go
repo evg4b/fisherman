@@ -1,6 +1,8 @@
 package path
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,11 +14,11 @@ func TestIsRegisteredInPath(t *testing.T) {
 		app      string
 		expected bool
 	}{
-		{path: "/bin/demo;/usr/test1;", app: "/bin/demo/fisherman", expected: true},
-		{path: "/bin/demo;/usr/test2;", app: "/bin/demo/fisherman.exe", expected: true},
-		{path: "/bin/demo;/usr/test3;", app: "/bin/demo/demo2/fisherman", expected: false},
-		{path: "/dev/demo;/usr/test4;", app: "/bin/fisherman/fisherman", expected: false},
-		{path: "/bin/demo;/usr/test5;", app: "/bin/fisherman", expected: false},
+		{path: makePath("/bin/demo", "/usr/test1"), app: "/bin/demo/fisherman", expected: true},
+		{path: makePath("/bin/demo", "/usr/test2", "/bin/demo"), app: "/bin/demo/fisherman.exe", expected: true},
+		{path: makePath("/bin/demo", "/usr/test3", "/bin/fisherman"), app: "/bin/demo/demo2/fisherman", expected: false},
+		{path: makePath("/dev/demo", "/usr/test4"), app: "/bin/fisherman/fisherman", expected: false},
+		{path: makePath("/bin/demo", "/usr/test5"), app: "/bin/fisherman", expected: false},
 	}
 
 	for _, tt := range testData {
@@ -26,4 +28,8 @@ func TestIsRegisteredInPath(t *testing.T) {
 			assert.Nil(t, err)
 		})
 	}
+}
+
+func makePath(paths ...string) string {
+	return strings.Join(paths, string(os.PathListSeparator))
 }
