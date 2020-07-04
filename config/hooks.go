@@ -1,13 +1,12 @@
 package config
 
 import (
-	"fisherman/common/rules"
 	. "fisherman/config/hooks"
 )
 
 type HooksConfig struct {
 	ApplyPatchMsgHook     *ApplyPatchMsgHookConfig     `yaml:"applypatch-msg,omitempty"`
-	CommitMsgHook         *rules.CommitMsgHookConfig   `yaml:"commit-msg,omitempty"`
+	CommitMsgHook         *CommitMsgHookConfig         `yaml:"commit-msg,omitempty"`
 	FsMonitorWatchmanHook *FsMonitorWatchmanHookConfig `yaml:"fsmonitor-watchman,omitempty"`
 	PostUpdateHook        *PostUpdateHookConfig        `yaml:"post-update,omitempty"`
 	PreApplyPatchHook     *PreApplyPatchHookConfig     `yaml:"pre-applypatch,omitempty"`

@@ -10,7 +10,9 @@ import (
 // Run executes application
 func (runner *Runner) Run(args []string) error {
 	if len(args) < 2 {
-		runner.reporter.Info(constants.Logo)
+		runner.reporter.PrintGraphics(constants.Logo, map[string]string{
+			"Version": constants.Version,
+		})
 		flag.Parse()
 		flag.PrintDefaults()
 		return nil
@@ -20,14 +22,14 @@ func (runner *Runner) Run(args []string) error {
 
 func (runner *Runner) runInternal(args []string, appPath string) error {
 	commandName := args[0]
-	context, err := runner.buildContext(appPath)
+	ctx, err := runner.buildContext(appPath)
 	if err != nil {
 		return err
 	}
 
 	for _, command := range runner.commandList {
 		if strings.EqualFold(command.Name(), commandName) {
-			return command.Run(context, args[1:])
+			return command.Run(ctx, args[1:])
 		}
 	}
 

@@ -2,7 +2,9 @@
     "cSpell.words": [
         "Unmarshl",
         "fsmonitor",
+        "fsmonitorwatchman",
         "initc",
+        "prerebase",
         "stretchr"
     ]
 }

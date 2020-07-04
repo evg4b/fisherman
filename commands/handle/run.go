@@ -11,13 +11,15 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = c.header(ctx)
-	if err != nil {
-		return err
+	if hookHandler, ok := c.handlers[c.hook]; ok {
+		err = c.header(ctx, c.hook)
+		if err != nil {
+			return err
+		}
+		hookHandler(ctx, ctx.GetConfiguration())
+		return nil
 	}
-	configuration := ctx.GetConfiguration()
-	fmt.Println(configuration)
-	return nil
+	return fmt.Errorf("%s is not valid hook name", c.hook)
 }
 
 func (c *Command) init(args []string) error {
