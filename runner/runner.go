@@ -29,7 +29,7 @@ func NewRunner(fileAccessor io.FileAccessor, systemUser *user.User, reporter rep
 		reporter,
 		[]commands.CliCommand{
 			initc.NewCommand(flag.ExitOnError),
-			handle.NewCommand(flag.ExitOnError, reporter),
+			handle.NewCommand(flag.ExitOnError, reporter, fileAccessor),
 		},
 		version,
 	}

@@ -1,7 +1,7 @@
 package handle
 
 import (
-	"fisherman/constants"
+	c "fisherman/constants"
 	handler "fisherman/handlers"
 	"fisherman/handlers/applypatchmsg"
 	"fisherman/handlers/commitmsg"
@@ -14,6 +14,7 @@ import (
 	"fisherman/handlers/prerebase"
 	"fisherman/handlers/prereceive"
 	"fisherman/handlers/update"
+	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/reporter"
 	"flag"
 )
@@ -28,23 +29,23 @@ type Command struct {
 }
 
 // NewCommand is constructor for handle command
-func NewCommand(handling flag.ErrorHandling, reporter reporter.Reporter) *Command {
+func NewCommand(handling flag.ErrorHandling, r reporter.Reporter, f io.FileAccessor) *Command {
 	fs := flag.NewFlagSet("handle", handling)
 	c := &Command{
 		fs:       fs,
-		reporter: reporter,
+		reporter: r,
 		handlers: map[string]handler.HookHandler{
-			constants.ApplyPatchMsgHook:     applypatchmsg.Handler,
-			constants.CommitMsgHook:         commitmsg.Handler,
-			constants.FsMonitorWatchmanHook: fsmonitorwatchman.Handler,
-			constants.PostUpdateHook:        postupdate.Handler,
-			constants.PreApplyPatchHook:     preapplypatch.Handler,
-			constants.PreCommitHook:         precommit.Handler,
-			constants.PrePushHook:           prepush.Handler,
-			constants.PreRebaseHook:         prerebase.Handler,
-			constants.PreReceiveHook:        prereceive.Handler,
-			constants.PrepareCommitMsgHook:  preparecommitmsg.Handler,
-			constants.UpdateHook:            update.Handler,
+			c.ApplyPatchMsgHook:     applypatchmsg.NewHandler(),
+			c.CommitMsgHook:         commitmsg.NewHandler(),
+			c.FsMonitorWatchmanHook: fsmonitorwatchman.NewHandler(),
+			c.PostUpdateHook:        postupdate.NewHandler(),
+			c.PreApplyPatchHook:     preapplypatch.NewHandler(),
+			c.PreCommitHook:         precommit.NewHandler(),
+			c.PrePushHook:           prepush.NewHandler(),
+			c.PreRebaseHook:         prerebase.NewHandler(),
+			c.PreReceiveHook:        prereceive.NewHandler(),
+			c.PrepareCommitMsgHook:  preparecommitmsg.NewHandler(f),
+			c.UpdateHook:            update.NewHandler(),
 		},
 	}
 	fs.StringVar(&c.hook, "hook", "", "")

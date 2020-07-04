@@ -2,11 +2,18 @@ package fsmonitorwatchman
 
 import (
 	"fisherman/commands/context"
-	"fisherman/config"
 	"fmt"
 )
 
+type Handler struct {
+}
+
+// NewHandler is constructor for applypatch-msg hook handler
+func NewHandler() *Handler {
+	return &Handler{}
+}
+
 // Handler is a handler for fsmonitor-watchman hook
-func Handler(ctx context.Context, config *config.FishermanConfig) {
+func (h *Handler) Execute(ctx context.Context, args []string) {
 	fmt.Print("fsmonitor-watchman")
 }

@@ -16,7 +16,7 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
-		hookHandler(ctx, ctx.GetConfiguration())
+		hookHandler.Execute(ctx, c.args)
 		return nil
 	}
 	return fmt.Errorf("%s is not valid hook name", c.hook)

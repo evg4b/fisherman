@@ -2,11 +2,18 @@ package applypatchmsg
 
 import (
 	"fisherman/commands/context"
-	"fisherman/config"
 	"fmt"
 )
 
 // Handler is a handler for applypatch-msg hook
-func Handler(ctx context.Context, config *config.FishermanConfig) {
+type Handler struct {
+}
+
+// NewHandler is constructor for applypatch-msg hook handler
+func NewHandler() *Handler {
+	return &Handler{}
+}
+
+func (h *Handler) Execute(ctx context.Context, args []string) {
 	fmt.Print("applypatch-msg")
 }
