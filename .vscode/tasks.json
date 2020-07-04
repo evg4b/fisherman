@@ -1,0 +1,77 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run all tests",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "test",
+                "./..."
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
+        },
+        {
+            "label": "Run all tests with converage",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "test",
+                "-cover",
+                "./..."
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
+        },
+        {
+            "label": "Build binary",
+            "type": "shell",
+            "command": "go",
+            "linux": {
+                "args": [
+                    "build",
+                    "-o",
+                    "fisherman",
+                    "${workspaceFolder}/main.go"
+                ]
+            },
+            "osx": {
+                "args": [
+                    "build",
+                    "-o",
+                    "fisherman",
+                    "${workspaceFolder}/main.go"
+                ]
+            },
+            "windows": {
+                "args": [
+                    "build",
+                    "-ldflags",
+                    "-X fisherman/constants.Version=${input:appVersion}",
+                    "-o",
+                    "fisherman.exe",
+                    "${workspaceFolder}/main.go"
+                ]
+            },
+            "problemMatcher": [
+                "$go"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "appVersion",
+            "type": "command",
+            "command": "shellCommand.execute",
+            "args": {
+                "command": "git describe --abbrev=0",
+                "cwd": "${workspaceFolder}"
+            }
+        }
+    ]
+}
