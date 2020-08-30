@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func (runner *Runner) buildContext(appPath string) (*context.CliCommandContext, error) {
+func (runner *Runner) createContext(appPath string) (*context.CliCommandContext, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err

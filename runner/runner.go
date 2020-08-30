@@ -3,7 +3,7 @@ package runner
 import (
 	"fisherman/commands"
 	"fisherman/commands/handle"
-	initc "fisherman/commands/init"
+	"fisherman/commands/init"
 	"fisherman/constants"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/reporter"
@@ -28,7 +28,7 @@ func NewRunner(fileAccessor io.FileAccessor, systemUser *user.User, reporter rep
 		systemUser,
 		reporter,
 		[]commands.CliCommand{
-			initc.NewCommand(flag.ExitOnError),
+			init.NewCommand(flag.ExitOnError),
 			handle.NewCommand(flag.ExitOnError, reporter, fileAccessor),
 		},
 		version,

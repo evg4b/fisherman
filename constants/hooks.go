@@ -25,7 +25,7 @@ var (
 	UpdateHook = "update"
 )
 
-// HooksNames is hook name list
+// HooksNames is hooks name list
 var HooksNames = []string{
 	ApplyPatchMsgHook,
 	CommitMsgHook,

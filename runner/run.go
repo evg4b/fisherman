@@ -22,7 +22,7 @@ func (runner *Runner) Run(args []string) error {
 
 func (runner *Runner) runInternal(args []string, appPath string) error {
 	commandName := args[0]
-	ctx, err := runner.buildContext(appPath)
+	ctx, err := runner.createContext(appPath)
 	if err != nil {
 		return err
 	}
