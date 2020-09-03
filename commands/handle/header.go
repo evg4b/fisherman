@@ -3,13 +3,15 @@ package handle
 import (
 	"fisherman/commands/context"
 	"fisherman/constants"
+	"fisherman/utils"
 )
 
-func (c *Command) header(ctx context.Context, hook string) error {
+func (c *Command) header(ctx *context.CommandContext, hook string) error {
 	app, err := ctx.GetAppInfo()
 	if err != nil {
 		return err
 	}
+
 	c.reporter.PrintGraphics(constants.HookHeader, map[string]string{
 		"Hook":             hook,
 		"GlobalConfigPath": formatNA(app.GlobalConfigPath),
@@ -20,9 +22,10 @@ func (c *Command) header(ctx context.Context, hook string) error {
 	return nil
 }
 
-func formatNA(path *string) string {
-	if path == nil {
+func formatNA(path string) string {
+	if utils.IsEmpty(path) {
 		return "N/A"
 	}
-	return *path
+
+	return path
 }

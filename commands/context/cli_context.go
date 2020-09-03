@@ -7,18 +7,18 @@ import (
 	"os/user"
 )
 
-// CliCommandContext is cli context structure
-type CliCommandContext struct {
+// CommandContext is cli context structure
+type CommandContext struct {
 	repoInfo         *git.RepositoryInfo
-	fileAccessor     io.FileAccessor
 	usr              *user.User
 	cwd              string
 	config           *config.FishermanConfig
 	appPath          string
-	globalConfigPath *string
-	repoConfigPath   *string
-	localConfigPath  *string
+	globalConfigPath string
+	repoConfigPath   string
+	localConfigPath  string
 	path             string
+	FileAccessor     io.FileAccessor
 }
 
 // CliCommandContextParams is structure for params in cli command context constructor
@@ -33,11 +33,10 @@ type CliCommandContextParams struct {
 }
 
 // NewContext constructor for cli command context
-func NewContext(params CliCommandContextParams) *CliCommandContext {
+func NewContext(params CliCommandContextParams) *CommandContext {
 	configInfo := params.ConfigInfo
-	return &CliCommandContext{
+	return &CommandContext{
 		params.RepoInfo,
-		params.FileAccessor,
 		params.Usr,
 		params.Cwd,
 		configInfo.Config,
@@ -46,5 +45,6 @@ func NewContext(params CliCommandContextParams) *CliCommandContext {
 		configInfo.RepoConfigPath,
 		configInfo.LocalConfigPath,
 		params.Path,
+		params.FileAccessor,
 	}
 }

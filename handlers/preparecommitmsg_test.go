@@ -1,4 +1,4 @@
-package preparecommitmsg
+package handlers
 
 import (
 	"testing"

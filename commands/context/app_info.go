@@ -6,17 +6,18 @@ import "fisherman/infrastructure/path"
 type AppInfo struct {
 	AppPath            string
 	IsRegisteredInPath bool
-	GlobalConfigPath   *string
-	RepoConfigPath     *string
-	LocalConfigPath    *string
+	GlobalConfigPath   string
+	RepoConfigPath     string
+	LocalConfigPath    string
 }
 
 // GetAppInfo returns application info structure
-func (ctx *CliCommandContext) GetAppInfo() (*AppInfo, error) {
+func (ctx *CommandContext) GetAppInfo() (*AppInfo, error) {
 	isRegistered, err := path.IsRegisteredInPath(ctx.path, ctx.appPath)
 	if err != nil {
 		return nil, err
 	}
+
 	return &AppInfo{
 		GlobalConfigPath:   ctx.globalConfigPath,
 		LocalConfigPath:    ctx.localConfigPath,

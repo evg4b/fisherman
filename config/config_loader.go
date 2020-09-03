@@ -2,6 +2,8 @@ package config
 
 import (
 	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/logger"
+	"fisherman/utils"
 	"fmt"
 	"os/user"
 	"path/filepath"
@@ -13,13 +15,15 @@ const configFileName = ".fisherman.yaml"
 
 type LoadInfo struct {
 	Config           *FishermanConfig
-	GlobalConfigPath *string
-	RepoConfigPath   *string
-	LocalConfigPath  *string
+	GlobalConfigPath string
+	RepoConfigPath   string
+	LocalConfigPath  string
 }
 
 func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*LoadInfo, error) {
-	config := FishermanConfig{}
+	config := FishermanConfig{
+		Output: logger.DefaultOutputConfig,
+	}
 
 	global, err := unmarshlIfExist(cwd, usr, GlobalMode, accessor, &config)
 	if err != nil {
@@ -42,34 +46,38 @@ func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*LoadInfo
 	}, nil
 }
 
-func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (*string, error) {
+func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (string, error) {
 	path, err := getPathIfExist(cwd, usr, mode, accessor)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	if path != nil {
-		data, err := accessor.ReadFile(*path)
+
+	if !utils.IsEmpty(path) {
+		data, err := accessor.ReadFile(path)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
+
 		err = yaml.Unmarshal([]byte(data), config)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
+
 		return path, nil
 	}
-	return nil, nil
+
+	return "", nil
 }
 
-func getPathIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor) (*string, error) {
+func getPathIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor) (string, error) {
 	path, err := BuildFileConfigPath(cwd, usr, mode)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if accessor.FileExist(path) {
-		return &path, nil
+		return path, nil
 	}
-	return nil, nil
+	return "", nil
 }
 
 func BuildFileConfigPath(cwd string, usr *user.User, mode string) (string, error) {

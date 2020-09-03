@@ -1,40 +1,31 @@
-package preparecommitmsg
+package handlers
 
 import (
 	"fisherman/commands/context"
-	"fisherman/infrastructure/io"
 	"regexp"
 	"strings"
 )
 
-// Handler is structure for storage information about prepare-commit-msg hook handler
-type Handler struct {
-	fileAccessor io.FileAccessor
-}
-
-// NewHandler is constructor for prepare-commit-msg hook handler
-func NewHandler(fileAccessor io.FileAccessor) *Handler {
-	return &Handler{fileAccessor}
-}
-
-// Execute is a execute function for prepare-commit-msg hook
-func (h *Handler) Execute(ctx context.Context, args []string) {
-	config := ctx.GetConfiguration()
+// PrepareCommitMsgHandler is a execute function for prepare-commit-msg hook
+func PrepareCommitMsgHandler(ctx *context.CommandContext, args []string) error {
+	config := ctx.GetHookConfiguration()
 	info, err := ctx.GetGitInfo()
 	if err != nil {
 		panic(err)
 	}
 
-	c := config.Hooks.PrepareCommitMsgHook
+	c := config.PrepareCommitMsgHook
 	if c != nil {
 		message, isPresented := getPreparedMessage(c.Message, c.BranchRegExp, info.CurrentBranch)
 		if isPresented {
-			err = h.fileAccessor.WriteFile(args[0], message)
+			err = ctx.FileAccessor.WriteFile(args[0], message)
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
+
+	return nil
 }
 
 func getPreparedMessage(message, regexpString, branch string) (string, bool) {

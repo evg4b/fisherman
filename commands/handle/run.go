@@ -6,7 +6,7 @@ import (
 )
 
 // Run executes handle command
-func (c *Command) Run(ctx context.Context, args []string) error {
+func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 	err := c.init(args)
 	if err != nil {
 		return err
@@ -16,7 +16,7 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 		if err != nil {
 			return err
 		}
-		hookHandler.Execute(ctx, c.args)
+		hookHandler(ctx, c.args)
 		return nil
 	}
 	return fmt.Errorf("%s is not valid hook name", c.hook)

@@ -24,23 +24,24 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 }
 
 // Run executes init command
-func (c *Command) Run(ctx context.Context, args []string) error {
+func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 	c.fs.Parse(args)
-	accessor := ctx.GetFileAccessor()
 	info, err := ctx.GetGitInfo()
 	if err != nil {
 		return err
 	}
+
 	appInfo, err := ctx.GetAppInfo()
 	if err != nil {
 		return err
 	}
-	err = writeHooks(info.Path, appInfo, accessor, c.force)
+
+	err = writeHooks(info.Path, appInfo, ctx.FileAccessor, c.force)
 	if err != nil {
 		return err
 	}
 
-	err = writeFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, accessor)
+	err = writeFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, ctx.FileAccessor)
 	if err != nil {
 		return err
 	}

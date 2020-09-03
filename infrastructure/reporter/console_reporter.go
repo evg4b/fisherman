@@ -2,33 +2,37 @@ package reporter
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
-
-	"github.com/gookit/color"
 )
 
 // ConsoleReporter is implementation of Reporter to conminicate with console
 type ConsoleReporter struct {
 }
 
+// NewConsoleReporter returns new instance of ConsoleReporter
+func NewConsoleReporter() *ConsoleReporter {
+	return &ConsoleReporter{}
+}
+
 // ValidationError prints information about failed rule
 func (c *ConsoleReporter) ValidationError(rule, message string) {
-	color.Warn.Printf("⛔ [rule: %s] %s", rule, message)
+	fmt.Printf("⛔ [rule: %s] %s", rule, message)
 }
 
 // Error prints information about application error
 func (c *ConsoleReporter) Error(message string) {
-	color.Red.Printf("⛔ %s", message)
+	fmt.Printf("⛔ %s", message)
 }
 
 // Info prints information message
 func (c *ConsoleReporter) Info(message string) {
-	color.White.Print(message)
+	fmt.Print(message)
 }
 
 // Debug prints debug message
 func (c *ConsoleReporter) Debug(message string) {
-	color.Gray.Printf(message)
+	fmt.Printf(message)
 }
 
 // PrintGraphics prints template by structure data
@@ -41,5 +45,5 @@ func (c *ConsoleReporter) PrintGraphics(content string, data interface{}) {
 	if err := tpl.Execute(&buff, data); err != nil {
 		panic(err)
 	}
-	color.White.Print(buff.String())
+	fmt.Print(buff.String())
 }

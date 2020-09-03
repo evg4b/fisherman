@@ -2,18 +2,8 @@ package handle
 
 import (
 	c "fisherman/constants"
+	"fisherman/handlers"
 	handler "fisherman/handlers"
-	"fisherman/handlers/applypatchmsg"
-	"fisherman/handlers/commitmsg"
-	"fisherman/handlers/fsmonitorwatchman"
-	"fisherman/handlers/postupdate"
-	"fisherman/handlers/preapplypatch"
-	"fisherman/handlers/precommit"
-	"fisherman/handlers/preparecommitmsg"
-	"fisherman/handlers/prepush"
-	"fisherman/handlers/prerebase"
-	"fisherman/handlers/prereceive"
-	"fisherman/handlers/update"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/reporter"
 	"flag"
@@ -35,17 +25,17 @@ func NewCommand(handling flag.ErrorHandling, r reporter.Reporter, f io.FileAcces
 		fs:       fs,
 		reporter: r,
 		handlers: map[string]handler.HookHandler{
-			c.ApplyPatchMsgHook:     applypatchmsg.NewHandler(),
-			c.CommitMsgHook:         commitmsg.NewHandler(),
-			c.FsMonitorWatchmanHook: fsmonitorwatchman.NewHandler(),
-			c.PostUpdateHook:        postupdate.NewHandler(),
-			c.PreApplyPatchHook:     preapplypatch.NewHandler(),
-			c.PreCommitHook:         precommit.NewHandler(),
-			c.PrePushHook:           prepush.NewHandler(),
-			c.PreRebaseHook:         prerebase.NewHandler(),
-			c.PreReceiveHook:        prereceive.NewHandler(),
-			c.PrepareCommitMsgHook:  preparecommitmsg.NewHandler(f),
-			c.UpdateHook:            update.NewHandler(),
+			c.ApplyPatchMsgHook:     handlers.ApplyPatchMsgHandler,
+			c.CommitMsgHook:         handlers.CommitMsgHandler,
+			c.FsMonitorWatchmanHook: handlers.FsMonitorWatchmanHandler,
+			c.PostUpdateHook:        handlers.PostUpdateHandler,
+			c.PreApplyPatchHook:     handlers.PreApplyPatchHandler,
+			c.PreCommitHook:         handlers.PreCommitHandler,
+			c.PrePushHook:           handlers.PrePushHandler,
+			c.PreRebaseHook:         handlers.PreRebaseHandler,
+			c.PreReceiveHook:        handlers.PreReceiveHandler,
+			c.PrepareCommitMsgHook:  handlers.PrepareCommitMsgHandler,
+			c.UpdateHook:            handlers.UpdateHandler,
 		},
 	}
 	fs.StringVar(&c.hook, "hook", "", "")
