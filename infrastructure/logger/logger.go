@@ -1,7 +1,10 @@
 package logger
 
 type Logger interface {
-	Debug(message string)
-	Error(message string)
-	Info(message string)
+	Debug(params ...interface{})
+	Debugf(message string, params ...interface{})
+	Error(params ...interface{})
+	Errorf(message string, params ...interface{})
+	Info(params ...interface{})
+	Infof(message string, params ...interface{})
 }

@@ -1,8 +1,11 @@
 {
     "cSpell.words": [
+        "Debugf",
+        "Infof",
         "Unmarshl",
         "fsmonitor",
         "fsmonitorwatchman",
+        "hashicorp",
         "initc",
         "prerebase",
         "stretchr"

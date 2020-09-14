@@ -14,8 +14,6 @@ const (
 	Error
 )
 
-type Printer = func(format string, a ...interface{})
-
 type ConsoleLogger struct {
 	level        LogLevel
 	errorPrinter color.Color
@@ -40,20 +38,38 @@ func NewConsoleLooger(configuration OutputConfig) *ConsoleLogger {
 	return &logger
 }
 
-func (logger *ConsoleLogger) Debug(message string) {
+func (logger *ConsoleLogger) Debug(params ...interface{}) {
 	if logger.level >= Debug {
-		logger.debugPrinter.Println(message)
+		logger.debugPrinter.Println(params)
 	}
 }
 
-func (logger *ConsoleLogger) Error(message string) {
+func (logger *ConsoleLogger) Debugf(message string, params ...interface{}) {
+	if logger.level >= Debug {
+		logger.debugPrinter.Printf(message, params...)
+	}
+}
+
+func (logger *ConsoleLogger) Error(params ...interface{}) {
 	if logger.level >= Error {
-		logger.errorPrinter.Println(message)
+		logger.errorPrinter.Println(params)
 	}
 }
 
-func (logger *ConsoleLogger) Info(message string) {
+func (logger *ConsoleLogger) Errorf(message string, params ...interface{}) {
+	if logger.level >= Error {
+		logger.errorPrinter.Printf(message, params...)
+	}
+}
+
+func (logger *ConsoleLogger) Info(params ...interface{}) {
 	if logger.level >= Info {
-		logger.infoPrinter.Println(message)
+		logger.infoPrinter.Println(params)
+	}
+}
+
+func (logger *ConsoleLogger) Infof(message string, params ...interface{}) {
+	if logger.level >= Info {
+		logger.infoPrinter.Printf(message, params...)
 	}
 }

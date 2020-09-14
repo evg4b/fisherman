@@ -17,6 +17,7 @@ func (runner *Runner) Run(args []string) error {
 		flag.PrintDefaults()
 		return nil
 	}
+
 	return runner.runInternal(args[1:], args[0])
 }
 
@@ -33,5 +34,5 @@ func (runner *Runner) runInternal(args []string, appPath string) error {
 		}
 	}
 
-	return fmt.Errorf("unknown command: %s", commandName)
+	return fmt.Errorf("Unknown command: %s", commandName)
 }

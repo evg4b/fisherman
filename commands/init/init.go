@@ -2,6 +2,7 @@ package init
 
 import (
 	"fisherman/commands/context"
+	"fisherman/config"
 	"flag"
 )
 
@@ -41,7 +42,12 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 		return err
 	}
 
-	err = writeFishermanConfig(info.Path, ctx.GetCurrentUser(), c.mode, ctx.FileAccessor)
+	configPath, err := config.BuildFileConfigPath(info.Path, ctx.GetCurrentUser(), c.mode)
+	if err != nil {
+		return err
+	}
+
+	err = writeFishermanConfig(configPath, ctx.FileAccessor)
 	if err != nil {
 		return err
 	}

@@ -11,6 +11,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	if hookHandler, ok := c.handlers[c.hook]; ok {
 		err = c.header(ctx, c.hook)
 		if err != nil {
@@ -19,7 +20,8 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 		hookHandler(ctx, c.args)
 		return nil
 	}
-	return fmt.Errorf("%s is not valid hook name", c.hook)
+
+	return fmt.Errorf("'%s' is not valid hook name", c.hook)
 }
 
 func (c *Command) init(args []string) error {
@@ -27,5 +29,6 @@ func (c *Command) init(args []string) error {
 	if err == nil {
 		c.args = c.fs.Args()
 	}
+
 	return err
 }
