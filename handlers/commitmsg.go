@@ -5,6 +5,7 @@ import (
 	"fisherman/config/hooks"
 	"fisherman/utils"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -45,18 +46,30 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 	var result *multierror.Error
 
 	if config.NotEmpty && utils.IsEmpty(message) {
-		err := fmt.Errorf("Commit comment should not be empty")
+		err := fmt.Errorf("Commit message should not be empty")
 		result = multierror.Append(result, err)
 	}
 
 	if !utils.IsEmpty(config.CommitPrefix) && !strings.HasPrefix(message, config.CommitPrefix) {
-		err := fmt.Errorf("Commit should have prefix '%s'", config.CommitPrefix)
+		err := fmt.Errorf("Commit message should have prefix '%s'", config.CommitPrefix)
 		result = multierror.Append(result, err)
 	}
 
 	if !utils.IsEmpty(config.CommitSuffix) && !strings.HasSuffix(message, config.CommitSuffix) {
-		err := fmt.Errorf("Commit should have suffix '%s'", config.CommitSuffix)
+		err := fmt.Errorf("Commit message should have suffix '%s'", config.CommitSuffix)
 		result = multierror.Append(result, err)
+	}
+
+	if !utils.IsEmpty(config.CommitRegexp) {
+		matched, err := regexp.MatchString(config.CommitRegexp, message)
+		if err != nil {
+			panic(err)
+		}
+
+		if !matched {
+			err := fmt.Errorf("Commit message should be matched regular expression '%s'", config.CommitRegexp)
+			result = multierror.Append(result, err)
+		}
 	}
 
 	return result

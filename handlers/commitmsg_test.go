@@ -10,7 +10,7 @@ import (
 )
 
 func TestValidateMessageNotEmpty(t *testing.T) {
-	err := errors.New("Commit comment should not be empty")
+	err := errors.New("Commit message should not be empty")
 	testData := []struct {
 		message  string
 		notEmpty bool
@@ -27,13 +27,16 @@ func TestValidateMessageNotEmpty(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(tt.message, func(t *testing.T) {
-			assertMultiError(t, validateMessage(tt.message, &hooks.CommitMsgHookConfig{NotEmpty: tt.notEmpty}), tt.err)
+			actualError := validateMessage(tt.message, &hooks.CommitMsgHookConfig{NotEmpty: tt.notEmpty})
+			assertMultiError(t, actualError, tt.err)
 		})
 	}
 }
 
 func TestValidateMessageCommitPrefix(t *testing.T) {
-	err := errors.New("Commit should have prefix '[prefix]'")
+	err := errors.New("Commit message should have prefix '[prefix]'")
+	config := hooks.CommitMsgHookConfig{CommitPrefix: "[prefix]"}
+
 	testData := []struct {
 		message string
 		err     error
@@ -46,13 +49,16 @@ func TestValidateMessageCommitPrefix(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(tt.message, func(t *testing.T) {
-			assertMultiError(t, validateMessage(tt.message, &hooks.CommitMsgHookConfig{CommitPrefix: "[prefix]"}), tt.err)
+			actualError := validateMessage(tt.message, &config)
+			assertMultiError(t, actualError, tt.err)
 		})
 	}
 }
 
 func TestValidateMessageCommitSuffix(t *testing.T) {
-	err := errors.New("Commit should have suffix '[suffix]'")
+	err := errors.New("Commit message should have suffix '[suffix]'")
+	config := hooks.CommitMsgHookConfig{CommitSuffix: "[suffix]"}
+
 	testData := []struct {
 		message string
 		err     error
@@ -65,7 +71,28 @@ func TestValidateMessageCommitSuffix(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(tt.message, func(t *testing.T) {
-			assertMultiError(t, validateMessage(tt.message, &hooks.CommitMsgHookConfig{CommitSuffix: "[suffix]"}), tt.err)
+			actualError := validateMessage(tt.message, &config)
+			assertMultiError(t, actualError, tt.err)
+		})
+	}
+}
+
+func TestValidateMessageCommitRegexp(t *testing.T) {
+	testData := []struct {
+		message string
+		regexp  string
+		err     error
+	}{
+		{message: "message", regexp: "", err: nil},
+		{message: "Message", regexp: "^[a-z]*$", err: errors.New("Commit message should be matched regular expression '^[a-z]*$'")},
+		{message: "message", regexp: "^[a-z]*$", err: nil},
+	}
+
+	for _, tt := range testData {
+		t.Run(tt.message, func(t *testing.T) {
+			config := hooks.CommitMsgHookConfig{CommitRegexp: tt.regexp}
+			actualError := validateMessage(tt.message, &config)
+			assertMultiError(t, actualError, tt.err)
 		})
 	}
 }
