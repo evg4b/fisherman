@@ -25,17 +25,17 @@ var (
 	UpdateHook = "update"
 )
 
-// HooksNames is hooks name list
+// HooksNames is list of available hook names
 var HooksNames = []string{
-	ApplyPatchMsgHook,
+	// ApplyPatchMsgHook,
 	CommitMsgHook,
-	FsMonitorWatchmanHook,
-	PostUpdateHook,
-	PreApplyPatchHook,
+	// FsMonitorWatchmanHook,
+	// PostUpdateHook,
+	// PreApplyPatchHook,
 	PreCommitHook,
-	PrePushHook,
-	PreRebaseHook,
-	PreReceiveHook,
-	PrepareCommitMsgHook,
-	UpdateHook,
+	// PrePushHook,
+	// PreRebaseHook,
+	// PreReceiveHook,
+	// PrepareCommitMsgHook,
+	// UpdateHook,
 }
