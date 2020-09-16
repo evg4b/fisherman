@@ -5,7 +5,6 @@ import (
 	"fisherman/handlers"
 	handler "fisherman/handlers"
 	"fisherman/infrastructure/io"
-	"fisherman/infrastructure/reporter"
 	"flag"
 )
 
@@ -14,16 +13,14 @@ type Command struct {
 	fs       *flag.FlagSet
 	hook     string
 	args     []string
-	reporter reporter.Reporter
 	handlers map[string]handler.HookHandler
 }
 
 // NewCommand is constructor for handle command
-func NewCommand(handling flag.ErrorHandling, r reporter.Reporter, f io.FileAccessor) *Command {
+func NewCommand(handling flag.ErrorHandling, f io.FileAccessor) *Command {
 	fs := flag.NewFlagSet("handle", handling)
 	c := &Command{
-		fs:       fs,
-		reporter: r,
+		fs: fs,
 		handlers: map[string]handler.HookHandler{
 			c.ApplyPatchMsgHook:     handlers.ApplyPatchMsgHandler,
 			c.CommitMsgHook:         handlers.CommitMsgHandler,

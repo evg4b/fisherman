@@ -3,7 +3,6 @@ package main
 import (
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
-	"fisherman/infrastructure/reporter"
 	"fisherman/runner"
 	"os"
 	"os/user"
@@ -17,8 +16,7 @@ func main() {
 	})
 	usr, err := user.Current()
 	handleError(err, log)
-	rpt := reporter.NewConsoleReporter()
-	r := runner.NewRunner(fileAccessor, usr, rpt)
+	r := runner.NewRunner(fileAccessor, usr, log)
 	handleError(r.Run(os.Args), log)
 }
 

@@ -1,5 +1,7 @@
 package logger
 
+import "io"
+
 // LogLevel is type for determinate log level for console logger
 type LogLevel int
 
@@ -13,6 +15,7 @@ const (
 
 // Logger is interface for information logger
 type Logger interface {
+	io.Writer
 	// Debug prints diagnostic message to output.
 	// Output can be skepped when log level is `Info`, `Error` or `None`.
 	Debug(params ...interface{})

@@ -86,3 +86,9 @@ func (logger *ConsoleLogger) Infof(message string, params ...interface{}) {
 		logger.infoPrinter.Println(fmt.Sprintf(message, params...))
 	}
 }
+
+// Write is implementation io.Writer interface to comunicate with information output.
+// Output from this method can not be skipped by log level.
+func (logger *ConsoleLogger) Write(p []byte) (n int, err error) {
+	return logger.infoPrinter.Print(string(p))
+}

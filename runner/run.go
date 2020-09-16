@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fisherman/constants"
+	"fisherman/utils"
 	"flag"
 	"fmt"
 	"strings"
@@ -10,7 +11,7 @@ import (
 // Run executes application
 func (runner *Runner) Run(args []string) error {
 	if len(args) < 2 {
-		runner.reporter.PrintGraphics(constants.Logo, map[string]string{
+		utils.PrintGraphics(runner.logger, constants.Logo, map[string]string{
 			"Version": constants.Version,
 		})
 		flag.Parse()

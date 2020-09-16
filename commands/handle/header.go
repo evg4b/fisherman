@@ -12,7 +12,7 @@ func (c *Command) header(ctx *context.CommandContext, hook string) error {
 		return err
 	}
 
-	c.reporter.PrintGraphics(constants.HookHeader, map[string]string{
+	utils.PrintGraphics(ctx.Logger, constants.HookHeader, map[string]string{
 		"Hook":             hook,
 		"GlobalConfigPath": formatNA(app.GlobalConfigPath),
 		"LocalConfigPath":  formatNA(app.LocalConfigPath),
