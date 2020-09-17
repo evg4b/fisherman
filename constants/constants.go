@@ -20,7 +20,6 @@ var Logo = `
 
 // HookHeader is string width header for hook
 var HookHeader = `
-
            .d8d.  |
           d88888b | Hook: {{.Hook}}
           "Y888Y" | 

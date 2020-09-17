@@ -27,6 +27,7 @@ func TestPrintGraphics(t *testing.T) {
 			wantWr: "Template [this is demo] = this is test",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wr := &bytes.Buffer{}

@@ -6,20 +6,19 @@ import (
 	"fisherman/utils"
 )
 
-func (c *Command) header(ctx *context.CommandContext, hook string) error {
-	app, err := ctx.GetAppInfo()
+func header(ctx *context.CommandContext, hook string) {
+	appInfo, err := ctx.GetAppInfo()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	utils.PrintGraphics(ctx.Logger, constants.HookHeader, map[string]string{
 		"Hook":             hook,
-		"GlobalConfigPath": formatNA(app.GlobalConfigPath),
-		"LocalConfigPath":  formatNA(app.LocalConfigPath),
-		"RepoConfigPath":   formatNA(app.RepoConfigPath),
+		"GlobalConfigPath": formatNA(appInfo.GlobalConfigPath),
+		"LocalConfigPath":  formatNA(appInfo.LocalConfigPath),
+		"RepoConfigPath":   formatNA(appInfo.RepoConfigPath),
 		"Version":          constants.Version,
 	})
-	return nil
 }
 
 func formatNA(path string) string {

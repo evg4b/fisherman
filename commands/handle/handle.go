@@ -12,7 +12,6 @@ import (
 type Command struct {
 	fs       *flag.FlagSet
 	hook     string
-	args     []string
 	handlers map[string]handler.HookHandler
 }
 

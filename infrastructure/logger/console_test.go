@@ -33,7 +33,7 @@ func TestErrorWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Error message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Error(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
@@ -67,7 +67,7 @@ func TestErrorfWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Errorf message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Errorf(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})
@@ -94,7 +94,7 @@ func TestDebugWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Debug message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Debug(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
@@ -128,7 +128,7 @@ func TestDebugfWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Debugf message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Debugf(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})
@@ -155,7 +155,7 @@ func TestInfoWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Info message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Info(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
@@ -189,7 +189,7 @@ func TestInfofWithLogLevel(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Infof message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log := logger.NewConsoleLooger(logger.OutputConfig{LogLevel: tt.level})
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Infof(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})

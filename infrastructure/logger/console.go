@@ -15,8 +15,8 @@ type ConsoleLogger struct {
 	infoPrinter  color.Color
 }
 
-// NewConsoleLooger creates new instance of ConsoleLogger by passed configuration
-func NewConsoleLooger(configuration OutputConfig) *ConsoleLogger {
+// NewConsoleLogger creates new instance of ConsoleLogger by passed configuration
+func NewConsoleLogger(configuration OutputConfig) *ConsoleLogger {
 	logger := ConsoleLogger{
 		level:        configuration.LogLevel,
 		errorPrinter: *color.New(color.FgRed).Add(color.Bold),

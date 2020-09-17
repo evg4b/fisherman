@@ -7,19 +7,17 @@ import (
 	"os"
 )
 
-func (runner *Runner) createContext(appPath string) (*context.CommandContext, error) {
+func (runner *Runner) createContext(configInfo *config.LoadInfo, appPath string) (*context.CommandContext, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
+
 	info, err := git.GetRepositoryInfo(cwd)
 	if err != nil {
 		return nil, err
 	}
-	configInfo, err := config.LoadConfig(cwd, runner.systemUser, runner.fileAccessor)
-	if err != nil {
-		return nil, err
-	}
+
 	context := context.NewContext(context.CliCommandContextParams{
 		RepoInfo:     info,
 		FileAccessor: runner.fileAccessor,
@@ -27,6 +25,7 @@ func (runner *Runner) createContext(appPath string) (*context.CommandContext, er
 		Cwd:          cwd,
 		AppPath:      appPath,
 		ConfigInfo:   configInfo,
+		Logger:       runner.logger,
 	})
 	return context, nil
 }

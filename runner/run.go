@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/utils"
 	"flag"
@@ -9,7 +10,7 @@ import (
 )
 
 // Run executes application
-func (runner *Runner) Run(args []string) error {
+func (runner *Runner) Run(hooksConfig *config.LoadInfo, args []string) error {
 	if len(args) < 2 {
 		utils.PrintGraphics(runner.logger, constants.Logo, map[string]string{
 			"Version": constants.Version,
@@ -19,12 +20,12 @@ func (runner *Runner) Run(args []string) error {
 		return nil
 	}
 
-	return runner.runInternal(args[1:], args[0])
+	return runner.runInternal(hooksConfig, args[1:], args[0])
 }
 
-func (runner *Runner) runInternal(args []string, appPath string) error {
+func (runner *Runner) runInternal(conf *config.LoadInfo, args []string, appPath string) error {
 	commandName := args[0]
-	ctx, err := runner.createContext(appPath)
+	ctx, err := runner.createContext(conf, appPath)
 	if err != nil {
 		return err
 	}

@@ -1,28 +1,52 @@
 package main
 
 import (
+	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
 	"fisherman/runner"
+	"fmt"
 	"os"
 	"os/user"
+
+	"github.com/fatih/color"
 )
 
-func main() {
-	fileAccessor := io.NewFileAccessor()
-	log := logger.NewConsoleLooger(logger.OutputConfig{
-		LogLevel: logger.Debug,
-		Colors:   true,
-	})
-	usr, err := user.Current()
-	handleError(err, log)
-	r := runner.NewRunner(fileAccessor, usr, log)
-	handleError(r.Run(os.Args), log)
-}
+const fatalExitCode = 1
+const applicationErrorCode = 200
 
-func handleError(err error, log logger.Logger) {
+func main() {
+	defer panicInterceptor()
+	fileAccessor := io.NewFileAccessor()
+	usr, err := user.Current()
+	handleFatalError(err)
+	cwd, err := os.Getwd()
+	handleFatalError(err)
+	conf, err := config.LoadConfig(cwd, usr, fileAccessor)
+	handleFatalError(err)
+	log := logger.NewConsoleLogger(conf.Config.Output)
+	r := runner.NewRunner(fileAccessor, usr, log)
+
+	err = r.Run(conf, os.Args)
 	if err != nil {
 		log.Error(err)
+		os.Exit(applicationErrorCode)
+	}
+}
+
+func handleFatalError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func panicInterceptor() {
+	if err := recover(); err != nil {
+		print := color.New(color.BgRed, color.FgWhite).PrintlnFunc()
+		print("Fatal error:")
+		print(err)
+		os.Exit(fatalExitCode)
+		fmt.Fprintf(os.Stderr, "Exception: %v\n", err)
 		os.Exit(1)
 	}
 }
