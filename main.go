@@ -5,7 +5,7 @@ import (
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
 	"fisherman/runner"
-	"fmt"
+	"fisherman/utils"
 	"os"
 	"os/user"
 
@@ -19,24 +19,20 @@ func main() {
 	defer panicInterceptor()
 	fileAccessor := io.NewFileAccessor()
 	usr, err := user.Current()
-	handleFatalError(err)
+	utils.HandleCriticalError(err)
+
 	cwd, err := os.Getwd()
-	handleFatalError(err)
+	utils.HandleCriticalError(err)
+
 	conf, err := config.LoadConfig(cwd, usr, fileAccessor)
-	handleFatalError(err)
+	utils.HandleCriticalError(err)
+
 	log := logger.NewConsoleLogger(conf.Config.Output)
 	r := runner.NewRunner(fileAccessor, usr, log)
 
-	err = r.Run(conf, os.Args)
-	if err != nil {
+	if err = r.Run(conf, os.Args); err != nil {
 		log.Error(err)
 		os.Exit(applicationErrorCode)
-	}
-}
-
-func handleFatalError(err error) {
-	if err != nil {
-		panic(err)
 	}
 }
 
@@ -46,7 +42,5 @@ func panicInterceptor() {
 		print("Fatal error:")
 		print(err)
 		os.Exit(fatalExitCode)
-		fmt.Fprintf(os.Stderr, "Exception: %v\n", err)
-		os.Exit(1)
 	}
 }

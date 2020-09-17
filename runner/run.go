@@ -10,29 +10,23 @@ import (
 )
 
 // Run executes application
-func (runner *Runner) Run(hooksConfig *config.LoadInfo, args []string) error {
+func (runner *Runner) Run(conf *config.LoadInfo, args []string) error {
 	if len(args) < 2 {
-		utils.PrintGraphics(runner.logger, constants.Logo, map[string]string{
-			"Version": constants.Version,
-		})
+		utils.PrintGraphics(runner.logger, constants.Logo, constants.Version)
 		flag.Parse()
 		flag.PrintDefaults()
 		return nil
 	}
 
-	return runner.runInternal(hooksConfig, args[1:], args[0])
-}
+	appPath := args[0]
+	commandName := args[1]
 
-func (runner *Runner) runInternal(conf *config.LoadInfo, args []string, appPath string) error {
-	commandName := args[0]
 	ctx, err := runner.createContext(conf, appPath)
-	if err != nil {
-		return err
-	}
+	utils.HandleCriticalError(err)
 
 	for _, command := range runner.commandList {
 		if strings.EqualFold(command.Name(), commandName) {
-			return command.Run(ctx, args[1:])
+			return command.Run(ctx, args[2:])
 		}
 	}
 

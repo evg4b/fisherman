@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fisherman/commands/context"
+	"fisherman/utils"
 	"regexp"
 	"strings"
 )
@@ -10,18 +11,14 @@ import (
 func PrepareCommitMsgHandler(ctx *context.CommandContext, args []string) error {
 	config := ctx.GetHookConfiguration()
 	info, err := ctx.GetGitInfo()
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleCriticalError(err)
 
 	c := config.PrepareCommitMsgHook
 	if c != nil {
 		message, isPresented := getPreparedMessage(c.Message, c.BranchRegExp, info.CurrentBranch)
 		if isPresented {
 			err = ctx.FileAccessor.WriteFile(args[0], message)
-			if err != nil {
-				panic(err)
-			}
+			utils.HandleCriticalError(err)
 		}
 	}
 

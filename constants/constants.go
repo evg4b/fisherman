@@ -14,7 +14,7 @@ var Logo = `
  888    888      X88 888  888 Y8b.     888     888  888  888 888  888 888  888
  888    888  88888P' 888  888  "Y8888  888     888  888  888 "Y888888 888  888
 
-                         Fisherman version: {{.Version}}
+                         Fisherman version: {{.}}
 
 `
 

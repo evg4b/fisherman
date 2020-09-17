@@ -62,9 +62,7 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 
 	if !utils.IsEmpty(config.CommitRegexp) {
 		matched, err := regexp.MatchString(config.CommitRegexp, message)
-		if err != nil {
-			panic(err)
-		}
+		utils.HandleCriticalError(err)
 
 		if !matched {
 			err := fmt.Errorf("Commit message should be matched regular expression '%s'", config.CommitRegexp)

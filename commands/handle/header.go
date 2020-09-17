@@ -8,9 +8,7 @@ import (
 
 func header(ctx *context.CommandContext, hook string) {
 	appInfo, err := ctx.GetAppInfo()
-	if err != nil {
-		panic(err)
-	}
+	utils.HandleCriticalError(err)
 
 	utils.PrintGraphics(ctx.Logger, constants.HookHeader, map[string]string{
 		"Hook":             hook,
