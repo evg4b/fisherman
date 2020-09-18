@@ -10,7 +10,7 @@ import (
 )
 
 // Run executes application
-func (runner *Runner) Run(conf *config.LoadInfo, args []string) error {
+func (runner *Runner) Run(conf *config.FishermanConfig, args []string) error {
 	if len(args) < 2 {
 		utils.PrintGraphics(runner.logger, constants.Logo, constants.Version)
 		flag.Parse()
@@ -21,7 +21,7 @@ func (runner *Runner) Run(conf *config.LoadInfo, args []string) error {
 	appPath := args[0]
 	commandName := args[1]
 
-	ctx, err := runner.createContext(conf, appPath)
+	ctx, err := runner.createContext(runner.configInfo, appPath)
 	utils.HandleCriticalError(err)
 
 	for _, command := range runner.commandList {

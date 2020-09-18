@@ -4,14 +4,13 @@ import (
 	"fisherman/commands/context"
 	"fisherman/config"
 	"fisherman/infrastructure/git"
+	"fisherman/utils"
 	"os"
 )
 
 func (runner *Runner) createContext(configInfo *config.LoadInfo, appPath string) (*context.CommandContext, error) {
 	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+	utils.HandleCriticalError(err)
 
 	info, err := git.GetRepositoryInfo(cwd)
 	if err != nil {

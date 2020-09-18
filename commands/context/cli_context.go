@@ -5,22 +5,20 @@ import (
 	"fisherman/infrastructure/git"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/path"
+	"fisherman/utils"
 	"os/user"
 )
 
 // CommandContext is cli context structure
 type CommandContext struct {
-	repoInfo         *git.RepositoryInfo
-	usr              *user.User
-	cwd              string
-	config           *config.FishermanConfig
-	appPath          string
-	globalConfigPath string
-	repoConfigPath   string
-	localConfigPath  string
-	path             string
-	FileAccessor     io.FileAccessor
-	Logger           logger.Logger
+	repoInfo     *git.RepositoryInfo
+	usr          *user.User
+	cwd          string
+	config       *config.FishermanConfig
+	FileAccessor io.FileAccessor
+	Logger       logger.Logger
+	AppInfo      AppInfo
 }
 
 // CliCommandContextParams is structure for params in cli command context constructor
@@ -30,25 +28,28 @@ type CliCommandContextParams struct {
 	Usr          *user.User
 	Cwd          string
 	AppPath      string
+	Config       *config.FishermanConfig
 	ConfigInfo   *config.LoadInfo
 	Path         string
 	Logger       logger.Logger
 }
 
 // NewContext constructor for cli command context
-func NewContext(params CliCommandContextParams) *CommandContext {
-	configInfo := params.ConfigInfo
+func NewContext(args CliCommandContextParams) *CommandContext {
+	isRegisteredInPath, err := path.IsRegisteredInPath(args.Path, args.AppPath)
+	utils.HandleCriticalError(err)
 	return &CommandContext{
-		params.RepoInfo,
-		params.Usr,
-		params.Cwd,
-		configInfo.Config,
-		params.AppPath,
-		configInfo.GlobalConfigPath,
-		configInfo.RepoConfigPath,
-		configInfo.LocalConfigPath,
-		params.Path,
-		params.FileAccessor,
-		params.Logger,
+		args.RepoInfo,
+		args.Usr,
+		args.Cwd,
+		args.Config,
+		args.FileAccessor,
+		args.Logger,
+		AppInfo{
+			AppPath:            args.AppPath,
+			GlobalConfigPath:   args.ConfigInfo.GlobalConfigPath,
+			LocalConfigPath:    args.ConfigInfo.LocalConfigPath,
+			IsRegisteredInPath: isRegisteredInPath,
+		},
 	}
 }

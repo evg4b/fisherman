@@ -2,11 +2,9 @@ package runner
 
 import (
 	"fisherman/commands"
-	"fisherman/commands/handle"
-	initc "fisherman/commands/init"
+	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
-	"flag"
 	"os/user"
 )
 
@@ -16,17 +14,29 @@ type Runner struct {
 	fileAccessor io.FileAccessor
 	systemUser   *user.User
 	logger       logger.Logger
+	config       *config.FishermanConfig
+	configInfo   *config.LoadInfo
+}
+
+// CreateRunnerArgs is structure to pass arguments in constructor
+type CreateRunnerArgs struct {
+	CommandList  []commands.CliCommand
+	FileAccessor io.FileAccessor
+	SystemUser   *user.User
+	Logger       logger.Logger
+	Config       *config.FishermanConfig
+	ConfigInfo   *config.LoadInfo
 }
 
 // NewRunner is constructor for Runner
-func NewRunner(fileAccessor io.FileAccessor, systemUser *user.User, logger logger.Logger) *Runner {
+func NewRunner(args CreateRunnerArgs) *Runner {
+
 	return &Runner{
-		[]commands.CliCommand{
-			initc.NewCommand(flag.ExitOnError),
-			handle.NewCommand(flag.ExitOnError, fileAccessor),
-		},
-		fileAccessor,
-		systemUser,
-		logger,
+		args.CommandList,
+		args.FileAccessor,
+		args.SystemUser,
+		args.Logger,
+		args.Config,
+		args.ConfigInfo,
 	}
 }

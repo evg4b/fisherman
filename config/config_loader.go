@@ -13,37 +13,41 @@ import (
 
 const configFileName = ".fisherman.yaml"
 
+// LoadInfo is
 type LoadInfo struct {
-	Config           *FishermanConfig
 	GlobalConfigPath string
 	RepoConfigPath   string
 	LocalConfigPath  string
 }
 
-func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*LoadInfo, error) {
+// LoadConfig is demo
+func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*FishermanConfig, *LoadInfo, error) {
 	config := FishermanConfig{
 		Output: logger.DefaultOutputConfig,
 	}
 
 	global, err := unmarshlIfExist(cwd, usr, GlobalMode, accessor, &config)
 	if err != nil {
-		return nil, err
-	}
-	repo, err := unmarshlIfExist(cwd, usr, RepoMode, accessor, &config)
-	if err != nil {
-		return nil, err
-	}
-	local, err := unmarshlIfExist(cwd, usr, LocalMode, accessor, &config)
-	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &LoadInfo{
-		Config:           &config,
+	repo, err := unmarshlIfExist(cwd, usr, RepoMode, accessor, &config)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	local, err := unmarshlIfExist(cwd, usr, LocalMode, accessor, &config)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	loadInfo := &LoadInfo{
 		GlobalConfigPath: global,
 		RepoConfigPath:   repo,
 		LocalConfigPath:  local,
-	}, nil
+	}
+
+	return &config, loadInfo, nil
 }
 
 func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (string, error) {

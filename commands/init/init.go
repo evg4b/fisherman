@@ -32,12 +32,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 		return err
 	}
 
-	appInfo, err := ctx.GetAppInfo()
-	if err != nil {
-		return err
-	}
-
-	err = writeHooks(info.Path, appInfo, ctx.FileAccessor, c.force)
+	err = writeHooks(info.Path, &ctx.AppInfo, ctx.FileAccessor, c.force)
 	if err != nil {
 		return err
 	}

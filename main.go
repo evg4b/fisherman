@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fisherman/commands"
+	"fisherman/commands/handle"
+	initc "fisherman/commands/init"
 	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
 	"fisherman/runner"
 	"fisherman/utils"
+	"flag"
 	"os"
 	"os/user"
 
@@ -13,7 +17,7 @@ import (
 )
 
 const fatalExitCode = 1
-const applicationErrorCode = 200
+const applicationErrorCode = 2
 
 func main() {
 	defer panicInterceptor()
@@ -24,14 +28,24 @@ func main() {
 	cwd, err := os.Getwd()
 	utils.HandleCriticalError(err)
 
-	conf, err := config.LoadConfig(cwd, usr, fileAccessor)
+	conf, configInfo, err := config.LoadConfig(cwd, usr, fileAccessor)
 	utils.HandleCriticalError(err)
 
-	log := logger.NewConsoleLogger(conf.Config.Output)
-	r := runner.NewRunner(fileAccessor, usr, log)
+	loggerInstance := logger.NewConsoleLogger(conf.Output)
+	runnerInstance := runner.NewRunner(runner.CreateRunnerArgs{
+		CommandList: []commands.CliCommand{
+			initc.NewCommand(flag.ExitOnError),
+			handle.NewCommand(flag.ExitOnError, fileAccessor),
+		},
+		Config:       conf,
+		ConfigInfo:   configInfo,
+		FileAccessor: fileAccessor,
+		Logger:       loggerInstance,
+		SystemUser:   usr,
+	})
 
-	if err = r.Run(conf, os.Args); err != nil {
-		log.Error(err)
+	if err = runnerInstance.Run(conf, os.Args); err != nil {
+		loggerInstance.Error(err)
 		os.Exit(applicationErrorCode)
 	}
 }
