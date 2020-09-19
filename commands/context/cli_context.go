@@ -2,10 +2,10 @@ package context
 
 import (
 	"fisherman/config"
+	"fisherman/constants"
 	"fisherman/infrastructure/git"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
-	"fisherman/infrastructure/path"
 	"fisherman/utils"
 	"os/user"
 )
@@ -36,8 +36,6 @@ type CliCommandContextParams struct {
 
 // NewContext constructor for cli command context
 func NewContext(args CliCommandContextParams) *CommandContext {
-	isRegisteredInPath, err := path.IsRegisteredInPath(args.Path, args.AppPath)
-	utils.HandleCriticalError(err)
 	return &CommandContext{
 		args.RepoInfo,
 		args.Usr,
@@ -49,7 +47,7 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 			AppPath:            args.AppPath,
 			GlobalConfigPath:   args.ConfigInfo.GlobalConfigPath,
 			LocalConfigPath:    args.ConfigInfo.LocalConfigPath,
-			IsRegisteredInPath: isRegisteredInPath,
+			IsRegisteredInPath: utils.IsCommandExists(constants.AppConfigName),
 		},
 	}
 }
