@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/fatih/color"
 )
@@ -9,25 +10,29 @@ import (
 // ConsoleLogger is base structure for storage data for logger.
 // This structure implements `logger.Logger` and `io.Writer` interfaces.
 type ConsoleLogger struct {
-	level        LogLevel
-	errorPrinter color.Color
-	debugPrinter color.Color
-	infoPrinter  color.Color
+	level LogLevel
+	err   color.Color
+	dbg   color.Color
+	inf   color.Color
+}
+
+func stub(format string, a ...interface{}) string {
+	return fmt.Sprint(a...)
 }
 
 // NewConsoleLogger creates new instance of ConsoleLogger by passed configuration
 func NewConsoleLogger(configuration OutputConfig) *ConsoleLogger {
 	logger := ConsoleLogger{
-		level:        configuration.LogLevel,
-		errorPrinter: *color.New(color.FgRed).Add(color.Bold),
-		debugPrinter: *color.New(color.FgYellow),
-		infoPrinter:  *color.New(color.FgWhite),
+		level: configuration.LogLevel,
+		err:   *color.New(color.FgRed).Add(color.Bold),
+		dbg:   *color.New(color.FgYellow),
+		inf:   *color.New(color.FgWhite),
 	}
 
 	if !configuration.Colors {
-		logger.errorPrinter.DisableColor()
-		logger.debugPrinter.DisableColor()
-		logger.infoPrinter.DisableColor()
+		logger.err.DisableColor()
+		logger.dbg.DisableColor()
+		logger.inf.DisableColor()
 	}
 
 	return &logger
@@ -38,7 +43,7 @@ func NewConsoleLogger(configuration OutputConfig) *ConsoleLogger {
 // Color styles can be omitted when color paramerter is false.
 func (logger *ConsoleLogger) Debug(params ...interface{}) {
 	if logger.level <= Debug {
-		logger.debugPrinter.Println(params...)
+		log.Println(logger.dbg.Sprint(params...))
 	}
 }
 
@@ -47,7 +52,7 @@ func (logger *ConsoleLogger) Debug(params ...interface{}) {
 // Color styles can be omitted when color paramerter is false.
 func (logger *ConsoleLogger) Debugf(message string, params ...interface{}) {
 	if logger.level <= Debug {
-		logger.debugPrinter.Println(fmt.Sprintf(message, params...))
+		log.Println(logger.dbg.Sprintf(message, params...))
 	}
 }
 
@@ -56,7 +61,7 @@ func (logger *ConsoleLogger) Debugf(message string, params ...interface{}) {
 // Color styles can be omitted when color paramerter is false.
 func (logger *ConsoleLogger) Error(params ...interface{}) {
 	if logger.level <= Error {
-		logger.errorPrinter.Println(params...)
+		log.Println(logger.err.Sprint(params...))
 	}
 }
 
@@ -65,7 +70,7 @@ func (logger *ConsoleLogger) Error(params ...interface{}) {
 // Color styles can be omitted when color paramerter is false.s
 func (logger *ConsoleLogger) Errorf(message string, params ...interface{}) {
 	if logger.level <= Error {
-		logger.errorPrinter.Println(fmt.Sprintf(message, params...))
+		log.Println(logger.err.Sprintf(message, params...))
 	}
 }
 
@@ -74,7 +79,7 @@ func (logger *ConsoleLogger) Errorf(message string, params ...interface{}) {
 // Color styles can be omitted when color paramerter is false.
 func (logger *ConsoleLogger) Info(params ...interface{}) {
 	if logger.level <= Info {
-		logger.infoPrinter.Println(params...)
+		log.Println(logger.inf.Sprint(params...))
 	}
 }
 
@@ -83,12 +88,12 @@ func (logger *ConsoleLogger) Info(params ...interface{}) {
 // Color styles can be omitted when color paramerter is false.
 func (logger *ConsoleLogger) Infof(message string, params ...interface{}) {
 	if logger.level <= Info {
-		logger.infoPrinter.Println(fmt.Sprintf(message, params...))
+		log.Println(logger.inf.Sprintf(message, params...))
 	}
 }
 
 // Write is implementation io.Writer interface to comunicate with information output.
 // Output from this method can not be skipped by log level.
 func (logger *ConsoleLogger) Write(p []byte) (n int, err error) {
-	return logger.infoPrinter.Print(string(p))
+	return log.Writer().Write(p)
 }

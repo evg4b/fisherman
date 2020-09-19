@@ -10,6 +10,7 @@ import (
 	"fisherman/runner"
 	"fisherman/utils"
 	"flag"
+	"log"
 	"os"
 	"os/user"
 
@@ -24,7 +25,6 @@ func main() {
 	fileAccessor := io.NewFileAccessor()
 	usr, err := user.Current()
 	utils.HandleCriticalError(err)
-
 	cwd, err := os.Getwd()
 	utils.HandleCriticalError(err)
 
@@ -52,9 +52,10 @@ func main() {
 
 func panicInterceptor() {
 	if err := recover(); err != nil {
-		print := color.New(color.BgRed, color.FgWhite).PrintlnFunc()
-		print("Fatal error:")
-		print(err)
+		fatal := color.New(color.BgRed, color.FgWhite).SprintFunc()
+		log.SetOutput(color.Error)
+		log.Println(fatal("Fatal error:"))
+		log.Println(fatal(err))
 		os.Exit(fatalExitCode)
 	}
 }

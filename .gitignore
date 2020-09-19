@@ -15,3 +15,4 @@
 # vendor/
 .idea
 .fisherman.yaml
+.fisherman.yml

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fisherman/infrastructure/logger"
 	"fmt"
+	"log"
 	"testing"
 
-	"github.com/fatih/color"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,8 +14,7 @@ var formattingParams = []interface{}{1, "s", 44.3}
 var emptyParamas = []interface{}{}
 
 func TestErrorWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -41,8 +40,7 @@ func TestErrorWithLogLevel(t *testing.T) {
 }
 
 func TestErrorfWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -75,8 +73,7 @@ func TestErrorfWithLogLevel(t *testing.T) {
 }
 
 func TestDebugWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -102,8 +99,7 @@ func TestDebugWithLogLevel(t *testing.T) {
 }
 
 func TestDebugfWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -136,8 +132,7 @@ func TestDebugfWithLogLevel(t *testing.T) {
 }
 
 func TestInfoWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -163,8 +158,7 @@ func TestInfoWithLogLevel(t *testing.T) {
 }
 
 func TestInfofWithLogLevel(t *testing.T) {
-	output := bytes.NewBufferString("")
-	color.Output = output
+	output := mockLogModule()
 
 	testData := []struct {
 		message string
@@ -194,4 +188,11 @@ func TestInfofWithLogLevel(t *testing.T) {
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
+}
+
+func mockLogModule() *bytes.Buffer {
+	output := bytes.NewBufferString("")
+	log.SetOutput(output)
+	log.SetFlags(0)
+	return output
 }
