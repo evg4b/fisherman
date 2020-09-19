@@ -6,6 +6,6 @@ type AppInfo struct {
 	AppPath            string
 	IsRegisteredInPath bool
 	GlobalConfigPath   string
-	RepoConfigPath     string
 	LocalConfigPath    string
+	Cwd                string
 }

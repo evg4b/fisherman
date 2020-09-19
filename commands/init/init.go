@@ -4,6 +4,7 @@ import (
 	"fisherman/commands/context"
 	"fisherman/config"
 	"flag"
+	"fmt"
 )
 
 // Command is structure for storage information about init command
@@ -18,7 +19,8 @@ type Command struct {
 func NewCommand(handling flag.ErrorHandling) *Command {
 	fs := flag.NewFlagSet("init", handling)
 	c := &Command{fs: fs}
-	fs.StringVar(&c.mode, "mode", "repo", "(local,repo,global)")
+	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
+	fs.StringVar(&c.mode, "mode", config.RepoMode, modeMessage)
 	fs.BoolVar(&c.force, "force", false, "")
 	fs.BoolVar(&c.force, "absolute", false, "")
 	return c
@@ -27,22 +29,18 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 // Run executes init command
 func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 	c.fs.Parse(args)
-	info, err := ctx.GetGitInfo()
+
+	err := writeHooks(&ctx.AppInfo, ctx.FileAccessor, c.force)
 	if err != nil {
 		return err
 	}
 
-	err = writeHooks(info.Path, &ctx.AppInfo, ctx.FileAccessor, c.force)
+	configPath, err := config.BuildFileConfigPath(ctx.AppInfo.Cwd, ctx.User, c.mode)
 	if err != nil {
 		return err
 	}
 
-	configPath, err := config.BuildFileConfigPath(info.Path, ctx.GetCurrentUser(), c.mode)
-	if err != nil {
-		return err
-	}
-
-	err = writeFishermanConfig(configPath, ctx.FileAccessor)
+	err = writeFishermanConfig(ctx.FileAccessor, configPath)
 	if err != nil {
 		return err
 	}

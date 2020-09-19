@@ -13,9 +13,8 @@ import (
 // CommandContext is cli context structure
 type CommandContext struct {
 	repoInfo     *git.RepositoryInfo
-	usr          *user.User
-	cwd          string
 	config       *config.FishermanConfig
+	User         *user.User
 	FileAccessor io.FileAccessor
 	Logger       logger.Logger
 	AppInfo      AppInfo
@@ -38,9 +37,8 @@ type CliCommandContextParams struct {
 func NewContext(args CliCommandContextParams) *CommandContext {
 	return &CommandContext{
 		args.RepoInfo,
-		args.Usr,
-		args.Cwd,
 		args.Config,
+		args.Usr,
 		args.FileAccessor,
 		args.Logger,
 		AppInfo{
@@ -48,6 +46,7 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 			GlobalConfigPath:   args.ConfigInfo.GlobalConfigPath,
 			LocalConfigPath:    args.ConfigInfo.LocalConfigPath,
 			IsRegisteredInPath: utils.IsCommandExists(constants.AppConfigName),
+			Cwd:                args.Cwd,
 		},
 	}
 }

@@ -1,10 +1,15 @@
 package init
 
-import "strings"
+import (
+	"fisherman/constants"
+	"fmt"
+	"strings"
+)
 
 func buildHook(binaryPath, hookName string) string {
 	return rows([]string{
 		"#!/bin/sh",
+		fmt.Sprintf("# This is %s hook handler. Please DO NOT touch this file.", constants.AppName),
 		command([]string{binaryPath, "handle", "--hook", hookName, "$@"}),
 	})
 }

@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func writeFishermanConfig(configPath string, accessor io.FileAccessor) error {
+func writeFishermanConfig(accessor io.FileAccessor, configPath string) error {
 	if !accessor.FileExist(configPath) {
 		content, err := yaml.Marshal(config.DefaultConfig)
 		if err != nil {

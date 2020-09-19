@@ -31,3 +31,9 @@ var HookHeader = `
   "Y8988888P"     |
 
 `
+
+// AppName is command application name
+const AppName = "fisherman"
+
+// AppConfigName is string with config file name
+const AppConfigName = ".fisherman.yml"

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fisherman/constants"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
@@ -11,7 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const configFileName = ".fisherman.yaml"
+const gitDir = ".git"
 
 // LoadInfo is
 type LoadInfo struct {
@@ -84,15 +85,16 @@ func getPathIfExist(cwd string, usr *user.User, mode string, accessor io.FileAcc
 	return "", nil
 }
 
+// BuildFileConfigPath returns path to config by config mode
 func BuildFileConfigPath(cwd string, usr *user.User, mode string) (string, error) {
 	switch mode {
-	case "local":
-		return filepath.Join(cwd, ".git", configFileName), nil
-	case "repo":
-		return filepath.Join(cwd, configFileName), nil
-	case "global":
-		return filepath.Join(usr.HomeDir, configFileName), nil
+	case LocalMode:
+		return filepath.Join(cwd, gitDir, constants.AppConfigName), nil
+	case RepoMode:
+		return filepath.Join(cwd, constants.AppConfigName), nil
+	case GlobalMode:
+		return filepath.Join(usr.HomeDir, constants.AppConfigName), nil
 	default:
-		return "", fmt.Errorf("unknow mode")
+		return "", fmt.Errorf("Unknown config mode.")
 	}
 }

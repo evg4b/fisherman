@@ -26,5 +26,6 @@ func (runner *Runner) createContext(configInfo *config.LoadInfo, appPath string)
 		ConfigInfo:   configInfo,
 		Logger:       runner.logger,
 	})
+
 	return context, nil
 }

@@ -19,7 +19,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 			"Hook":             c.hook,
 			"GlobalConfigPath": utils.OriginalOrNA(ctx.AppInfo.GlobalConfigPath),
 			"LocalConfigPath":  utils.OriginalOrNA(ctx.AppInfo.LocalConfigPath),
-			"RepoConfigPath":   utils.OriginalOrNA(ctx.AppInfo.RepoConfigPath),
+			"RepoConfigPath":   utils.OriginalOrNA(ctx.AppInfo.Cwd),
 			"Version":          constants.Version,
 		})
 		return hookHandler(ctx, c.fs.Args())
