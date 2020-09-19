@@ -52,36 +52,17 @@ func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*Fisherma
 }
 
 func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (string, error) {
-	path, err := getPathIfExist(cwd, usr, mode, accessor)
-	if err != nil {
-		return "", err
-	}
-
-	if !utils.IsEmpty(path) {
-		data, err := accessor.ReadFile(path)
-		if err != nil {
-			return "", err
-		}
-
-		err = yaml.Unmarshal([]byte(data), config)
-		if err != nil {
-			return "", err
-		}
-
-		return path, nil
-	}
-
-	return "", nil
-}
-
-func getPathIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor) (string, error) {
 	path, err := BuildFileConfigPath(cwd, usr, mode)
-	if err != nil {
-		return "", err
-	}
+	utils.HandleCriticalError(err)
+
 	if accessor.FileExist(path) {
+		data, err := accessor.ReadFile(path)
+		utils.HandleCriticalError(err)
+		err = yaml.Unmarshal([]byte(data), config)
+		utils.HandleCriticalError(err)
 		return path, nil
 	}
+
 	return "", nil
 }
 

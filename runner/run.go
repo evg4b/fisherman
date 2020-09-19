@@ -29,8 +29,8 @@ func (runner *Runner) Run(conf *config.FishermanConfig, args []string) error {
 			ctx, err := runner.createContext(runner.configInfo, appPath)
 			utils.HandleCriticalError(err)
 			runner.logger.Debugf("Context for command '%s' was created", commandName)
-			if commandError := command.Run(ctx, args[2:]); commandError == nil {
-				runner.logger.Debugf("Command '%s' finished with error %e", commandName, commandError)
+			if commandError := command.Run(ctx, args[2:]); commandError != nil {
+				runner.logger.Debugf("Command '%s' finished with error", commandName)
 				return commandError
 			}
 
