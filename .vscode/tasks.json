@@ -61,6 +61,19 @@
             "problemMatcher": [
                 "$go"
             ]
+        },
+        {
+            "label": "Install",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "install",
+                "-ldflags",
+                "-X fisherman/constants.Version=${input:appVersion}",
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
         }
     ],
     "inputs": [
