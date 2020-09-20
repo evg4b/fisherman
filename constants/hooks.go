@@ -32,10 +32,10 @@ var HooksNames = []string{
 	// FsMonitorWatchmanHook,
 	// PostUpdateHook,
 	// PreApplyPatchHook,
-	PreCommitHook,
+	// PreCommitHook,
 	// PrePushHook,
 	// PreRebaseHook,
 	// PreReceiveHook,
-	// PrepareCommitMsgHook,
+	PrepareCommitMsgHook,
 	// UpdateHook,
 }
