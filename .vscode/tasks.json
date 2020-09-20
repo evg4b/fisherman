@@ -74,6 +74,18 @@
             "problemMatcher": [
                 "$go"
             ]
+        },
+        {
+            "label": "Generate mocks",
+            "type": "shell",
+            "command": "mockery",
+            "args": [
+                "--all",
+                "--keeptree",
+                "--case",
+                "underscore"
+            ],
+            "problemMatcher": []
         }
     ],
     "inputs": [

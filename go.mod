@@ -7,6 +7,7 @@ require (
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.0
+	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
 	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect

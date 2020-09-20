@@ -6,23 +6,23 @@ import (
 )
 
 type FileWriter interface {
-	WriteFile(path, content string) error
+	Write(path, content string) error
 }
 
 type FileReader interface {
-	ReadFile(path string) (string, error)
+	Read(path string) (string, error)
 }
 
 type FileAccessor interface {
 	FileWriter
 	FileReader
-	FileExist(path string) bool
+	Exist(path string) bool
 }
 
 type LocalFileAccessor struct {
 }
 
-func (f *LocalFileAccessor) FileExist(path string) bool {
+func (f *LocalFileAccessor) Exist(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return false
@@ -34,7 +34,7 @@ func NewFileAccessor() *LocalFileAccessor {
 	return &LocalFileAccessor{}
 }
 
-func (f *LocalFileAccessor) ReadFile(path string) (string, error) {
+func (f *LocalFileAccessor) Read(path string) (string, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
@@ -42,6 +42,6 @@ func (f *LocalFileAccessor) ReadFile(path string) (string, error) {
 	return string(data), nil
 }
 
-func (f *LocalFileAccessor) WriteFile(path, content string) error {
+func (f *LocalFileAccessor) Write(path, content string) error {
 	return ioutil.WriteFile(path, []byte(content), 0644)
 }

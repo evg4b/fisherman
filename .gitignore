@@ -16,3 +16,4 @@
 .idea
 .fisherman.yaml
 .fisherman.yml
+*.cov

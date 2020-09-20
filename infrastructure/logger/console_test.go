@@ -14,7 +14,7 @@ var formattingParams = []interface{}{1, "s", 44.3}
 var emptyParamas = []interface{}{}
 
 func TestErrorWithLogLevel(t *testing.T) {
-	output := mockLogModule()
+	t.Parallel()
 
 	testData := []struct {
 		message string
@@ -31,7 +31,7 @@ func TestErrorWithLogLevel(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Error message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
-			output.Reset()
+			output := mockLogModule()
 			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Error(tt.message)
 			assert.Equal(t, tt.output, output.String())
@@ -186,6 +186,29 @@ func TestInfofWithLogLevel(t *testing.T) {
 			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: tt.level})
 			log.Infof(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
+		})
+	}
+}
+
+func TestWrite(t *testing.T) {
+	output := mockLogModule()
+
+	testData := []string{
+		"demo",
+		"multiline demo\nmultiline demo\nmultiline demo",
+		"multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
+		"",
+		"\t\t\t",
+	}
+
+	for _, message := range testData {
+		t.Run(fmt.Sprintf("Write message '%s' correctly", message), func(t *testing.T) {
+			output.Reset()
+			log := logger.NewConsoleLogger(logger.OutputConfig{LogLevel: logger.Debug})
+			bytesCount, err := log.Write([]byte(message))
+			assert.Equal(t, message, output.String())
+			assert.NoError(t, err)
+			assert.Equal(t, len([]byte(message)), bytesCount)
 		})
 	}
 }

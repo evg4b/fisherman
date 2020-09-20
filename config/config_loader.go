@@ -55,8 +55,8 @@ func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAc
 	path, err := BuildFileConfigPath(cwd, usr, mode)
 	utils.HandleCriticalError(err)
 
-	if accessor.FileExist(path) {
-		data, err := accessor.ReadFile(path)
+	if accessor.Exist(path) {
+		data, err := accessor.Read(path)
 		utils.HandleCriticalError(err)
 		err = yaml.Unmarshal([]byte(data), config)
 		utils.HandleCriticalError(err)

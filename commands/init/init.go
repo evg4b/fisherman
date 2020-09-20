@@ -40,7 +40,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(ctx.AppInfo.Cwd, ".git", "hooks", hookName)
 			ctx.Logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
-			if ctx.FileAccessor.FileExist(hookPath) {
+			if ctx.Files.Exist(hookPath) {
 				ctx.Logger.Debugf("Hook '%s' already declared", hookName)
 				result = multierror.Append(result, fmt.Errorf("File %s already exists", hookPath))
 			}
@@ -59,7 +59,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(ctx.AppInfo.Cwd, ".git", "hooks", hookName)
-		err := ctx.FileAccessor.WriteFile(hookPath, buildHook(bin, hookName))
+		err := ctx.Files.Write(hookPath, buildHook(bin, hookName))
 		utils.HandleCriticalError(err)
 		ctx.Logger.Debugf("Hook '%s' (%s) was writted", hookName, hookPath)
 	}
@@ -67,7 +67,7 @@ func (c *Command) Run(ctx *context.CommandContext, args []string) error {
 	configPath, err := config.BuildFileConfigPath(ctx.AppInfo.Cwd, ctx.User, c.mode)
 	utils.HandleCriticalError(err)
 
-	err = writeFishermanConfig(ctx.FileAccessor, configPath)
+	err = writeFishermanConfig(ctx.Files, configPath)
 	utils.HandleCriticalError(err)
 
 	return err

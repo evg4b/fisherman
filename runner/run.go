@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fisherman/commands/context"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/utils"
@@ -26,8 +27,14 @@ func (runner *Runner) Run(conf *config.FishermanConfig, args []string) error {
 
 	for _, command := range runner.commandList {
 		if strings.EqualFold(command.Name(), commandName) {
-			ctx, err := runner.createContext(runner.configInfo, appPath)
-			utils.HandleCriticalError(err)
+			ctx := context.NewContext(context.CliCommandContextParams{
+				FileAccessor: runner.fileAccessor,
+				Usr:          runner.systemUser,
+				Cwd:          runner.cwd,
+				AppPath:      appPath,
+				ConfigInfo:   runner.configInfo,
+				Logger:       runner.logger,
+			})
 			runner.logger.Debugf("Context for command '%s' was created", commandName)
 			if commandError := command.Run(ctx, args[2:]); commandError != nil {
 				runner.logger.Debugf("Command '%s' finished with error", commandName)

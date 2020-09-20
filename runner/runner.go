@@ -16,6 +16,7 @@ type Runner struct {
 	logger       logger.Logger
 	config       *config.FishermanConfig
 	configInfo   *config.LoadInfo
+	cwd          string
 }
 
 // CreateRunnerArgs is structure to pass arguments in constructor
@@ -26,11 +27,11 @@ type CreateRunnerArgs struct {
 	Logger       logger.Logger
 	Config       *config.FishermanConfig
 	ConfigInfo   *config.LoadInfo
+	Cwd          string
 }
 
 // NewRunner is constructor for Runner
 func NewRunner(args CreateRunnerArgs) *Runner {
-
 	return &Runner{
 		args.CommandList,
 		args.FileAccessor,
@@ -38,5 +39,6 @@ func NewRunner(args CreateRunnerArgs) *Runner {
 		args.Logger,
 		args.Config,
 		args.ConfigInfo,
+		args.Cwd,
 	}
 }

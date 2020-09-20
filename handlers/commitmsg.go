@@ -13,26 +13,20 @@ import (
 
 // CommitMsgHandler is a handler for commit-msg hook
 func CommitMsgHandler(ctx *context.CommandContext, args []string) error {
-	appConfig := ctx.GetHookConfiguration()
-	config := appConfig.CommitMsgHook
+	config := ctx.Config.Hooks.CommitMsgHook
 	if config == nil {
 		ctx.Logger.Debug("CommitMsgHook is not presented.")
 		return nil
 	}
 
 	ctx.Logger.Debug("CommitMsgHook is presented.")
-	commitMessage, err := ctx.FileAccessor.ReadFile(args[0])
-	if err != nil {
-		return fmt.Errorf("Can't open '%s' file: %e", args[0], err)
-	}
+	commitMessage, err := ctx.Files.Read(args[0])
+	utils.HandleCriticalError(err)
 
 	if utils.IsEmpty(config.StaticMessage) {
 		ctx.Logger.Debug("Static message is presented.")
-		err := ctx.FileAccessor.WriteFile(args[0], config.StaticMessage)
-		if err != nil {
-			return fmt.Errorf("Can't write '%s' file: %e", args[0], err)
-		}
-
+		err := ctx.Files.Write(args[0], config.StaticMessage)
+		utils.HandleCriticalError(err)
 		ctx.Logger.Debug("Static message was writted.")
 		return nil
 	}
