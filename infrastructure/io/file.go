@@ -27,6 +27,7 @@ func (f *LocalFileAccessor) Exist(path string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
+
 	return !info.IsDir()
 }
 

@@ -5,21 +5,26 @@ import (
 	"fisherman/constants"
 	"fisherman/utils"
 	"fmt"
+	"log"
 	"strings"
 )
 
+// Init initialize handle command
+func (c *Command) Init(args []string) error {
+	err := c.fs.Parse(args)
+	log.Println(c.fs.Args())
+	return err
+}
+
 // Run executes handle command
-func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
-	if err := c.fs.Parse(args); err != nil {
-		return err
-	}
+func (c *Command) Run(ctx *commands.CommandContext) error {
 
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
 		utils.PrintGraphics(ctx.Logger, constants.HookHeader, map[string]string{
 			"Hook":             c.hook,
-			"GlobalConfigPath": utils.OriginalOrNA(ctx.AppInfo.GlobalConfigPath),
-			"LocalConfigPath":  utils.OriginalOrNA(ctx.AppInfo.LocalConfigPath),
-			"RepoConfigPath":   utils.OriginalOrNA(ctx.AppInfo.Cwd),
+			"GlobalConfigPath": utils.OriginalOrNA(ctx.App.GlobalConfigPath),
+			"LocalConfigPath":  utils.OriginalOrNA(ctx.App.LocalConfigPath),
+			"RepoConfigPath":   utils.OriginalOrNA(ctx.App.Cwd),
 			"Version":          constants.Version,
 		})
 		return hookHandler(ctx, c.fs.Args())

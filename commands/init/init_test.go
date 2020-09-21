@@ -30,7 +30,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 
 	faceLogger := loggermock.Logger{}
 	faceLogger.On("Debugf", mock.Anything, mock.Anything)
-	faceLogger.On("Debugf", mock.Anything, mock.Anything, mock.Anything)
+	faceLogger.On("Infof", mock.Anything, mock.Anything, mock.Anything)
 
 	tests := []struct {
 		name string
@@ -43,13 +43,14 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 			ctx := commands.CommandContext{
 				Files:  &fakeFileAccessor,
 				Logger: &faceLogger,
-				AppInfo: commands.AppInfo{
+				App: &commands.AppInfo{
 					Cwd:                cwd,
 					IsRegisteredInPath: true,
 				},
 				Config: &config.DefaultConfig,
 			}
-			err := command.Run(&ctx, tt.args)
+			command.Init(tt.args)
+			err := command.Run(&ctx)
 			assert.NoError(t, err)
 		})
 	}

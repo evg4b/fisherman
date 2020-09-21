@@ -8,7 +8,7 @@ import (
 var DefaultConfig = FishermanConfig{
 	Hooks: HooksConfig{
 		CommitMsgHook: &hooks.CommitMsgHookConfig{
-			CommitPrefix: "[fisherman]",
+			MessagePrefix: "[fisherman]",
 		},
 	},
 }

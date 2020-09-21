@@ -44,22 +44,22 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.CommitPrefix) && !strings.HasPrefix(message, config.CommitPrefix) {
-		err := fmt.Errorf("Commit message should have prefix '%s'", config.CommitPrefix)
+	if !utils.IsEmpty(config.MessagePrefix) && !strings.HasPrefix(message, config.MessagePrefix) {
+		err := fmt.Errorf("Commit message should have prefix '%s'", config.MessagePrefix)
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.CommitSuffix) && !strings.HasSuffix(message, config.CommitSuffix) {
-		err := fmt.Errorf("Commit message should have suffix '%s'", config.CommitSuffix)
+	if !utils.IsEmpty(config.MessageSuffix) && !strings.HasSuffix(message, config.MessageSuffix) {
+		err := fmt.Errorf("Commit message should have suffix '%s'", config.MessageSuffix)
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.CommitRegexp) {
-		matched, err := regexp.MatchString(config.CommitRegexp, message)
+	if !utils.IsEmpty(config.MessageRegexp) {
+		matched, err := regexp.MatchString(config.MessageRegexp, message)
 		utils.HandleCriticalError(err)
 
 		if !matched {
-			err := fmt.Errorf("Commit message should be matched regular expression '%s'", config.CommitRegexp)
+			err := fmt.Errorf("Commit message should be matched regular expression '%s'", config.MessageRegexp)
 			result = multierror.Append(result, err)
 		}
 	}

@@ -35,7 +35,7 @@ func TestValidateMessageNotEmpty(t *testing.T) {
 
 func TestValidateMessageCommitPrefix(t *testing.T) {
 	err := errors.New("Commit message should have prefix '[prefix]'")
-	config := hooks.CommitMsgHookConfig{CommitPrefix: "[prefix]"}
+	config := hooks.CommitMsgHookConfig{MessagePrefix: "[prefix]"}
 
 	testData := []struct {
 		message string
@@ -57,7 +57,7 @@ func TestValidateMessageCommitPrefix(t *testing.T) {
 
 func TestValidateMessageCommitSuffix(t *testing.T) {
 	err := errors.New("Commit message should have suffix '[suffix]'")
-	config := hooks.CommitMsgHookConfig{CommitSuffix: "[suffix]"}
+	config := hooks.CommitMsgHookConfig{MessageSuffix: "[suffix]"}
 
 	testData := []struct {
 		message string
@@ -90,7 +90,7 @@ func TestValidateMessageCommitRegexp(t *testing.T) {
 
 	for _, tt := range testData {
 		t.Run(tt.message, func(t *testing.T) {
-			config := hooks.CommitMsgHookConfig{CommitRegexp: tt.regexp}
+			config := hooks.CommitMsgHookConfig{MessageRegexp: tt.regexp}
 			actualError := validateMessage(tt.message, &config)
 			assertMultiError(t, actualError, tt.err)
 		})

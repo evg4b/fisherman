@@ -13,6 +13,20 @@ type CliCommand struct {
 	mock.Mock
 }
 
+// Init provides a mock function with given fields: args
+func (_m *CliCommand) Init(args []string) error {
+	ret := _m.Called(args)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(args)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Name provides a mock function with given fields:
 func (_m *CliCommand) Name() string {
 	ret := _m.Called()
@@ -27,13 +41,13 @@ func (_m *CliCommand) Name() string {
 	return r0
 }
 
-// Run provides a mock function with given fields: ctx, args
-func (_m *CliCommand) Run(ctx *commands.CommandContext, args []string) error {
-	ret := _m.Called(ctx, args)
+// Run provides a mock function with given fields: ctx
+func (_m *CliCommand) Run(ctx *commands.CommandContext) error {
+	ret := _m.Called(ctx)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*commands.CommandContext, []string) error); ok {
-		r0 = rf(ctx, args)
+	if rf, ok := ret.Get(0).(func(*commands.CommandContext) error); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}

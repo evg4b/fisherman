@@ -4,12 +4,14 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/constants"
+	"fisherman/infrastructure/io"
 	"fisherman/utils"
 	"flag"
 	"fmt"
 	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
+	"gopkg.in/yaml.v2"
 )
 
 // Command is structure for storage information about init command
@@ -31,14 +33,18 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	return c
 }
 
+// Init initialize handle command
+func (c *Command) Init(args []string) error {
+	return c.fs.Parse(args)
+}
+
 // Run executes init command
-func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
-	c.fs.Parse(args)
+func (c *Command) Run(ctx *commands.CommandContext) error {
 	ctx.Logger.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {
 		var result *multierror.Error
 		for _, hookName := range constants.HooksNames {
-			hookPath := filepath.Join(ctx.AppInfo.Cwd, ".git", "hooks", hookName)
+			hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 			ctx.Logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
 			if ctx.Files.Exist(hookPath) {
 				ctx.Logger.Debugf("Hook '%s' already declared", hookName)
@@ -52,22 +58,22 @@ func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
 	}
 
 	bin := constants.AppName
-	if !ctx.AppInfo.IsRegisteredInPath {
-		ctx.Logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.AppInfo.AppPath)
-		bin = ctx.AppInfo.AppPath
+	if !ctx.App.IsRegisteredInPath {
+		ctx.Logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
+		bin = ctx.App.Executable
 	}
 
 	for _, hookName := range constants.HooksNames {
-		hookPath := filepath.Join(ctx.AppInfo.Cwd, ".git", "hooks", hookName)
+		hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 		err := ctx.Files.Write(hookPath, buildHook(bin, hookName))
 		utils.HandleCriticalError(err)
-		ctx.Logger.Debugf("Hook '%s' (%s) was writted", hookName, hookPath)
+		ctx.Logger.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
 	}
 
-	configPath, err := config.BuildFileConfigPath(ctx.AppInfo.Cwd, ctx.User, c.mode)
+	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)
 	utils.HandleCriticalError(err)
 
-	err = writeFishermanConfig(ctx.Files, configPath)
+	err = writeDefaultFishermanConfig(ctx.Files, configPath)
 	utils.HandleCriticalError(err)
 
 	return err
@@ -76,4 +82,17 @@ func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
 // Name returns namand name
 func (c *Command) Name() string {
 	return c.fs.Name()
+}
+
+func writeDefaultFishermanConfig(accessor io.FileAccessor, configPath string) error {
+	if !accessor.Exist(configPath) {
+		content, err := yaml.Marshal(config.DefaultConfig)
+		utils.HandleCriticalError(err)
+		err = accessor.Write(configPath, string(content))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

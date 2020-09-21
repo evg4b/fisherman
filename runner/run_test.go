@@ -78,19 +78,19 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(runner.CreateRunnerArgs{
-				CommandList:  tt.commands,
-				Config:       &config.DefaultConfig,
-				Logger:       &logger,
-				ConfigInfo:   &config.LoadInfo{},
-				Cwd:          "demo",
-				FileAccessor: &io.LocalFileAccessor{},
-				SystemUser:   &user.User{},
+			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
+				CommandList: tt.commands,
+				Config:      &config.DefaultConfig,
+				Logger:      &logger,
+				ConfigInfo:  &config.ConfigInfo{},
+				Cwd:         "demo",
+				Files:       &io.LocalFileAccessor{},
+				SystemUser:  &user.User{},
+				Executable:  "bin",
 			})
 
 			assert.NotPanics(t, func() {
-				args := append([]string{"app"}, tt.args...)
-				err := runnerInstance.Run(&config.DefaultConfig, args)
+				err := runnerInstance.Run(tt.args)
 				assert.Equal(t, tt.expectedError, err)
 			})
 		})

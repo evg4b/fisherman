@@ -2,6 +2,7 @@ package commands
 
 // CliCommand is base command interface
 type CliCommand interface {
-	Run(ctx *CommandContext, args []string) error
+	Init(args []string) error
+	Run(ctx *CommandContext) error
 	Name() string
 }

@@ -14,15 +14,15 @@ import (
 
 const gitDir = ".git"
 
-// LoadInfo is
-type LoadInfo struct {
+// ConfigInfo is
+type ConfigInfo struct {
 	GlobalConfigPath string
 	RepoConfigPath   string
 	LocalConfigPath  string
 }
 
 // LoadConfig is demo
-func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*FishermanConfig, *LoadInfo, error) {
+func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*FishermanConfig, *ConfigInfo, error) {
 	config := FishermanConfig{
 		Output: logger.DefaultOutputConfig,
 	}
@@ -42,7 +42,7 @@ func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*Fisherma
 		return nil, nil, err
 	}
 
-	loadInfo := &LoadInfo{
+	loadInfo := &ConfigInfo{
 		GlobalConfigPath: global,
 		RepoConfigPath:   repo,
 		LocalConfigPath:  local,
