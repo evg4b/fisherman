@@ -1,4 +1,4 @@
-package context
+package commands
 
 import (
 	"fisherman/config"
@@ -8,6 +8,15 @@ import (
 	"fisherman/utils"
 	"os/user"
 )
+
+// AppInfo is application info structure
+type AppInfo struct {
+	Cwd                string
+	AppPath            string
+	GlobalConfigPath   string
+	LocalConfigPath    string
+	IsRegisteredInPath bool
+}
 
 // CommandContext is cli context structure
 type CommandContext struct {

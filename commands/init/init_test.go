@@ -1,7 +1,7 @@
 package init_test
 
 import (
-	"fisherman/commands/context"
+	"fisherman/commands"
 	initc "fisherman/commands/init"
 	"fisherman/config"
 	"fisherman/constants"
@@ -40,10 +40,10 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.CommandContext{
+			ctx := commands.CommandContext{
 				Files:  &fakeFileAccessor,
 				Logger: &faceLogger,
-				AppInfo: context.AppInfo{
+				AppInfo: commands.AppInfo{
 					Cwd:                cwd,
 					IsRegisteredInPath: true,
 				},

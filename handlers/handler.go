@@ -1,8 +1,6 @@
 package handlers
 
-import (
-	"fisherman/commands/context"
-)
+import "fisherman/commands"
 
 // HookHandler is base handler interface
-type HookHandler = func(ctx *context.CommandContext, args []string) error
+type HookHandler = func(ctx *commands.CommandContext, args []string) error

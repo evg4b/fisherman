@@ -1,7 +1,7 @@
 package init
 
 import (
-	"fisherman/commands/context"
+	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/utils"
@@ -32,7 +32,7 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 }
 
 // Run executes init command
-func (c *Command) Run(ctx *context.CommandContext, args []string) error {
+func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
 	c.fs.Parse(args)
 	ctx.Logger.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {

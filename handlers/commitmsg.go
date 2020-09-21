@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fisherman/commands/context"
+	"fisherman/commands"
 	"fisherman/config/hooks"
 	"fisherman/utils"
 	"fmt"
@@ -12,7 +12,7 @@ import (
 )
 
 // CommitMsgHandler is a handler for commit-msg hook
-func CommitMsgHandler(ctx *context.CommandContext, args []string) error {
+func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 	config := ctx.Config.Hooks.CommitMsgHook
 	if config == nil {
 		ctx.Logger.Debug("CommitMsgHook is not presented.")

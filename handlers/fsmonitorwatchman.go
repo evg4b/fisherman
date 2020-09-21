@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"fisherman/commands/context"
+	"fisherman/commands"
 	"fisherman/constants"
 	"fmt"
 )
 
 // FsMonitorWatchmanHandler is a handler for fsmonitor-watchman hook
-func FsMonitorWatchmanHandler(ctx *context.CommandContext, args []string) error {
+func FsMonitorWatchmanHandler(ctx *commands.CommandContext, args []string) error {
 	return fmt.Errorf("This hook is not supported in version %s.", constants.Version)
 }

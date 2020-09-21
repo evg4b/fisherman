@@ -1,7 +1,7 @@
 package handle
 
 import (
-	"fisherman/commands/context"
+	"fisherman/commands"
 	"fisherman/constants"
 	"fisherman/utils"
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 // Run executes handle command
-func (c *Command) Run(ctx *context.CommandContext, args []string) error {
+func (c *Command) Run(ctx *commands.CommandContext, args []string) error {
 	if err := c.fs.Parse(args); err != nil {
 		return err
 	}
