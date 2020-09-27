@@ -4,7 +4,7 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/constants"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure"
 	"fisherman/utils"
 	"os/user"
 )
@@ -15,13 +15,13 @@ type Runner struct {
 	systemUser   *user.User
 	config       *config.FishermanConfig
 	app          *commands.AppInfo
-	fileAccessor io.FileAccessor
+	fileAccessor infrastructure.FileAccessor
 }
 
 // NewRunnerArgs is structure to pass arguments in constructor
 type NewRunnerArgs struct {
 	CommandList []commands.CliCommand
-	Files       io.FileAccessor
+	Files       infrastructure.FileAccessor
 	SystemUser  *user.User
 	Config      *config.FishermanConfig
 	ConfigInfo  *config.ConfigInfo

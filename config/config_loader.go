@@ -2,7 +2,7 @@ package config
 
 import (
 	"fisherman/constants"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"fmt"
@@ -22,7 +22,7 @@ type ConfigInfo struct {
 }
 
 // LoadConfig is demo
-func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*FishermanConfig, *ConfigInfo, error) {
+func LoadConfig(cwd string, usr *user.User, accessor infrastructure.FileAccessor) (*FishermanConfig, *ConfigInfo, error) {
 	config := FishermanConfig{
 		Output: logger.DefaultOutputConfig,
 	}
@@ -51,7 +51,7 @@ func LoadConfig(cwd string, usr *user.User, accessor io.FileAccessor) (*Fisherma
 	return &config, loadInfo, nil
 }
 
-func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor io.FileAccessor, config *FishermanConfig) (string, error) {
+func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor infrastructure.FileAccessor, config *FishermanConfig) (string, error) {
 	path, err := BuildFileConfigPath(cwd, usr, mode)
 	utils.HandleCriticalError(err)
 

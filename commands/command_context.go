@@ -2,7 +2,7 @@ package commands
 
 import (
 	"fisherman/config"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure"
 	"os/user"
 )
 
@@ -11,7 +11,7 @@ type CommandContext struct {
 	Config *config.FishermanConfig
 	User   *user.User
 	App    *AppInfo
-	Files  io.FileAccessor
+	Files  infrastructure.FileAccessor
 }
 
 // AppInfo is application info structure
@@ -26,7 +26,7 @@ type AppInfo struct {
 
 // CliCommandContextParams is structure for params in cli command context constructor
 type CliCommandContextParams struct {
-	FileAccessor io.FileAccessor
+	FileAccessor infrastructure.FileAccessor
 	Usr          *user.User
 	App          *AppInfo
 	Config       *config.FishermanConfig

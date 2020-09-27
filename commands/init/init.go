@@ -4,7 +4,7 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/constants"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"flag"
@@ -85,7 +85,7 @@ func (c *Command) Name() string {
 	return c.fs.Name()
 }
 
-func writeDefaultFishermanConfig(accessor io.FileAccessor, configPath string) error {
+func writeDefaultFishermanConfig(accessor infrastructure.FileAccessor, configPath string) error {
 	if !accessor.Exist(configPath) {
 		content, err := yaml.Marshal(config.DefaultConfig)
 		utils.HandleCriticalError(err)
