@@ -3,6 +3,7 @@ package handle
 import (
 	"fisherman/commands"
 	"fisherman/constants"
+	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"fmt"
 	"log"
@@ -20,7 +21,7 @@ func (c *Command) Init(args []string) error {
 func (c *Command) Run(ctx *commands.CommandContext) error {
 
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
-		utils.PrintGraphics(ctx.Logger, constants.HookHeader, map[string]string{
+		utils.PrintGraphics(logger.Writer(), constants.HookHeader, map[string]string{
 			"Hook":             c.hook,
 			"GlobalConfigPath": utils.OriginalOrNA(ctx.App.GlobalConfigPath),
 			"LocalConfigPath":  utils.OriginalOrNA(ctx.App.LocalConfigPath),

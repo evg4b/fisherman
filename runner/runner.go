@@ -5,7 +5,6 @@ import (
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure/io"
-	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"os/user"
 )
@@ -17,7 +16,6 @@ type Runner struct {
 	config       *config.FishermanConfig
 	app          *commands.AppInfo
 	fileAccessor io.FileAccessor
-	logger       logger.Logger
 }
 
 // NewRunnerArgs is structure to pass arguments in constructor
@@ -25,7 +23,6 @@ type NewRunnerArgs struct {
 	CommandList []commands.CliCommand
 	Files       io.FileAccessor
 	SystemUser  *user.User
-	Logger      logger.Logger
 	Config      *config.FishermanConfig
 	ConfigInfo  *config.ConfigInfo
 	Cwd         string
@@ -48,6 +45,5 @@ func NewRunner(args NewRunnerArgs) *Runner {
 			IsRegisteredInPath: utils.IsCommandExists(constants.AppConfigName),
 		},
 		args.Files,
-		args.Logger,
 	}
 }

@@ -6,8 +6,9 @@ import (
 	"fisherman/config"
 	"fisherman/infrastructure/io"
 	commandsmock "fisherman/mocks/commands"
-	loggermock "fisherman/mocks/infrastructure/logger"
 	"fisherman/runner"
+	"io/ioutil"
+	"log"
 	"os/user"
 	"testing"
 
@@ -16,11 +17,7 @@ import (
 )
 
 func TestRunner_Run(t *testing.T) {
-	logger := loggermock.Logger{}
-	logger.On("Debugf", mock.Anything)
-	logger.On("Debug", mock.Anything)
-	logger.On("Debugf", mock.Anything, mock.Anything)
-	logger.On("Write", mock.Anything).Return(1, nil)
+	log.SetOutput(ioutil.Discard)
 
 	tests := []struct {
 		name          string
@@ -81,7 +78,6 @@ func TestRunner_Run(t *testing.T) {
 			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 				CommandList: tt.commands,
 				Config:      &config.DefaultConfig,
-				Logger:      &logger,
 				ConfigInfo:  &config.ConfigInfo{},
 				Cwd:         "demo",
 				Files:       &io.LocalFileAccessor{},
@@ -100,12 +96,12 @@ func TestRunner_Run(t *testing.T) {
 func makeCommand(name string) *commandsmock.CliCommand {
 	command := commandsmock.CliCommand{}
 	command.On("Name").Return(name)
+	command.On("Init", mock.Anything).Return(nil)
 	return &command
 }
 
 func makeExpectedCommand(name string, err error) *commandsmock.CliCommand {
 	command := makeCommand(name)
-	command.On("Name").Return(name)
 	command.On("Run", mock.Anything, mock.Anything).Return(err)
 	return command
 }

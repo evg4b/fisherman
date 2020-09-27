@@ -3,6 +3,7 @@ package handlers
 import (
 	"fisherman/commands"
 	"fisherman/config/hooks"
+	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"fmt"
 	"regexp"
@@ -15,23 +16,23 @@ import (
 func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 	config := ctx.Config.Hooks.CommitMsgHook
 	if config == nil {
-		ctx.Logger.Debug("CommitMsgHook is not presented.")
+		logger.Debug("CommitMsgHook is not presented.")
 		return nil
 	}
 
-	ctx.Logger.Debug("CommitMsgHook is presented.")
+	logger.Debug("CommitMsgHook is presented.")
 	commitMessage, err := ctx.Files.Read(args[0])
 	utils.HandleCriticalError(err)
 
 	if utils.IsEmpty(config.StaticMessage) {
-		ctx.Logger.Debug("Static message is presented.")
+		logger.Debug("Static message is presented.")
 		err := ctx.Files.Write(args[0], config.StaticMessage)
 		utils.HandleCriticalError(err)
-		ctx.Logger.Debug("Static message was writted.")
+		logger.Debug("Static message was writted.")
 		return nil
 	}
 
-	ctx.Logger.Debug("Starting validation.")
+	logger.Debug("Starting validation.")
 
 	return validateMessage(commitMessage, config).ErrorOrNil()
 }

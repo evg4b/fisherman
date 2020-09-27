@@ -6,7 +6,6 @@ import (
 	"fisherman/config"
 	"fisherman/constants"
 	iomock "fisherman/mocks/infrastructure/io"
-	loggermock "fisherman/mocks/infrastructure/logger"
 	"flag"
 	"path/filepath"
 	"testing"
@@ -28,10 +27,6 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	fakeFileAccessor.On("Write", mock.IsType("string"), mock.IsType("string")).Return(nil)
 	fakeFileAccessor.On("Exist", filepath.Join(cwd, constants.AppConfigName)).Return(true)
 
-	faceLogger := loggermock.Logger{}
-	faceLogger.On("Debugf", mock.Anything, mock.Anything)
-	faceLogger.On("Infof", mock.Anything, mock.Anything, mock.Anything)
-
 	tests := []struct {
 		name string
 		args []string
@@ -41,8 +36,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := commands.CommandContext{
-				Files:  &fakeFileAccessor,
-				Logger: &faceLogger,
+				Files: &fakeFileAccessor,
 				App: &commands.AppInfo{
 					Cwd:                cwd,
 					IsRegisteredInPath: true,

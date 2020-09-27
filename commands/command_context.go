@@ -3,7 +3,6 @@ package commands
 import (
 	"fisherman/config"
 	"fisherman/infrastructure/io"
-	"fisherman/infrastructure/logger"
 	"os/user"
 )
 
@@ -13,7 +12,6 @@ type CommandContext struct {
 	User   *user.User
 	App    *AppInfo
 	Files  io.FileAccessor
-	Logger logger.Logger
 }
 
 // AppInfo is application info structure
@@ -32,7 +30,6 @@ type CliCommandContextParams struct {
 	Usr          *user.User
 	App          *AppInfo
 	Config       *config.FishermanConfig
-	Logger       logger.Logger
 }
 
 // NewContext constructor for cli command context
@@ -42,6 +39,5 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 		args.Usr,
 		args.App,
 		args.FileAccessor,
-		args.Logger,
 	}
 }

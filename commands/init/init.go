@@ -5,6 +5,7 @@ import (
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"flag"
 	"fmt"
@@ -40,14 +41,14 @@ func (c *Command) Init(args []string) error {
 
 // Run executes init command
 func (c *Command) Run(ctx *commands.CommandContext) error {
-	ctx.Logger.Debugf("Statring initialization (force = %t)", c.force)
+	logger.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {
 		var result *multierror.Error
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
-			ctx.Logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
+			logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
 			if ctx.Files.Exist(hookPath) {
-				ctx.Logger.Debugf("Hook '%s' already declared", hookName)
+				logger.Debugf("Hook '%s' already declared", hookName)
 				result = multierror.Append(result, fmt.Errorf("File %s already exists", hookPath))
 			}
 		}
@@ -59,7 +60,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 
 	bin := constants.AppName
 	if !ctx.App.IsRegisteredInPath {
-		ctx.Logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
+		logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
 		bin = ctx.App.Executable
 	}
 
@@ -67,7 +68,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 		hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 		err := ctx.Files.Write(hookPath, buildHook(bin, hookName))
 		utils.HandleCriticalError(err)
-		ctx.Logger.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
+		logger.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
 	}
 
 	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)

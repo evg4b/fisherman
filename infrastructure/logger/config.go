@@ -8,6 +8,6 @@ type OutputConfig struct {
 
 // DefaultOutputConfig is default values for configuration
 var DefaultOutputConfig = OutputConfig{
-	LogLevel: Info,
+	LogLevel: InfoLevel,
 	Colors:   true,
 }
