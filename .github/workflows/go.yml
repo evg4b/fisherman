@@ -24,14 +24,13 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-
     - name: Lint
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.31
+        
+    - name: Get dependencies
+      run: go get -v -t -d ./...
 
     - name: Build
       run: go build -v ./main.go
