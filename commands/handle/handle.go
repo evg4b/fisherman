@@ -3,7 +3,6 @@ package handle
 import (
 	c "fisherman/constants"
 	"fisherman/handlers"
-	handler "fisherman/handlers"
 	"fisherman/infrastructure"
 	"flag"
 )
@@ -12,7 +11,7 @@ import (
 type Command struct {
 	fs       *flag.FlagSet
 	hook     string
-	handlers map[string]handler.HookHandler
+	handlers map[string]handlers.HookHandler
 }
 
 // NewCommand is constructor for handle command
@@ -20,7 +19,7 @@ func NewCommand(handling flag.ErrorHandling, f infrastructure.FileAccessor) *Com
 	fs := flag.NewFlagSet("handle", handling)
 	c := &Command{
 		fs: fs,
-		handlers: map[string]handler.HookHandler{
+		handlers: map[string]handlers.HookHandler{
 			c.ApplyPatchMsgHook:     handlers.ApplyPatchMsgHandler,
 			c.CommitMsgHook:         handlers.CommitMsgHandler,
 			c.FsMonitorWatchmanHook: handlers.FsMonitorWatchmanHandler,
@@ -35,6 +34,7 @@ func NewCommand(handling flag.ErrorHandling, f infrastructure.FileAccessor) *Com
 		},
 	}
 	fs.StringVar(&c.hook, "hook", "", "")
+
 	return c
 }
 

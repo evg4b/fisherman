@@ -17,6 +17,7 @@ func (r *Runner) Run(args []string) error {
 		utils.PrintGraphics(logger.Writer(), constants.Logo, constants.Version)
 		flag.Parse()
 		flag.PrintDefaults()
+
 		return nil
 	}
 
@@ -40,14 +41,17 @@ func (r *Runner) Run(args []string) error {
 
 			if commandError := command.Run(ctx); commandError != nil {
 				logger.Debugf("Command '%s' finished with error", commandName)
+
 				return commandError
 			}
 
 			logger.Debugf("Command '%s' finished witout error", commandName)
+
 			return nil
 		}
 	}
 
 	logger.Debugf("Command %s not found", commandName)
-	return fmt.Errorf("Unknown command: %s", commandName)
+
+	return fmt.Errorf("unknown command: %s", commandName)
 }

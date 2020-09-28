@@ -17,6 +17,7 @@ func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 	config := ctx.Config.Hooks.CommitMsgHook
 	if config == nil {
 		logger.Debug("CommitMsgHook is not presented.")
+
 		return nil
 	}
 
@@ -29,6 +30,7 @@ func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 		err := ctx.Files.Write(args[0], config.StaticMessage)
 		utils.HandleCriticalError(err)
 		logger.Debug("Static message was writted.")
+
 		return nil
 	}
 
@@ -41,17 +43,17 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 	var result *multierror.Error
 
 	if config.NotEmpty && utils.IsEmpty(message) {
-		err := fmt.Errorf("Commit message should not be empty")
+		err := fmt.Errorf("commit message should not be empty")
 		result = multierror.Append(result, err)
 	}
 
 	if !utils.IsEmpty(config.MessagePrefix) && !strings.HasPrefix(message, config.MessagePrefix) {
-		err := fmt.Errorf("Commit message should have prefix '%s'", config.MessagePrefix)
+		err := fmt.Errorf("commit message should have prefix '%s'", config.MessagePrefix)
 		result = multierror.Append(result, err)
 	}
 
 	if !utils.IsEmpty(config.MessageSuffix) && !strings.HasSuffix(message, config.MessageSuffix) {
-		err := fmt.Errorf("Commit message should have suffix '%s'", config.MessageSuffix)
+		err := fmt.Errorf("commit message should have suffix '%s'", config.MessageSuffix)
 		result = multierror.Append(result, err)
 	}
 
@@ -60,7 +62,7 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 		utils.HandleCriticalError(err)
 
 		if !matched {
-			err := fmt.Errorf("Commit message should be matched regular expression '%s'", config.MessageRegexp)
+			err := fmt.Errorf("commit message should be matched regular expression '%s'", config.MessageRegexp)
 			result = multierror.Append(result, err)
 		}
 	}

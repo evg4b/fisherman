@@ -17,3 +17,6 @@
 .fisherman.yaml
 .fisherman.yml
 *.cov
+
+# Vscode
+.vscode\debug-data

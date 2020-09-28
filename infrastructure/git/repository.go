@@ -14,6 +14,7 @@ type GitRepository struct {
 func NewRepository(path string) *GitRepository {
 	r, err := git.PlainOpen(path)
 	utils.HandleCriticalError(err)
+
 	return &GitRepository{
 		repo: r,
 	}
@@ -34,6 +35,7 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 	err = branchRefs.ForEach(func(branchRef *plumbing.Reference) error {
 		if branchRef.Hash() == headRef.Hash() {
 			currentBranchName = branchRef.Name().String()
+
 			return nil
 		}
 

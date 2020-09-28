@@ -29,12 +29,26 @@
             ]
         },
         {
+            "label": "Lint code",
+            "type": "shell",
+            "command": "golangci-lint",
+            "args": [
+                "run",
+                "./..."
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
+        },
+        {
             "label": "Build binary",
             "type": "shell",
             "command": "go",
             "linux": {
                 "args": [
                     "build",
+                    "-ldflags",
+                    "-X fisherman/constants.Version=${input:appVersion}",
                     "-o",
                     "fisherman",
                     "${workspaceFolder}/main.go"
@@ -43,6 +57,8 @@
             "osx": {
                 "args": [
                     "build",
+                    "-ldflags",
+                    "-X fisherman/constants.Version=${input:appVersion}",
                     "-o",
                     "fisherman",
                     "${workspaceFolder}/main.go"

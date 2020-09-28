@@ -39,6 +39,7 @@ func TestErrorWithLogLevel(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestErrorfWithLogLevel(t *testing.T) {
 	output := mockLogModule()
 
@@ -98,6 +99,7 @@ func TestDebugWithLogLevel(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestDebugfWithLogLevel(t *testing.T) {
 	output := mockLogModule()
 
@@ -157,9 +159,9 @@ func TestInfoWithLogLevel(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestInfofWithLogLevel(t *testing.T) {
 	output := mockLogModule()
-
 	testData := []struct {
 		message string
 		output  string
@@ -217,5 +219,6 @@ func mockLogModule() *bytes.Buffer {
 	output := bytes.NewBufferString("")
 	log.SetOutput(output)
 	log.SetFlags(0)
+
 	return output
 }

@@ -5,53 +5,40 @@ import (
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
-	"fmt"
 	"os/user"
 	"path/filepath"
+
+	"errors"
 
 	"gopkg.in/yaml.v2"
 )
 
 const gitDir = ".git"
 
-// ConfigInfo is
-type ConfigInfo struct {
+// LoadInfo is
+type LoadInfo struct {
 	GlobalConfigPath string
 	RepoConfigPath   string
 	LocalConfigPath  string
 }
 
 // LoadConfig is demo
-func LoadConfig(cwd string, usr *user.User, accessor infrastructure.FileAccessor) (*FishermanConfig, *ConfigInfo, error) {
+func LoadConfig(cwd string, usr *user.User, accessor infrastructure.FileAccessor) (*FishermanConfig, *LoadInfo) {
 	config := FishermanConfig{
 		Output: logger.DefaultOutputConfig,
 	}
 
-	global, err := unmarshlIfExist(cwd, usr, GlobalMode, accessor, &config)
-	if err != nil {
-		return nil, nil, err
+	// Please do not change the order
+	loadInfo := &LoadInfo{
+		GlobalConfigPath: unmarshlIfExist(cwd, usr, GlobalMode, accessor, &config),
+		RepoConfigPath:   unmarshlIfExist(cwd, usr, RepoMode, accessor, &config),
+		LocalConfigPath:  unmarshlIfExist(cwd, usr, LocalMode, accessor, &config),
 	}
 
-	repo, err := unmarshlIfExist(cwd, usr, RepoMode, accessor, &config)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	local, err := unmarshlIfExist(cwd, usr, LocalMode, accessor, &config)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	loadInfo := &ConfigInfo{
-		GlobalConfigPath: global,
-		RepoConfigPath:   repo,
-		LocalConfigPath:  local,
-	}
-
-	return &config, loadInfo, nil
+	return &config, loadInfo
 }
 
-func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor infrastructure.FileAccessor, config *FishermanConfig) (string, error) {
+func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor infrastructure.FileAccessor, config *FishermanConfig) string {
 	path, err := BuildFileConfigPath(cwd, usr, mode)
 	utils.HandleCriticalError(err)
 
@@ -60,10 +47,11 @@ func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor infrastru
 		utils.HandleCriticalError(err)
 		err = yaml.Unmarshal([]byte(data), config)
 		utils.HandleCriticalError(err)
-		return path, nil
+
+		return path
 	}
 
-	return "", nil
+	return ""
 }
 
 // BuildFileConfigPath returns path to config by config mode
@@ -76,6 +64,6 @@ func BuildFileConfigPath(cwd string, usr *user.User, mode string) (string, error
 	case GlobalMode:
 		return filepath.Join(usr.HomeDir, constants.AppConfigName), nil
 	default:
-		return "", fmt.Errorf("Unknown config mode.")
+		return "", errors.New("unknown config mode")
 	}
 }

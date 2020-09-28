@@ -24,7 +24,7 @@ type NewRunnerArgs struct {
 	Files       infrastructure.FileAccessor
 	SystemUser  *user.User
 	Config      *config.FishermanConfig
-	ConfigInfo  *config.ConfigInfo
+	ConfigInfo  *config.LoadInfo
 	Cwd         string
 	Executable  string
 }
@@ -32,6 +32,7 @@ type NewRunnerArgs struct {
 // NewRunner is constructor for Runner
 func NewRunner(args NewRunnerArgs) *Runner {
 	configInfo := args.ConfigInfo
+
 	return &Runner{
 		args.CommandList,
 		args.SystemUser,

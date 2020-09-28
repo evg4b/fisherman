@@ -9,5 +9,9 @@
         "initc",
         "prerebase",
         "stretchr"
+    ],
+    "go.lintTool": "golangci-lint",
+    "go.lintFlags": [
+        "--fast"
     ]
 }

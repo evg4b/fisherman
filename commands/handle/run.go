@@ -14,12 +14,12 @@ import (
 func (c *Command) Init(args []string) error {
 	err := c.fs.Parse(args)
 	log.Println(c.fs.Args())
+
 	return err
 }
 
 // Run executes handle command
 func (c *Command) Run(ctx *commands.CommandContext) error {
-
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
 		utils.PrintGraphics(logger.Writer(), constants.HookHeader, map[string]string{
 			"Hook":             c.hook,
@@ -28,6 +28,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 			"RepoConfigPath":   utils.OriginalOrNA(ctx.App.Cwd),
 			"Version":          constants.Version,
 		})
+
 		return hookHandler(ctx, c.fs.Args())
 	}
 

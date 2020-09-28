@@ -31,9 +31,9 @@ func TestRunner_Run(t *testing.T) {
 			commands: []commands.CliCommand{
 				makeCommand("handle"),
 				makeCommand("remove"),
-				makeExpectedCommand("init", errors.New("Expected error")),
+				makeExpectedCommand("init", errors.New("expected error")),
 			},
-			expectedError: errors.New("Expected error"),
+			expectedError: errors.New("expected error"),
 		},
 		{
 			name: "Should run called commnad and return nil when command executed witout error",
@@ -53,13 +53,13 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand("remove"),
 				makeCommand("init"),
 			},
-			expectedError: errors.New("Unknown command: not"),
+			expectedError: errors.New("unknown command: not"),
 		},
 		{
 			name:          "Should return error when command not registered",
 			args:          []string{"not"},
 			commands:      []commands.CliCommand{},
-			expectedError: errors.New("Unknown command: not"),
+			expectedError: errors.New("unknown command: not"),
 		},
 		{
 			name: "Should not return error when commnad not specified",
@@ -78,7 +78,7 @@ func TestRunner_Run(t *testing.T) {
 			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 				CommandList: tt.commands,
 				Config:      &config.DefaultConfig,
-				ConfigInfo:  &config.ConfigInfo{},
+				ConfigInfo:  &config.LoadInfo{},
 				Cwd:         "demo",
 				Files:       &io.LocalFileAccessor{},
 				SystemUser:  &user.User{},
@@ -97,11 +97,13 @@ func makeCommand(name string) *commandsmock.CliCommand {
 	command := commandsmock.CliCommand{}
 	command.On("Name").Return(name)
 	command.On("Init", mock.Anything).Return(nil)
+
 	return &command
 }
 
 func makeExpectedCommand(name string, err error) *commandsmock.CliCommand {
 	command := makeCommand(name)
 	command.On("Run", mock.Anything, mock.Anything).Return(err)
+
 	return command
 }

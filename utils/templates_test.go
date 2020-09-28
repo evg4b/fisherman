@@ -56,5 +56,4 @@ func TestPrintGraphicsPanics(t *testing.T) {
 			})
 		})
 	}
-
 }

@@ -31,5 +31,6 @@ func getPreparedMessage(message, regexpString, branch string) (string, bool) {
 
 		return message, true
 	}
+
 	return "", false
 }

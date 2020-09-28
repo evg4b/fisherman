@@ -17,10 +17,9 @@ import (
 
 // Command is structure for storage information about init command
 type Command struct {
-	fs       *flag.FlagSet
-	mode     string
-	absolute bool
-	force    bool
+	fs    *flag.FlagSet
+	mode  string
+	force bool
 }
 
 // NewCommand is constructor for init command
@@ -31,6 +30,7 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	fs.StringVar(&c.mode, "mode", config.RepoMode, modeMessage)
 	fs.BoolVar(&c.force, "force", false, "")
 	fs.BoolVar(&c.force, "absolute", false, "")
+
 	return c
 }
 
@@ -49,7 +49,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 			logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
 			if ctx.Files.Exist(hookPath) {
 				logger.Debugf("Hook '%s' already declared", hookName)
-				result = multierror.Append(result, fmt.Errorf("File %s already exists", hookPath))
+				result = multierror.Append(result, fmt.Errorf("file %s already exists", hookPath))
 			}
 		}
 

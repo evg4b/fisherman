@@ -1,0 +1,7 @@
+run:
+  skip-dirs:
+    - mocks
+    - assets
+  allow-parallel-runners: true
+linters:
+  enable: [gosec, unconvert, nlreturn, nestif, gomnd, stylecheck, gosec, gocyclo, maligned, dupl, misspell, unparam, whitespace, godox]

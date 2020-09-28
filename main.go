@@ -31,8 +31,7 @@ func main() {
 
 	fileAccessor := io.NewFileAccessor()
 
-	conf, configInfo, err := config.LoadConfig(cwd, usr, fileAccessor)
-	utils.HandleCriticalError(err)
+	conf, configInfo := config.LoadConfig(cwd, usr, fileAccessor)
 
 	logger.Configure(conf.Output)
 	runnerInstance := runner.NewRunner(runner.NewRunnerArgs{

@@ -8,5 +8,5 @@ import (
 
 // PrePushHandler is a handler for pre-push hook
 func PrePushHandler(ctx *commands.CommandContext, args []string) error {
-	return fmt.Errorf("This hook is not supported in version %s.", constants.Version)
+	return fmt.Errorf("this hook is not supported in version %s", constants.Version)
 }

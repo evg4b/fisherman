@@ -8,5 +8,5 @@ import (
 
 // PreRebaseHandler is a handler for pre-rebase hook
 func PreRebaseHandler(ctx *commands.CommandContext, args []string) error {
-	return fmt.Errorf("This hook is not supported in version %s.", constants.Version)
+	return fmt.Errorf("this hook is not supported in version %s", constants.Version)
 }

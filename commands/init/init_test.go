@@ -43,8 +43,9 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 				},
 				Config: &config.DefaultConfig,
 			}
-			command.Init(tt.args)
-			err := command.Run(&ctx)
+			err := command.Init(tt.args)
+			assert.NoError(t, err)
+			err = command.Run(&ctx)
 			assert.NoError(t, err)
 		})
 	}

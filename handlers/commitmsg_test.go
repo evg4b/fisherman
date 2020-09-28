@@ -10,7 +10,7 @@ import (
 )
 
 func TestValidateMessageNotEmpty(t *testing.T) {
-	err := errors.New("Commit message should not be empty")
+	err := errors.New("commit message should not be empty")
 	testData := []struct {
 		message  string
 		notEmpty bool
@@ -34,7 +34,7 @@ func TestValidateMessageNotEmpty(t *testing.T) {
 }
 
 func TestValidateMessageCommitPrefix(t *testing.T) {
-	err := errors.New("Commit message should have prefix '[prefix]'")
+	err := errors.New("commit message should have prefix '[prefix]'")
 	config := hooks.CommitMsgHookConfig{MessagePrefix: "[prefix]"}
 
 	testData := []struct {
@@ -56,7 +56,7 @@ func TestValidateMessageCommitPrefix(t *testing.T) {
 }
 
 func TestValidateMessageCommitSuffix(t *testing.T) {
-	err := errors.New("Commit message should have suffix '[suffix]'")
+	err := errors.New("commit message should have suffix '[suffix]'")
 	config := hooks.CommitMsgHookConfig{MessageSuffix: "[suffix]"}
 
 	testData := []struct {
@@ -84,7 +84,7 @@ func TestValidateMessageCommitRegexp(t *testing.T) {
 		err     error
 	}{
 		{message: "message", regexp: "", err: nil},
-		{message: "Message", regexp: "^[a-z]*$", err: errors.New("Commit message should be matched regular expression '^[a-z]*$'")},
+		{message: "Message", regexp: "^[a-z]*$", err: errors.New("commit message should be matched regular expression '^[a-z]*$'")},
 		{message: "message", regexp: "^[a-z]*$", err: nil},
 	}
 
