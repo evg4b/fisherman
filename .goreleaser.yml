@@ -1,0 +1,26 @@
+builds:
+  - goos:
+      - linux
+      - windows
+      - darwin
+    flags:
+      - -tags=release
+      - -v
+    ldflags:
+      - -s -w -X main.Version={{.Version}}
+
+archives:
+  - replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      386: 32-bit
+      amd64: 64-bit
+    files:
+      - LICENSE.txt
+
+source:
+  enabled: false
+
+changelog:
+  skip: true

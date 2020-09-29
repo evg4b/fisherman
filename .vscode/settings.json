@@ -9,6 +9,7 @@
         "fsmonitorwatchman",
         "gocritic",
         "golangci",
+        "goreleaser",
         "hashicorp",
         "initc",
         "ldflags",
