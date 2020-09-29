@@ -1,7 +1,13 @@
 package infrastructure
 
+type User struct {
+	UserName string
+	Email    string
+}
+
 type Repository interface {
-	GetCurrentBranch() string
+	GetCurrentBranch() (string, error)
+	GetUser() (User, error)
 }
 
 type FileWriter interface {

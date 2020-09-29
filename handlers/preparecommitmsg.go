@@ -8,11 +8,10 @@ import (
 
 // PrepareCommitMsgHandler is a execute function for prepare-commit-msg hook
 func PrepareCommitMsgHandler(ctx *commands.CommandContext, args []string) error {
-	config := ctx.Config.Hooks
+	config := ctx.Config.PrepareCommitMsgHook
 
-	c := config.PrepareCommitMsgHook
-	if c != nil {
-		message, isPresented := getPreparedMessage(c.Message, c.BranchRegExp, "TEST")
+	if config != nil {
+		message, isPresented := getPreparedMessage(config.Message, config.BranchRegExp, "TEST")
 		if isPresented {
 			err := ctx.Files.Write(args[0], message)
 			utils.HandleCriticalError(err)

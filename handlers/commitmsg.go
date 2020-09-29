@@ -14,7 +14,7 @@ import (
 
 // CommitMsgHandler is a handler for commit-msg hook
 func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
-	config := ctx.Config.Hooks.CommitMsgHook
+	config := ctx.Config.CommitMsgHook
 	if config == nil {
 		logger.Debug("CommitMsgHook is not presented.")
 

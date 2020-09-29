@@ -8,6 +8,8 @@ import (
 	"flag"
 	"fmt"
 	"strings"
+
+	"github.com/imdario/mergo"
 )
 
 // Run executes application
@@ -27,6 +29,21 @@ func (r *Runner) Run(args []string) error {
 	logger.Debugf("Runned program from binary '%s'", r.app.Executable)
 	logger.Debugf("Called command '%s'", commandName)
 
+	gitUser, err := r.repository.GetUser()
+	if err != nil {
+		return err
+	}
+
+	variables := map[string]string{
+		"FishermanVersion": constants.Version,
+		"CWD":              r.app.Cwd,
+		"UserName":         gitUser.UserName,
+		"Email":            gitUser.Email,
+	}
+
+	err = mergo.Map(&variables, r.config.GlobalVariables)
+	utils.HandleCriticalError(err)
+
 	for _, command := range r.commandList {
 		if strings.EqualFold(command.Name(), commandName) {
 			ctx := commands.NewContext(commands.CliCommandContextParams{
@@ -34,6 +51,7 @@ func (r *Runner) Run(args []string) error {
 				Usr:          r.systemUser,
 				App:          r.app,
 				Config:       r.config,
+				Variables:    variables,
 			})
 			logger.Debugf("Context for command '%s' was created", commandName)
 
