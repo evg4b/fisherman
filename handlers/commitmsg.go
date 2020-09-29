@@ -14,18 +14,22 @@ import (
 
 // CommitMsgHandler is a handler for commit-msg hook
 func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
-	config := ctx.Config.CommitMsgHook
-	if config == nil {
-		logger.Debug("CommitMsgHook is not presented.")
+	config := &ctx.Config.CommitMsgHook
 
-		return nil
+	err := ctx.LoadAdditionalVariables(&config.Variables)
+	if err != nil {
+		return err
 	}
+
+	utils.FillTemplate(&config.MessagePrefix, ctx.Variables)
+	utils.FillTemplate(&config.MessageSuffix, ctx.Variables)
+	utils.FillTemplate(&config.StaticMessage, ctx.Variables)
 
 	logger.Debug("CommitMsgHook is presented.")
 	commitMessage, err := ctx.Files.Read(args[0])
 	utils.HandleCriticalError(err)
 
-	if utils.IsEmpty(config.StaticMessage) {
+	if utils.IsNotEmpty(config.StaticMessage) {
 		logger.Debug("Static message is presented.")
 		err := ctx.Files.Write(args[0], config.StaticMessage)
 		utils.HandleCriticalError(err)
@@ -47,17 +51,17 @@ func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multier
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.MessagePrefix) && !strings.HasPrefix(message, config.MessagePrefix) {
+	if utils.IsNotEmpty(config.MessagePrefix) && !strings.HasPrefix(message, config.MessagePrefix) {
 		err := fmt.Errorf("commit message should have prefix '%s'", config.MessagePrefix)
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.MessageSuffix) && !strings.HasSuffix(message, config.MessageSuffix) {
+	if utils.IsNotEmpty(config.MessageSuffix) && !strings.HasSuffix(message, config.MessageSuffix) {
 		err := fmt.Errorf("commit message should have suffix '%s'", config.MessageSuffix)
 		result = multierror.Append(result, err)
 	}
 
-	if !utils.IsEmpty(config.MessageRegexp) {
+	if utils.IsNotEmpty(config.MessageRegexp) {
 		matched, err := regexp.MatchString(config.MessageRegexp, message)
 		utils.HandleCriticalError(err)
 

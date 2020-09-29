@@ -12,3 +12,10 @@ func PrintGraphics(wr io.Writer, content string, data map[string]interface{}) {
 	_, err := tpl.Execute(wr, data)
 	HandleCriticalError(err)
 }
+
+// PrintGraphics prints fill template data from map or object and put this content in io.Writer.
+func FillTemplate(src *string, data map[string]interface{}) {
+	*src = fasttemplate.
+		New(*src, "{{", "}}").
+		ExecuteString(data)
+}

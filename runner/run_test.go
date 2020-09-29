@@ -82,7 +82,7 @@ func TestRunner_Run(t *testing.T) {
 			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 				CommandList: tt.commands,
 				Config: &config.FishermanConfig{
-					GlobalVariables: make(map[string]string),
+					GlobalVariables: make(map[string]interface{}),
 				},
 				ConfigInfo: &config.LoadInfo{},
 				Cwd:        "demo",
