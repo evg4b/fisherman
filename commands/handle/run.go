@@ -21,7 +21,7 @@ func (c *Command) Init(args []string) error {
 // Run executes handle command
 func (c *Command) Run(ctx *commands.CommandContext) error {
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
-		utils.PrintGraphics(logger.Writer(), constants.HookHeader, map[string]string{
+		utils.PrintGraphics(logger.Writer(), constants.HookHeader, map[string]interface{}{
 			"Hook":             c.hook,
 			"GlobalConfigPath": utils.OriginalOrNA(ctx.App.GlobalConfigPath),
 			"LocalConfigPath":  utils.OriginalOrNA(ctx.App.LocalConfigPath),

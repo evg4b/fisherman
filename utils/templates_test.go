@@ -12,21 +12,25 @@ func TestPrintGraphics(t *testing.T) {
 	tests := []struct {
 		name    string
 		content string
-		data    interface{}
+		data    map[string]interface{}
 		wantWr  string
 	}{
 		{name: "Print template without data", content: "Template", data: nil, wantWr: "Template"},
-		{name: "Print template with empty data map", content: "Template", data: make(map[string]string), wantWr: "Template"},
+		{
+			name:    "Print template with empty data map",
+			content: "Template",
+			data:    make(map[string]interface{}),
+			wantWr:  "Template",
+		},
 		{
 			name:    "Print template with correct data",
-			content: "Template [{{.Demo}}] = {{.Test}}",
-			data: map[string]string{
+			content: "Template [{{Demo}}] = {{Test}}",
+			data: map[string]interface{}{
 				"Demo": "this is demo",
 				"Test": "this is test",
 			},
 			wantWr: "Template [this is demo] = this is test",
 		},
-		{name: "Print template without data", content: "Temp{{.}}", data: "late", wantWr: "Template"},
 	}
 
 	for _, tt := range tests {
@@ -42,10 +46,9 @@ func TestPrintGraphicsPanics(t *testing.T) {
 	tests := []struct {
 		name    string
 		content string
-		data    interface{}
+		data    map[string]interface{}
 	}{
-		{name: "Panics when template is brocken", content: "Template{{.Demo", data: nil},
-		{name: "Panics when data is incorrect", content: "Template", data: 0},
+		{name: "Panics when template is brocken", content: "Template{{Demo", data: nil},
 		{name: "Panics when writer is nil", content: "Template", data: nil},
 	}
 

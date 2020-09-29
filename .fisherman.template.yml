@@ -1,0 +1,12 @@
+# template for 
+hooks:
+  commit-msg:
+    not-empty: false
+    commit-regexp: '^fisherman$'
+    commit-prefix: '[{{.Demo}}]'
+    commit-suffix: '[fisherman]'
+    static-message: '[fisherman comment]'
+
+
+output:
+  level: 0

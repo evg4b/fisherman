@@ -10,6 +10,7 @@ require (
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.6.1
+	github.com/valyala/fasttemplate v1.2.1
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73 // indirect
 	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
 	gopkg.in/yaml.v2 v2.3.0

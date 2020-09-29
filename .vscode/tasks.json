@@ -41,6 +41,19 @@
             ]
         },
         {
+            "label": "Lint and fix code",
+            "type": "shell",
+            "command": "golangci-lint",
+            "args": [
+                "run",
+                "./...",
+                "--fix"
+            ],
+            "problemMatcher": [
+                "$go"
+            ]
+        },
+        {
             "label": "Build binary",
             "type": "shell",
             "command": "go",

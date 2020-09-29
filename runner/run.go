@@ -14,7 +14,9 @@ import (
 func (r *Runner) Run(args []string) error {
 	if len(args) < 1 {
 		logger.Debug("No command detected")
-		utils.PrintGraphics(logger.Writer(), constants.Logo, constants.Version)
+		utils.PrintGraphics(logger.Writer(), constants.Logo, map[string]interface{}{
+			"Version": constants.Version,
+		})
 		flag.Parse()
 		flag.PrintDefaults()
 
