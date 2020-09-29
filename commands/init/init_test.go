@@ -5,7 +5,7 @@ import (
 	initc "fisherman/commands/init"
 	"fisherman/config"
 	"fisherman/constants"
-	iomock "fisherman/mocks/infrastructure/io"
+	iomock "fisherman/mocks/infrastructure"
 	"flag"
 	"path/filepath"
 	"testing"
@@ -41,7 +41,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 					Cwd:                cwd,
 					IsRegisteredInPath: true,
 				},
-				Config: &config.DefaultConfig,
+				Config: &config.HooksConfig{},
 			}
 			err := command.Init(tt.args)
 			assert.NoError(t, err)

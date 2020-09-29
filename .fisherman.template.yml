@@ -1,12 +1,27 @@
-# template for 
+variables:
+  name: value
+
 hooks:
   commit-msg:
+    variables:
+      from-branch: 'regexp'
     not-empty: false
-    commit-regexp: '^fisherman$'
-    commit-prefix: '[{{.Demo}}]'
-    commit-suffix: '[fisherman]'
-    static-message: '[fisherman comment]'
-
+    commit-regexp: 'regexp'
+    commit-prefix: 'template'
+    commit-suffix: 'template'
+    static-message: 'template'
+  apply-patch-msg: null
+  fs-monitor-watchman: null
+  post-update: null
+  pre-apply-patch: null
+  pre-commit: null
+  pre-push: null
+  pre-rebase: null
+  pre-receive: null
+  prepare-commit-msg:
+    variables:
+      from-branch: 'regexp'
+    message: 'template'
 
 output:
-  level: 0
+  level: None

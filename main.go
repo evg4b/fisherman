@@ -7,6 +7,7 @@ import (
 	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/vcs"
 	"fisherman/runner"
 	"fisherman/utils"
 	"flag"
@@ -33,6 +34,9 @@ func main() {
 
 	conf, configInfo := config.LoadConfig(cwd, usr, fileAccessor)
 
+	repo, err := vcs.NewGitRepository(cwd)
+	utils.HandleCriticalError(err)
+
 	logger.Configure(conf.Output)
 	runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 		CommandList: []commands.CliCommand{
@@ -45,6 +49,7 @@ func main() {
 		SystemUser: usr,
 		Cwd:        cwd,
 		Executable: appPath,
+		Repository: repo,
 	})
 
 	if err = runnerInstance.Run(os.Args[1:]); err != nil {
@@ -54,8 +59,7 @@ func main() {
 
 func panicInterceptor() {
 	if err := recover(); err != nil {
-		logger.Error("Fatal error:")
-		logger.Error(err)
+		logger.Errorf("Fatal error: %s", err)
 		os.Exit(fatalExitCode)
 	} else {
 		os.Exit(applicationErrorCode)

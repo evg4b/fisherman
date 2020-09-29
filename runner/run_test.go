@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fisherman/commands"
 	"fisherman/config"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/io"
 	commandsmock "fisherman/mocks/commands"
+	mocks "fisherman/mocks/infrastructure"
 	"fisherman/runner"
 	"io/ioutil"
 	"log"
@@ -18,6 +20,8 @@ import (
 
 func TestRunner_Run(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
+	repo := mocks.Repository{}
+	repo.On("GetUser").Return(infrastructure.User{}, nil)
 
 	tests := []struct {
 		name          string
@@ -77,12 +81,15 @@ func TestRunner_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 				CommandList: tt.commands,
-				Config:      &config.DefaultConfig,
-				ConfigInfo:  &config.LoadInfo{},
-				Cwd:         "demo",
-				Files:       &io.LocalFileAccessor{},
-				SystemUser:  &user.User{},
-				Executable:  "bin",
+				Config: &config.FishermanConfig{
+					GlobalVariables: make(map[string]string),
+				},
+				ConfigInfo: &config.LoadInfo{},
+				Cwd:        "demo",
+				Files:      &io.LocalFileAccessor{},
+				SystemUser: &user.User{},
+				Executable: "bin",
+				Repository: &repo,
 			})
 
 			assert.NotPanics(t, func() {

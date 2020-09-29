@@ -16,6 +16,7 @@ type Runner struct {
 	config       *config.FishermanConfig
 	app          *commands.AppInfo
 	fileAccessor infrastructure.FileAccessor
+	repository   infrastructure.Repository
 }
 
 // NewRunnerArgs is structure to pass arguments in constructor
@@ -27,6 +28,7 @@ type NewRunnerArgs struct {
 	ConfigInfo  *config.LoadInfo
 	Cwd         string
 	Executable  string
+	Repository  infrastructure.Repository
 }
 
 // NewRunner is constructor for Runner
@@ -46,5 +48,6 @@ func NewRunner(args NewRunnerArgs) *Runner {
 			IsRegisteredInPath: utils.IsCommandExists(constants.AppConfigName),
 		},
 		args.Files,
+		args.Repository,
 	}
 }
