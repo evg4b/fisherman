@@ -84,8 +84,12 @@ func TestValidateMessageCommitRegexp(t *testing.T) {
 		err     error
 	}{
 		{message: "message", regexp: "", err: nil},
-		{message: "Message", regexp: "^[a-z]*$", err: errors.New("commit message should be matched regular expression '^[a-z]*$'")},
 		{message: "message", regexp: "^[a-z]*$", err: nil},
+		{
+			message: "Message",
+			regexp:  "^[a-z]*$",
+			err:     errors.New("commit message should be matched regular expression '^[a-z]*$'"),
+		},
 	}
 
 	for _, tt := range testData {

@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// nolint: lll
 func TestBuildHook(t *testing.T) {
 	testData := []struct {
 		hookName     string

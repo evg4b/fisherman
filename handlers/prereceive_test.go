@@ -10,7 +10,7 @@ import (
 )
 
 func TestPreReceiveHandler(t *testing.T) {
-	constants.Version = "1.0.1"
+	constants.Version = testVertion
 	assert.NotPanics(t, func() {
 		err := handlers.PreReceiveHandler(&commands.CommandContext{}, []string{})
 		assert.Error(t, err, "This hook is not supported in version 1.0.1.")

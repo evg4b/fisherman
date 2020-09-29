@@ -49,7 +49,6 @@ func main() {
 
 	if err = runnerInstance.Run(os.Args[1:]); err != nil {
 		logger.Error(err)
-		os.Exit(applicationErrorCode)
 	}
 }
 
@@ -58,5 +57,7 @@ func panicInterceptor() {
 		logger.Error("Fatal error:")
 		logger.Error(err)
 		os.Exit(fatalExitCode)
+	} else {
+		os.Exit(applicationErrorCode)
 	}
 }

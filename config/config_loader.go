@@ -2,7 +2,7 @@ package config
 
 import (
 	"fisherman/constants"
-	"fisherman/infrastructure"
+	inf "fisherman/infrastructure"
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"os/user"
@@ -23,7 +23,7 @@ type LoadInfo struct {
 }
 
 // LoadConfig is demo
-func LoadConfig(cwd string, usr *user.User, accessor infrastructure.FileAccessor) (*FishermanConfig, *LoadInfo) {
+func LoadConfig(cwd string, usr *user.User, accessor inf.FileAccessor) (*FishermanConfig, *LoadInfo) {
 	config := FishermanConfig{
 		Output: logger.DefaultOutputConfig,
 	}
@@ -38,12 +38,12 @@ func LoadConfig(cwd string, usr *user.User, accessor infrastructure.FileAccessor
 	return &config, loadInfo
 }
 
-func unmarshlIfExist(cwd string, usr *user.User, mode string, accessor infrastructure.FileAccessor, config *FishermanConfig) string {
+func unmarshlIfExist(cwd string, usr *user.User, mode string, files inf.FileAccessor, config *FishermanConfig) string {
 	path, err := BuildFileConfigPath(cwd, usr, mode)
 	utils.HandleCriticalError(err)
 
-	if accessor.Exist(path) {
-		data, err := accessor.Read(path)
+	if files.Exist(path) {
+		data, err := files.Read(path)
 		utils.HandleCriticalError(err)
 		err = yaml.Unmarshal([]byte(data), config)
 		utils.HandleCriticalError(err)

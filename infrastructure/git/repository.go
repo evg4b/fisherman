@@ -4,47 +4,39 @@ import (
 	"fisherman/utils"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 )
 
-type GitRepository struct {
+type FGitRepository struct {
 	repo *git.Repository
 }
 
-func NewRepository(path string) *GitRepository {
+func NewRepository(path string) *FGitRepository {
 	r, err := git.PlainOpen(path)
 	utils.HandleCriticalError(err)
 
-	return &GitRepository{
+	return &FGitRepository{
 		repo: r,
 	}
 }
 
-func (r *GitRepository) GetCurrentBranch() (string, error) {
+func (r *FGitRepository) GetCurrentBranch() (string, error) {
 	branchRefs, err := r.repo.Branches()
 	if err != nil {
 		return "", err
 	}
+
+	defer branchRefs.Close()
 
 	headRef, err := r.repo.Head()
 	if err != nil {
 		return "", err
 	}
 
-	var currentBranchName string
-	err = branchRefs.ForEach(func(branchRef *plumbing.Reference) error {
+	for branchRef, err := branchRefs.Next(); err != nil; {
 		if branchRef.Hash() == headRef.Hash() {
-			currentBranchName = branchRef.Name().String()
-
-			return nil
+			return branchRef.Name().String(), nil
 		}
-
-		return nil
-	})
-
-	if err != nil {
-		return "", err
 	}
 
-	return currentBranchName, nil
+	panic("Current branch not fount")
 }

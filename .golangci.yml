@@ -4,4 +4,24 @@ run:
     - assets
   allow-parallel-runners: true
 linters:
-  enable: [gosec, unconvert, nlreturn, nestif, gomnd, stylecheck, gosec, gocyclo, maligned, dupl, misspell, unparam, whitespace, godox]
+  enable:
+    - gosec
+    - unconvert
+    - nlreturn
+    - nestif
+    - gomnd
+    - stylecheck
+    - gocyclo
+    - maligned
+    - dupl
+    - misspell
+    - unparam
+    - whitespace
+    - godox
+    - golint
+    - interfacer
+    - goconst
+    - asciicheck
+    - lll
+    - gocritic
+    - vet
