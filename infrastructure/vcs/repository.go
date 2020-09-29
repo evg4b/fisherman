@@ -35,7 +35,7 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 		return "", err
 	}
 
-	for branchRef, err := branchRefs.Next(); err != nil; {
+	for branchRef, err := branchRefs.Next(); err == nil; {
 		if branchRef.Hash() == headRef.Hash() {
 			return branchRef.Name().String(), nil
 		}

@@ -61,7 +61,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 	bin := constants.AppName
 	if !ctx.App.IsRegisteredInPath {
 		logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
-		bin = ctx.App.Executable
+		bin = fmt.Sprintf("'%s'", ctx.App.Executable)
 	}
 
 	for _, hookName := range constants.HooksNames {

@@ -17,6 +17,7 @@ import (
 
 const fatalExitCode = 1
 const applicationErrorCode = 2
+const successCode = 0
 
 func main() {
 	defer panicInterceptor()
@@ -54,14 +55,20 @@ func main() {
 
 	if err = runnerInstance.Run(os.Args[1:]); err != nil {
 		logger.Error(err)
+		exit(applicationErrorCode)
 	}
+
+	exit(successCode)
 }
 
 func panicInterceptor() {
 	if err := recover(); err != nil {
 		logger.Errorf("Fatal error: %s", err)
-		os.Exit(fatalExitCode)
-	} else {
-		os.Exit(applicationErrorCode)
+		exit(fatalExitCode)
 	}
+}
+
+func exit(code int) {
+	logger.Debugf("Process exit with code %d", code)
+	os.Exit(code)
 }

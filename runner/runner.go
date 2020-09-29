@@ -45,7 +45,7 @@ func NewRunner(args NewRunnerArgs) *Runner {
 			GlobalConfigPath:   configInfo.GlobalConfigPath,
 			LocalConfigPath:    configInfo.LocalConfigPath,
 			RepoConfigPath:     configInfo.RepoConfigPath,
-			IsRegisteredInPath: utils.IsCommandExists(constants.AppConfigName),
+			IsRegisteredInPath: utils.IsCommandExists(constants.AppName),
 		},
 		args.Files,
 		args.Repository,

@@ -60,3 +60,24 @@ func TestPrintGraphicsPanics(t *testing.T) {
 		})
 	}
 }
+
+func TestFillTemplate(t *testing.T) {
+	tests := []struct {
+		name     string
+		template string
+		expected string
+	}{
+		{name: "Should update template correctly", template: "Template = {{Test}}", expected: "Template = Test value"},
+		{name: "Should skip template correctly", template: "Template", expected: "Template"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			utils.FillTemplate(&tt.template, map[string]interface{}{
+				"Test": "Test value",
+			})
+
+			assert.Equal(t, tt.expected, tt.template)
+		})
+	}
+}
