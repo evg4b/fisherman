@@ -20,3 +20,5 @@
 
 # Vscode
 .vscode\debug-data
+*.log
+coverage.html
