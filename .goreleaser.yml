@@ -17,7 +17,7 @@ archives:
       386: 32-bit
       amd64: 64-bit
     files:
-      - LICENSE.txt
+      - LICENSE
 
 source:
   enabled: false
