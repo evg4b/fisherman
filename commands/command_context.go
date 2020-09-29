@@ -62,7 +62,7 @@ func (ctx *CommandContext) LoadAdditionalVariables(variables *hooks.Variables) e
 		return err
 	}
 
-	err = mergo.Merge(&ctx.Variables, additional)
+	err = mergo.MergeWithOverwrite(&ctx.Variables, additional)
 	if err != nil {
 		return err
 	}

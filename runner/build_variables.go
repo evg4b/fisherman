@@ -7,7 +7,7 @@ import (
 	"github.com/imdario/mergo"
 )
 
-func (r *Runner) getVariables() (map[string]interface{}, error) {
+func (r *Runner) buildVariables() (map[string]interface{}, error) {
 	gitUser, err := r.repository.GetUser()
 	if err != nil {
 		return nil, err

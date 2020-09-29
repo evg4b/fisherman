@@ -23,25 +23,12 @@ func NewGitRepository(path string) (*GitRepository, error) {
 }
 
 func (r *GitRepository) GetCurrentBranch() (string, error) {
-	branchRefs, err := r.repo.Branches()
-	if err != nil {
-		return "", err
-	}
-
-	defer branchRefs.Close()
-
 	headRef, err := r.repo.Head()
 	if err != nil {
 		return "", err
 	}
 
-	for branchRef, err := branchRefs.Next(); err == nil; {
-		if branchRef.Hash() == headRef.Hash() {
-			return branchRef.Name().String(), nil
-		}
-	}
-
-	panic("Current branch not fount")
+	return headRef.Name().String(), nil
 }
 
 func (r *GitRepository) GetUser() (infrastructure.User, error) {
