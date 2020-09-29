@@ -27,7 +27,7 @@ func (r *Runner) Run(args []string) error {
 	logger.Debugf("Runned program from binary '%s'", r.app.Executable)
 	logger.Debugf("Called command '%s'", commandName)
 
-	variables, err := r.getVariables()
+	variables, err := r.buildVariables()
 	if err != nil {
 		return err
 	}
