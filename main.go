@@ -4,6 +4,7 @@ import (
 	"fisherman/commands"
 	"fisherman/commands/handle"
 	initc "fisherman/commands/init"
+	"fisherman/commands/remove"
 	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/logger"
@@ -42,7 +43,8 @@ func main() {
 	runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
 		CommandList: []commands.CliCommand{
 			initc.NewCommand(flag.ExitOnError),
-			handle.NewCommand(flag.ExitOnError, fileAccessor),
+			handle.NewCommand(flag.ExitOnError),
+			remove.NewCommand(flag.ExitOnError),
 		},
 		Config:     conf,
 		ConfigInfo: configInfo,
