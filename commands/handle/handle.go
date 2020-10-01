@@ -3,7 +3,6 @@ package handle
 import (
 	c "fisherman/constants"
 	"fisherman/handlers"
-	"fisherman/infrastructure"
 	"flag"
 )
 
@@ -15,7 +14,7 @@ type Command struct {
 }
 
 // NewCommand is constructor for handle command
-func NewCommand(handling flag.ErrorHandling, f infrastructure.FileAccessor) *Command {
+func NewCommand(handling flag.ErrorHandling) *Command {
 	fs := flag.NewFlagSet("handle", handling)
 	c := &Command{
 		fs: fs,

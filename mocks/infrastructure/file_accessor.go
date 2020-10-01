@@ -9,6 +9,20 @@ type FileAccessor struct {
 	mock.Mock
 }
 
+// Delete provides a mock function with given fields: path
+func (_m *FileAccessor) Delete(path string) error {
+	ret := _m.Called(path)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(path)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Exist provides a mock function with given fields: path
 func (_m *FileAccessor) Exist(path string) bool {
 	ret := _m.Called(path)

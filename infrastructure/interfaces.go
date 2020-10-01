@@ -22,4 +22,5 @@ type FileAccessor interface {
 	FileWriter
 	FileReader
 	Exist(path string) bool
+	Delete(path string) error
 }

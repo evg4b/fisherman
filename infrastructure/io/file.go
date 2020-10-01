@@ -30,6 +30,10 @@ func (f *LocalFileAccessor) Read(path string) (string, error) {
 	return string(data), nil
 }
 
+func (f *LocalFileAccessor) Delete(path string) error {
+	return os.Remove(path)
+}
+
 func (f *LocalFileAccessor) Write(path, content string) error {
 	return ioutil.WriteFile(path, []byte(content), 0600)
 }
