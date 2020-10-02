@@ -40,7 +40,7 @@ const features = [
   },
 ];
 
-function Feature({imageUrl, title, description}) {
+const Feature = ({imageUrl, title, description}) => {
   const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={clsx('col col--4', styles.feature)}>
@@ -55,10 +55,9 @@ function Feature({imageUrl, title, description}) {
   );
 }
 
-const Example = () => {
-  const {isDarkTheme, setLightTheme, setDarkTheme} = useThemeContext();
-
-  return <h1>Dark mode is now {isDarkTheme ? 'on' : 'off'}</h1>;
+const Image = ({ image, darkImage }) => {
+  const {isDarkTheme} = useThemeContext();
+  return <img src={useBaseUrl(isDarkTheme ? darkImage : image)} />;
 };
 
 function Home() {
@@ -66,23 +65,21 @@ function Home() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={siteConfig.title}
       description="Description will go into a meta tag in <head />">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
-          <h1 className="hero__title">
-          <img src={useBaseUrl('img/preview.png')} />
-          </h1>
-          <Example />
-          
+          <div>
+            <Image image="img/preview.png" darkImage="img/preview_dark.png" />
+          </div>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
           <div className={styles.buttons}>
             <Link
               className={clsx(
-                'button button--outline button--secondary button--lg',
+                'button button--outline button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('docs/')}>
+              to={useBaseUrl('/docs/installation')}>
               Get Started
             </Link>
           </div>
