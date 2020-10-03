@@ -3,7 +3,7 @@ module.exports = {
   tagline: 'Small git hooks tool for developer.',
   url: 'https://fisherman.netlify.app',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'evg4b',
   projectName: 'fisherman',
@@ -61,14 +61,14 @@ module.exports = {
     ],
   ],
   plugins: [
-    [
-      '@docusaurus/plugin-sitemap',
-      {
-        cacheTime: 600 * 1000,
-        changefreq: 'weekly',
-        priority: 0.5,
-        trailingSlash: false,
-      },
-    ],
+    // [
+    //   '@docusaurus/plugin-sitemap',
+    //   {
+    //     cacheTime: 600 * 1000,
+    //     changefreq: 'weekly',
+    //     priority: 0.5,
+    //     trailingSlash: false,
+    //   },
+    // ],
   ]
 };
