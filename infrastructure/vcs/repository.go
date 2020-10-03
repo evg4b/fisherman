@@ -1,10 +1,12 @@
 package vcs
 
 import (
+	"errors"
 	"fisherman/infrastructure"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type GitRepository struct {
@@ -25,6 +27,10 @@ func NewGitRepository(path string) (*GitRepository, error) {
 func (r *GitRepository) GetCurrentBranch() (string, error) {
 	headRef, err := r.repo.Head()
 	if err != nil {
+		if errors.Is(err, plumbing.ErrReferenceNotFound) {
+			return "", nil
+		}
+
 		return "", err
 	}
 
