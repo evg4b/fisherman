@@ -6,16 +6,12 @@ import (
 	"fisherman/infrastructure/logger"
 	"fisherman/utils"
 	"fmt"
-	"log"
 	"strings"
 )
 
 // Init initialize handle command
 func (c *Command) Init(args []string) error {
-	err := c.fs.Parse(args)
-	log.Println(c.fs.Args())
-
-	return err
+	return c.fs.Parse(args)
 }
 
 // Run executes handle command

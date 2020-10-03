@@ -195,22 +195,38 @@ func TestInfofWithLogLevel(t *testing.T) {
 func TestWrite(t *testing.T) {
 	output := mockLogModule()
 
-	testData := []string{
-		"demo",
-		"multiline demo\nmultiline demo\nmultiline demo",
-		"multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
-		"",
-		"\t\t\t",
+	testData := []struct {
+		message string
+		output  string
+		level   logger.LogLevel
+	}{
+		{message: "demo", output: "demo", level: logger.DebugLevel},
+		{
+			message: "multiline demo\nmultiline demo\nmultiline demo",
+			output:  "multiline demo\nmultiline demo\nmultiline demo",
+			level:   logger.DebugLevel,
+		},
+		{
+			message: "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
+			output:  "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
+			level:   logger.DebugLevel,
+		},
+		{message: "", output: "", level: logger.DebugLevel},
+		{message: "\t\t\t", output: "\t\t\t", level: logger.DebugLevel},
+		{message: "test1", output: "", level: logger.ErrorLevel},
+		{message: "test2", output: "test2", level: logger.InfoLevel},
+		{message: "test3", output: "test3", level: logger.DebugLevel},
+		{message: "test4", output: "", level: logger.NoneLevel},
 	}
 
-	for _, message := range testData {
-		t.Run(fmt.Sprintf("Write message '%s' correctly", message), func(t *testing.T) {
+	for _, tt := range testData {
+		t.Run(fmt.Sprintf("Write message '%s' correctly", tt.message), func(t *testing.T) {
 			output.Reset()
-			logger.Configure(logger.OutputConfig{LogLevel: logger.DebugLevel})
-			bytesCount, err := logger.Writer().Write([]byte(message))
-			assert.Equal(t, message, output.String())
+			logger.Configure(logger.OutputConfig{LogLevel: tt.level})
+			bytesCount, err := logger.Writer().Write([]byte(tt.message))
+			assert.Equal(t, tt.output, output.String())
 			assert.NoError(t, err)
-			assert.Equal(t, len([]byte(message)), bytesCount)
+			assert.Equal(t, len([]byte(tt.message)), bytesCount)
 		})
 	}
 }

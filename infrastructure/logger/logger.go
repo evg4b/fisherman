@@ -2,6 +2,7 @@ package logger
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 
 	"github.com/fatih/color"
@@ -92,5 +93,9 @@ func Infof(message string, params ...interface{}) {
 
 // Writer return output io.Writer object
 func Writer() io.Writer {
-	return log.Writer()
+	if level <= InfoLevel {
+		return log.Writer()
+	}
+
+	return ioutil.Discard
 }
