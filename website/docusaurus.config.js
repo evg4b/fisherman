@@ -1,3 +1,5 @@
+const isProd = process.env.NODE_ENV === 'production';
+
 module.exports = {
   title: 'fisherman',
   tagline: 'Small git hooks tool for developer.',
@@ -44,6 +46,7 @@ module.exports = {
         },
       ],
     },
+    googleAnalytics: { trackingID: 'UA-128394725-2' },
   },
   presets: [
     [
@@ -51,24 +54,14 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: 'https://github.com/evg4b/fisherman/edit/master/website/',
+          includeCurrentVersion: !isProd,
+          showLastUpdateTime: true,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
+        blog: false,
       },
     ],
   ],
-  plugins: [
-    // [
-    //   '@docusaurus/plugin-sitemap',
-    //   {
-    //     cacheTime: 600 * 1000,
-    //     changefreq: 'weekly',
-    //     priority: 0.5,
-    //     trailingSlash: false,
-    //   },
-    // ],
-  ]
 };
