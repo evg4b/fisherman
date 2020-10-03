@@ -7,7 +7,7 @@ builds:
       - -tags=release
       - -v
     ldflags:
-      - -s -w -X main.Version={{.Version}}
+      - -s -w -X fisherman/constants.Version={{.Version}}
 
 archives:
   - replacements:
