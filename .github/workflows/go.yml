@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Lint
+        if: startsWith(matrix.os, 'ubuntu')
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.31
@@ -37,12 +38,14 @@ jobs:
         run: go test -v -cover -coverprofile 'cover.out' ./...
 
       - name: Build coverage profile
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           go get github.com/axw/gocov/gocov
           go get github.com/matm/gocov-html
           gocov convert 'cover.out' | gocov-html > coverage.html
 
       - name: Upload coverage profile
+        if: startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v2
         with:
           name: Coverage profile
