@@ -24,6 +24,7 @@ type Command struct {
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
+	defer logger.Debug("Init command created")
 	fs := flag.NewFlagSet("init", handling)
 	c := &Command{fs: fs}
 	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)

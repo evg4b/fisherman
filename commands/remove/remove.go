@@ -15,6 +15,7 @@ type Command struct {
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
+	defer logger.Debug("Remove command created")
 	fs := flag.NewFlagSet("remove", handling)
 
 	return &Command{

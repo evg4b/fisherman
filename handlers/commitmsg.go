@@ -10,24 +10,34 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/mkideal/pkg/errors"
 )
 
 // CommitMsgHandler is a handler for commit-msg hook
 func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
+	if len(args) < 1 {
+		return errors.Throw("Commit message file argument is not presented")
+	}
+
 	config := &ctx.Config.CommitMsgHook
 
 	err := ctx.LoadAdditionalVariables(&config.Variables)
 	if err != nil {
+		logger.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
+
 		return err
 	}
+	logger.Debug("Additional variables was loaded")
 
 	utils.FillTemplate(&config.MessagePrefix, ctx.Variables)
 	utils.FillTemplate(&config.MessageSuffix, ctx.Variables)
 	utils.FillTemplate(&config.StaticMessage, ctx.Variables)
+	logger.Debug("Templates was compiled")
 
-	logger.Debug("CommitMsgHook is presented.")
+	logger.Debugf("Reading commit message file %s", args[0])
 	commitMessage, err := ctx.Files.Read(args[0])
 	utils.HandleCriticalError(err)
+	logger.Debugf("Commit message file was successful read")
 
 	if utils.IsNotEmpty(config.StaticMessage) {
 		logger.Debug("Static message is presented.")
@@ -38,7 +48,7 @@ func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 		return nil
 	}
 
-	logger.Debug("Starting validation.")
+	logger.Debug("Static message is not presented. Starting validation.")
 
 	return validateMessage(commitMessage, config).ErrorOrNil()
 }

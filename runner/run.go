@@ -25,6 +25,7 @@ func (r *Runner) Run(args []string) error {
 
 	commandName := args[0]
 	logger.Debugf("Runned program from binary '%s'", r.app.Executable)
+	logger.Debugf("Runned runned in folder '%s'", r.app.Cwd)
 	logger.Debugf("Called command '%s'", commandName)
 
 	variables, err := r.buildVariables()

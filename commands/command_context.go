@@ -4,7 +4,10 @@ import (
 	"fisherman/config"
 	"fisherman/config/hooks"
 	"fisherman/infrastructure"
+	"fisherman/infrastructure/logger"
 	"os/user"
+
+	"github.com/mkideal/pkg/errors"
 
 	"github.com/imdario/mergo"
 )
@@ -54,16 +57,22 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 func (ctx *CommandContext) LoadAdditionalVariables(variables *hooks.Variables) error {
 	branch, err := ctx.Repository.GetCurrentBranch()
 	if err != nil {
+		logger.Debugf("Failed getting current branch: %s\n%s", err, errors.Wrap(err))
+
 		return err
 	}
 
 	additional, err := variables.GetFromBranch(branch)
 	if err != nil {
+		logger.Debugf("Failed getting variables from branch: %s\n%s", err, errors.Wrap(err))
+
 		return err
 	}
 
 	err = mergo.MergeWithOverwrite(&ctx.Variables, additional)
 	if err != nil {
+		logger.Debugf("Failed merging variables: %s\n%s", err, errors.Wrap(err))
+
 		return err
 	}
 
