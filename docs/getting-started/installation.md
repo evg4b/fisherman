@@ -4,5 +4,7 @@ title: Installation
 slug: /installation
 ---
 
-This ins introduction page
+:::danger
+This page under construction...
+:::
 

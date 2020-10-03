@@ -25,8 +25,8 @@ module.exports = {
         {
           title: 'Docs',
           items: [
-            { label: 'Style Guide', to: 'docs/' },
-            { label: 'Second Doc', to: 'docs/doc2/' },
+            { label: 'Style Guide', to: '/' },
+            { label: 'Second Doc', to: '/' },
           ],
         },
         {
@@ -40,7 +40,6 @@ module.exports = {
         {
           title: 'More',
           items: [
-            { label: 'Blog', to: 'blog' },
             { label: 'GitHub', href: 'https://github.com/facebook/docusaurus' },
           ],
         },
@@ -54,7 +53,8 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          includeCurrentVersion: !isProd,
+          path: '../docs',
+          includeCurrentVersion: true,
           showLastUpdateTime: true,
         },
         theme: {

@@ -4,4 +4,6 @@ title: Fisherman Introduction
 slug: /
 ---
 
-This ins introduction page
+:::danger
+This page under construction...
+:::

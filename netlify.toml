@@ -2,3 +2,8 @@
   base = "website/"
   publish = "build"
   command = "yarn build"
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/img/favicon.ico"
+  force = true
