@@ -22,3 +22,4 @@
 .vscode\debug-data
 *.log
 coverage.html
+.vscode/debug-data

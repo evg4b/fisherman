@@ -13,7 +13,7 @@ type Variables struct {
 func (c *Variables) GetFromBranch(branchName string) (map[string]interface{}, error) {
 	variables := make(map[string]interface{})
 
-	if utils.IsNotEmpty(c.FromBranch) {
+	if utils.IsNotEmpty(c.FromBranch) && utils.IsNotEmpty(branchName) {
 		reg, err := regexp.Compile(c.FromBranch)
 		if err != nil {
 			return nil, err

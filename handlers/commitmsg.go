@@ -50,7 +50,7 @@ func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 
 	logger.Debug("Static message is not presented. Starting validation.")
 
-	return validateMessage(commitMessage, config).ErrorOrNil()
+	return validateMessage(strings.TrimSpace(commitMessage), config).ErrorOrNil()
 }
 
 func validateMessage(message string, config *hooks.CommitMsgHookConfig) *multierror.Error {
