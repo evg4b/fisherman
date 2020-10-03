@@ -3,6 +3,7 @@ package vcs
 import (
 	"errors"
 	"fisherman/infrastructure"
+	"fisherman/utils"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -10,22 +11,16 @@ import (
 )
 
 type GitRepository struct {
-	repo *git.Repository
+	path         string
+	internalRepo *git.Repository
 }
 
 func NewGitRepository(path string) (*GitRepository, error) {
-	r, err := git.PlainOpen(path)
-	if err != nil {
-		return nil, err
-	}
-
-	return &GitRepository{
-		repo: r,
-	}, nil
+	return &GitRepository{path: path, internalRepo: nil}, nil
 }
 
 func (r *GitRepository) GetCurrentBranch() (string, error) {
-	headRef, err := r.repo.Head()
+	headRef, err := r.repo().Head()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -38,7 +33,7 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 }
 
 func (r *GitRepository) GetUser() (infrastructure.User, error) {
-	config, err := r.repo.ConfigScoped(config.SystemScope)
+	config, err := r.repo().ConfigScoped(config.SystemScope)
 	if err != nil {
 		return infrastructure.User{}, err
 	}
@@ -47,4 +42,14 @@ func (r *GitRepository) GetUser() (infrastructure.User, error) {
 		UserName: config.User.Name,
 		Email:    config.User.Name,
 	}, err
+}
+
+func (r *GitRepository) repo() *git.Repository {
+	if r.internalRepo == nil {
+		repo, err := git.PlainOpen(r.path)
+		utils.HandleCriticalError(err)
+		r.internalRepo = repo
+	}
+
+	return r.internalRepo
 }
