@@ -26,9 +26,12 @@ commit-msg:
 
 ### variables:
 
+Section describing expressions for extracting variables from sources. See more information [here](./../variables.md).
+
+#### from-branch: 
 
 ### static-message: 
-This is [template](/). Users commit message will be replaced by a compilation result of this field.
+This is template. Users commit message will be replaced by a compilation result of this field.
 :::caution
 When this parament is set other validation rules will be skipped. 
 :::
@@ -40,13 +43,13 @@ When you commit with the `--no-verify` flag this action will not work.
 ## Validation rules:
 
 ### commit-regexp: 
-Regular expression to validation commit messuage. 
+The regular expression to validation commit messuage. 
 
 ### commit-prefix: 
-'template'
+The template with which the message should start.
 
 ### commit-suffix: 
-'template'
+The template with which the message should end.
 
 ### not-empty:
 This boolean value indicates whether a commit with an empty message is not allowed. 

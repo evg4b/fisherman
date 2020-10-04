@@ -26,5 +26,5 @@ hooks:
     message: 'template'
 
 output:
-  level: None
+  level: none
 ```

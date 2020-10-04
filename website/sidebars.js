@@ -23,14 +23,28 @@ module.exports = {
                     id: "configuration/configuration-files"
                 },
                 {
-                    type: "doc",
-                    id: "configuration/commit-msg-hook"
+                    type: "category",
+                    label: "Hooks configuration",
+                    items: [
+                        {
+                            type: "doc",
+                            id: "configuration/hooks/commit-msg-hook"
+                        },
+                        
+                        {
+                            type: "doc",
+                            id: "configuration/hooks/prepare-commit-msg-hook"
+                        },
+                    ]
                 },
-                
                 {
                     type: "doc",
-                    id: "configuration/prepare-commit-msg-hook"
-                }
+                    id: "configuration/variables"
+                },
+                {
+                    type: "doc",
+                    id: "configuration/output"
+                },
             ],
         }
     ],
