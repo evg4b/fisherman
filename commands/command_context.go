@@ -55,21 +55,38 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 }
 
 func (ctx *CommandContext) LoadAdditionalVariables(variables *hooks.Variables) error {
-	branch, err := ctx.Repository.GetCurrentBranch()
+	err := ctx.load(ctx.Repository.GetCurrentBranch, variables.GetFromBranch)
+	if err != nil {
+		return err
+	}
+
+	err = ctx.load(ctx.Repository.GetLastTag, variables.GetFromTag)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ctx *CommandContext) load(
+	source func() (string, error),
+	load func(string) (map[string]interface{}, error),
+) error {
+	sourceString, err := source()
 	if err != nil {
 		logger.Debugf("Failed getting current branch: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}
 
-	additional, err := variables.GetFromBranch(branch)
+	additionalValues, err := load(sourceString)
 	if err != nil {
 		logger.Debugf("Failed getting variables from branch: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}
 
-	err = mergo.MergeWithOverwrite(&ctx.Variables, additional)
+	err = mergo.MergeWithOverwrite(&ctx.Variables, additionalValues)
 	if err != nil {
 		logger.Debugf("Failed merging variables: %s\n%s", err, errors.Wrap(err))
 

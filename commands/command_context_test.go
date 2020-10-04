@@ -13,6 +13,7 @@ import (
 func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 	repo := mocks.Repository{}
 	repo.On("GetCurrentBranch").Return("refs/heads/master", nil)
+	repo.On("GetLastTag").Return("0.0.1", nil)
 
 	tests := []struct {
 		name          string
@@ -53,6 +54,42 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 				"Version":       "version",
 				"Head":          "heads",
 				"Ref":           "refs",
+			},
+		},
+		{
+			name: "asd",
+			args: hooks.Variables{
+				FromBranch:  "refs/heads/(?P<CurrentBranch>.*)",
+				FromLastTag: "0.0.(?P<Test>.*)",
+			},
+			expectedError: nil,
+			expectVars: map[string]interface{}{
+				"CurrentBranch": "master",
+				"Version":       "version",
+				"Test":          "1",
+			},
+		},
+		{
+			name: "asd",
+			args: hooks.Variables{
+				FromBranch:  "refs/heads/(?P<CurrentBranch>.*)",
+				FromLastTag: "(?P<Version>.*)",
+			},
+			expectedError: nil,
+			expectVars: map[string]interface{}{
+				"CurrentBranch": "master",
+				"Version":       "0.0.1",
+			},
+		},
+		{
+			name: "asd",
+			args: hooks.Variables{
+				FromBranch:  "",
+				FromLastTag: "",
+			},
+			expectedError: nil,
+			expectVars: map[string]interface{}{
+				"Version": "version",
 			},
 		},
 	}

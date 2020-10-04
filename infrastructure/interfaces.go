@@ -8,6 +8,7 @@ type User struct {
 type Repository interface {
 	GetCurrentBranch() (string, error)
 	GetUser() (User, error)
+	GetLastTag() (string, error)
 }
 
 type FileWriter interface {

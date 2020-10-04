@@ -5,6 +5,7 @@ hooks:
   commit-msg:
     variables:
       from-branch: 'regexp'
+      from-last-tag: 'regexp'
     not-empty: false
     commit-regexp: 'regexp'
     commit-prefix: 'template'
