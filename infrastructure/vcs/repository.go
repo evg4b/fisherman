@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fisherman/infrastructure"
 	"fisherman/utils"
+	"io"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -46,7 +47,7 @@ func (r *GitRepository) GetUser() (infrastructure.User, error) {
 }
 
 func (r *GitRepository) GetLastTag() (string, error) {
-	tagRefs, err := r.repo().Tags()
+	tagRef, err := r.repo().Tags()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -57,16 +58,27 @@ func (r *GitRepository) GetLastTag() (string, error) {
 
 	var latestTagCommit *object.Commit
 	var latestTagName string
-	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
+
+	defer tagRef.Close()
+	for {
+		tagRef, err := tagRef.Next()
+		if err != nil {
+			if err == io.EOF {
+				return latestTagName, nil
+			}
+
+			return "", err
+		}
+
 		revision := plumbing.Revision(tagRef.Name().String())
 		tagCommitHash, err := r.repo().ResolveRevision(revision)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		commit, err := r.repo().CommitObject(*tagCommitHash)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		if latestTagCommit == nil {
@@ -78,15 +90,7 @@ func (r *GitRepository) GetLastTag() (string, error) {
 			latestTagCommit = commit
 			latestTagName = tagRef.Name().String()
 		}
-
-		return nil
-	})
-
-	if err != nil {
-		return "", err
 	}
-
-	return latestTagName, nil
 }
 
 func (r *GitRepository) repo() *git.Repository {
