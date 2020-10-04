@@ -2,7 +2,6 @@ builds:
   - goos:
       - linux
       - windows
-      - darwin
     flags:
       - -tags=release
       - -v
@@ -11,11 +10,10 @@ builds:
 
 archives:
   - replacements:
-      darwin: macOS
       linux: Linux
       windows: Windows
-      386: 32-bit
-      amd64: 64-bit
+      386: x86
+      amd64: amd64
     files:
       - LICENSE
 

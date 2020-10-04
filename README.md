@@ -2,8 +2,7 @@
     <img width="80%" src="https://res.cloudinary.com/evg-abramovitch/image/upload/v1590264697/fisherman/logo.png">
 </p>
 <p align="center">
-  Small git hooks tool for developer.
-    
+    Small git hook management tool for developer.
 </p>
 <p align="center">
     <a href="https://github.com/evg4b/fisherman/actions?query=workflow%3AGo+branch%3Amaster">
