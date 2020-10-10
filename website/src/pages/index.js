@@ -71,7 +71,7 @@ function Home() {
           <div>
             <Image image="img/preview.png" darkImage="img/preview_dark.png" className={styles.heroBannerImage} />
           </div>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <p className={clsx("hero__subtitle", styles.heroSubtitle)}>{siteConfig.tagline}</p>
           <div className={styles.buttons}>
             <Link
               className={clsx(
