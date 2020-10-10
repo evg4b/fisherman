@@ -5,6 +5,7 @@ import (
 	"fisherman/commands/handle"
 	initc "fisherman/commands/init"
 	"fisherman/commands/remove"
+	"fisherman/commands/version"
 	"fisherman/config"
 	"fisherman/infrastructure/io"
 	"fisherman/infrastructure/log"
@@ -45,6 +46,7 @@ func main() {
 			initc.NewCommand(flag.ExitOnError),
 			handle.NewCommand(flag.ExitOnError),
 			remove.NewCommand(flag.ExitOnError),
+			version.NewCommand(flag.ExitOnError),
 		},
 		Config:     conf,
 		ConfigInfo: configInfo,

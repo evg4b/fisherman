@@ -8,7 +8,7 @@ import (
 // OutputConfig is structure to configure logger
 type OutputConfig struct {
 	LogLevel Level `yaml:"level"`
-	Colors   bool     `yaml:"colors"`
+	Colors   bool  `yaml:"colors"`
 }
 
 // DefaultOutputConfig is default values for configuration
