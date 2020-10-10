@@ -5,7 +5,7 @@ import (
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"fisherman/utils"
 	"flag"
 	"fmt"
@@ -24,7 +24,7 @@ type Command struct {
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer logger.Debug("Init command created")
+	defer log.Debug("Init command created")
 	fs := flag.NewFlagSet("init", handling)
 	c := &Command{fs: fs}
 	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
@@ -42,14 +42,14 @@ func (c *Command) Init(args []string) error {
 
 // Run executes init command
 func (c *Command) Run(ctx *commands.CommandContext) error {
-	logger.Debugf("Statring initialization (force = %t)", c.force)
+	log.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {
 		var result *multierror.Error
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
-			logger.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
+			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
 			if ctx.Files.Exist(hookPath) {
-				logger.Debugf("Hook '%s' already declared", hookName)
+				log.Debugf("Hook '%s' already declared", hookName)
 				result = multierror.Append(result, fmt.Errorf("file %s already exists", hookPath))
 			}
 		}
@@ -61,7 +61,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 
 	bin := constants.AppName
 	if !ctx.App.IsRegisteredInPath {
-		logger.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
+		log.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
 		bin = fmt.Sprintf("'%s'", ctx.App.Executable)
 	}
 
@@ -69,7 +69,7 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 		hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 		err := ctx.Files.Write(hookPath, buildHook(bin, hookName))
 		utils.HandleCriticalError(err)
-		logger.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
+		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
 	}
 
 	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)

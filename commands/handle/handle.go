@@ -3,7 +3,7 @@ package handle
 import (
 	c "fisherman/constants"
 	"fisherman/handlers"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"flag"
 )
 
@@ -16,7 +16,7 @@ type Command struct {
 
 // NewCommand is constructor for handle command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer logger.Debug("Handle command created")
+	defer log.Debug("Handle command created")
 	fs := flag.NewFlagSet("handle", handling)
 	c := &Command{
 		fs: fs,

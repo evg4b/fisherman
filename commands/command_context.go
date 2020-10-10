@@ -4,7 +4,7 @@ import (
 	"fisherman/config"
 	"fisherman/config/hooks"
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"os/user"
 
 	"github.com/mkideal/pkg/errors"
@@ -74,21 +74,21 @@ func (ctx *CommandContext) load(
 ) error {
 	sourceString, err := source()
 	if err != nil {
-		logger.Debugf("Failed getting current branch: %s\n%s", err, errors.Wrap(err))
+		log.Debugf("Failed getting current branch: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}
 
 	additionalValues, err := load(sourceString)
 	if err != nil {
-		logger.Debugf("Failed getting variables from branch: %s\n%s", err, errors.Wrap(err))
+		log.Debugf("Failed getting variables from branch: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}
 
 	err = mergo.MergeWithOverwrite(&ctx.Variables, additionalValues)
 	if err != nil {
-		logger.Debugf("Failed merging variables: %s\n%s", err, errors.Wrap(err))
+		log.Debugf("Failed merging variables: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}

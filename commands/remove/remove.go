@@ -3,7 +3,7 @@ package remove
 import (
 	"fisherman/commands"
 	"fisherman/constants"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"flag"
 	"path/filepath"
 )
@@ -15,7 +15,7 @@ type Command struct {
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer logger.Debug("Remove command created")
+	defer log.Debug("Remove command created")
 	fs := flag.NewFlagSet("remove", handling)
 
 	return &Command{
@@ -33,13 +33,13 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 		if ctx.Files.Exist(hookPath) {
-			logger.Debugf("Hook '%s' exists", hookName)
+			log.Debugf("Hook '%s' exists", hookName)
 			err := ctx.Files.Delete(hookPath)
 			if err != nil {
 				return err
 			}
 
-			logger.Infof("Hook '%s' (%s) was removed", hookName, hookPath)
+			log.Infof("Hook '%s' (%s) was removed", hookName, hookPath)
 		}
 	}
 

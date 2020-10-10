@@ -3,6 +3,7 @@ module fisherman
 go 1.15
 
 require (
+	github.com/GoAdminGroup/go-admin v1.2.17
 	github.com/fatih/color v1.9.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/google/go-cmp v0.5.2 // indirect

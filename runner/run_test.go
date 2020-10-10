@@ -1,5 +1,6 @@
 package runner_test
 
+//nolint: depguard
 import (
 	"errors"
 	"fisherman/commands"

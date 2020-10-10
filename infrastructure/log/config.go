@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 
 // OutputConfig is structure to configure logger
 type OutputConfig struct {
-	LogLevel LogLevel `yaml:"level"`
+	LogLevel Level `yaml:"level"`
 	Colors   bool     `yaml:"colors"`
 }
 
@@ -39,7 +39,7 @@ func (config *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	return nil
 }
 
-func parselogLevel(level string) (LogLevel, error) {
+func parselogLevel(level string) (Level, error) {
 	if strings.EqualFold(level, "error") {
 		return ErrorLevel, nil
 	}

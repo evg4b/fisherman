@@ -1,5 +1,6 @@
-package logger
+package log
 
+//nolint: depguard
 import (
 	"io"
 	"io/ioutil"
@@ -8,12 +9,12 @@ import (
 	"github.com/fatih/color"
 )
 
-// LogLevel is type for determinate log level for console logger
-type LogLevel int
+// Level is type for determinate log level for console logger
+type Level int
 
 // Available log levels
 const (
-	DebugLevel LogLevel = iota
+	DebugLevel Level = iota
 	InfoLevel
 	ErrorLevel
 	NoneLevel

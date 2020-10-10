@@ -26,3 +26,12 @@ linters:
     - lll
     - gocritic
     - vet
+
+linters-settings:
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - log
+    packages-with-error-message:
+      - log: "logging is allowed only by fisherman/infrastructure/log"

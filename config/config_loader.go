@@ -3,7 +3,7 @@ package config
 import (
 	"fisherman/constants"
 	inf "fisherman/infrastructure"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"fisherman/utils"
 	"os/user"
 	"path/filepath"
@@ -25,7 +25,7 @@ type LoadInfo struct {
 // LoadConfig is demo
 func LoadConfig(cwd string, usr *user.User, accessor inf.FileAccessor) (*FishermanConfig, *LoadInfo) {
 	config := FishermanConfig{
-		Output: logger.DefaultOutputConfig,
+		Output: log.DefaultOutputConfig,
 	}
 
 	// Please do not change the order

@@ -3,7 +3,7 @@ package handlers
 import (
 	"fisherman/commands"
 	"fisherman/config/hooks"
-	"fisherman/infrastructure/logger"
+	"fisherman/infrastructure/log"
 	"fisherman/utils"
 	"fmt"
 	"regexp"
@@ -23,32 +23,32 @@ func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
 
 	err := ctx.LoadAdditionalVariables(&config.Variables)
 	if err != nil {
-		logger.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
+		log.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
 
 		return err
 	}
-	logger.Debug("Additional variables was loaded")
+	log.Debug("Additional variables was loaded")
 
 	utils.FillTemplate(&config.MessagePrefix, ctx.Variables)
 	utils.FillTemplate(&config.MessageSuffix, ctx.Variables)
 	utils.FillTemplate(&config.StaticMessage, ctx.Variables)
-	logger.Debug("Templates was compiled")
+	log.Debug("Templates was compiled")
 
-	logger.Debugf("Reading commit message file %s", args[0])
+	log.Debugf("Reading commit message file %s", args[0])
 	commitMessage, err := ctx.Files.Read(args[0])
 	utils.HandleCriticalError(err)
-	logger.Debugf("Commit message file was successful read")
+	log.Debugf("Commit message file was successful read")
 
 	if utils.IsNotEmpty(config.StaticMessage) {
-		logger.Debug("Static message is presented.")
+		log.Debug("Static message is presented.")
 		err := ctx.Files.Write(args[0], config.StaticMessage)
 		utils.HandleCriticalError(err)
-		logger.Debug("Static message was writted.")
+		log.Debug("Static message was writted.")
 
 		return nil
 	}
 
-	logger.Debug("Static message is not presented. Starting validation.")
+	log.Debug("Static message is not presented. Starting validation.")
 
 	return validateMessage(strings.TrimSpace(commitMessage), config).ErrorOrNil()
 }
