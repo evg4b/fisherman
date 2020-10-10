@@ -17,12 +17,14 @@ type Runner struct {
 	app          *commands.AppInfo
 	fileAccessor infrastructure.FileAccessor
 	repository   infrastructure.Repository
+	shell        infrastructure.Shell
 }
 
 // NewRunnerArgs is structure to pass arguments in constructor
 type NewRunnerArgs struct {
 	CommandList []commands.CliCommand
 	Files       infrastructure.FileAccessor
+	Shell       infrastructure.Shell
 	SystemUser  *user.User
 	Config      *config.FishermanConfig
 	ConfigInfo  *config.LoadInfo
@@ -49,5 +51,6 @@ func NewRunner(args NewRunnerArgs) *Runner {
 		},
 		args.Files,
 		args.Repository,
+		args.Shell,
 	}
 }

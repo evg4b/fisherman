@@ -9,6 +9,7 @@ import (
 	"fisherman/config"
 	"fisherman/infrastructure/fs"
 	"fisherman/infrastructure/log"
+	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
 	"fisherman/runner"
 	"fisherman/utils"
@@ -53,6 +54,7 @@ func main() {
 		Cwd:        cwd,
 		Executable: appPath,
 		Repository: repo,
+		Shell:      shell.NewShell(),
 	})
 
 	if err = runnerInstance.Run(os.Args[1:]); err != nil {

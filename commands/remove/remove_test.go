@@ -18,6 +18,8 @@ func TestCommand_Run(t *testing.T) {
 	fakeFileAccessor.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(true)
 	fakeFileAccessor.On("Delete", filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(nil)
 	fakeFileAccessor.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "prepare-commit-msg")).Return(false)
+	fakeFileAccessor.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-commit")).Return(false)
+	fakeFileAccessor.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Return(false)
 
 	tests := []struct {
 		name     string

@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"fisherman/commands"
-	"fisherman/constants"
-	"fmt"
+	"fisherman/handlers/common"
 )
 
 // PreCommitHandler is a handler for pre-commit hook
 func PreCommitHandler(ctx *commands.CommandContext, args []string) error {
-	return fmt.Errorf("this hook is not supported in version %s", constants.Version)
+	ctx.Config.PreCommitHook.Compile(ctx.Variables)
+	return common.ExecCommandsParallel(ctx.Shell, ctx.Config.PreCommitHook.Cmd)
 }

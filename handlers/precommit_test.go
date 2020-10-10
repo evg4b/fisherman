@@ -2,7 +2,7 @@ package handlers_test
 
 import (
 	"fisherman/commands"
-	"fisherman/constants"
+	"fisherman/config"
 	"fisherman/handlers"
 	"testing"
 
@@ -10,9 +10,10 @@ import (
 )
 
 func TestPreCommitHandler(t *testing.T) {
-	constants.Version = testVertion
 	assert.NotPanics(t, func() {
-		err := handlers.PreCommitHandler(&commands.CommandContext{}, []string{})
-		assert.Error(t, err, "This hook is not supported in version 1.0.1.")
+		err := handlers.PreCommitHandler(&commands.CommandContext{
+			Config: &config.HooksConfig{},
+		}, []string{})
+		assert.NoError(t, err)
 	})
 }

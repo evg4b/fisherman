@@ -19,6 +19,7 @@ type CommandContext struct {
 	App        *AppInfo
 	Files      infrastructure.FileAccessor
 	Repository infrastructure.Repository
+	Shell      infrastructure.Shell
 	Variables  map[string]interface{}
 }
 
@@ -40,6 +41,7 @@ type CliCommandContextParams struct {
 	Config       *config.FishermanConfig
 	Repository   infrastructure.Repository
 	Variables    map[string]interface{}
+	Shell        infrastructure.Shell
 }
 
 // NewContext constructor for cli command context
@@ -50,6 +52,7 @@ func NewContext(args CliCommandContextParams) *CommandContext {
 		args.App,
 		args.FileAccessor,
 		args.Repository,
+		args.Shell,
 		args.Variables,
 	}
 }

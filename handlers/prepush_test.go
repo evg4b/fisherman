@@ -2,7 +2,6 @@ package handlers_test
 
 import (
 	"fisherman/commands"
-	"fisherman/constants"
 	"fisherman/handlers"
 	"testing"
 
@@ -10,9 +9,8 @@ import (
 )
 
 func TestPrePushHandler(t *testing.T) {
-	constants.Version = testVertion
 	assert.NotPanics(t, func() {
 		err := handlers.PrePushHandler(&commands.CommandContext{}, []string{})
-		assert.Error(t, err, "This hook is not supported in version 1.0.1.")
+		assert.NoError(t, err)
 	})
 }

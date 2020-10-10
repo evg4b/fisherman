@@ -9,6 +9,7 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/imdario/mergo v0.3.11
+	github.com/micro/go-micro v1.18.0
 	github.com/mkideal/pkg v0.1.2
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.6.1

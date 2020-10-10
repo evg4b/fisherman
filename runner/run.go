@@ -42,6 +42,7 @@ func (r *Runner) Run(args []string) error {
 				Config:       r.config,
 				Variables:    variables,
 				Repository:   r.repository,
+				Shell:        r.shell,
 			})
 			log.Debugf("Context for command '%s' was created", commandName)
 

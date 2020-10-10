@@ -25,3 +25,7 @@ type FileAccessor interface {
 	Exist(path string) bool
 	Delete(path string) error
 }
+
+type Shell interface {
+	Exec(commands []string, env *map[string]string) (string, string, error)
+}
