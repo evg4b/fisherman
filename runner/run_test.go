@@ -6,7 +6,7 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/fs"
 	commandsmock "fisherman/mocks/commands"
 	mocks "fisherman/mocks/infrastructure"
 	"fisherman/runner"
@@ -87,7 +87,7 @@ func TestRunner_Run(t *testing.T) {
 				},
 				ConfigInfo: &config.LoadInfo{},
 				Cwd:        "demo",
-				Files:      &io.LocalFileAccessor{},
+				Files:      &fs.Accessor{},
 				SystemUser: &user.User{},
 				Executable: "bin",
 				Repository: &repo,

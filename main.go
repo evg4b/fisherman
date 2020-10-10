@@ -7,7 +7,7 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/config"
-	"fisherman/infrastructure/io"
+	"fisherman/infrastructure/fs"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/vcs"
 	"fisherman/runner"
@@ -33,7 +33,7 @@ func main() {
 	appPath, err := os.Executable()
 	utils.HandleCriticalError(err)
 
-	fileAccessor := io.NewFileAccessor()
+	fileAccessor := fs.NewAccessor()
 
 	conf, configInfo := config.LoadConfig(cwd, usr, fileAccessor)
 
