@@ -1,0 +1,50 @@
+{
+  "version-0.0.1-alpha.1/someSidebar": [
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.1/fisherman"
+    },
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.1/getting-started"
+    },
+    {
+      "collapsed": false,
+      "type": "category",
+      "label": "Configuration",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.1/configuration/configuration-files"
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Hooks configuration",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.1/configuration/hooks/commit-msg-hook"
+            },
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.1/configuration/hooks/prepare-commit-msg-hook"
+            }
+          ]
+        },
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.1/configuration/variables"
+        },
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.1/configuration/output"
+        }
+      ]
+    },
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.1/faq"
+    }
+  ]
+}

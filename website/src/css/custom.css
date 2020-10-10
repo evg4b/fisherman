@@ -15,6 +15,19 @@
   --ifm-color-primary-lighter: #92a5dd;
   --ifm-color-primary-lightest: #b6c3e9;
   --ifm-code-font-size: 95%;
+  --ifm-code-background: #00000020;
+}
+
+code {
+  color: inherit;
+}
+
+html[data-theme='dark'] code {
+  background-color: #ffffff25;
+}
+
+html[data-theme='dark'] .admonition code {
+  background-color:  #00000020;
 }
 
 .docusaurus-highlight-code-line {

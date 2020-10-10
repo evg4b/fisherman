@@ -1,51 +1,49 @@
 module.exports = {
-    someSidebar: [
+  someSidebar: [
+    {
+      type: "doc",
+      id: "fisherman"
+    },
+    {
+      type: "doc",
+      id: "getting-started",
+    },
+    {
+      type: "category",
+      label: "Configuration",
+      collapsed: false,
+      items: [
         {
-            type: "doc",
-            id: "fisherman"
+          type: "doc",
+          id: "configuration/configuration-files"
         },
         {
-            type: "category",
-            label: "Getting started",
-            items: [
-                {
-                    type: "doc",
-                    id: "getting-started/installation"
-                }
-            ]
+          type: "category",
+          label: "Hooks configuration",
+          items: [
+            {
+              type: "doc",
+              id: "configuration/hooks/commit-msg-hook"
+            },
+            {
+              type: "doc",
+              id: "configuration/hooks/prepare-commit-msg-hook"
+            },
+          ]
         },
         {
-            type: "category",
-            label: "Configuration",
-            items: [
-                {
-                    type: "doc",
-                    id: "configuration/configuration-files"
-                },
-                {
-                    type: "category",
-                    label: "Hooks configuration",
-                    items: [
-                        {
-                            type: "doc",
-                            id: "configuration/hooks/commit-msg-hook"
-                        },
-                        
-                        {
-                            type: "doc",
-                            id: "configuration/hooks/prepare-commit-msg-hook"
-                        },
-                    ]
-                },
-                {
-                    type: "doc",
-                    id: "configuration/variables"
-                },
-                {
-                    type: "doc",
-                    id: "configuration/output"
-                },
-            ],
-        }
-    ],
+          type: "doc",
+          id: "configuration/variables"
+        },
+        {
+          type: "doc",
+          id: "configuration/output"
+        },
+      ],
+    },
+    {
+      type: "doc",
+      id: "faq"
+    },
+  ],
 }

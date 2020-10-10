@@ -2,7 +2,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
   title: 'fisherman',
-  tagline: 'Small git hooks tool for developer.',
+  tagline: 'Small git hook management tool for developer.',
   url: 'https://fisherman.netlify.app',
   baseUrl: '/',
   onBrokenLinks: 'warn',
@@ -21,29 +21,7 @@ module.exports = {
     },
     footer: {
       style: 'dark',
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            { label: 'Style Guide', to: '/' },
-            { label: 'Second Doc', to: '/' },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
-            { label: 'Stack Overflow', href: 'https://stackoverflow.com/questions/tagged/docusaurus' },
-            { label: 'Discord', href: 'https://discordapp.com/invite/docusaurus' },
-            { label: 'Twitter', href: 'https://twitter.com/docusaurus' },
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            { label: 'GitHub', href: 'https://github.com/facebook/docusaurus' },
-          ],
-        },
-      ],
+      copyright: 'fisherman',
     },
     googleAnalytics: { trackingID: 'UA-128394725-2' },
   },
@@ -54,7 +32,7 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           path: '../docs',
-          includeCurrentVersion: true,
+          includeCurrentVersion: false,
           showLastUpdateTime: true,
         },
         theme: {

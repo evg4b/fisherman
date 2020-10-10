@@ -10,59 +10,58 @@ import styles from './styles.module.css';
 const features = [
   {
     title: 'Easy to Use',
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+    imageUrl: 'img/command-window.svg',
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        No installation required.
+        Does not require setting the PATH.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+    title: 'No dependencies',
+    imageUrl: 'img/unlink-symbol.svg',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Fisherman is distributed as a binary executable file.
+        You don't need anything else to work.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    imageUrl: 'img/undraw_docusaurus_react.svg',
+    title: 'Flexible',
+    imageUrl: 'img/configuration-gears.svg',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Simple but very flexible declarative configuration, that solves common issues in a couple of lines.
       </>
     ),
   },
 ];
 
-const Feature = ({imageUrl, title, description}) => {
+const Feature = ({ imageUrl, title, description }) => {
   const imgUrl = useBaseUrl(imageUrl);
   return (
-    <div className={clsx('col col--4', styles.feature)}>
+    <div className={clsx('col col--4 text--center', styles.feature)}>
       {imgUrl && (
-        <div className="text--center">
+        <div>
           <img className={styles.featureImage} src={imgUrl} alt={title} />
         </div>
       )}
       <h3>{title}</h3>
-      <p>{description}</p>
+      <p className={styles.featureDescription}>{description}</p>
     </div>
   );
 }
 
-const Image = ({ image, darkImage }) => {
-  const {isDarkTheme} = useThemeContext();
-  return <img src={useBaseUrl(isDarkTheme ? darkImage : image)} />;
+const Image = ({ image, darkImage, className }) => {
+  const { isDarkTheme } = useThemeContext();
+  return <img src={useBaseUrl(isDarkTheme ? darkImage : image)} className={className} />;
 };
 
 function Home() {
   const context = useDocusaurusContext();
-  const {siteConfig = {}} = context;
+  const { siteConfig = {} } = context;
   return (
     <Layout
       title={siteConfig.title}
@@ -70,7 +69,7 @@ function Home() {
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <div>
-            <Image image="img/preview.png" darkImage="img/preview_dark.png" />
+            <Image image="img/preview.png" darkImage="img/preview_dark.png" className={styles.heroBannerImage} />
           </div>
           <p className="hero__subtitle">{siteConfig.tagline}</p>
           <div className={styles.buttons}>
@@ -79,7 +78,7 @@ function Home() {
                 'button button--outline button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('/docs/installation')}>
+              to={useBaseUrl('/docs/getting-started')}>
               Get Started
             </Link>
           </div>

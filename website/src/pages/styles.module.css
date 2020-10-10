@@ -18,6 +18,19 @@
   }
 }
 
+@media (max-width: 996px) {
+  .heroBannerImage {
+    width: 60%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .featureDescription {
+    max-width: 70%;
+    margin: 0 auto var(--ifm-paragraph-margin-bottom);
+  }
+}
+
 .buttons {
   display: flex;
   align-items: center;
@@ -32,6 +45,7 @@
 }
 
 .featureImage {
-  height: 200px;
-  width: 200px;
+  height: 100px;
+  width: 100px;
+  margin: 30px 0 10px 0;
 }
