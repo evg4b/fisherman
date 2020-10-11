@@ -7,9 +7,9 @@ import (
 	"os/exec"
 )
 
-type ShellCommandFactory = func(commands []string) (*exec.Cmd, error)
+type shellCommandFactory = func(commands []string) (*exec.Cmd, error)
 
-var CommandFactory ShellCommandFactory
+var CommandFactory shellCommandFactory
 
 type SystemShell struct {
 }

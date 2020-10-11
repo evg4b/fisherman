@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const windowsLineBreak = "\n\r"
+const LineBreak = "\r\n"
 
 func init() {
 	CommandFactory = func(commands []string) (*exec.Cmd, error) {
@@ -14,7 +14,7 @@ func init() {
 			return nil, err
 		}
 
-		command := strings.Join(commands, windowsLineBreak)
+		command := strings.Join(commands, LineBreak)
 
 		return exec.Command(ps, "-NoProfile", "-NonInteractive", command), nil
 	}
