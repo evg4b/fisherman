@@ -2,7 +2,6 @@ package runner
 
 import (
 	"fisherman/constants"
-	"fisherman/utils"
 
 	"github.com/imdario/mergo"
 )
@@ -21,7 +20,6 @@ func (r *Runner) buildVariables() (map[string]interface{}, error) {
 	}
 
 	err = mergo.Map(&variables, r.config.GlobalVariables)
-	utils.HandleCriticalError(err)
 
-	return variables, nil
+	return variables, err
 }

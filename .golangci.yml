@@ -35,3 +35,5 @@ linters-settings:
       - log
     packages-with-error-message:
       - log: "logging is allowed only by fisherman/infrastructure/log"
+      - gopkg.in/yaml.v2: "please use v3"
+      - gopkg.in/yaml.v1: "please use v3"

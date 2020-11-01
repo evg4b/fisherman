@@ -1,6 +1,8 @@
 package fs
 
 import (
+	"bufio"
+	"io"
 	"io/ioutil"
 	"os"
 )
@@ -28,6 +30,15 @@ func (f *Accessor) Read(path string) (string, error) {
 	}
 
 	return string(data), nil
+}
+
+func (f *Accessor) Reader(path string) (io.Reader, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return bufio.NewReader(file), nil
 }
 
 func (f *Accessor) Delete(path string) error {

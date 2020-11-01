@@ -4,7 +4,7 @@ import "fisherman/utils"
 
 // PreCommitHookConfig is structure to storage user configuration for pre-commit hook
 type PreCommitHookConfig struct {
-	Cmd CmdConfig
+	Cmd ScriptsConfig
 }
 
 func (config *PreCommitHookConfig) Compile(variables map[string]interface{}) {

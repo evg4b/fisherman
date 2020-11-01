@@ -41,7 +41,7 @@ func TestOutputConfig_UnmarshalYAMLFail(t *testing.T) {
 		{
 			name:   "",
 			config: "level: debug\ncolor",
-			err:    "yaml: line 3: could not find expected ':'",
+			err:    "yaml: line 2: could not find expected ':'",
 		},
 		{
 			name:   "",

@@ -266,7 +266,7 @@ func TestRawWriter(t *testing.T) {
 		t.Run(fmt.Sprintf("Write message '%s' correctly", tt.message), func(t *testing.T) {
 			output.Reset()
 			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			bytesCount, err := log.RawWriter().Write([]byte(tt.message))
+			bytesCount, err := log.Stdout().Write([]byte(tt.message))
 			assert.Equal(t, tt.output, output.String())
 			assert.NoError(t, err)
 			assert.Equal(t, len([]byte(tt.message)), bytesCount)

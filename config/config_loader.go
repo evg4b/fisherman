@@ -43,9 +43,10 @@ func unmarshlIfExist(cwd string, usr *user.User, mode string, files inf.FileAcce
 	utils.HandleCriticalError(err)
 
 	if files.Exist(path) {
-		data, err := files.Read(path)
+		reader, err := files.Reader(path)
 		utils.HandleCriticalError(err)
-		err = yaml.Unmarshal([]byte(data), config)
+		decoder := yaml.NewDecoder(reader)
+		err = decoder.Decode(config)
 		utils.HandleCriticalError(err)
 
 		return path

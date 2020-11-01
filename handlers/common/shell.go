@@ -19,7 +19,7 @@ type ExecutionPack struct {
 	Result CommandExecutionResult
 }
 
-func ExecCommandsParallel(sh infrastructure.Shell, commands hooks.CmdConfig) error {
+func ExecCommandsParallel(sh infrastructure.Shell, commands hooks.ScriptsConfig) error {
 	chanel := make(chan CommandExecutionResult)
 	for key, command := range commands {
 		log.Debugf("Run cmd %s", key)
@@ -35,7 +35,7 @@ func ExecCommandsParallel(sh infrastructure.Shell, commands hooks.CmdConfig) err
 	return nil
 }
 
-func run(chanel chan CommandExecutionResult, sh infrastructure.Shell, key string, command hooks.Command) {
+func run(chanel chan CommandExecutionResult, sh infrastructure.Shell, key string, command hooks.ScriptConfig) {
 	stdout, stderr, err := sh.Exec(command.Commands, &command.Env)
 	chanel <- CommandExecutionResult{
 		Key:    key,

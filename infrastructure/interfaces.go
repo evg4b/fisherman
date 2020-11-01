@@ -1,5 +1,7 @@
 package infrastructure
 
+import "io"
+
 type User struct {
 	UserName string
 	Email    string
@@ -17,6 +19,7 @@ type FileWriter interface {
 
 type FileReader interface {
 	Read(path string) (string, error)
+	Reader(path string) (io.Reader, error)
 }
 
 type FileAccessor interface {

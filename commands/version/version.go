@@ -29,7 +29,7 @@ func (c *Command) Init(args []string) error {
 
 // Run executes init command
 func (c *Command) Run(ctx *commands.CommandContext) error {
-	_, err := fmt.Fprintln(log.RawWriter(), constants.Version)
+	_, err := fmt.Fprintln(log.Stdout(), constants.Version)
 
 	return err
 }

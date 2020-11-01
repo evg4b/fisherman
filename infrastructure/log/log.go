@@ -101,7 +101,7 @@ func Writer() io.Writer {
 	return ioutil.Discard
 }
 
-// RawWriter return output io.Writer object withoud level handling
-func RawWriter() io.Writer {
+// Stdout return output io.Writer object withoud level handling
+func Stdout() io.Writer {
 	return log.Writer()
 }
