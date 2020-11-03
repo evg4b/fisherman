@@ -30,5 +30,5 @@ type FileAccessor interface {
 }
 
 type Shell interface {
-	Exec(commands []string, env *map[string]string) (string, string, error)
+	Exec(commands []string, env *map[string]string, path []string) (string, string, int, error)
 }

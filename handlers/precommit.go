@@ -9,5 +9,5 @@ import (
 func PreCommitHandler(ctx *commands.CommandContext, args []string) error {
 	ctx.Config.PreCommitHook.Compile(ctx.Variables)
 
-	return common.ExecCommandsParallel(ctx.Shell, ctx.Config.PreCommitHook.Cmd)
+	return common.ExecCommandsParallel(ctx.Shell, ctx.Config.PreCommitHook.Shell.GetActive())
 }

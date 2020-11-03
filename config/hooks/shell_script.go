@@ -1,5 +1,9 @@
 package hooks
 
+import (
+	"fisherman/utils"
+)
+
 type ScriptConfig struct {
 	Commands []string          `yaml:"commands,omitempty"`
 	Env      map[string]string `yaml:"env,omitempty"`
@@ -14,6 +18,8 @@ type ShellScriptsConfig struct {
 	Linux   ScriptsConfig `yaml:"linux,omitempty"`
 	Darwin  ScriptsConfig `yaml:"darwin,omitempty"`
 }
+
+const defaultKey = "default"
 
 // UnmarshalYAML implements yaml.Unmarshaler interface
 func (config *ShellScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -44,7 +50,7 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 	var outputConfig string
 	err := unmarshal(&outputConfig)
 	if err == nil {
-		(*config)["default"] = ScriptConfig{
+		(*config)[defaultKey] = ScriptConfig{
 			Commands: []string{outputConfig},
 			Env:      map[string]string{},
 		}
@@ -55,7 +61,7 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 	var scriptConfig ScriptConfig
 	err = unmarshal(&scriptConfig)
 	if err == nil {
-		(*config)["default"] = scriptConfig
+		(*config)[defaultKey] = scriptConfig
 
 		return nil
 	}
@@ -93,4 +99,12 @@ func (config *ScriptConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	}
 
 	return err
+}
+
+func compileCommands(scripts ScriptsConfig, variables map[string]interface{}) {
+	for _, shellScript := range scripts {
+		for key := range shellScript.Commands {
+			utils.FillTemplate(&shellScript.Commands[key], variables)
+		}
+	}
 }

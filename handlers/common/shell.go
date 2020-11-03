@@ -19,15 +19,15 @@ type ExecutionPack struct {
 	Result CommandExecutionResult
 }
 
-func ExecCommandsParallel(sh infrastructure.Shell, commands hooks.ScriptsConfig) error {
+func ExecCommandsParallel(sh infrastructure.Shell, script hooks.ScriptsConfig) error {
 	chanel := make(chan CommandExecutionResult)
-	for key, command := range commands {
+	for key, command := range script {
 		log.Debugf("Run cmd %s", key)
 		go run(chanel, sh, key, command)
 	}
 
-	results := make(map[string]CommandExecutionResult, len(commands))
-	for i := 0; i < len(commands); i++ {
+	results := make(map[string]CommandExecutionResult, len(script))
+	for i := 0; i < len(script); i++ {
 		r := <-chanel
 		results[r.Key] = r
 	}
@@ -36,11 +36,12 @@ func ExecCommandsParallel(sh infrastructure.Shell, commands hooks.ScriptsConfig)
 }
 
 func run(chanel chan CommandExecutionResult, sh infrastructure.Shell, key string, command hooks.ScriptConfig) {
-	stdout, stderr, err := sh.Exec(command.Commands, &command.Env)
+	stdout, stderr, exitCode, err := sh.Exec(command.Commands, &command.Env, command.Path)
 	chanel <- CommandExecutionResult{
-		Key:    key,
-		Stdout: stdout,
-		Stderr: stderr,
-		Err:    err,
+		Key:      key,
+		Stdout:   stdout,
+		Stderr:   stderr,
+		Err:      err,
+		ExitCode: exitCode,
 	}
 }

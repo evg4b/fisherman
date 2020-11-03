@@ -6,6 +6,7 @@ import (
 )
 
 const LineBreak = "\r\n"
+const PathVariableSeparator = ";"
 
 func init() {
 	CommandFactory = func(commands []string) (*exec.Cmd, error) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type shellCommandFactory = func(commands []string) (*exec.Cmd, error)
@@ -18,9 +19,13 @@ func NewShell() *SystemShell {
 	return &SystemShell{}
 }
 
-func (*SystemShell) Exec(commands []string, env *map[string]string) (string, string, error) {
+func (*SystemShell) Exec(commands []string, env *map[string]string, paths []string) (string, string, int, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
+
+	if len(paths) > 0 {
+		(*env)["PATH"] = makePathVariable(paths)
+	}
 
 	envList := os.Environ()
 	for key, value := range *env {
@@ -35,5 +40,20 @@ func (*SystemShell) Exec(commands []string, env *map[string]string) (string, str
 		err = cmd.Run()
 	}
 
-	return stdout.String(), stderr.String(), err
+	return stdout.String(), stderr.String(), cmd.ProcessState.ExitCode(), err
+}
+
+func makePathVariable(paths []string) string {
+	pathsList := make([]string, 10)
+	path, exists := os.LookupEnv("PATH")
+
+	if exists {
+		pathsList = append(pathsList, strings.Split(path, PathVariableSeparator)...)
+	}
+
+	if len(paths) > 0 {
+		pathsList = append(pathsList, paths...)
+	}
+
+	return strings.Join(pathsList, PathVariableSeparator)
 }
