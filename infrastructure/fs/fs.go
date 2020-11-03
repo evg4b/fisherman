@@ -5,6 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/user"
+	"strconv"
 )
 
 type Accessor struct {
@@ -51,4 +53,18 @@ func (f *Accessor) Write(path, content string) error {
 
 func (f *Accessor) Chmod(path string, mode os.FileMode) error {
 	return os.Chmod(path, mode)
+}
+
+func (f *Accessor) Chown(path string, user *user.User) error {
+	uid, err := strconv.Atoi(user.Uid)
+	if err != nil {
+		return err
+	}
+
+	gid, err := strconv.Atoi(user.Gid)
+	if err != nil {
+		return err
+	}
+
+	return os.Chown(path, uid, gid)
 }

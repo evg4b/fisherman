@@ -75,9 +75,14 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 		var fileMode os.FileMode = os.ModePerm
 		err = ctx.Files.Chmod(hookPath, fileMode)
 		if err != nil {
-			return nil
+			return err
 		}
 		log.Debugf("Hook file mode changed to %s", fileMode.String())
+		err = ctx.Files.Chown(hookPath, ctx.User)
+		if err != nil {
+			return err
+		}
+		log.Debug("Hook file ownership changed to currect user")
 	}
 
 	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)
@@ -101,11 +106,6 @@ func writeDefaultFishermanConfig(accessor infrastructure.FileAccessor, configPat
 		}
 
 		err = accessor.Write(configPath, string(content))
-		if err != nil {
-			return err
-		}
-
-		err = accessor.Chmod(configPath, os.ModePerm)
 		if err != nil {
 			return err
 		}

@@ -7,6 +7,8 @@ import (
 	"fisherman/constants"
 	iomock "fisherman/mocks/infrastructure"
 	"flag"
+	"os"
+	"os/user"
 	"path/filepath"
 	"testing"
 
@@ -20,12 +22,15 @@ func TestNewCommand(t *testing.T) {
 }
 
 func TestCommand_Run_Force_Mode(t *testing.T) {
+	user := user.User{}
 	command := initc.NewCommand(flag.ExitOnError)
 	cwd := "/demo/"
 
 	fakeFileAccessor := iomock.FileAccessor{}
 	fakeFileAccessor.On("Write", mock.IsType("string"), mock.IsType("string")).Return(nil)
 	fakeFileAccessor.On("Exist", filepath.Join(cwd, constants.AppConfigName)).Return(true)
+	fakeFileAccessor.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
+	fakeFileAccessor.On("Chown", mock.IsType("string"), &user).Return(nil)
 
 	tests := []struct {
 		name string
@@ -42,6 +47,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 					IsRegisteredInPath: true,
 				},
 				Config: &config.HooksConfig{},
+				User:   &user,
 			}
 			err := command.Init(tt.args)
 			assert.NoError(t, err)

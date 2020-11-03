@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"io"
 	"os"
+	"os/user"
 )
 
 type User struct {
@@ -31,6 +32,7 @@ type FileAccessor interface {
 	Exist(path string) bool
 	Delete(path string) error
 	Chmod(path string, mode os.FileMode) error
+	Chown(name string, user *user.User) error
 }
 
 type Shell interface {
