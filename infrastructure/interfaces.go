@@ -1,6 +1,9 @@
 package infrastructure
 
-import "io"
+import (
+	"io"
+	"os"
+)
 
 type User struct {
 	UserName string
@@ -27,6 +30,7 @@ type FileAccessor interface {
 	FileReader
 	Exist(path string) bool
 	Delete(path string) error
+	Chmod(path string, mode os.FileMode) error
 }
 
 type Shell interface {

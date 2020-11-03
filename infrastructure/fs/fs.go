@@ -48,3 +48,7 @@ func (f *Accessor) Delete(path string) error {
 func (f *Accessor) Write(path, content string) error {
 	return ioutil.WriteFile(path, []byte(content), 0600)
 }
+
+func (f *Accessor) Chmod(path string, mode os.FileMode) error {
+	return os.Chmod(path, mode)
+}

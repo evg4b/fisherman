@@ -1,9 +1,5 @@
 package hooks
 
-func init() {
-
-}
-
 func (config *ShellScriptsConfig) GetActive() ScriptsConfig {
 	return config.Windows
 }

@@ -6,9 +6,9 @@ import (
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
-	"fisherman/utils"
 	"flag"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
@@ -68,17 +68,24 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 		err := ctx.Files.Write(hookPath, buildHook(bin, hookName))
-		utils.HandleCriticalError(err)
+		if err != nil {
+			return err
+		}
 		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
+		var fileMode os.FileMode = os.ModePerm
+		err = ctx.Files.Chmod(hookPath, fileMode)
+		if err != nil {
+			return nil
+		}
+		log.Debugf("Hook file mode changed to %s", fileMode.String())
 	}
 
 	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)
-	utils.HandleCriticalError(err)
+	if err != nil {
+		return nil
+	}
 
-	err = writeDefaultFishermanConfig(ctx.Files, configPath)
-	utils.HandleCriticalError(err)
-
-	return err
+	return writeDefaultFishermanConfig(ctx.Files, configPath)
 }
 
 // Name returns namand name
@@ -89,8 +96,16 @@ func (c *Command) Name() string {
 func writeDefaultFishermanConfig(accessor infrastructure.FileAccessor, configPath string) error {
 	if !accessor.Exist(configPath) {
 		content, err := yaml.Marshal(config.DefaultConfig)
-		utils.HandleCriticalError(err)
+		if err != nil {
+			return err
+		}
+
 		err = accessor.Write(configPath, string(content))
+		if err != nil {
+			return err
+		}
+
+		err = accessor.Chmod(configPath, os.ModePerm)
 		if err != nil {
 			return err
 		}
