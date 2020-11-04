@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"errors"
+	"fisherman/commands"
+	"fisherman/config"
 	"fisherman/config/hooks"
+	iomock "fisherman/mocks/infrastructure"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -107,5 +110,33 @@ func assertMultiError(t *testing.T, multipleErrors *multierror.Error, expectedEr
 		assert.Contains(t, multipleErrors.Errors, expectedError)
 	} else {
 		assert.Nil(t, multipleErrors)
+	}
+}
+
+func TestCommitMsgHandler(t *testing.T) {
+	fakeRepository := iomock.Repository{}
+	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
+	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
+
+	faceFileAccessor := iomock.FileAccessor{}
+	faceFileAccessor.On("Read", ".git/MESSAGE").Return("[fisherman] test commit", nil)
+
+	tests := []struct {
+		name string
+		args []string
+		err  error
+	}{
+		{name: "base test", args: []string{".git/MESSAGE"}, err: nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := commands.NewContext(commands.CliCommandContextParams{
+				Config:       &config.DefaultConfig,
+				Repository:   &fakeRepository,
+				FileAccessor: &faceFileAccessor,
+			})
+			err := CommitMsgHandler(ctx, tt.args)
+			assert.Equal(t, tt.err, err)
+		})
 	}
 }
