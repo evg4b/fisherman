@@ -32,29 +32,19 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	fakeFileAccessor.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
 	fakeFileAccessor.On("Chown", mock.IsType("string"), &user).Return(nil)
 
-	tests := []struct {
-		name string
-		args []string
-	}{
-		{name: "dem", args: []string{"--force"}},
+	ctx := commands.CommandContext{
+		Files: &fakeFileAccessor,
+		App: &commands.AppInfo{
+			Cwd:                cwd,
+			IsRegisteredInPath: true,
+		},
+		Config: &config.HooksConfig{},
+		User:   &user,
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := commands.CommandContext{
-				Files: &fakeFileAccessor,
-				App: &commands.AppInfo{
-					Cwd:                cwd,
-					IsRegisteredInPath: true,
-				},
-				Config: &config.HooksConfig{},
-				User:   &user,
-			}
-			err := command.Init(tt.args)
-			assert.NoError(t, err)
-			err = command.Run(&ctx)
-			assert.NoError(t, err)
-		})
-	}
+	err := command.Init([]string{"--force"})
+	assert.NoError(t, err)
+	err = command.Run(&ctx)
+	assert.NoError(t, err)
 }
 
 func TestCommand_Name(t *testing.T) {

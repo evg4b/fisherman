@@ -2,6 +2,7 @@ package shell
 
 import (
 	"bytes"
+	"fisherman/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -14,9 +15,8 @@ func NewShell() *SystemShell {
 	return &SystemShell{}
 }
 
-func (*SystemShell) Exec(commands []string, env *map[string]string, paths []string) (string, string, int, error) {
+func (*SystemShell) Exec(commands []string, env *map[string]string, paths []string) (string, int, error) {
 	var stdout bytes.Buffer
-	var stderr bytes.Buffer
 
 	if len(paths) > 0 {
 		(*env)["PATH"] = makePathVariable(paths)
@@ -31,15 +31,15 @@ func (*SystemShell) Exec(commands []string, env *map[string]string, paths []stri
 	if err == nil {
 		cmd.Env = envList
 		cmd.Stdout = &stdout
-		cmd.Stderr = &stderr
+		cmd.Stderr = &stdout
 		err = cmd.Run()
 	}
 
-	return stdout.String(), stderr.String(), cmd.ProcessState.ExitCode(), err
+	return stdout.String(), cmd.ProcessState.ExitCode(), err
 }
 
 func makePathVariable(paths []string) string {
-	pathsList := make([]string, 10)
+	pathsList := []string{}
 	path, exists := os.LookupEnv("PATH")
 
 	if exists {
@@ -50,5 +50,7 @@ func makePathVariable(paths []string) string {
 		pathsList = append(pathsList, paths...)
 	}
 
-	return strings.Join(pathsList, PathVariableSeparator)
+	filtered := utils.Filter(pathsList, utils.IsNotEmpty)
+
+	return strings.Join(filtered, PathVariableSeparator)
 }

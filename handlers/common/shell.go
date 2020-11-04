@@ -9,7 +9,6 @@ import (
 type CommandExecutionResult struct {
 	Key      string
 	Stdout   string
-	Stderr   string
 	ExitCode int
 	Err      error
 }
@@ -33,19 +32,18 @@ func ExecCommandsParallel(sh infrastructure.Shell, script hooks.ScriptsConfig) e
 	}
 
 	for _, rez := range results {
+		log.Debugf("[%s]", rez.Key)
 		log.Debug(rez.Stdout)
-		log.Debug(rez.Stderr)
 	}
 
 	return nil
 }
 
 func run(chanel chan CommandExecutionResult, sh infrastructure.Shell, key string, command hooks.ScriptConfig) {
-	stdout, stderr, exitCode, err := sh.Exec(command.Commands, &command.Env, command.Path)
+	stdout, exitCode, err := sh.Exec(command.Commands, &command.Env, command.Path)
 	chanel <- CommandExecutionResult{
 		Key:      key,
 		Stdout:   stdout,
-		Stderr:   stderr,
 		Err:      err,
 		ExitCode: exitCode,
 	}
