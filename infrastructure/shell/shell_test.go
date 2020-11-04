@@ -20,7 +20,7 @@ func TestSystemShell_Exec(t *testing.T) {
 		err            error
 	}{
 		{
-			name: "should return 12",
+			name: "should return 1,2",
 			commands: []string{
 				"echo 1",
 				"echo 2",

@@ -29,11 +29,23 @@ module.exports = {
               type: "doc",
               id: "configuration/hooks/prepare-commit-msg-hook"
             },
+            {
+              type: "doc",
+              id: "configuration/hooks/pre-commit-hook"
+            },
+            {
+              type: "doc",
+              id: "configuration/hooks/pre-push-hook"
+            },
           ]
         },
         {
           type: "doc",
           id: "configuration/variables"
+        },
+        {
+          type: "doc",
+          id: "configuration/shell-script"
         },
         {
           type: "doc",

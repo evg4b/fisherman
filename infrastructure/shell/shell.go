@@ -4,13 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 )
-
-type shellCommandFactory = func(commands []string) (*exec.Cmd, error)
-
-var CommandFactory shellCommandFactory
 
 type SystemShell struct {
 }

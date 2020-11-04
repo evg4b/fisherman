@@ -7,9 +7,9 @@ This hook is invoked by git-commit right after preparing the default log message
 ## Structure of configuration section
 ```yaml
 commit-msg:
-    variables:
-      from-branch: 'regexp'
-    message: 'template'
+  variables:
+    from-branch: 'regexp'
+  message: 'template'
 ```
 
 ## Configurations rules:

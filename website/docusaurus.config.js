@@ -32,7 +32,7 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           path: '../docs',
-          includeCurrentVersion: false,
+          includeCurrentVersion: true,
           showLastUpdateTime: true,
         },
         theme: {

@@ -8,15 +8,13 @@ import (
 const LineBreak = "\r\n"
 const PathVariableSeparator = ";"
 
-func init() {
-	CommandFactory = func(commands []string) (*exec.Cmd, error) {
-		ps, err := exec.LookPath("powershell")
-		if err != nil {
-			return nil, err
-		}
-
-		command := strings.Join(commands, LineBreak)
-
-		return exec.Command(ps, "-NoProfile", "-NonInteractive", command), nil
+func CommandFactory(commands []string) (*exec.Cmd, error) {
+	ps, err := exec.LookPath("powershell")
+	if err != nil {
+		return nil, err
 	}
+
+	command := strings.Join(commands, LineBreak)
+
+	return exec.Command(ps, "-NoProfile", "-NonInteractive", command), nil
 }

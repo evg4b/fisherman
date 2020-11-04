@@ -32,6 +32,11 @@ func ExecCommandsParallel(sh infrastructure.Shell, script hooks.ScriptsConfig) e
 		results[r.Key] = r
 	}
 
+	for _, rez := range results {
+		log.Debug(rez.Stdout)
+		log.Debug(rez.Stderr)
+	}
+
 	return nil
 }
 

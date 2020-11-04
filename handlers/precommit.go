@@ -3,11 +3,22 @@ package handlers
 import (
 	"fisherman/commands"
 	"fisherman/handlers/common"
+	"fisherman/infrastructure/log"
+
+	"github.com/mkideal/pkg/errors"
 )
 
 // PreCommitHandler is a handler for pre-commit hook
 func PreCommitHandler(ctx *commands.CommandContext, args []string) error {
-	ctx.Config.PreCommitHook.Compile(ctx.Variables)
+	config := ctx.Config.PreCommitHook
+	err := ctx.LoadAdditionalVariables(&config.Variables)
+	if err != nil {
+		log.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
 
-	return common.ExecCommandsParallel(ctx.Shell, ctx.Config.PreCommitHook.Shell.GetActive())
+		return err
+	}
+
+	config.Compile(ctx.Variables)
+
+	return common.ExecCommandsParallel(ctx.Shell, config.Shell.GetActive())
 }

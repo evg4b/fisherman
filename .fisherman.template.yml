@@ -15,8 +15,33 @@ hooks:
   fs-monitor-watchman: null
   post-update: null
   pre-apply-patch: null
-  pre-commit: null
-  pre-push: null
+  pre-commit:
+    variables:
+      from-branch: 'regexp'
+      from-last-tag: 'regexp'
+    shell:
+      windows: command4 arg1 arg2 arg3
+      linux:
+        script1:
+          env:
+            VAR1: VALUE1
+            VAR2: VALUE2
+          commands:
+            - command2 arg1
+            - command3 arg1 arg2
+      darwin:
+        script2: command1 arg1 arg2
+  pre-push:
+    variables:
+      from-branch: 'regexp'
+      from-last-tag: 'regexp'
+    shell:
+      script1:
+        - command1
+        - command2
+      script2:
+        - command3
+        - command4
   pre-rebase: null
   pre-receive: null
   prepare-commit-msg:

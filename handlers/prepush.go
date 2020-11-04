@@ -2,9 +2,23 @@ package handlers
 
 import (
 	"fisherman/commands"
+	"fisherman/handlers/common"
+	"fisherman/infrastructure/log"
+
+	"github.com/mkideal/pkg/errors"
 )
 
 // PrePushHandler is a handler for pre-push hook
 func PrePushHandler(ctx *commands.CommandContext, args []string) error {
-	return nil
+	config := ctx.Config.PrePushHook
+	err := ctx.LoadAdditionalVariables(&config.Variables)
+	if err != nil {
+		log.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
+
+		return err
+	}
+
+	config.Compile(ctx.Variables)
+
+	return common.ExecCommandsParallel(ctx.Shell, config.Shell.GetActive())
 }
