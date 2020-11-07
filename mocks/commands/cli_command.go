@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	commands "fisherman/commands"
+	clicontext "fisherman/clicontext"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -42,11 +42,11 @@ func (_m *CliCommand) Name() string {
 }
 
 // Run provides a mock function with given fields: ctx
-func (_m *CliCommand) Run(ctx *commands.CommandContext) error {
+func (_m *CliCommand) Run(ctx *clicontext.CommandContext) error {
 	ret := _m.Called(ctx)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*commands.CommandContext) error); ok {
+	if rf, ok := ret.Get(0).(func(*clicontext.CommandContext) error); ok {
 		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)

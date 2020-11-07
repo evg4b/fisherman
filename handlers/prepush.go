@@ -1,15 +1,18 @@
+// nolint
 package handlers
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/handlers/common"
 	"fisherman/infrastructure/log"
+	"fmt"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/mkideal/pkg/errors"
 )
 
 // PrePushHandler is a handler for pre-push hook
-func PrePushHandler(ctx *commands.CommandContext, args []string) error {
+func PrePushHandler(ctx *clicontext.CommandContext, args []string) error {
 	config := ctx.Config.PrePushHook
 	err := ctx.LoadAdditionalVariables(&config.Variables)
 	if err != nil {
@@ -20,5 +23,20 @@ func PrePushHandler(ctx *commands.CommandContext, args []string) error {
 
 	config.Compile(ctx.Variables)
 
-	return common.ExecCommandsParallel(ctx.Shell, config.Shell.GetActive())
+	var multierr *multierror.Error
+	results := common.ExecCommandsParallel(ctx.Shell, config.Shell)
+	for key, result := range results {
+		log.Infof("[%s] exited with code %d", key, result.ExitCode)
+		log.Info(result.Output)
+		if result.Err != nil {
+			multierr = multierror.Append(multierr, result.Err)
+		}
+
+		if result.ExitCode != 0 {
+			err = fmt.Errorf("script %s exited with code %d", key, result.ExitCode)
+			multierr = multierror.Append(multierr, err)
+		}
+	}
+
+	return multierr.ErrorOrNil()
 }

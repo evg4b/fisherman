@@ -2,7 +2,7 @@ package common
 
 import (
 	"fisherman/config/hooks"
-	"fisherman/infrastructure"
+	inf "fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 )
 
@@ -13,7 +13,7 @@ type CommandExecutionResult struct {
 	Err      error
 }
 
-func ExecCommandsParallel(sh infrastructure.Shell, script hooks.ScriptsConfig) error {
+func ExecCommandsParallel(sh inf.Shell, script hooks.ScriptsConfig) map[string]CommandExecutionResult {
 	chanel := make(chan CommandExecutionResult)
 	for key, command := range script {
 		log.Debugf("Run cmd %s", key)
@@ -26,16 +26,11 @@ func ExecCommandsParallel(sh infrastructure.Shell, script hooks.ScriptsConfig) e
 		results[r.Key] = r
 	}
 
-	for _, rez := range results {
-		log.Debugf("[%s]", rez.Key)
-		log.Debug(rez.Output)
-	}
-
-	return nil
+	return results
 }
 
-func run(chanel chan CommandExecutionResult, sh infrastructure.Shell, key string, command hooks.ScriptConfig) {
-	stdout, exitCode, err := sh.Exec(command.Commands, &command.Env)
+func run(chanel chan CommandExecutionResult, sh inf.Shell, key string, command hooks.ScriptConfig) {
+	stdout, exitCode, err := sh.Exec(command.Commands, &command.Env, command.Output)
 	chanel <- CommandExecutionResult{
 		Key:      key,
 		Output:   stdout,

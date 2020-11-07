@@ -1,6 +1,7 @@
 package hooks
 
 import (
+	"runtime"
 	"strings"
 	"testing"
 
@@ -32,7 +33,7 @@ darwin:
       - darwinCommand1
       - darwinCommand2
 `
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedLinuxConfig := ScriptsConfig{
@@ -63,9 +64,14 @@ darwin:
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedWindowsConfig, data.Windows)
-	assert.Equal(t, expectedDarwinConfig, data.Darwin)
-	assert.Equal(t, expectedLinuxConfig, data.Linux)
+	switch runtime.GOOS {
+	case "linux":
+		assert.Equal(t, expectedLinuxConfig, data)
+	case "windows":
+		assert.Equal(t, expectedWindowsConfig, data)
+	case "darwin":
+		assert.Equal(t, expectedDarwinConfig, data)
+	}
 }
 
 func TestShellScriptWithoutSystem_UnmarshalYAML(t *testing.T) {
@@ -83,7 +89,7 @@ script2:
     - command1
     - command2
 `
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedConfig := ScriptsConfig{
@@ -99,9 +105,7 @@ script2:
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, data.Windows)
-	assert.Equal(t, expectedConfig, data.Darwin)
-	assert.Equal(t, expectedConfig, data.Linux)
+	assert.Equal(t, expectedConfig, data)
 }
 
 func TestShellScriptShortString_UnmarshalYAML(t *testing.T) {
@@ -110,7 +114,7 @@ test1: command1
 test2: command2
 test3: command3
 `
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedConfig := ScriptsConfig{
@@ -120,9 +124,7 @@ test3: command3
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, data.Windows)
-	assert.Equal(t, expectedConfig, data.Darwin)
-	assert.Equal(t, expectedConfig, data.Linux)
+	assert.Equal(t, expectedConfig, data)
 }
 
 func TestShellScriptOneScriptOnly_UnmarshalYAML(t *testing.T) {
@@ -133,7 +135,7 @@ commands:
   - command1
   - command2
 `
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedConfig := ScriptsConfig{
@@ -144,14 +146,12 @@ commands:
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, data.Windows)
-	assert.Equal(t, expectedConfig, data.Darwin)
-	assert.Equal(t, expectedConfig, data.Linux)
+	assert.Equal(t, expectedConfig, data)
 }
 
 func TestShellScriptOneScrtipOnly_UnmarshalYAML(t *testing.T) {
 	var yamlMarkup string = `demo-command`
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedConfig := ScriptsConfig{
@@ -162,9 +162,7 @@ func TestShellScriptOneScrtipOnly_UnmarshalYAML(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, data.Windows)
-	assert.Equal(t, expectedConfig, data.Darwin)
-	assert.Equal(t, expectedConfig, data.Linux)
+	assert.Equal(t, expectedConfig, data)
 }
 
 func TestShellScriptStringArray_UnmarshalYAML(t *testing.T) {
@@ -173,7 +171,7 @@ func TestShellScriptStringArray_UnmarshalYAML(t *testing.T) {
 - demo-command2
 - demo-command3
 `
-	var data ShellScriptsConfig
+	var data ScriptsConfig
 	err := decode(yamlMarkup, &data)
 
 	expectedConfig := ScriptsConfig{
@@ -184,9 +182,23 @@ func TestShellScriptStringArray_UnmarshalYAML(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedConfig, data.Windows)
-	assert.Equal(t, expectedConfig, data.Darwin)
-	assert.Equal(t, expectedConfig, data.Linux)
+	assert.Equal(t, expectedConfig, data)
+}
+
+func TestShellScriptStringArrayWithBrackets_UnmarshalYAML(t *testing.T) {
+	var yamlMarkup string = `[cmd1, cmd2, cmd3]`
+	var data ScriptsConfig
+	err := decode(yamlMarkup, &data)
+
+	expectedConfig := ScriptsConfig{
+		"default": ScriptConfig{
+			Commands: []string{"cmd1", "cmd2", "cmd3"},
+			Env:      map[string]string{},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedConfig, data)
 }
 
 func decode(yamlMarkup string, v interface{}) error {

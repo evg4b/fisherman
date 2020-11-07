@@ -16,13 +16,16 @@
             ]
         },
         {
-            "label": "Run all tests with converage",
+            "label": "Coverage report",
             "type": "shell",
-            "command": "go",
+            "command": "gocov",
             "args": [
                 "test",
-                "-cover",
-                "./..."
+                "./...",
+                "|",
+                "gocov-html",
+                ">",
+                "coverage.html"
             ],
             "problemMatcher": [
                 "$go"

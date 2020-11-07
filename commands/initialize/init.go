@@ -1,7 +1,7 @@
-package init
+package initialize
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure"
@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v3"
@@ -17,31 +18,31 @@ import (
 
 // Command is structure for storage information about init command
 type Command struct {
-	fs    *flag.FlagSet
-	mode  string
-	force bool
+	flagSet *flag.FlagSet
+	mode    string
+	force   bool
 }
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
 	defer log.Debug("Init command created")
-	fs := flag.NewFlagSet("init", handling)
-	c := &Command{fs: fs}
-	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
-	fs.StringVar(&c.mode, "mode", config.RepoMode, modeMessage)
-	fs.BoolVar(&c.force, "force", false, "")
-	fs.BoolVar(&c.force, "absolute", false, "")
 
-	return c
+	flagSet := flag.NewFlagSet("init", handling)
+	command := &Command{flagSet: flagSet}
+	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
+	flagSet.StringVar(&command.mode, "mode", config.RepoMode, modeMessage)
+	flagSet.BoolVar(&command.force, "force", false, "")
+
+	return command
 }
 
 // Init initialize handle command
 func (c *Command) Init(args []string) error {
-	return c.fs.Parse(args)
+	return c.flagSet.Parse(args)
 }
 
 // Run executes init command
-func (c *Command) Run(ctx *commands.CommandContext) error {
+func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	log.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {
 		var result *multierror.Error
@@ -78,24 +79,22 @@ func (c *Command) Run(ctx *commands.CommandContext) error {
 			return err
 		}
 		log.Debugf("Hook file mode changed to %s", fileMode.String())
-		err = ctx.Files.Chown(hookPath, ctx.User)
-		if err != nil {
-			return err
+
+		if runtime.GOOS != "windows" {
+			err = ctx.Files.Chown(hookPath, ctx.User)
+			if err != nil {
+				return err
+			}
+			log.Debug("Hook file ownership changed to currect user")
 		}
-		log.Debug("Hook file ownership changed to currect user")
 	}
 
-	configPath, err := config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode)
-	if err != nil {
-		return nil
-	}
-
-	return writeDefaultFishermanConfig(ctx.Files, configPath)
+	return writeDefaultFishermanConfig(ctx.Files, config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode))
 }
 
-// Name returns namand name
+// Name returns command name
 func (c *Command) Name() string {
-	return c.fs.Name()
+	return c.flagSet.Name()
 }
 
 func writeDefaultFishermanConfig(accessor infrastructure.FileAccessor, configPath string) error {

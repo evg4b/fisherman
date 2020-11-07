@@ -13,7 +13,7 @@ func NewShell() *SystemShell {
 	return &SystemShell{}
 }
 
-func (*SystemShell) Exec(commands []string, env *map[string]string) (string, int, error) {
+func (*SystemShell) Exec(commands []string, env *map[string]string, output bool) (string, int, error) {
 	var stdout bytes.Buffer
 
 	envList := os.Environ()
@@ -21,13 +21,18 @@ func (*SystemShell) Exec(commands []string, env *map[string]string) (string, int
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	cmd, err := CommandFactory(commands)
-	if err == nil {
-		cmd.Env = envList
-		cmd.Stdout = &stdout
-		cmd.Stderr = &stdout
-		err = cmd.Run()
+	command, err := CommandFactory(commands)
+	if err != nil {
+		return "", -1, err
 	}
 
-	return stdout.String(), cmd.ProcessState.ExitCode(), err
+	command.Env = envList
+	if output {
+		command.Stdout = &stdout
+		command.Stderr = &stdout
+	}
+
+	err = command.Run()
+
+	return stdout.String(), command.ProcessState.ExitCode(), err
 }

@@ -35,14 +35,14 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 }
 
 func (r *GitRepository) GetUser() (infrastructure.User, error) {
-	config, err := r.repo().ConfigScoped(config.SystemScope)
+	gitConfig, err := r.repo().ConfigScoped(config.SystemScope)
 	if err != nil {
 		return infrastructure.User{}, err
 	}
 
 	return infrastructure.User{
-		UserName: config.User.Name,
-		Email:    config.User.Name,
+		UserName: gitConfig.User.Name,
+		Email:    gitConfig.User.Name,
 	}, err
 }
 

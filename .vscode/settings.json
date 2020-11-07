@@ -3,6 +3,7 @@
         "Debugf",
         "Infof",
         "Unmarshl",
+        "clicontext",
         "coverprofile",
         "dupl",
         "fsmonitor",

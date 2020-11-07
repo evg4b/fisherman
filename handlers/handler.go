@@ -1,8 +1,8 @@
 package handlers
 
-import "fisherman/commands"
+import "fisherman/clicontext"
 
 // HookHandler is base handler interface
-type HookHandler = func(ctx *commands.CommandContext, args []string) error
+type HookHandler = func(ctx *clicontext.CommandContext, args []string) error
 
-type HandlerFactory = func(ctx *commands.CommandContext, args []string) (HookHandler, error)
+type HandlerFactory = func(ctx *clicontext.CommandContext, args []string) (HookHandler, error)

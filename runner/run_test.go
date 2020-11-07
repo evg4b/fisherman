@@ -80,7 +80,7 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(runner.NewRunnerArgs{
+			runnerInstance := runner.NewRunner(runner.Args{
 				CommandList: tt.commands,
 				Config: &config.FishermanConfig{
 					GlobalVariables: make(map[string]interface{}),

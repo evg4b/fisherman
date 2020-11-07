@@ -18,23 +18,23 @@ var DefaultOutputConfig = OutputConfig{
 }
 
 // UnmarshalYAML implements yaml.Unmarshaler interface
-func (config *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var outputConfig struct {
+func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var config struct {
 		LogLevel string `yaml:"level"`
 		Colors   bool   `yaml:"colors"`
 	}
 
-	if err := unmarshal(&outputConfig); err != nil {
+	if err := unmarshal(&config); err != nil {
 		return err
 	}
 
-	level, err := parselogLevel(outputConfig.LogLevel)
+	level, err := parselogLevel(config.LogLevel)
 	if err != nil {
 		return err
 	}
 
-	config.Colors = outputConfig.Colors
-	config.LogLevel = level
+	c.Colors = config.Colors
+	c.LogLevel = level
 
 	return nil
 }

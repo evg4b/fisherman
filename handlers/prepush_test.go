@@ -1,7 +1,7 @@
 package handlers_test
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/handlers"
 	iomock "fisherman/mocks/infrastructure"
@@ -18,7 +18,7 @@ func TestPrePushHandler(t *testing.T) {
 	fakeShell := iomock.Shell{}
 
 	assert.NotPanics(t, func() {
-		err := handlers.PrePushHandler(&commands.CommandContext{
+		err := handlers.PrePushHandler(&clicontext.CommandContext{
 			Variables:  map[string]interface{}{},
 			Config:     &config.HooksConfig{},
 			Repository: &fakeRepository,

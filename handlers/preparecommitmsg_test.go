@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/config"
 	iomock "fisherman/mocks/infrastructure"
 	"testing"
@@ -26,7 +26,7 @@ func TestPrepareCommitMsgHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := commands.NewContext(commands.CliCommandContextParams{
+			ctx := clicontext.NewContext(clicontext.Args{
 				Config:       &config.DefaultConfig,
 				Repository:   &fakeRepository,
 				FileAccessor: &faceFileAccessor,

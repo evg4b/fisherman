@@ -11,31 +11,25 @@ const features = [
   {
     title: 'Easy to Use',
     imageUrl: 'img/command-window.svg',
-    description: (
-      <>
-        No installation required.
-        Does not require setting the PATH.
-      </>
-    ),
+    description: <>
+      No installation required.
+      Does not require setting the PATH.
+    </>,
   },
   {
     title: 'No dependencies',
     imageUrl: 'img/unlink-symbol.svg',
-    description: (
-      <>
-        Fisherman is distributed as a binary executable file.
-        You don't need anything else to work.
-      </>
-    ),
+    description: <>
+      Fisherman is distributed as a binary executable file.
+      You don't need anything else to work.
+    </>,
   },
   {
     title: 'Flexible',
     imageUrl: 'img/configuration-gears.svg',
-    description: (
-      <>
-        Simple but very flexible declarative configuration, that solves common issues in a couple of lines.
-      </>
-    ),
+    description: <>
+      Simple but very flexible declarative configuration, that solves common issues in a couple of lines.
+    </>,
   },
 ];
 

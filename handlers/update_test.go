@@ -1,7 +1,7 @@
 package handlers_test
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/constants"
 	"fisherman/handlers"
 	"testing"
@@ -12,7 +12,7 @@ import (
 func TestUpdateHandler(t *testing.T) {
 	constants.Version = testVertion
 	assert.NotPanics(t, func() {
-		err := handlers.UpdateHandler(&commands.CommandContext{}, []string{})
+		err := handlers.UpdateHandler(&clicontext.CommandContext{}, []string{})
 		assert.Error(t, err, "This hook is not supported in version 1.0.1.")
 	})
 }

@@ -19,7 +19,5 @@ func (r *Runner) buildVariables() (map[string]interface{}, error) {
 		"Email":            gitUser.Email,
 	}
 
-	err = mergo.Map(&variables, r.config.GlobalVariables)
-
-	return variables, err
+	return variables, mergo.Map(&variables, r.config.GlobalVariables)
 }

@@ -2,6 +2,8 @@ package hooks
 
 import (
 	"fisherman/utils"
+	"fmt"
+	"runtime"
 )
 
 type ScriptConfig struct {
@@ -12,33 +14,7 @@ type ScriptConfig struct {
 
 type ScriptsConfig map[string]ScriptConfig
 
-type ShellScriptsConfig struct {
-	Windows ScriptsConfig `yaml:"windows,omitempty"`
-	Linux   ScriptsConfig `yaml:"linux,omitempty"`
-	Darwin  ScriptsConfig `yaml:"darwin,omitempty"`
-}
-
 const defaultKey = "default"
-
-// UnmarshalYAML implements yaml.Unmarshaler interface
-func (config *ShellScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	type plain ShellScriptsConfig
-	if err := unmarshal((*plain)(config)); err == nil {
-		return nil
-	}
-
-	var cmdConfig ScriptsConfig
-	err := unmarshal(&cmdConfig)
-	if err == nil {
-		config.Darwin = cmdConfig
-		config.Linux = cmdConfig
-		config.Windows = cmdConfig
-
-		return nil
-	}
-
-	return err
-}
 
 // UnmarshalYAML implements yaml.Unmarshaler interface
 func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -52,6 +28,27 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 		(*config)[defaultKey] = ScriptConfig{
 			Commands: []string{outputConfig},
 			Env:      map[string]string{},
+		}
+
+		return nil
+	}
+
+	var systemConfig struct {
+		Windows ScriptsConfig `yaml:"windows,omitempty"`
+		Linux   ScriptsConfig `yaml:"linux,omitempty"`
+		Darwin  ScriptsConfig `yaml:"darwin,omitempty"`
+	}
+
+	if err := unmarshal(&systemConfig); err == nil {
+		switch runtime.GOOS {
+		case "linux":
+			(*config) = systemConfig.Linux
+		case "windows":
+			(*config) = systemConfig.Windows
+		case "darwin":
+			(*config) = systemConfig.Darwin
+		default:
+			panic(fmt.Sprintf("System %s is not supported", runtime.GOOS))
 		}
 
 		return nil
@@ -100,8 +97,8 @@ func (config *ScriptConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	return err
 }
 
-func compileCommands(scripts ScriptsConfig, variables map[string]interface{}) {
-	for _, shellScript := range scripts {
+func (config *ScriptsConfig) Compile(variables map[string]interface{}) {
+	for _, shellScript := range *config {
 		for key := range shellScript.Commands {
 			utils.FillTemplate(&shellScript.Commands[key], variables)
 		}

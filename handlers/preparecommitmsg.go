@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/utils"
 )
 
 // PrepareCommitMsgHandler is a execute function for prepare-commit-msg hook
-func PrepareCommitMsgHandler(ctx *commands.CommandContext, args []string) error {
+func PrepareCommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
 	config := &ctx.Config.PrepareCommitMsgHook
 	if utils.IsNotEmpty(config.Message) {
 		err := ctx.LoadAdditionalVariables(&config.Variables)

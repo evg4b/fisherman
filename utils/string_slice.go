@@ -1,12 +1,14 @@
 package utils
 
-func Filter(arr []string, cond func(string) bool) []string {
-	result := []string{}
-	for i := range arr {
-		if cond(arr[i]) {
-			result = append(result, arr[i])
+// Filter filters string slice by predicate
+func Filter(slice []string, predicate func(string) bool) []string {
+	resultSlice := []string{}
+
+	for i := range slice {
+		if predicate(slice[i]) {
+			resultSlice = append(resultSlice, slice[i])
 		}
 	}
 
-	return result
+	return resultSlice
 }

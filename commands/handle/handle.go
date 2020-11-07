@@ -9,7 +9,7 @@ import (
 
 // Command is structure for storage information about handle command
 type Command struct {
-	fs       *flag.FlagSet
+	flagSet  *flag.FlagSet
 	hook     string
 	handlers map[string]handlers.HookHandler
 }
@@ -17,9 +17,9 @@ type Command struct {
 // NewCommand is constructor for handle command
 func NewCommand(handling flag.ErrorHandling) *Command {
 	defer log.Debug("Handle command created")
-	fs := flag.NewFlagSet("handle", handling)
-	c := &Command{
-		fs: fs,
+	flagSet := flag.NewFlagSet("handle", handling)
+	command := &Command{
+		flagSet: flagSet,
 		handlers: map[string]handlers.HookHandler{
 			c.ApplyPatchMsgHook:     handlers.ApplyPatchMsgHandler,
 			c.CommitMsgHook:         handlers.CommitMsgHandler,
@@ -34,12 +34,12 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 			c.UpdateHook:            handlers.UpdateHandler,
 		},
 	}
-	fs.StringVar(&c.hook, "hook", "", "")
+	flagSet.StringVar(&command.hook, "hook", "", "")
 
-	return c
+	return command
 }
 
 // Name returns command name
 func (c *Command) Name() string {
-	return c.fs.Name()
+	return c.flagSet.Name()
 }

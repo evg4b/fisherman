@@ -9,27 +9,27 @@ type Shell struct {
 	mock.Mock
 }
 
-// Exec provides a mock function with given fields: commands, env
-func (_m *Shell) Exec(commands []string, env *map[string]string) (string, int, error) {
-	ret := _m.Called(commands, env)
+// Exec provides a mock function with given fields: commands, env, output
+func (_m *Shell) Exec(commands []string, env *map[string]string, output bool) (string, int, error) {
+	ret := _m.Called(commands, env, output)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func([]string, *map[string]string) string); ok {
-		r0 = rf(commands, env)
+	if rf, ok := ret.Get(0).(func([]string, *map[string]string, bool) string); ok {
+		r0 = rf(commands, env, output)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 int
-	if rf, ok := ret.Get(1).(func([]string, *map[string]string) int); ok {
-		r1 = rf(commands, env)
+	if rf, ok := ret.Get(1).(func([]string, *map[string]string, bool) int); ok {
+		r1 = rf(commands, env, output)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func([]string, *map[string]string) error); ok {
-		r2 = rf(commands, env)
+	if rf, ok := ret.Get(2).(func([]string, *map[string]string, bool) error); ok {
+		r2 = rf(commands, env, output)
 	} else {
 		r2 = ret.Error(2)
 	}

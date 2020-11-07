@@ -1,7 +1,7 @@
 package version
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"flag"
@@ -10,31 +10,31 @@ import (
 
 // Command is structure for storage information about remove command
 type Command struct {
-	fs *flag.FlagSet
+	flagSet *flag.FlagSet
 }
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer log.Debug("Vertion command created")
+	defer log.Debug("Version command created")
 
 	return &Command{
-		fs: flag.NewFlagSet("version", handling),
+		flagSet: flag.NewFlagSet("version", handling),
 	}
 }
 
 // Init initialize handle command
 func (c *Command) Init(args []string) error {
-	return c.fs.Parse(args)
+	return c.flagSet.Parse(args)
 }
 
 // Run executes init command
-func (c *Command) Run(ctx *commands.CommandContext) error {
+func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	_, err := fmt.Fprintln(log.Stdout(), constants.Version)
 
 	return err
 }
 
-// Name returns namand name
+// Name returns command name
 func (c *Command) Name() string {
-	return c.fs.Name()
+	return c.flagSet.Name()
 }

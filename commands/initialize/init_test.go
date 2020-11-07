@@ -1,8 +1,8 @@
-package init_test
+package initialize_test
 
 import (
-	"fisherman/commands"
-	initc "fisherman/commands/init"
+	"fisherman/clicontext"
+	"fisherman/commands/initialize"
 	"fisherman/config"
 	"fisherman/constants"
 	iomock "fisherman/mocks/infrastructure"
@@ -17,13 +17,13 @@ import (
 )
 
 func TestNewCommand(t *testing.T) {
-	command := initc.NewCommand(flag.ExitOnError)
+	command := initialize.NewCommand(flag.ExitOnError)
 	assert.NotNil(t, command)
 }
 
 func TestCommand_Run_Force_Mode(t *testing.T) {
 	user := user.User{}
-	command := initc.NewCommand(flag.ExitOnError)
+	command := initialize.NewCommand(flag.ExitOnError)
 	cwd := "/demo/"
 
 	fakeFileAccessor := iomock.FileAccessor{}
@@ -32,9 +32,9 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	fakeFileAccessor.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
 	fakeFileAccessor.On("Chown", mock.IsType("string"), &user).Return(nil)
 
-	ctx := commands.CommandContext{
+	ctx := clicontext.CommandContext{
 		Files: &fakeFileAccessor,
-		App: &commands.AppInfo{
+		App: &clicontext.AppInfo{
 			Cwd:                cwd,
 			IsRegisteredInPath: true,
 		},
@@ -48,6 +48,6 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := initc.NewCommand(flag.ExitOnError)
+	command := initialize.NewCommand(flag.ExitOnError)
 	assert.Equal(t, command.Name(), "init")
 }

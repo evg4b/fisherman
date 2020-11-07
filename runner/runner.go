@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fisherman/clicontext"
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/constants"
@@ -14,14 +15,14 @@ type Runner struct {
 	commandList  []commands.CliCommand
 	systemUser   *user.User
 	config       *config.FishermanConfig
-	app          *commands.AppInfo
+	app          *clicontext.AppInfo
 	fileAccessor infrastructure.FileAccessor
 	repository   infrastructure.Repository
 	shell        infrastructure.Shell
 }
 
-// NewRunnerArgs is structure to pass arguments in constructor
-type NewRunnerArgs struct {
+// Args is structure to pass arguments in constructor
+type Args struct {
 	CommandList []commands.CliCommand
 	Files       infrastructure.FileAccessor
 	Shell       infrastructure.Shell
@@ -34,14 +35,14 @@ type NewRunnerArgs struct {
 }
 
 // NewRunner is constructor for Runner
-func NewRunner(args NewRunnerArgs) *Runner {
+func NewRunner(args Args) *Runner {
 	configInfo := args.ConfigInfo
 
 	return &Runner{
 		args.CommandList,
 		args.SystemUser,
 		args.Config,
-		&commands.AppInfo{
+		&clicontext.AppInfo{
 			Executable:         args.Executable,
 			Cwd:                args.Cwd,
 			GlobalConfigPath:   configInfo.GlobalConfigPath,

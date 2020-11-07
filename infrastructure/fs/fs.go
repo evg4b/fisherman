@@ -12,6 +12,10 @@ import (
 type Accessor struct {
 }
 
+func NewAccessor() *Accessor {
+	return &Accessor{}
+}
+
 func (f *Accessor) Exist(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -21,17 +25,13 @@ func (f *Accessor) Exist(path string) bool {
 	return !info.IsDir()
 }
 
-func NewAccessor() *Accessor {
-	return &Accessor{}
-}
-
 func (f *Accessor) Read(path string) (string, error) {
-	data, err := ioutil.ReadFile(path)
+	content, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
 
-	return string(data), nil
+	return string(content), nil
 }
 
 func (f *Accessor) Reader(path string) (io.Reader, error) {

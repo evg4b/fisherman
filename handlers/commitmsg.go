@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fisherman/commands"
+	"fisherman/clicontext"
 	"fisherman/config/hooks"
 	"fisherman/infrastructure/log"
 	"fisherman/utils"
@@ -14,7 +14,7 @@ import (
 )
 
 // CommitMsgHandler is a handler for commit-msg hook
-func CommitMsgHandler(ctx *commands.CommandContext, args []string) error {
+func CommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
 	if len(args) < 1 {
 		return errors.Throw("Commit message file argument is not presented")
 	}
