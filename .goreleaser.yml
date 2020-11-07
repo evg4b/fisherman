@@ -2,6 +2,7 @@ builds:
   - goos:
       - linux
       - windows
+      - darwin
     flags:
       - -tags=release
       - -v
@@ -14,8 +15,8 @@ archives:
       windows: Windows
       386: x86
       amd64: amd64
-    files:
-      - LICENSE
+      darwin: MacOS
+    format: zip
 
 source:
   enabled: false

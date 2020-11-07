@@ -77,7 +77,6 @@ script1:
   commands:
     - command1
 script2:
-  path: [/root/demo/ddd]
   env:
     demo: demo2
   commands:
@@ -96,7 +95,6 @@ script2:
 		"script2": ScriptConfig{
 			Commands: []string{"command1", "command2"},
 			Env:      map[string]string{"demo": "demo2"},
-			Path:     []string{"/root/demo/ddd"},
 		},
 	}
 
@@ -131,7 +129,6 @@ func TestShellScriptOneScriptOnly_UnmarshalYAML(t *testing.T) {
 	var yamlMarkup string = `
 env:
   demo: demo2
-path: [/root/demo]
 commands:
   - command1
   - command2
@@ -143,7 +140,6 @@ commands:
 		"default": ScriptConfig{
 			Commands: []string{"command1", "command2"},
 			Env:      map[string]string{"demo": "demo2"},
-			Path:     []string{"/root/demo"},
 		},
 	}
 

@@ -2,7 +2,6 @@ package shell
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,51 +27,10 @@ func TestSystemShell_Exec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stdout, exitCode, err := sh.Exec(tt.commands, tt.env, []string{})
+			stdout, exitCode, err := sh.Exec(tt.commands, tt.env)
 			assert.Equal(t, tt.expectedStdout, stdout)
 			assert.Equal(t, 0, exitCode)
 			assert.NoError(t, err)
-		})
-	}
-}
-
-func Test_makePathVariable(t *testing.T) {
-	tests := []struct {
-		name         string
-		paths        []string
-		expectedPath string
-		sysPath      string
-	}{
-		{
-			name:         "test",
-			sysPath:      "",
-			paths:        []string{},
-			expectedPath: "",
-		},
-		{
-			name:         "test",
-			sysPath:      "/root/test",
-			paths:        []string{},
-			expectedPath: "/root/test",
-		},
-		{
-			name:         "test",
-			sysPath:      "/root/test",
-			paths:        []string{"/bin", "/usr/root"},
-			expectedPath: fmt.Sprintf("/root/test%s/bin%s/usr/root", PathVariableSeparator, PathVariableSeparator),
-		},
-		{
-			name:         "test",
-			sysPath:      fmt.Sprintf("/bin%s/usr/root", PathVariableSeparator),
-			paths:        []string{"/root/test"},
-			expectedPath: fmt.Sprintf("/bin%s/usr/root%s/root/test", PathVariableSeparator, PathVariableSeparator),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("PATH", tt.sysPath)
-			path := makePathVariable(tt.paths)
-			assert.Equal(t, tt.expectedPath, path)
 		})
 	}
 }
