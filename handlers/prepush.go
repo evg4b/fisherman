@@ -25,10 +25,10 @@ func PrePushHandler(ctx *clicontext.CommandContext, args []string) error {
 	var multierr *multierror.Error
 	results := common.ExecCommandsParallel(ctx.Shell, config.Shell)
 	for key, result := range results {
-		log.Infof("[%s] exited with code %d", key, result.ExitCode)
-		log.Info(result.Output)
-		if result.Err != nil {
-			multierr = multierror.Append(multierr, result.Err)
+		log.Infof("[%s] exited with code %d", key, result.Result.ExitCode)
+		log.Info(result.Result.Output)
+		if result.Result.Error != nil {
+			multierr = multierror.Append(multierr, result.Result.Error)
 		}
 	}
 

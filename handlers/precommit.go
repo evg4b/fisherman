@@ -26,17 +26,17 @@ func PreCommitHandler(ctx *clicontext.CommandContext, args []string) error {
 	var multierr *multierror.Error
 	results := common.ExecCommandsParallel(ctx.Shell, config.Shell)
 	for key, result := range results {
-		log.Infof("[%s] exited with code %d", key, result.ExitCode)
-		if len(result.Output) > 0 {
-			log.Info(result.Output)
+		log.Infof("[%s] exited with code %d (Completed in %s)", key, result.Result.ExitCode, result.Result.Time)
+		if len(result.Result.Output) > 0 {
+			log.Info(result.Result.Output)
 		}
 
-		if result.Err != nil {
-			multierr = multierror.Append(multierr, result.Err)
+		if result.Result.Error != nil {
+			multierr = multierror.Append(multierr, result.Result.Error)
 		}
 
-		if result.ExitCode != 0 {
-			err = fmt.Errorf("script %s exited with code %d", key, result.ExitCode)
+		if result.Result.ExitCode != 0 {
+			err = fmt.Errorf("script %s exited with code %d", key, result.Result.ExitCode)
 			multierr = multierror.Append(multierr, err)
 		}
 	}

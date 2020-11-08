@@ -15,6 +15,7 @@
         "imdario",
         "ldflags",
         "mergo",
+        "mkideal",
         "nolint",
         "prerebase",
         "stretchr"

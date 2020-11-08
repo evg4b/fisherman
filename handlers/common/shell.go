@@ -4,13 +4,12 @@ import (
 	"fisherman/config/hooks"
 	inf "fisherman/infrastructure"
 	"fisherman/infrastructure/log"
+	"fisherman/infrastructure/shell"
 )
 
 type CommandExecutionResult struct {
-	Key      string
-	Output   string
-	ExitCode int
-	Err      error
+	Key    string
+	Result shell.ExecResult
 }
 
 func ExecCommandsParallel(sh inf.Shell, script hooks.ScriptsConfig) map[string]CommandExecutionResult {
@@ -30,11 +29,9 @@ func ExecCommandsParallel(sh inf.Shell, script hooks.ScriptsConfig) map[string]C
 }
 
 func run(chanel chan CommandExecutionResult, sh inf.Shell, key string, command hooks.ScriptConfig) {
-	stdout, exitCode, err := sh.Exec(command.Commands, &command.Env, command.Output)
+	result := sh.Exec(command.Commands, &command.Env, command.Output)
 	chanel <- CommandExecutionResult{
-		Key:      key,
-		Output:   stdout,
-		Err:      err,
-		ExitCode: exitCode,
+		Key:    key,
+		Result: result,
 	}
 }

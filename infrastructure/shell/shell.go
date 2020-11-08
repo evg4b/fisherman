@@ -2,9 +2,18 @@ package shell
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
+	"time"
 )
+
+type ExecResult struct {
+	Output   string
+	ExitCode int
+	Error    error
+	Time     time.Duration
+}
 
 type SystemShell struct {
 }
@@ -13,7 +22,7 @@ func NewShell() *SystemShell {
 	return &SystemShell{}
 }
 
-func (*SystemShell) Exec(commands []string, env *map[string]string, output bool) (string, int, error) {
+func (*SystemShell) Exec(commands []string, env *map[string]string, output bool) ExecResult {
 	var stdout bytes.Buffer
 
 	envList := os.Environ()
@@ -21,9 +30,13 @@ func (*SystemShell) Exec(commands []string, env *map[string]string, output bool)
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	command, err := CommandFactory(commands)
+	command, err := CommandFactory(context.TODO(), commands)
 	if err != nil {
-		return "", -1, err
+		return ExecResult{
+			Error:    err,
+			ExitCode: -1,
+			Time:     time.Duration(0),
+		}
 	}
 
 	command.Env = envList
@@ -32,7 +45,14 @@ func (*SystemShell) Exec(commands []string, env *map[string]string, output bool)
 		command.Stderr = &stdout
 	}
 
+	start := time.Now()
 	err = command.Run()
+	executionTime := time.Since(start)
 
-	return stdout.String(), command.ProcessState.ExitCode(), err
+	return ExecResult{
+		Output:   stdout.String(),
+		Error:    err,
+		ExitCode: command.ProcessState.ExitCode(),
+		Time:     executionTime,
+	}
 }

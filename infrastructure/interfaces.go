@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"fisherman/infrastructure/shell"
 	"io"
 	"os"
 	"os/user"
@@ -28,5 +29,5 @@ type FileSystem interface {
 }
 
 type Shell interface {
-	Exec(commands []string, env *map[string]string, output bool) (string, int, error)
+	Exec(commands []string, env *map[string]string, output bool) shell.ExecResult
 }

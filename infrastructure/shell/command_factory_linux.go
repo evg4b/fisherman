@@ -1,6 +1,7 @@
 package shell
 
 import (
+	"context"
 	"os/exec"
 	"strings"
 )
@@ -8,7 +9,7 @@ import (
 const LineBreak = "\n"
 const PathVariableSeparator = ":"
 
-func CommandFactory(commands []string) (*exec.Cmd, error) {
+func CommandFactory(ctx context.Context, commands []string) (*exec.Cmd, error) {
 	bash, err := exec.LookPath("bash")
 	if err != nil {
 		return nil, err
@@ -16,5 +17,5 @@ func CommandFactory(commands []string) (*exec.Cmd, error) {
 
 	command := strings.Join(commands, LineBreak)
 
-	return exec.Command(bash, "-c", command), nil
+	return exec.CommandContext(ctx, bash, "-c", command), nil
 }

@@ -27,10 +27,10 @@ func TestSystemShell_Exec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stdout, exitCode, err := sh.Exec(tt.commands, tt.env, true)
-			assert.Equal(t, tt.expectedStdout, stdout)
-			assert.Equal(t, 0, exitCode)
-			assert.NoError(t, err)
+			result := sh.Exec(tt.commands, tt.env, true)
+			assert.Equal(t, tt.expectedStdout, result.Output)
+			assert.Equal(t, 0, result.ExitCode)
+			assert.NoError(t, result.Error)
 		})
 	}
 }
