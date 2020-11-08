@@ -55,9 +55,7 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 			}
 		}
 
-		if result.ErrorOrNil() != nil {
-			return result
-		}
+		return result.ErrorOrNil()
 	}
 
 	bin := constants.AppName

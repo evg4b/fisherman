@@ -29,9 +29,9 @@ func CommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
 	}
 	log.Debug("Additional variables was loaded")
 
-	utils.FillTemplate(&config.MessagePrefix, ctx.Variables)
-	utils.FillTemplate(&config.MessageSuffix, ctx.Variables)
-	utils.FillTemplate(&config.StaticMessage, ctx.Variables)
+	utils.FillTemplate(&config.MessagePrefix, ctx.Variables())
+	utils.FillTemplate(&config.MessageSuffix, ctx.Variables())
+	utils.FillTemplate(&config.StaticMessage, ctx.Variables())
 	log.Debug("Templates was compiled")
 
 	log.Debugf("Reading commit message file %s", args[0])

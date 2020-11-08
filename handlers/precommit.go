@@ -21,7 +21,7 @@ func PreCommitHandler(ctx *clicontext.CommandContext, args []string) error {
 		return err
 	}
 
-	config.Compile(ctx.Variables)
+	config.Compile(ctx.Variables())
 
 	var multierr *multierror.Error
 	results := common.ExecCommandsParallel(ctx.Shell, config.Shell)

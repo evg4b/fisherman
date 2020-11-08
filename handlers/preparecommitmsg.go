@@ -14,7 +14,7 @@ func PrepareCommitMsgHandler(ctx *clicontext.CommandContext, args []string) erro
 			return err
 		}
 
-		utils.FillTemplate(&config.Message, ctx.Variables)
+		utils.FillTemplate(&config.Message, ctx.Variables())
 
 		err = ctx.Files.Write(args[0], config.Message)
 		utils.HandleCriticalError(err)

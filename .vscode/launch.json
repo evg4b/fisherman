@@ -26,6 +26,27 @@
       ]
     },
     {
+      "name": "Debug remove",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": [
+        "remove"
+      ]
+    },
+    {
+      "name": "Debug version",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": [
+        "version"
+      ],
+      "cwd": "C:\\Users\\evgab\\Desktop"
+    },
+    {
       "name": "Debug handle applypatch-msg",
       "type": "go",
       "request": "launch",

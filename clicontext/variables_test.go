@@ -5,6 +5,7 @@ import (
 	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/config/hooks"
+	"fisherman/infrastructure"
 	mocks "fisherman/mocks/infrastructure"
 	"testing"
 
@@ -35,8 +36,12 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "version",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "x.x.x",
+				"Version":          "version",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -48,8 +53,12 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "heads",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "x.x.x",
+				"Version":          "heads",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -61,10 +70,14 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "version",
-				"Head":          "heads",
-				"Ref":           "refs",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "x.x.x",
+				"Version":          "version",
+				"Head":             "heads",
+				"Ref":              "refs",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -77,9 +90,13 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "version",
-				"Test":          "1",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "x.x.x",
+				"Version":          "version",
+				"Test":             "1",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -92,8 +109,12 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "0.0.1",
+				"CurrentBranch":    "master",
+				"Version":          "0.0.1",
+				"FishermanVersion": "x.x.x",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -106,7 +127,11 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"Version": "version",
+				"Version":          "version",
+				"FishermanVersion": "x.x.x",
+				"CWD":              "demo",
+				"Email":            "email@test.com",
+				"UserName":         "username",
 			},
 			getTagConfig:    defaultTagConfig,
 			getBranchConfig: defaultBranchConfig,
@@ -141,18 +166,25 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			repo := mocks.Repository{}
 			repo.On("GetCurrentBranch").Return(tt.getBranchConfig.Data, tt.getBranchConfig.Error)
 			repo.On("GetLastTag").Return(tt.getTagConfig.Data, tt.getTagConfig.Error)
+			repo.On("GetUser").Return(infrastructure.User{
+				Email:    "email@test.com",
+				UserName: "username",
+			}, nil)
 
 			ctx := clicontext.NewContext(clicontext.Args{
-				Repository: &repo,
-				Variables:  map[string]interface{}{"Version": "version"},
-				Config:     &config.DefaultConfig,
+				Repository:      &repo,
+				GlobalVariables: map[string]interface{}{"Version": "version"},
+				Config:          &config.DefaultConfig,
+				App: &clicontext.AppInfo{
+					Cwd: "demo",
+				},
 			})
 
 			err := ctx.LoadAdditionalVariables(&tt.variables)
 
 			assert.Equal(t, tt.expectedError, err)
 			if tt.expectedError == nil {
-				assert.EqualValues(t, tt.expectVars, ctx.Variables)
+				assert.EqualValues(t, tt.expectVars, ctx.Variables())
 			}
 		})
 	}

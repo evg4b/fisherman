@@ -5,6 +5,7 @@ import (
 	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/config/hooks"
+	"fisherman/infrastructure"
 	iomock "fisherman/mocks/infrastructure"
 	"testing"
 
@@ -117,6 +118,7 @@ func TestCommitMsgHandler(t *testing.T) {
 	fakeRepository := iomock.Repository{}
 	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
 	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
+	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
 
 	faceFileAccessor := iomock.FileAccessor{}
 	faceFileAccessor.On("Read", ".git/MESSAGE").Return("[fisherman] test commit", nil)
@@ -134,6 +136,7 @@ func TestCommitMsgHandler(t *testing.T) {
 				Config:       &config.DefaultConfig,
 				Repository:   &fakeRepository,
 				FileAccessor: &faceFileAccessor,
+				App:          &clicontext.AppInfo{},
 			})
 			err := CommitMsgHandler(ctx, tt.args)
 			assert.Equal(t, tt.err, err)

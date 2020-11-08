@@ -28,21 +28,16 @@ func (r *Runner) Run(args []string) error {
 	log.Debugf("Runned runned in folder '%s'", r.app.Cwd)
 	log.Debugf("Called command '%s'", commandName)
 
-	variables, err := r.buildVariables()
-	if err != nil {
-		return err
-	}
-
 	for _, command := range r.commandList {
 		if strings.EqualFold(command.Name(), commandName) {
 			ctx := clicontext.NewContext(clicontext.Args{
-				FileAccessor: r.fileAccessor,
-				User:         r.systemUser,
-				App:          r.app,
-				Config:       r.config,
-				Variables:    variables,
-				Repository:   r.repository,
-				Shell:        r.shell,
+				FileAccessor:    r.fileAccessor,
+				User:            r.systemUser,
+				App:             r.app,
+				Config:          r.config,
+				GlobalVariables: r.config.GlobalVariables,
+				Repository:      r.repository,
+				Shell:           r.shell,
 			})
 			log.Debugf("Context for command '%s' was created", commandName)
 

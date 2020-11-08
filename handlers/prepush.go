@@ -5,7 +5,6 @@ import (
 	"fisherman/clicontext"
 	"fisherman/handlers/common"
 	"fisherman/infrastructure/log"
-	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/mkideal/pkg/errors"
@@ -21,7 +20,7 @@ func PrePushHandler(ctx *clicontext.CommandContext, args []string) error {
 		return err
 	}
 
-	config.Compile(ctx.Variables)
+	config.Compile(ctx.Variables())
 
 	var multierr *multierror.Error
 	results := common.ExecCommandsParallel(ctx.Shell, config.Shell)
@@ -30,11 +29,6 @@ func PrePushHandler(ctx *clicontext.CommandContext, args []string) error {
 		log.Info(result.Output)
 		if result.Err != nil {
 			multierr = multierror.Append(multierr, result.Err)
-		}
-
-		if result.ExitCode != 0 {
-			err = fmt.Errorf("script %s exited with code %d", key, result.ExitCode)
-			multierr = multierror.Append(multierr, err)
 		}
 	}
 
