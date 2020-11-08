@@ -1,4 +1,4 @@
-package fs
+package filesystem
 
 import (
 	"bufio"
@@ -9,14 +9,14 @@ import (
 	"strconv"
 )
 
-type Accessor struct {
+type LocalFileSystem struct {
 }
 
-func NewAccessor() *Accessor {
-	return &Accessor{}
+func NewLocalFileSystem() *LocalFileSystem {
+	return &LocalFileSystem{}
 }
 
-func (f *Accessor) Exist(path string) bool {
+func (f *LocalFileSystem) Exist(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return false
@@ -25,7 +25,7 @@ func (f *Accessor) Exist(path string) bool {
 	return !info.IsDir()
 }
 
-func (f *Accessor) Read(path string) (string, error) {
+func (f *LocalFileSystem) Read(path string) (string, error) {
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
@@ -34,7 +34,7 @@ func (f *Accessor) Read(path string) (string, error) {
 	return string(content), nil
 }
 
-func (f *Accessor) Reader(path string) (io.Reader, error) {
+func (f *LocalFileSystem) Reader(path string) (io.Reader, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -43,19 +43,19 @@ func (f *Accessor) Reader(path string) (io.Reader, error) {
 	return bufio.NewReader(file), nil
 }
 
-func (f *Accessor) Delete(path string) error {
+func (f *LocalFileSystem) Delete(path string) error {
 	return os.Remove(path)
 }
 
-func (f *Accessor) Write(path, content string) error {
+func (f *LocalFileSystem) Write(path, content string) error {
 	return ioutil.WriteFile(path, []byte(content), 0600)
 }
 
-func (f *Accessor) Chmod(path string, mode os.FileMode) error {
+func (f *LocalFileSystem) Chmod(path string, mode os.FileMode) error {
 	return os.Chmod(path, mode)
 }
 
-func (f *Accessor) Chown(path string, user *user.User) error {
+func (f *LocalFileSystem) Chown(path string, user *user.User) error {
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
 		return err

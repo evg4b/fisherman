@@ -5,19 +5,19 @@ import (
 	"fisherman/config"
 	"fisherman/handlers"
 	"fisherman/infrastructure"
-	iomock "fisherman/mocks/infrastructure"
+	inf_mock "fisherman/mocks/infrastructure"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPrePushHandler(t *testing.T) {
-	fakeRepository := iomock.Repository{}
+	fakeRepository := inf_mock.Repository{}
 	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
 	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
 	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
 
-	fakeShell := iomock.Shell{}
+	fakeShell := inf_mock.Shell{}
 
 	assert.NotPanics(t, func() {
 		err := handlers.PrePushHandler(clicontext.NewContext(clicontext.Args{

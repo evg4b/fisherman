@@ -6,6 +6,11 @@ import (
 	"regexp"
 )
 
+type VariablesExtractor interface {
+	GetFromBranch(branchName string) (map[string]interface{}, error)
+	GetFromTag(tag string) (map[string]interface{}, error)
+}
+
 type Variables struct {
 	FromBranch  string `yaml:"from-branch,omitempty"`
 	FromLastTag string `yaml:"from-last-tag,omitempty"`

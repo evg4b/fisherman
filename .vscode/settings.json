@@ -12,7 +12,7 @@
         "golangci",
         "goreleaser",
         "hashicorp",
-        "initc",
+        "imdario",
         "ldflags",
         "mergo",
         "nolint",

@@ -21,7 +21,7 @@ type LoadInfo struct {
 }
 
 // Load loads and parse configuration from files
-func Load(cwd string, usr *user.User, files inf.FileAccessor) (*FishermanConfig, *LoadInfo, error) {
+func Load(cwd string, usr *user.User, files inf.FileSystem) (*FishermanConfig, *LoadInfo, error) {
 	config := FishermanConfig{
 		Output: log.DefaultOutputConfig,
 	}
@@ -53,7 +53,7 @@ func Load(cwd string, usr *user.User, files inf.FileAccessor) (*FishermanConfig,
 	}, nil
 }
 
-func unmarshlFile(path string, files inf.FileAccessor) (*FishermanConfig, error) {
+func unmarshlFile(path string, files inf.FileSystem) (*FishermanConfig, error) {
 	var config FishermanConfig
 	reader, err := files.Reader(path)
 	if err != nil {
@@ -70,7 +70,7 @@ func unmarshlFile(path string, files inf.FileAccessor) (*FishermanConfig, error)
 	return &config, nil
 }
 
-func checkFile(path string, files inf.FileAccessor) string {
+func checkFile(path string, files inf.FileSystem) string {
 	if files.Exist(path) {
 		return path
 	}

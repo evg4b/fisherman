@@ -2,25 +2,42 @@ package utils_test
 
 import (
 	"fisherman/utils"
+	"os/exec"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsCommandExists(t *testing.T) {
+func TestNormalizePath(t *testing.T) {
+	pingFullPath, err := exec.LookPath("ping")
+	assert.NoError(t, err)
+
 	tests := []struct {
 		name     string
-		cmd      string
-		expected bool
+		binary   string
+		expected string
 	}{
-		{name: "ping", cmd: "ping", expected: true},
-		{name: "ping", cmd: "hot-exist-command", expected: false},
+		{
+			name:     "binary not registered in PATH",
+			binary:   filepath.Join("/", "demo", "not-exist-binary"),
+			expected: filepath.Join("/", "demo", "not-exist-binary"),
+		},
+		{
+			name:     "global defined commands",
+			binary:   "ping",
+			expected: "ping",
+		},
+		{
+			name:     "binary registered in PATH",
+			binary:   pingFullPath,
+			expected: filepath.Base(pingFullPath),
+		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := utils.IsCommandExists(tt.cmd)
-			assert.Equal(t, tt.expected, actual)
+			path := utils.NormalizePath(tt.binary)
+			assert.Equal(t, tt.expected, path)
 		})
 	}
 }

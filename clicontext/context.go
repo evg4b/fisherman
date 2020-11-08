@@ -11,7 +11,7 @@ type CommandContext struct {
 	Config          *config.HooksConfig
 	User            *user.User
 	App             *AppInfo
-	Files           infrastructure.FileAccessor
+	Files           infrastructure.FileSystem
 	Repository      infrastructure.Repository
 	Shell           infrastructure.Shell
 	variables       map[string]interface{}
@@ -20,17 +20,16 @@ type CommandContext struct {
 
 // AppInfo is application info structure
 type AppInfo struct {
-	Cwd                string
-	Executable         string
-	GlobalConfigPath   string
-	LocalConfigPath    string
-	RepoConfigPath     string
-	IsRegisteredInPath bool
+	Cwd              string
+	Executable       string
+	GlobalConfigPath string
+	LocalConfigPath  string
+	RepoConfigPath   string
 }
 
 // Args is structure for params in cli command context constructor
 type Args struct {
-	FileAccessor    infrastructure.FileAccessor
+	FileSystem      infrastructure.FileSystem
 	User            *user.User
 	App             *AppInfo
 	Config          *config.FishermanConfig
@@ -45,7 +44,7 @@ func NewContext(args Args) *CommandContext {
 		Config:          &args.Config.Hooks,
 		User:            args.User,
 		App:             args.App,
-		Files:           args.FileAccessor,
+		Files:           args.FileSystem,
 		Repository:      args.Repository,
 		Shell:           args.Shell,
 		globalVariables: args.GlobalVariables,

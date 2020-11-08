@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fisherman/clicontext"
 	"fisherman/config"
-	"fisherman/config/hooks"
+	"fisherman/constants"
 	"fisherman/infrastructure"
-	mocks "fisherman/mocks/infrastructure"
+	hooks_mock "fisherman/mocks/config/hooks"
+	inf_mocks "fisherman/mocks/infrastructure"
 	"testing"
 
+	"github.com/imdario/mergo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,169 +25,197 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		variables       hooks.Variables
 		expectedError   error
+		fromBranch      string
+		fromBranchVars  map[string]interface{}
+		fromBranchError error
+		fromTag         string
+		fromTagVars     map[string]interface{}
+		fromTagError    error
 		expectVars      map[string]interface{}
-		getTagConfig    testSource
-		getBranchConfig testSource
+		tagConfig       testSource
+		branchConfig    testSource
 	}{
 		{
-			name: "Load CurrentBranch from branch name",
-			variables: hooks.Variables{
-				FromBranch: "refs/heads/(?P<CurrentBranch>.*)",
+			name:       "Load CurrentBranch from branch name",
+			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch":    "master",
-				"FishermanVersion": "x.x.x",
-				"Version":          "version",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "Load CurrentBranch and oweride Version from branch name",
-			variables: hooks.Variables{
-				FromBranch: "refs/(?P<Version>.*)/(?P<CurrentBranch>.*)",
+			name:       "Load CurrentBranch and oweride Version from branch name",
+			fromBranch: "refs/(?P<Version>.*)/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
+				"Version":       "heads",
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch":    "master",
-				"FishermanVersion": "x.x.x",
-				"Version":          "heads",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
+				"Version":       "heads",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "Load multiple variables from branch name",
-			variables: hooks.Variables{
-				FromBranch: "(?P<Ref>.*)/(?P<Head>.*)/(?P<CurrentBranch>.*)",
+			name:       "Load multiple variables from branch name",
+			fromBranch: "(?P<Ref>.*)/(?P<Head>.*)/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
+				"Head":          "heads",
+				"Ref":           "refs",
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch":    "master",
-				"FishermanVersion": "x.x.x",
-				"Version":          "version",
-				"Head":             "heads",
-				"Ref":              "refs",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
+				"Head":          "heads",
+				"Ref":           "refs",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "Load variables from branch and tag names",
-			variables: hooks.Variables{
-				FromBranch:  "refs/heads/(?P<CurrentBranch>.*)",
-				FromLastTag: "0.0.(?P<Test>.*)",
+			name:       "Load variables from branch and tag names",
+			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
+			},
+			fromTag: "0.0.(?P<Test>.*)",
+			fromTagVars: map[string]interface{}{
+				"Test": "1",
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch":    "master",
-				"FishermanVersion": "x.x.x",
-				"Version":          "version",
-				"Test":             "1",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
+				"Test":          "1",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "Load CurrentBranch from branch name and oweride Vertion from tag name",
-			variables: hooks.Variables{
-				FromBranch:  "refs/heads/(?P<CurrentBranch>.*)",
-				FromLastTag: "(?P<Version>.*)",
+			name:       "Load CurrentBranch from branch name and oweride Vertion from tag name",
+			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
+			},
+			fromTag: "(?P<Version>.*)",
+			fromTagVars: map[string]interface{}{
+				"Version": "0.0.1",
 			},
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch":    "master",
-				"Version":          "0.0.1",
-				"FishermanVersion": "x.x.x",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
+				"Version":       "0.0.1",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "Skip loading",
-			variables: hooks.Variables{
-				FromBranch:  "",
-				FromLastTag: "",
+			name:       "Abort loading when source return error",
+			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
+			fromBranchVars: map[string]interface{}{
+				"CurrentBranch": "master",
 			},
-			expectedError: nil,
+			fromBranchError: errors.New("Test"),
+			fromTag:         "(?P<Version>.*)",
+			fromTagVars: map[string]interface{}{
+				"Version": "0.0.1",
+			},
+			expectedError: errors.New("Test"),
 			expectVars: map[string]interface{}{
-				"Version":          "version",
-				"FishermanVersion": "x.x.x",
-				"CWD":              "demo",
-				"Email":            "email@test.com",
-				"UserName":         "username",
+				"CurrentBranch": "master",
+				"Version":       "0.0.1",
 			},
-			getTagConfig:    defaultTagConfig,
-			getBranchConfig: defaultBranchConfig,
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "GetLastTag Error",
-			variables: hooks.Variables{
-				FromBranch:  "",
-				FromLastTag: "",
+			name:          "Abort loading when source return error",
+			fromTag:       "(?P<Version>.*)",
+			fromTagVars:   map[string]interface{}{},
+			fromTagError:  errors.New("Test"),
+			expectedError: errors.New("Test"),
+			expectVars: map[string]interface{}{
+				"CurrentBranch": "master",
+				"Version":       "0.0.1",
 			},
+			tagConfig:    defaultTagConfig,
+			branchConfig: defaultBranchConfig,
+		},
+		{
+			name:          "Skip loading",
+			expectedError: nil,
+			expectVars:    map[string]interface{}{},
+			tagConfig:     defaultTagConfig,
+			branchConfig:  defaultBranchConfig,
+		},
+		{
+			name:          "GetLastTag Error",
 			expectedError: errors.New("GetTagError"),
-			getTagConfig: testSource{
+			tagConfig: testSource{
 				Error: errors.New("GetTagError"),
 			},
-			getBranchConfig: defaultBranchConfig,
+			branchConfig: defaultBranchConfig,
 		},
 		{
-			name: "GetBranch Error",
-			variables: hooks.Variables{
-				FromBranch:  "",
-				FromLastTag: "",
-			},
+			name:          "GetBranch Error",
 			expectedError: errors.New("GetBranchError"),
-			getTagConfig:  defaultTagConfig,
-			getBranchConfig: testSource{
+			tagConfig:     defaultTagConfig,
+			branchConfig: testSource{
 				Error: errors.New("GetBranchError"),
 			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := mocks.Repository{}
-			repo.On("GetCurrentBranch").Return(tt.getBranchConfig.Data, tt.getBranchConfig.Error)
-			repo.On("GetLastTag").Return(tt.getTagConfig.Data, tt.getTagConfig.Error)
-			repo.On("GetUser").Return(infrastructure.User{
-				Email:    "email@test.com",
-				UserName: "username",
-			}, nil)
+			repo := inf_mocks.Repository{}
+			repo.On("GetCurrentBranch").Return(tt.branchConfig.Data, tt.branchConfig.Error)
+			repo.On("GetLastTag").Return(tt.tagConfig.Data, tt.tagConfig.Error)
+			repo.On("GetUser").Return(infrastructure.User{Email: "email@test.com", UserName: "username"}, nil)
+
+			vars := hooks_mock.VariablesExtractor{}
+			vars.On("GetFromBranch", tt.branchConfig.Data).Return(tt.fromBranchVars, tt.fromBranchError)
+			vars.On("GetFromTag", tt.tagConfig.Data).Return(tt.fromTagVars, tt.fromTagError)
+
+			withGlobal(&tt.expectVars)
 
 			ctx := clicontext.NewContext(clicontext.Args{
 				Repository:      &repo,
-				GlobalVariables: map[string]interface{}{"Version": "version"},
+				GlobalVariables: map[string]interface{}{"GlobalVar": "global"},
 				Config:          &config.DefaultConfig,
 				App: &clicontext.AppInfo{
 					Cwd: "demo",
 				},
 			})
 
-			err := ctx.LoadAdditionalVariables(&tt.variables)
+			err := ctx.LoadAdditionalVariables(&vars)
 
 			assert.Equal(t, tt.expectedError, err)
 			if tt.expectedError == nil {
 				assert.EqualValues(t, tt.expectVars, ctx.Variables())
 			}
 		})
+	}
+}
+
+func withGlobal(vars *map[string]interface{}) {
+	err := mergo.Merge(vars, map[string]interface{}{
+		constants.FishermanVersionVariable: "x.x.x",
+		constants.CwdVariable:              "demo",
+		constants.EmailVariable:            "email@test.com",
+		constants.UserNameVariable:         "username",
+		"GlobalVar":                        "global",
+	})
+
+	if err != nil {
+		panic(err)
 	}
 }

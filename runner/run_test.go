@@ -6,9 +6,8 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/fs"
-	commandsmock "fisherman/mocks/commands"
-	mocks "fisherman/mocks/infrastructure"
+	commands_mock "fisherman/mocks/commands"
+	inf_mock "fisherman/mocks/infrastructure"
 	"fisherman/runner"
 	"io/ioutil"
 	"log"
@@ -21,7 +20,7 @@ import (
 
 func TestRunner_Run(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
-	repo := mocks.Repository{}
+	repo := inf_mock.Repository{}
 	repo.On("GetUser").Return(infrastructure.User{}, nil)
 
 	tests := []struct {
@@ -81,13 +80,13 @@ func TestRunner_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			runnerInstance := runner.NewRunner(runner.Args{
-				CommandList: tt.commands,
+				Commands: tt.commands,
 				Config: &config.FishermanConfig{
 					GlobalVariables: make(map[string]interface{}),
 				},
 				ConfigInfo: &config.LoadInfo{},
 				Cwd:        "demo",
-				Files:      &fs.Accessor{},
+				Files:      &inf_mock.FileSystem{},
 				SystemUser: &user.User{},
 				Executable: "bin",
 				Repository: &repo,
@@ -101,15 +100,15 @@ func TestRunner_Run(t *testing.T) {
 	}
 }
 
-func makeCommand(name string) *commandsmock.CliCommand {
-	command := commandsmock.CliCommand{}
+func makeCommand(name string) *commands_mock.CliCommand {
+	command := commands_mock.CliCommand{}
 	command.On("Name").Return(name)
 	command.On("Init", mock.Anything).Return(nil)
 
 	return &command
 }
 
-func makeExpectedCommand(name string, err error) *commandsmock.CliCommand {
+func makeExpectedCommand(name string, err error) *commands_mock.CliCommand {
 	command := makeCommand(name)
 	command.On("Run", mock.Anything, mock.Anything).Return(err)
 

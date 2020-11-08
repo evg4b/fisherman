@@ -39,7 +39,7 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	return command
 }
 
-// Name returns command name
+// Name returns handler command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
 }

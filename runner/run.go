@@ -28,10 +28,10 @@ func (r *Runner) Run(args []string) error {
 	log.Debugf("Runned runned in folder '%s'", r.app.Cwd)
 	log.Debugf("Called command '%s'", commandName)
 
-	for _, command := range r.commandList {
+	for _, command := range r.commands {
 		if strings.EqualFold(command.Name(), commandName) {
 			ctx := clicontext.NewContext(clicontext.Args{
-				FileAccessor:    r.fileAccessor,
+				FileSystem:      r.fileSystem,
 				User:            r.systemUser,
 				App:             r.app,
 				Config:          r.config,

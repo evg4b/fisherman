@@ -6,6 +6,7 @@ import (
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
+	"fisherman/utils"
 	"flag"
 	"fmt"
 	"os"
@@ -21,6 +22,7 @@ type Command struct {
 	flagSet *flag.FlagSet
 	mode    string
 	force   bool
+	abslute bool
 }
 
 // NewCommand is constructor for init command
@@ -32,6 +34,7 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
 	flagSet.StringVar(&command.mode, "mode", config.RepoMode, modeMessage)
 	flagSet.BoolVar(&command.force, "force", false, "")
+	flagSet.BoolVar(&command.abslute, "abs", false, "")
 
 	return command
 }
@@ -50,7 +53,7 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 			hookPath := filepath.Join(ctx.App.Cwd, ".git", "hooks", hookName)
 			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
 			if ctx.Files.Exist(hookPath) {
-				log.Debugf("Hook '%s' already declared", hookName)
+				log.Debugf("Hook '%s' already exist", hookName)
 				result = multierror.Append(result, fmt.Errorf("file %s already exists", hookPath))
 			}
 		}
@@ -58,10 +61,9 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 		return result.ErrorOrNil()
 	}
 
-	bin := constants.AppName
-	if !ctx.App.IsRegisteredInPath {
-		log.Debugf("App is not defined in global scope, will be used '%s' path", ctx.App.Executable)
-		bin = fmt.Sprintf("'%s'", ctx.App.Executable)
+	bin := ctx.App.Executable
+	if !c.abslute {
+		bin = utils.NormalizePath(bin)
 	}
 
 	for _, hookName := range constants.HooksNames {
@@ -95,7 +97,7 @@ func (c *Command) Name() string {
 	return c.flagSet.Name()
 }
 
-func writeDefaultFishermanConfig(accessor infrastructure.FileAccessor, configPath string) error {
+func writeDefaultFishermanConfig(accessor infrastructure.FileSystem, configPath string) error {
 	if !accessor.Exist(configPath) {
 		content, err := yaml.Marshal(config.DefaultConfig)
 		if err != nil {

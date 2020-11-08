@@ -1,10 +1,16 @@
 package utils
 
-import "os/exec"
+import (
+	"os/exec"
+	"path/filepath"
+)
 
-// IsCommandExists returns true when command registered in path as global tool
-func IsCommandExists(cmd string) bool {
-	path, err := exec.LookPath(cmd)
+func NormalizePath(binary string) string {
+	base := filepath.Base(binary)
+	path, err := exec.LookPath(base)
+	if err != nil || IsEmpty(path) {
+		return binary
+	}
 
-	return err == nil && IsNotEmpty(path)
+	return base
 }

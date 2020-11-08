@@ -17,8 +17,8 @@ type GitRepository struct {
 	internalRepo *git.Repository
 }
 
-func NewGitRepository(path string) (*GitRepository, error) {
-	return &GitRepository{path: path, internalRepo: nil}, nil
+func NewGitRepository(path string) *GitRepository {
+	return &GitRepository{path: path, internalRepo: nil}
 }
 
 func (r *GitRepository) GetCurrentBranch() (string, error) {

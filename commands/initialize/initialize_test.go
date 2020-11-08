@@ -5,7 +5,7 @@ import (
 	"fisherman/commands/initialize"
 	"fisherman/config"
 	"fisherman/constants"
-	iomock "fisherman/mocks/infrastructure"
+	inf_mock "fisherman/mocks/infrastructure"
 	"flag"
 	"os"
 	"os/user"
@@ -26,17 +26,16 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	command := initialize.NewCommand(flag.ExitOnError)
 	cwd := "/demo/"
 
-	fakeFileAccessor := iomock.FileAccessor{}
-	fakeFileAccessor.On("Write", mock.IsType("string"), mock.IsType("string")).Return(nil)
-	fakeFileAccessor.On("Exist", filepath.Join(cwd, constants.AppConfigName)).Return(true)
-	fakeFileAccessor.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
-	fakeFileAccessor.On("Chown", mock.IsType("string"), &user).Return(nil)
+	fakeFS := inf_mock.FileSystem{}
+	fakeFS.On("Write", mock.IsType("string"), mock.IsType("string")).Return(nil)
+	fakeFS.On("Exist", filepath.Join(cwd, constants.AppConfigName)).Return(true)
+	fakeFS.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
+	fakeFS.On("Chown", mock.IsType("string"), &user).Return(nil)
 
 	ctx := clicontext.CommandContext{
-		Files: &fakeFileAccessor,
+		Files: &fakeFS,
 		App: &clicontext.AppInfo{
-			Cwd:                cwd,
-			IsRegisteredInPath: true,
+			Cwd: cwd,
 		},
 		Config: &config.HooksConfig{},
 		User:   &user,
