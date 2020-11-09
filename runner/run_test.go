@@ -2,6 +2,7 @@ package runner_test
 
 //nolint: depguard
 import (
+	"context"
 	"errors"
 	"fisherman/commands"
 	"fisherman/config"
@@ -79,7 +80,7 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(runner.Args{
+			runnerInstance := runner.NewRunner(context.TODO(), runner.Args{
 				Commands: tt.commands,
 				Config: &config.FishermanConfig{
 					GlobalVariables: make(map[string]interface{}),

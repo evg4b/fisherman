@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"context"
 	"fisherman/infrastructure/shell"
 	"io"
 	"os"
@@ -29,5 +30,5 @@ type FileSystem interface {
 }
 
 type Shell interface {
-	Exec(commands []string, env *map[string]string, output bool) shell.ExecResult
+	Exec(ctx context.Context, script shell.ScriptConfig) shell.ExecResult
 }

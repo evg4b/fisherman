@@ -1,6 +1,7 @@
 package remove_test
 
 import (
+	"context"
 	"errors"
 	"fisherman/clicontext"
 	"fisherman/commands/remove"
@@ -18,7 +19,7 @@ func TestCommand_Run(t *testing.T) {
 	fakeFS := makeFakeFS()
 	fakeFS.On("Delete", filepath.Join("usr", "home", ".fisherman.yml")).Return(nil)
 
-	ctx := clicontext.NewContext(clicontext.Args{
+	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 		App: &clicontext.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
@@ -43,7 +44,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 	fakeFS := makeFakeFS()
 	fakeFS.On("Delete", filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError)
 
-	ctx := clicontext.NewContext(clicontext.Args{
+	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 		App: &clicontext.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fisherman/commands"
 	"fisherman/commands/handle"
 	"fisherman/commands/initialize"
@@ -39,7 +40,9 @@ func main() {
 
 	handling := flag.ExitOnError
 
-	instance := runner.NewRunner(runner.Args{
+	ctx := context.Background()
+
+	instance := runner.NewRunner(ctx, runner.Args{
 		Commands: []commands.CliCommand{
 			initialize.NewCommand(handling),
 			handle.NewCommand(handling),

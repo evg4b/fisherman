@@ -1,6 +1,7 @@
 package clicontext_test
 
 import (
+	"context"
 	"errors"
 	"fisherman/clicontext"
 	"fisherman/config"
@@ -187,7 +188,7 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 
 			withGlobal(&tt.expectVars)
 
-			ctx := clicontext.NewContext(clicontext.Args{
+			ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 				Repository:      &repo,
 				GlobalVariables: map[string]interface{}{"GlobalVar": "global"},
 				Config:          &config.DefaultConfig,

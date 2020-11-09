@@ -1,10 +1,12 @@
 package utils_test
 
 import (
+	"errors"
 	"fisherman/utils"
 	"os/exec"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -40,4 +42,26 @@ func TestNormalizePath(t *testing.T) {
 			assert.Equal(t, tt.expected, path)
 		})
 	}
+}
+
+func TestExecWithTime(t *testing.T) {
+	duration, err := utils.ExecWithTime(func() error {
+		time.Sleep(time.Millisecond * 1)
+
+		return nil
+	})
+
+	assert.NoError(t, err)
+	assert.Greater(t, int(duration), 0)
+}
+
+func TestExecWithTime_Error(t *testing.T) {
+	duration, err := utils.ExecWithTime(func() error {
+		time.Sleep(time.Millisecond * 1)
+
+		return errors.New("TestError")
+	})
+
+	assert.Error(t, err, "TestError")
+	assert.Equal(t, int(duration), 0)
 }

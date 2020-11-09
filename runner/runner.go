@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fisherman/clicontext"
 	"fisherman/commands"
 	"fisherman/config"
@@ -17,6 +18,7 @@ type Runner struct {
 	fileSystem infrastructure.FileSystem
 	repository infrastructure.Repository
 	shell      infrastructure.Shell
+	context    context.Context
 }
 
 // Args is structure to pass arguments in constructor
@@ -33,22 +35,23 @@ type Args struct {
 }
 
 // NewRunner is constructor for Runner
-func NewRunner(args Args) *Runner {
+func NewRunner(ctx context.Context, args Args) *Runner {
 	configInfo := args.ConfigInfo
 
 	return &Runner{
-		args.Commands,
-		args.SystemUser,
-		args.Config,
-		&clicontext.AppInfo{
+		commands:   args.Commands,
+		systemUser: args.SystemUser,
+		config:     args.Config,
+		app: &clicontext.AppInfo{
 			Executable:       args.Executable,
 			Cwd:              args.Cwd,
 			GlobalConfigPath: configInfo.GlobalConfigPath,
 			LocalConfigPath:  configInfo.LocalConfigPath,
 			RepoConfigPath:   configInfo.RepoConfigPath,
 		},
-		args.Files,
-		args.Repository,
-		args.Shell,
+		fileSystem: args.Files,
+		repository: args.Repository,
+		shell:      args.Shell,
+		context:    ctx,
 	}
 }

@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"context"
 	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/handlers"
@@ -20,7 +21,7 @@ func TestPrePushHandler(t *testing.T) {
 	fakeShell := inf_mock.Shell{}
 
 	assert.NotPanics(t, func() {
-		err := handlers.PrePushHandler(clicontext.NewContext(clicontext.Args{
+		err := handlers.PrePushHandler(clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},

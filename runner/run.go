@@ -30,7 +30,7 @@ func (r *Runner) Run(args []string) error {
 
 	for _, command := range r.commands {
 		if strings.EqualFold(command.Name(), commandName) {
-			ctx := clicontext.NewContext(clicontext.Args{
+			ctx := clicontext.NewContext(r.context, clicontext.Args{
 				FileSystem:      r.fileSystem,
 				User:            r.systemUser,
 				App:             r.app,

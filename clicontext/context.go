@@ -1,9 +1,11 @@
 package clicontext
 
 import (
+	"context"
 	"fisherman/config"
 	"fisherman/infrastructure"
 	"os/user"
+	"time"
 )
 
 // CommandContext is cli context structure
@@ -16,6 +18,8 @@ type CommandContext struct {
 	Shell           infrastructure.Shell
 	variables       map[string]interface{}
 	globalVariables map[string]interface{}
+	base            context.Context
+	cancel          context.CancelFunc
 }
 
 // AppInfo is application info structure
@@ -39,7 +43,9 @@ type Args struct {
 }
 
 // NewContext constructor for cli command context
-func NewContext(args Args) *CommandContext {
+func NewContext(baseCtx context.Context, args Args) *CommandContext {
+	ctx, cancel := context.WithCancel(baseCtx)
+
 	return &CommandContext{
 		Config:          &args.Config.Hooks,
 		User:            args.User,
@@ -48,5 +54,27 @@ func NewContext(args Args) *CommandContext {
 		Repository:      args.Repository,
 		Shell:           args.Shell,
 		globalVariables: args.GlobalVariables,
+		base:            ctx,
+		cancel:          cancel,
 	}
+}
+
+func (ctx *CommandContext) Deadline() (deadline time.Time, ok bool) {
+	return ctx.base.Deadline()
+}
+
+func (ctx *CommandContext) Done() <-chan struct{} {
+	return ctx.base.Done()
+}
+
+func (ctx *CommandContext) Err() error {
+	return ctx.base.Err()
+}
+
+func (ctx *CommandContext) Value(key interface{}) interface{} {
+	return ctx.base.Value(key)
+}
+
+func (ctx *CommandContext) Stop() {
+	ctx.cancel()
 }

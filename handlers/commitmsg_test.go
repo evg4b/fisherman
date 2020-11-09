@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fisherman/clicontext"
 	"fisherman/config"
@@ -132,7 +133,7 @@ func TestCommitMsgHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := clicontext.NewContext(clicontext.Args{
+			ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 				Config:     &config.DefaultConfig,
 				Repository: &fakeRepo,
 				FileSystem: &fakeFS,
