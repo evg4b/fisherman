@@ -3,24 +3,11 @@ package shell
 import (
 	"bytes"
 	"context"
-	"fisherman/infrastructure/log"
 	"fisherman/utils"
 	"fmt"
 	"os"
 	"time"
 )
-
-type ExecResult struct {
-	Name     string
-	Output   string
-	ExitCode int
-	Error    error
-	Time     time.Duration
-}
-
-func (r *ExecResult) IsSuccessful() bool {
-	return r.Error == nil && r.ExitCode == 0
-}
 
 type ScriptConfig struct {
 	Name     string
@@ -60,7 +47,6 @@ func (*SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult {
 	}
 
 	duration, err := utils.ExecWithTime(command.Run)
-	log.Error(err)
 
 	return ExecResult{
 		Output:   stdout.String(),

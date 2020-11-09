@@ -27,6 +27,10 @@ var (
 
 var level = InfoLevel
 
+func init() {
+	log.SetFlags(0)
+}
+
 // Configure configures logger
 func Configure(config OutputConfig) {
 	if !config.Colors {

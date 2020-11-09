@@ -3,7 +3,7 @@ package handlers
 
 import (
 	"fisherman/clicontext"
-	"fisherman/handlers/common"
+	"fisherman/handlers/shellhandlers"
 	"fisherman/infrastructure/log"
 
 	"github.com/mkideal/pkg/errors"
@@ -21,5 +21,5 @@ func PrePushHandler(ctx *clicontext.CommandContext, args []string) error {
 
 	config.Compile(ctx.Variables())
 
-	return common.ExecCommandsParallel(ctx, ctx.Shell, config.Shell)
+	return shellhandlers.ExecParallel(ctx, ctx.Shell, config.Shell)
 }
