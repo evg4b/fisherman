@@ -1,6 +1,5 @@
 package log
 
-//nolint: depguard
 import (
 	"io"
 	"io/ioutil"

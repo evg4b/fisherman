@@ -1,6 +1,5 @@
 package log_test
 
-//nolint: depguard
 import (
 	"bytes"
 	"fisherman/infrastructure/log"

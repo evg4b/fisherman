@@ -1,6 +1,5 @@
 package runner_test
 
-//nolint: depguard
 import (
 	"context"
 	"errors"

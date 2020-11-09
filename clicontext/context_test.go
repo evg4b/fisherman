@@ -58,7 +58,7 @@ func TestCommandContext_Value(t *testing.T) {
 	key := "testKey"
 	expectedValue := "testValue"
 
-	// nolint: go-lint
+	// nolint: golint, staticcheck
 	baseCtx := context.WithValue(context.Background(), key, expectedValue)
 
 	ctx := clicontext.NewContext(baseCtx, clicontext.Args{

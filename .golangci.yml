@@ -3,7 +3,7 @@ run:
     - mocks
     - assets
   allow-parallel-runners: true
-  timeout: 1m
+  timeout: 5m
 linters:
   enable:
     - gosec

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
 
@@ -12,6 +13,11 @@ import (
 
 func TestSystemShell_Exec(t *testing.T) {
 	sh := NewShell()
+
+	notCommandExitCode := 1
+	if runtime.GOOS != "windows" {
+		notCommandExitCode = 127
+	}
 
 	tests := []struct {
 		name           string
@@ -31,7 +37,7 @@ func TestSystemShell_Exec(t *testing.T) {
 			name:     "should return 1,2",
 			commands: []string{"demo"},
 			env:      map[string]string{"demo": "demo"},
-			exitCode: 1,
+			exitCode: notCommandExitCode,
 		},
 	}
 	for _, tt := range tests {
