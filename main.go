@@ -56,7 +56,7 @@ func main() {
 		Cwd:        cwd,
 		Executable: appPath,
 		Repository: vcs.NewGitRepository(cwd),
-		Shell:      shell.NewShell(),
+		Shell:      shell.NewShell(os.Stdout),
 	})
 
 	if err = instance.Run(os.Args[1:]); err != nil {

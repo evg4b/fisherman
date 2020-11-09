@@ -1,12 +1,14 @@
 package shell
 
 import (
-	"bytes"
 	"context"
 	"fisherman/utils"
 	"fmt"
+	"io"
 	"os"
 	"time"
+
+	"github.com/egymgmbh/go-prefix-writer/prefixer"
 )
 
 type ScriptConfig struct {
@@ -17,15 +19,16 @@ type ScriptConfig struct {
 }
 
 type SystemShell struct {
+	output io.Writer
 }
 
-func NewShell() *SystemShell {
-	return &SystemShell{}
+func NewShell(output io.Writer) *SystemShell {
+	return &SystemShell{
+		output: output,
+	}
 }
 
-func (*SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult {
-	var stdout bytes.Buffer
-
+func (sh *SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult {
 	envList := os.Environ()
 	for key, value := range script.Env {
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
@@ -42,14 +45,17 @@ func (*SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult {
 
 	command.Env = envList
 	if script.Output {
-		command.Stdout = &stdout
-		command.Stderr = &stdout
+		prefix := fmt.Sprintf("%s |", script.Name)
+		output := prefixer.New(sh.output, func() string {
+			return prefix
+		})
+		command.Stdout = output
+		command.Stderr = output
 	}
 
 	duration, err := utils.ExecWithTime(command.Run)
 
 	return ExecResult{
-		Output:   stdout.String(),
 		Error:    err,
 		ExitCode: command.ProcessState.ExitCode(),
 		Time:     duration,

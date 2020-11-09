@@ -1,4 +1,3 @@
-// nolint
 package handlers
 
 import (

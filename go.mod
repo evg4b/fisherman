@@ -3,6 +3,7 @@ module fisherman
 go 1.15
 
 require (
+	github.com/egymgmbh/go-prefix-writer v0.0.0-20180609083313-7326ea162eca
 	github.com/fatih/color v1.10.0
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/google/go-cmp v0.5.2 // indirect

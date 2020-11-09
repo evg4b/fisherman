@@ -3,7 +3,7 @@ package shell
 import (
 	"context"
 	"errors"
-	"fmt"
+	"os"
 	"runtime"
 	"testing"
 	"time"
@@ -12,7 +12,7 @@ import (
 )
 
 func TestSystemShell_Exec(t *testing.T) {
-	sh := NewShell()
+	sh := NewShell(os.Stdout)
 
 	notCommandExitCode := 1
 	if runtime.GOOS != "windows" {
@@ -20,18 +20,16 @@ func TestSystemShell_Exec(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		commands       []string
-		env            map[string]string
-		expectedStdout string
-		exitCode       int
+		name     string
+		commands []string
+		env      map[string]string
+		exitCode int
 	}{
 		{
-			name:           "should return 1,2",
-			commands:       []string{"echo 1", "echo 2"},
-			env:            map[string]string{"demo": "demo"},
-			expectedStdout: fmt.Sprintf("1%s2%s", LineBreak, LineBreak),
-			exitCode:       0,
+			name:     "should return 1,2",
+			commands: []string{"echo 1", "echo 2"},
+			env:      map[string]string{"demo": "demo"},
+			exitCode: 0,
 		},
 		{
 			name:     "should return 1,2",
@@ -51,7 +49,6 @@ func TestSystemShell_Exec(t *testing.T) {
 
 			assert.Equal(t, tt.exitCode, result.ExitCode)
 			if tt.exitCode == 0 {
-				assert.Equal(t, tt.expectedStdout, result.Output)
 				assert.NoError(t, result.Error)
 			} else {
 				assert.Error(t, result.Error)
@@ -79,7 +76,6 @@ func TestExecResult_IsSuccessful(t *testing.T) {
 				ExitCode: tt.exitCode,
 				Error:    tt.err,
 				Name:     "test",
-				Output:   "",
 				Time:     time.Second,
 			}
 

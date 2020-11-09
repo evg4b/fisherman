@@ -8,7 +8,6 @@ import (
 
 type ExecResult struct {
 	Name     string
-	Output   string
 	ExitCode int
 	Error    error
 	Time     time.Duration
