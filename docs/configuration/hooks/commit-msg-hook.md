@@ -25,11 +25,12 @@ This section is common variables section without additional params. See more inf
 
 ### static-message:
 This is template. Users commit message will be replaced by a compilation result of this field.
+
 :::caution
 When this parament is set other validation rules will be skipped.
 :::
 
-:::caution
+:::caution Note
 When you commit with the `--no-verify` flag this action will not work.
 :::
 

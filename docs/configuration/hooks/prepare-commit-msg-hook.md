@@ -20,6 +20,6 @@ This section is common variables section without additional params. See more inf
 ### message
 This is [template](/). Users commit message will be replaced by a compilation result of this field.
 
-:::caution
+:::caution Note
 When you commit with the `--no-verify` flag this action will not work.
 :::
