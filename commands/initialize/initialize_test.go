@@ -5,15 +5,13 @@ import (
 	"fisherman/commands/initialize"
 	"fisherman/config"
 	"fisherman/constants"
-	inf_mock "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
 	"flag"
-	"os"
 	"os/user"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestNewCommand(t *testing.T) {
@@ -22,23 +20,22 @@ func TestNewCommand(t *testing.T) {
 }
 
 func TestCommand_Run_Force_Mode(t *testing.T) {
-	user := user.User{}
 	command := initialize.NewCommand(flag.ExitOnError)
 	cwd := "/demo/"
 
-	fakeFS := inf_mock.FileSystem{}
-	fakeFS.On("Write", mock.IsType("string"), mock.IsType("string")).Return(nil)
-	fakeFS.On("Exist", filepath.Join(cwd, constants.AppConfigName)).Return(true)
-	fakeFS.On("Chmod", mock.IsType("string"), os.ModePerm).Return(nil)
-	fakeFS.On("Chown", mock.IsType("string"), &user).Return(nil)
+	d := mocks.NewFileSystemMock(t).
+		WriteMock.Return(nil).
+		ExistMock.When(filepath.Join(cwd, constants.AppConfigName)).Then(true).
+		ChmodMock.Return(nil).
+		ChownMock.Return(nil)
 
 	ctx := clicontext.CommandContext{
-		Files: &fakeFS,
+		Files: d,
 		App: &clicontext.AppInfo{
 			Cwd: cwd,
 		},
 		Config: &config.HooksConfig{},
-		User:   &user,
+		User:   &user.User{},
 	}
 	err := command.Init([]string{"--force"})
 	assert.NoError(t, err)

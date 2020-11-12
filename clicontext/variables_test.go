@@ -7,8 +7,7 @@ import (
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure"
-	hooks_mock "fisherman/mocks/config/hooks"
-	inf_mocks "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
 	"testing"
 
 	"github.com/imdario/mergo"
@@ -177,19 +176,17 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := inf_mocks.Repository{}
-			repo.On("GetCurrentBranch").Return(tt.branchConfig.Data, tt.branchConfig.Error)
-			repo.On("GetLastTag").Return(tt.tagConfig.Data, tt.tagConfig.Error)
-			repo.On("GetUser").Return(infrastructure.User{Email: "email@test.com", UserName: "username"}, nil)
-
-			vars := hooks_mock.VariablesExtractor{}
-			vars.On("GetFromBranch", tt.branchConfig.Data).Return(tt.fromBranchVars, tt.fromBranchError)
-			vars.On("GetFromTag", tt.tagConfig.Data).Return(tt.fromTagVars, tt.fromTagError)
+			vars := mocks.NewVariablesExtractorMock(t).
+				GetFromBranchMock.Expect(tt.branchConfig.Data).Return(tt.fromBranchVars, tt.fromBranchError).
+				GetFromTagMock.Expect(tt.tagConfig.Data).Return(tt.fromTagVars, tt.fromTagError)
 
 			withGlobal(&tt.expectVars)
 
 			ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
-				Repository:      &repo,
+				Repository: mocks.NewRepositoryMock(t).
+					GetCurrentBranchMock.Return(tt.branchConfig.Data, tt.branchConfig.Error).
+					GetLastTagMock.Return(tt.tagConfig.Data, tt.tagConfig.Error).
+					GetUserMock.Return(infrastructure.User{Email: "email@test.com", UserName: "username"}, nil),
 				GlobalVariables: map[string]interface{}{"GlobalVar": "global"},
 				Config:          &config.DefaultConfig,
 				App: &clicontext.AppInfo{
@@ -197,7 +194,7 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 				},
 			})
 
-			err := ctx.LoadAdditionalVariables(&vars)
+			err := ctx.LoadAdditionalVariables(vars)
 
 			assert.Equal(t, tt.expectedError, err)
 			if tt.expectedError == nil {

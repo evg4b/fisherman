@@ -6,7 +6,7 @@ import (
 	"fisherman/clicontext"
 	"fisherman/commands/remove"
 	"fisherman/config"
-	inf_mocks "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
 	"flag"
 	"os/user"
 	"path/filepath"
@@ -16,8 +16,8 @@ import (
 )
 
 func TestCommand_Run(t *testing.T) {
-	fakeFS := makeFakeFS()
-	fakeFS.On("Delete", filepath.Join("usr", "home", ".fisherman.yml")).Return(nil)
+	fakeFS := makeFakeFS(t)
+	fakeFS.DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil)
 
 	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 		App: &clicontext.AppInfo{
@@ -41,8 +41,8 @@ func TestCommand_Run(t *testing.T) {
 
 func TestCommand_Run_WithError(t *testing.T) {
 	expectedError := errors.New("Test error")
-	fakeFS := makeFakeFS()
-	fakeFS.On("Delete", filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError)
+	fakeFS := makeFakeFS(t)
+	fakeFS.DeleteMock.Expect(filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError)
 
 	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 		App: &clicontext.AppInfo{
@@ -69,19 +69,15 @@ func TestCommand_Name(t *testing.T) {
 	assert.Equal(t, "remove", c.Name())
 }
 
-func makeFakeFS() *inf_mocks.FileSystem {
-	fakeFS := inf_mocks.FileSystem{}
-
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(true)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "prepare-commit-msg")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-commit")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".git", ".fisherman.yml")).Return(false)
-	fakeFS.On("Exist", filepath.Join("usr", "home", ".fisherman.yml")).Return(true)
-
-	fakeFS.On("Delete", filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(nil)
-
-	return &fakeFS
+func makeFakeFS(t *testing.T) *mocks.FileSystemMock {
+	return mocks.NewFileSystemMock(t).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Then(true).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "prepare-commit-msg")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-commit")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".git", ".fisherman.yml")).Then(false).
+		ExistMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(true).
+		DeleteMock.Expect(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(nil)
 }

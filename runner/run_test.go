@@ -6,8 +6,8 @@ import (
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/infrastructure"
-	commands_mock "fisherman/mocks/commands"
-	inf_mock "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
+
 	"fisherman/runner"
 	"io/ioutil"
 	"log"
@@ -15,13 +15,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestRunner_Run(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
-	repo := inf_mock.Repository{}
-	repo.On("GetUser").Return(infrastructure.User{}, nil)
 
 	tests := []struct {
 		name          string
@@ -33,9 +30,9 @@ func TestRunner_Run(t *testing.T) {
 			name: "Should run called commnad and return its error",
 			args: []string{"init"},
 			commands: []commands.CliCommand{
-				makeCommand("handle"),
-				makeCommand("remove"),
-				makeExpectedCommand("init", errors.New("expected error")),
+				makeCommand(t, "handle"),
+				makeCommand(t, "remove"),
+				makeExpectedCommand(t, "init", errors.New("expected error")),
 			},
 			expectedError: errors.New("expected error"),
 		},
@@ -43,9 +40,9 @@ func TestRunner_Run(t *testing.T) {
 			name: "Should run called commnad and return nil when command executed witout error",
 			args: []string{"init"},
 			commands: []commands.CliCommand{
-				makeCommand("handle"),
-				makeCommand("remove"),
-				makeExpectedCommand("init", nil),
+				makeCommand(t, "handle"),
+				makeCommand(t, "remove"),
+				makeExpectedCommand(t, "init", nil),
 			},
 			expectedError: nil,
 		},
@@ -53,9 +50,9 @@ func TestRunner_Run(t *testing.T) {
 			name: "Should return error when command not found",
 			args: []string{"not"},
 			commands: []commands.CliCommand{
-				makeCommand("handle"),
-				makeCommand("remove"),
-				makeCommand("init"),
+				makeCommand(t, "handle"),
+				makeCommand(t, "remove"),
+				makeCommand(t, "init"),
 			},
 			expectedError: errors.New("unknown command: not"),
 		},
@@ -69,9 +66,9 @@ func TestRunner_Run(t *testing.T) {
 			name: "Should not return error when commnad not specified",
 			args: []string{},
 			commands: []commands.CliCommand{
-				makeCommand("handle"),
-				makeCommand("remove"),
-				makeCommand("init"),
+				makeCommand(t, "handle"),
+				makeCommand(t, "remove"),
+				makeCommand(t, "init"),
 			},
 			expectedError: nil,
 		},
@@ -86,10 +83,11 @@ func TestRunner_Run(t *testing.T) {
 				},
 				ConfigInfo: &config.LoadInfo{},
 				Cwd:        "demo",
-				Files:      &inf_mock.FileSystem{},
+				Files:      mocks.NewFileSystemMock(t),
 				SystemUser: &user.User{},
 				Executable: "bin",
-				Repository: &repo,
+				Repository: mocks.NewRepositoryMock(t).
+					GetUserMock.Return(infrastructure.User{}, nil),
 			})
 
 			assert.NotPanics(t, func() {
@@ -100,17 +98,13 @@ func TestRunner_Run(t *testing.T) {
 	}
 }
 
-func makeCommand(name string) *commands_mock.CliCommand {
-	command := commands_mock.CliCommand{}
-	command.On("Name").Return(name)
-	command.On("Init", mock.Anything).Return(nil)
-
-	return &command
+func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {
+	return mocks.NewCliCommandMock(t).
+		NameMock.Return(name).
+		InitMock.Return(nil)
 }
 
-func makeExpectedCommand(name string, err error) *commands_mock.CliCommand {
-	command := makeCommand(name)
-	command.On("Run", mock.Anything, mock.Anything).Return(err)
-
-	return command
+func makeExpectedCommand(t *testing.T, name string, err error) *mocks.CliCommandMock {
+	return makeCommand(t, name).
+		RunMock.Return(err)
 }

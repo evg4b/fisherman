@@ -8,29 +8,25 @@ import (
 	"fisherman/config/hooks"
 	"fisherman/handlers"
 	"fisherman/infrastructure"
-	inf_mock "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPreCommitHandler(t *testing.T) {
-	fakeRepository := inf_mock.Repository{}
-	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
-	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
-	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
-
-	fakeShell := inf_mock.Shell{}
-
 	assert.NotPanics(t, func() {
 		ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
 			},
-			Repository: &fakeRepository,
-			Shell:      &fakeShell,
-			App:        &clicontext.AppInfo{},
+			Repository: mocks.NewRepositoryMock(t).
+				GetCurrentBranchMock.Return("develop", nil).
+				GetLastTagMock.Return("0.0.0", nil).
+				GetUserMock.Return(infrastructure.User{}, nil),
+			Shell: mocks.NewShellMock(t),
+			App:   &clicontext.AppInfo{},
 		})
 		err := new(handlers.PreCommitHandler).Handle(ctx, []string{})
 		assert.NoError(t, err)
@@ -38,13 +34,6 @@ func TestPreCommitHandler(t *testing.T) {
 }
 
 func TestPreCommitHandler_VariablesError(t *testing.T) {
-	fakeRepository := inf_mock.Repository{}
-	fakeRepository.On("GetCurrentBranch").Return("", errors.New("fail"))
-	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
-	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
-
-	fakeShell := inf_mock.Shell{}
-
 	var handler handlers.PreCommitHandler
 
 	assert.NotPanics(t, func() {
@@ -53,9 +42,12 @@ func TestPreCommitHandler_VariablesError(t *testing.T) {
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
 			},
-			Repository: &fakeRepository,
-			Shell:      &fakeShell,
-			App:        &clicontext.AppInfo{},
+			Repository: mocks.NewRepositoryMock(t).
+				GetCurrentBranchMock.Return("", errors.New("fail")).
+				GetLastTagMock.Return("0.0.0", nil).
+				GetUserMock.Return(infrastructure.User{}, nil),
+			Shell: mocks.NewShellMock(t),
+			App:   &clicontext.AppInfo{},
 		})
 		err := handler.Handle(ctx, []string{})
 		assert.Error(t, err, "fail")

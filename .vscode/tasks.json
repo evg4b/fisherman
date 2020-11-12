@@ -108,14 +108,11 @@
             ]
         },
         {
-            "label": "Generate mocks",
+            "label": "Go generate",
             "type": "shell",
-            "command": "mockery",
+            "command": "go",
             "args": [
-                "--all",
-                "--keeptree",
-                "--case",
-                "underscore"
+                "generate"
             ],
             "problemMatcher": []
         }

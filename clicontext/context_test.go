@@ -4,19 +4,18 @@ import (
 	"context"
 	"fisherman/clicontext"
 	"fisherman/config"
-	ctx_mock "fisherman/mocks/pkg/context"
+	"fisherman/mocks"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestCommandContext_Deadline(t *testing.T) {
 	expectedDuration := time.Time{}
 	expectedResult := true
 
-	fakeCtx := getFakeCtx(expectedDuration, expectedResult)
+	fakeCtx := getFakeCtx(t, expectedDuration, expectedResult)
 
 	ctx := clicontext.NewContext(fakeCtx, clicontext.Args{
 		Config: &config.FishermanConfig{},
@@ -29,7 +28,7 @@ func TestCommandContext_Deadline(t *testing.T) {
 }
 
 func TestCommandContext_Done(t *testing.T) {
-	fakeCtx := getFakeCtx(time.Time{}, false)
+	fakeCtx := getFakeCtx(t, time.Time{}, false)
 
 	ctx := clicontext.NewContext(fakeCtx, clicontext.Args{
 		Config: &config.FishermanConfig{},
@@ -37,7 +36,6 @@ func TestCommandContext_Done(t *testing.T) {
 
 	chanel := ctx.Done()
 
-	fakeCtx.AssertCalled(t, "Done")
 	assert.NotNil(t, chanel)
 }
 
@@ -80,11 +78,9 @@ func TestCommandContext_Stop(t *testing.T) {
 	assert.Equal(t, context.Canceled, ctx.Err())
 }
 
-func getFakeCtx(expectedTime time.Time, ok bool) *ctx_mock.Context {
-	fakeCtx := ctx_mock.Context{}
-	fakeCtx.On("Deadline").Return(expectedTime, ok)
-	fakeCtx.On("Done").Return(make(<-chan struct{}))
-	fakeCtx.On("Value", mock.Anything).Return("test")
-
-	return &fakeCtx
+func getFakeCtx(t *testing.T, expectedTime time.Time, ok bool) *mocks.ContextWithStopMock {
+	return mocks.NewContextWithStopMock(t).
+		DeadlineMock.Return(expectedTime, ok).
+		DoneMock.Return(make(<-chan struct{})).
+		ValueMock.Return("test")
 }

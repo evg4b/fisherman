@@ -8,29 +8,25 @@ import (
 	"fisherman/config/hooks"
 	"fisherman/handlers"
 	"fisherman/infrastructure"
-	inf_mock "fisherman/mocks/infrastructure"
+	"fisherman/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPrePushHandler(t *testing.T) {
-	fakeRepository := inf_mock.Repository{}
-	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
-	fakeRepository.On("GetLastTag").Return("0.0.0", nil)
-	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
-
-	fakeShell := inf_mock.Shell{}
-
 	assert.NotPanics(t, func() {
 		ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
 			},
-			Repository: &fakeRepository,
-			Shell:      &fakeShell,
-			App:        &clicontext.AppInfo{},
+			Repository: mocks.NewRepositoryMock(t).
+				GetCurrentBranchMock.Return("develop", nil).
+				GetLastTagMock.Return("0.0.0", nil).
+				GetUserMock.Return(infrastructure.User{}, nil),
+			Shell: mocks.NewShellMock(t),
+			App:   &clicontext.AppInfo{},
 		})
 		err := new(handlers.PrePushHandler).Handle(ctx, []string{})
 		assert.NoError(t, err)
@@ -38,22 +34,18 @@ func TestPrePushHandler(t *testing.T) {
 }
 
 func TestPrePushHandler_VariablesError(t *testing.T) {
-	fakeRepository := inf_mock.Repository{}
-	fakeRepository.On("GetCurrentBranch").Return("develop", nil)
-	fakeRepository.On("GetLastTag").Return("0.0.0", errors.New("fail"))
-	fakeRepository.On("GetUser").Return(infrastructure.User{}, nil)
-
-	fakeShell := inf_mock.Shell{}
-
 	assert.NotPanics(t, func() {
 		ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
 			},
-			Repository: &fakeRepository,
-			Shell:      &fakeShell,
-			App:        &clicontext.AppInfo{},
+			Repository: mocks.NewRepositoryMock(t).
+				GetCurrentBranchMock.Return("develop", nil).
+				GetLastTagMock.Return("", errors.New("fail")).
+				GetUserMock.Return(infrastructure.User{}, nil),
+			Shell: mocks.NewShellMock(t),
+			App:   &clicontext.AppInfo{},
 		})
 		err := new(handlers.PrePushHandler).Handle(ctx, []string{})
 		assert.Error(t, err, "fail")
