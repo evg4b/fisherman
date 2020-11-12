@@ -17,5 +17,5 @@ func (*NotSupportedHandler) Handle(ctx *clicontext.CommandContext, args []string
 
 // Handle is a handler for applypatch-msg hook
 func (*NotSupportedHandler) IsConfigured(*config.HooksConfig) bool {
-	return false
+	return true
 }

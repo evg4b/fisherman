@@ -31,7 +31,7 @@ func TestNotSupportedHandler_IsConfigured(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.False(t, handler.IsConfigured(tt.config))
+			assert.True(t, handler.IsConfigured(tt.config))
 		})
 	}
 }

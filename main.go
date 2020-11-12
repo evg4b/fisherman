@@ -8,6 +8,7 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/config"
+	"fisherman/handlers"
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
@@ -45,7 +46,7 @@ func main() {
 	instance := runner.NewRunner(ctx, runner.Args{
 		Commands: []commands.CliCommand{
 			initialize.NewCommand(handling),
-			handle.NewCommand(handling),
+			handle.NewCommand(handling, handlers.HandlerList),
 			remove.NewCommand(handling),
 			version.NewCommand(handling),
 		},
