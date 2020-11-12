@@ -5,7 +5,6 @@ import (
 	"fisherman/infrastructure/log"
 	"fmt"
 
-	syslog "log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -194,46 +193,6 @@ func TestInfofWithLogLevel(t *testing.T) {
 }
 
 //nolint:dupl
-func TestWrite(t *testing.T) {
-	output := mockLogModule()
-
-	testData := []struct {
-		message string
-		output  string
-		level   log.Level
-	}{
-		{message: "demo", output: "demo", level: log.DebugLevel},
-		{
-			message: "multiline demo\nmultiline demo\nmultiline demo",
-			output:  "multiline demo\nmultiline demo\nmultiline demo",
-			level:   log.DebugLevel,
-		},
-		{
-			message: "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
-			output:  "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
-			level:   log.DebugLevel,
-		},
-		{message: "", output: "", level: log.DebugLevel},
-		{message: "\t\t\t", output: "\t\t\t", level: log.DebugLevel},
-		{message: "test1", output: "", level: log.ErrorLevel},
-		{message: "test2", output: "test2", level: log.InfoLevel},
-		{message: "test3", output: "test3", level: log.DebugLevel},
-		{message: "test4", output: "", level: log.NoneLevel},
-	}
-
-	for _, tt := range testData {
-		t.Run(fmt.Sprintf("Write message '%s' correctly", tt.message), func(t *testing.T) {
-			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			bytesCount, err := log.Writer().Write([]byte(tt.message))
-			assert.Equal(t, tt.output, output.String())
-			assert.NoError(t, err)
-			assert.Equal(t, len([]byte(tt.message)), bytesCount)
-		})
-	}
-}
-
-//nolint:dupl
 func TestRawWriter(t *testing.T) {
 	output := mockLogModule()
 
@@ -275,8 +234,7 @@ func TestRawWriter(t *testing.T) {
 
 func mockLogModule() *bytes.Buffer {
 	output := bytes.NewBufferString("")
-	syslog.SetOutput(output)
-	syslog.SetFlags(0)
+	log.SetOutput(output)
 
 	return output
 }
