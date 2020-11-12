@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fisherman/clicontext"
 	"fisherman/config"
+	"fisherman/config/hooks"
 	"fisherman/handlers"
 	"fisherman/infrastructure"
 	inf_mock "fisherman/mocks/infrastructure"
@@ -22,7 +23,7 @@ func TestPrePushHandler(t *testing.T) {
 	fakeShell := inf_mock.Shell{}
 
 	assert.NotPanics(t, func() {
-		err := handlers.PrePushHandler(clicontext.NewContext(context.TODO(), clicontext.Args{
+		ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
@@ -30,7 +31,8 @@ func TestPrePushHandler(t *testing.T) {
 			Repository: &fakeRepository,
 			Shell:      &fakeShell,
 			App:        &clicontext.AppInfo{},
-		}), []string{})
+		})
+		err := new(handlers.PrePushHandler).Handle(ctx, []string{})
 		assert.NoError(t, err)
 	})
 }
@@ -44,7 +46,7 @@ func TestPrePushHandler_VariablesError(t *testing.T) {
 	fakeShell := inf_mock.Shell{}
 
 	assert.NotPanics(t, func() {
-		err := handlers.PrePushHandler(clicontext.NewContext(context.TODO(), clicontext.Args{
+		ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
 			GlobalVariables: map[string]interface{}{},
 			Config: &config.FishermanConfig{
 				Hooks: config.HooksConfig{},
@@ -52,7 +54,57 @@ func TestPrePushHandler_VariablesError(t *testing.T) {
 			Repository: &fakeRepository,
 			Shell:      &fakeShell,
 			App:        &clicontext.AppInfo{},
-		}), []string{})
+		})
+		err := new(handlers.PrePushHandler).Handle(ctx, []string{})
 		assert.Error(t, err, "fail")
 	})
+}
+
+func TestPrePushHandler_IsConfigured(t *testing.T) {
+	var handler handlers.PrePushHandler
+
+	tests := []struct {
+		name     string
+		config   *config.HooksConfig
+		expected bool
+	}{
+		{
+			name:     "empty structure",
+			config:   &config.HooksConfig{},
+			expected: false,
+		},
+		{
+			name: "configured script",
+			config: &config.HooksConfig{
+				PrePushHook: hooks.PrePushHookConfig{
+					Shell: hooks.ScriptsConfig{
+						"demo": hooks.ScriptConfig{
+							Commands: []string{"ls"},
+							Output:   true,
+						},
+					},
+					Variables: hooks.Variables{},
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "configured script",
+			config: &config.HooksConfig{
+				PrePushHook: hooks.PrePushHookConfig{
+					Variables: hooks.Variables{
+						FromBranch:  "demo",
+						FromLastTag: "demo",
+					},
+				},
+			},
+			expected: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := handler.IsConfigured(tt.config)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
 }

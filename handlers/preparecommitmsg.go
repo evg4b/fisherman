@@ -2,11 +2,21 @@ package handlers
 
 import (
 	"fisherman/clicontext"
+	"fisherman/config"
+	"fisherman/config/hooks"
 	"fisherman/utils"
 )
 
-// PrepareCommitMsgHandler is a execute function for prepare-commit-msg hook
-func PrepareCommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
+// PrePushHandler is a handler for commit-msg hook
+type PrepareCommitMsgHandler struct {
+}
+
+func (*PrepareCommitMsgHandler) IsConfigured(c *config.HooksConfig) bool {
+	return c.PrepareCommitMsgHook != hooks.PrepareCommitMsgHookConfig{}
+}
+
+// Handle is a handler for pre-push hook
+func (*PrepareCommitMsgHandler) Handle(ctx *clicontext.CommandContext, args []string) error {
 	config := &ctx.Config.PrepareCommitMsgHook
 	if utils.IsNotEmpty(config.Message) {
 		err := ctx.LoadAdditionalVariables(&config.Variables)

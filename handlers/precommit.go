@@ -2,12 +2,20 @@ package handlers
 
 import (
 	"fisherman/clicontext"
+	"fisherman/config"
+	"fisherman/config/hooks"
 	"fisherman/handlers/shellhandlers"
 	"fisherman/infrastructure/log"
 )
 
-// PreCommitHandler is a handler for pre-commit hook
-func PreCommitHandler(ctx *clicontext.CommandContext, args []string) error {
+type PreCommitHandler struct{}
+
+func (*PreCommitHandler) IsConfigured(c *config.HooksConfig) bool {
+	return c.PreCommitHook.Variables != hooks.Variables{} || len(c.PreCommitHook.Shell) > 0
+}
+
+// Handle is a handler for pre-commit hook
+func (*PreCommitHandler) Handle(ctx *clicontext.CommandContext, args []string) error {
 	config := ctx.Config.PreCommitHook
 	err := ctx.LoadAdditionalVariables(&config.Variables)
 	if err != nil {

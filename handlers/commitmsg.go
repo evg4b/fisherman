@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"fisherman/clicontext"
+	"fisherman/config"
 	"fisherman/config/hooks"
 	"fisherman/infrastructure/log"
 	"fisherman/utils"
@@ -14,7 +15,14 @@ import (
 )
 
 // CommitMsgHandler is a handler for commit-msg hook
-func CommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
+type CommitMsgHandler struct{}
+
+func (*CommitMsgHandler) IsConfigured(c *config.HooksConfig) bool {
+	return c.CommitMsgHook != hooks.CommitMsgHookConfig{}
+}
+
+// Handle is a handler for commit-msg hook
+func (*CommitMsgHandler) Handle(ctx *clicontext.CommandContext, args []string) error {
 	if len(args) < 1 {
 		return errors.New("commit message file argument is not presented")
 	}
@@ -42,7 +50,9 @@ func CommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
 	if utils.IsNotEmpty(config.StaticMessage) {
 		log.Debug("Static message is presented.")
 		err := ctx.Files.Write(args[0], config.StaticMessage)
-		utils.HandleCriticalError(err)
+		if err != nil {
+			return err
+		}
 		log.Debug("Static message was writted.")
 
 		return nil

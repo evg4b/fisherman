@@ -124,6 +124,8 @@ func TestCommitMsgHandler(t *testing.T) {
 	fakeFS := inf_mock.FileSystem{}
 	fakeFS.On("Read", ".git/MESSAGE").Return("[fisherman] test commit", nil)
 
+	var handler CommitMsgHandler
+
 	tests := []struct {
 		name string
 		args []string
@@ -139,8 +141,59 @@ func TestCommitMsgHandler(t *testing.T) {
 				FileSystem: &fakeFS,
 				App:        &clicontext.AppInfo{},
 			})
-			err := CommitMsgHandler(ctx, tt.args)
+			err := handler.Handle(ctx, tt.args)
 			assert.Equal(t, tt.err, err)
 		})
 	}
+}
+
+func TestCommitMsgHandler_IsConfigured(t *testing.T) {
+	var handler CommitMsgHandler
+
+	tests := []struct {
+		name     string
+		config   *config.HooksConfig
+		expected bool
+	}{
+		{
+			name:     "empty structure",
+			config:   &config.HooksConfig{},
+			expected: false,
+		},
+		{
+			name: "",
+			config: &config.HooksConfig{
+				CommitMsgHook: hooks.CommitMsgHookConfig{
+					MessageRegexp: "test",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "",
+			config: &config.HooksConfig{
+				CommitMsgHook: hooks.CommitMsgHookConfig{
+					NotEmpty: true,
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := handler.IsConfigured(tt.config)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
+
+func TestCommitMsgHandlerNoArgs(t *testing.T) {
+	var handler CommitMsgHandler
+	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
+		Config: &config.DefaultConfig,
+		App:    &clicontext.AppInfo{},
+	})
+	err := handler.Handle(ctx, []string{})
+	assert.Error(t, err, "commit message file argument is not presented")
 }

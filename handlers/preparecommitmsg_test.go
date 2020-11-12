@@ -4,6 +4,7 @@ import (
 	"context"
 	"fisherman/clicontext"
 	"fisherman/config"
+	"fisherman/config/hooks"
 	inf_mock "fisherman/mocks/infrastructure"
 	"testing"
 
@@ -32,8 +33,41 @@ func TestPrepareCommitMsgHandler(t *testing.T) {
 				Repository: &fakeRepository,
 				FileSystem: &fakeFS,
 			})
-			err := PrepareCommitMsgHandler(ctx, tt.args)
+			err := new(PrepareCommitMsgHandler).Handle(ctx, tt.args)
 			assert.Equal(t, tt.err, err)
+		})
+	}
+}
+
+func TestPrepareCommitMsgHandler_IsConfigured(t *testing.T) {
+	var handler PrepareCommitMsgHandler
+	tests := []struct {
+		name     string
+		config   *config.HooksConfig
+		expected bool
+	}{
+		{name: "empty structure", config: &config.HooksConfig{}, expected: false},
+		{
+			name: "empty PrepareCommitMsgHookConfig structure",
+			config: &config.HooksConfig{
+				PrepareCommitMsgHook: hooks.PrepareCommitMsgHookConfig{},
+			},
+			expected: false,
+		},
+		{
+			name: "empty PrepareCommitMsgHookConfig structure",
+			config: &config.HooksConfig{
+				PrepareCommitMsgHook: hooks.PrepareCommitMsgHookConfig{
+					Message: "demo",
+				},
+			},
+			expected: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := handler.IsConfigured(tt.config)
+			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }
