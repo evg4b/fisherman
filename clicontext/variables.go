@@ -7,7 +7,6 @@ import (
 	"fisherman/utils"
 
 	"github.com/imdario/mergo"
-	"github.com/mkideal/pkg/errors"
 )
 
 type sourceLoader = func() (string, error)
@@ -57,14 +56,14 @@ func (ctx *CommandContext) preload() {
 func (ctx *CommandContext) load(source sourceLoader, load variablesLoader) error {
 	sourceString, err := source()
 	if err != nil {
-		log.Debugf("Failed getting source string: %s", errors.Wrap(err))
+		log.Debugf("Failed getting source string: %s", err)
 
 		return err
 	}
 
 	additionalValues, err := load(sourceString)
 	if err != nil {
-		log.Debugf("Failed getting variables from string '%s': %s", sourceString, errors.Wrap(err))
+		log.Debugf("Failed getting variables from string '%s': %s", sourceString, err)
 
 		return err
 	}

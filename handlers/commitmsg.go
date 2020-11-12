@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fisherman/clicontext"
 	"fisherman/config/hooks"
 	"fisherman/infrastructure/log"
@@ -10,20 +11,19 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/mkideal/pkg/errors"
 )
 
 // CommitMsgHandler is a handler for commit-msg hook
 func CommitMsgHandler(ctx *clicontext.CommandContext, args []string) error {
 	if len(args) < 1 {
-		return errors.Throw("Commit message file argument is not presented")
+		return errors.New("commit message file argument is not presented")
 	}
 
 	config := &ctx.Config.CommitMsgHook
 
 	err := ctx.LoadAdditionalVariables(&config.Variables)
 	if err != nil {
-		log.Debugf("Additional variables loading filed: %s\n%s", err, errors.Wrap(err))
+		log.Debugf("Additional variables loading filed: %s\n%s", err, err)
 
 		return err
 	}
