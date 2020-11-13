@@ -14,7 +14,7 @@ fisherman init [--mode local] [--force] [--abs]
 
 This one has following flags:
 
-- **force** - Forcibly overwrites existing hooks and configurations.
+- **force** - forces overwrites existing hooks (configuration file will not be overwritten).
 - **mode** - Set configuration storage mode (`repo` by default, `local` or `global`. See more information about it [here](/docs/configuration/configuration-files#configuration-file-inheritance).
 - **abs** - Writes in hook absolute path to fisherman binary. This flag can be user for setup concrete version of fisherman in repository. Or it can be used for handling hooks without registration fisherman in the PATH variable.
 

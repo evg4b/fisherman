@@ -11,6 +11,7 @@ type Command struct {
 	flagSet  *flag.FlagSet
 	hook     string
 	handlers map[string]handlers.Handler
+	usage    string
 }
 
 // NewCommand is constructor for handle command
@@ -20,8 +21,9 @@ func NewCommand(handling flag.ErrorHandling, handlers map[string]handlers.Handle
 	command := &Command{
 		flagSet:  flagSet,
 		handlers: handlers,
+		usage:    "starts hook processing based on the config file (for debugging only)",
 	}
-	flagSet.StringVar(&command.hook, "hook", "", "")
+	flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 
 	return command
 }
@@ -29,4 +31,8 @@ func NewCommand(handling flag.ErrorHandling, handlers map[string]handlers.Handle
 // Name returns handler command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
+}
+
+func (c *Command) Description() string {
+	return c.usage
 }

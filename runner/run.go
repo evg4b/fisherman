@@ -2,10 +2,8 @@ package runner
 
 import (
 	"fisherman/clicontext"
-	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/utils"
-	"flag"
 	"fmt"
 	"strings"
 )
@@ -14,11 +12,7 @@ import (
 func (r *Runner) Run(args []string) error {
 	if len(args) < 1 {
 		log.Debug("No command detected")
-		utils.PrintGraphics(log.InfoOutput, constants.Logo, map[string]interface{}{
-			"Version": constants.Version,
-		})
-		flag.Parse()
-		flag.PrintDefaults()
+		r.PrintDefaults()
 
 		return nil
 	}

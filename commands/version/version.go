@@ -11,14 +11,14 @@ import (
 // Command is structure for storage information about remove command
 type Command struct {
 	flagSet *flag.FlagSet
+	usage   string
 }
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer log.Debug("Version command created")
-
 	return &Command{
 		flagSet: flag.NewFlagSet("version", handling),
+		usage:   "prints fisherman version",
 	}
 }
 
@@ -37,4 +37,8 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 // Name returns command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
+}
+
+func (c *Command) Description() string {
+	return c.usage
 }

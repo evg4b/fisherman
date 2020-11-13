@@ -7,6 +7,7 @@ import (
 	"fisherman/config"
 	"fisherman/infrastructure"
 	"fisherman/mocks"
+	"fmt"
 
 	"fisherman/runner"
 	"io/ioutil"
@@ -101,7 +102,8 @@ func TestRunner_Run(t *testing.T) {
 func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {
 	return mocks.NewCliCommandMock(t).
 		NameMock.Return(name).
-		InitMock.Return(nil)
+		InitMock.Return(nil).
+		DescriptionMock.Return(fmt.Sprintf("This is %s command", name))
 }
 
 func makeExpectedCommand(t *testing.T, name string, err error) *mocks.CliCommandMock {

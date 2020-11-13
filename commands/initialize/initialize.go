@@ -23,18 +23,24 @@ type Command struct {
 	mode    string
 	force   bool
 	abslute bool
+	usage   string
 }
 
 // NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
-	defer log.Debug("Init command created")
-
 	flagSet := flag.NewFlagSet("init", handling)
-	command := &Command{flagSet: flagSet}
-	modeMessage := fmt.Sprintf("(%s, %s, %s)", config.LocalMode, config.RepoMode, config.GlobalMode)
+	command := &Command{
+		flagSet: flagSet,
+		usage:   "initializes fisherman in git repository",
+	}
+	modeMessage := fmt.Sprintf(
+		"config location (%s, %s (default), %s)",
+		config.LocalMode,
+		config.RepoMode,
+		config.GlobalMode)
 	flagSet.StringVar(&command.mode, "mode", config.RepoMode, modeMessage)
-	flagSet.BoolVar(&command.force, "force", false, "")
-	flagSet.BoolVar(&command.abslute, "abs", false, "")
+	flagSet.BoolVar(&command.force, "force", false, "forces overwrites existing hooks")
+	flagSet.BoolVar(&command.abslute, "abs", false, "used absolute path to binary in hook")
 
 	return command
 }
@@ -95,6 +101,10 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 // Name returns command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
+}
+
+func (c *Command) Description() string {
+	return c.usage
 }
 
 func writeDefaultFishermanConfig(accessor infrastructure.FileSystem, configPath string) error {

@@ -17,6 +17,12 @@ import (
 type CliCommandMock struct {
 	t minimock.Tester
 
+	funcDescription          func() (s1 string)
+	inspectFuncDescription   func()
+	afterDescriptionCounter  uint64
+	beforeDescriptionCounter uint64
+	DescriptionMock          mCliCommandMockDescription
+
 	funcInit          func(args []string) (err error)
 	inspectFuncInit   func(args []string)
 	afterInitCounter  uint64
@@ -43,6 +49,8 @@ func NewCliCommandMock(t minimock.Tester) *CliCommandMock {
 		controller.RegisterMocker(m)
 	}
 
+	m.DescriptionMock = mCliCommandMockDescription{mock: m}
+
 	m.InitMock = mCliCommandMockInit{mock: m}
 	m.InitMock.callArgs = []*CliCommandMockInitParams{}
 
@@ -52,6 +60,149 @@ func NewCliCommandMock(t minimock.Tester) *CliCommandMock {
 	m.RunMock.callArgs = []*CliCommandMockRunParams{}
 
 	return m
+}
+
+type mCliCommandMockDescription struct {
+	mock               *CliCommandMock
+	defaultExpectation *CliCommandMockDescriptionExpectation
+	expectations       []*CliCommandMockDescriptionExpectation
+}
+
+// CliCommandMockDescriptionExpectation specifies expectation struct of the CliCommand.Description
+type CliCommandMockDescriptionExpectation struct {
+	mock *CliCommandMock
+
+	results *CliCommandMockDescriptionResults
+	Counter uint64
+}
+
+// CliCommandMockDescriptionResults contains results of the CliCommand.Description
+type CliCommandMockDescriptionResults struct {
+	s1 string
+}
+
+// Expect sets up expected params for CliCommand.Description
+func (mmDescription *mCliCommandMockDescription) Expect() *mCliCommandMockDescription {
+	if mmDescription.mock.funcDescription != nil {
+		mmDescription.mock.t.Fatalf("CliCommandMock.Description mock is already set by Set")
+	}
+
+	if mmDescription.defaultExpectation == nil {
+		mmDescription.defaultExpectation = &CliCommandMockDescriptionExpectation{}
+	}
+
+	return mmDescription
+}
+
+// Inspect accepts an inspector function that has same arguments as the CliCommand.Description
+func (mmDescription *mCliCommandMockDescription) Inspect(f func()) *mCliCommandMockDescription {
+	if mmDescription.mock.inspectFuncDescription != nil {
+		mmDescription.mock.t.Fatalf("Inspect function is already set for CliCommandMock.Description")
+	}
+
+	mmDescription.mock.inspectFuncDescription = f
+
+	return mmDescription
+}
+
+// Return sets up results that will be returned by CliCommand.Description
+func (mmDescription *mCliCommandMockDescription) Return(s1 string) *CliCommandMock {
+	if mmDescription.mock.funcDescription != nil {
+		mmDescription.mock.t.Fatalf("CliCommandMock.Description mock is already set by Set")
+	}
+
+	if mmDescription.defaultExpectation == nil {
+		mmDescription.defaultExpectation = &CliCommandMockDescriptionExpectation{mock: mmDescription.mock}
+	}
+	mmDescription.defaultExpectation.results = &CliCommandMockDescriptionResults{s1}
+	return mmDescription.mock
+}
+
+//Set uses given function f to mock the CliCommand.Description method
+func (mmDescription *mCliCommandMockDescription) Set(f func() (s1 string)) *CliCommandMock {
+	if mmDescription.defaultExpectation != nil {
+		mmDescription.mock.t.Fatalf("Default expectation is already set for the CliCommand.Description method")
+	}
+
+	if len(mmDescription.expectations) > 0 {
+		mmDescription.mock.t.Fatalf("Some expectations are already set for the CliCommand.Description method")
+	}
+
+	mmDescription.mock.funcDescription = f
+	return mmDescription.mock
+}
+
+// Description implements commands.CliCommand
+func (mmDescription *CliCommandMock) Description() (s1 string) {
+	mm_atomic.AddUint64(&mmDescription.beforeDescriptionCounter, 1)
+	defer mm_atomic.AddUint64(&mmDescription.afterDescriptionCounter, 1)
+
+	if mmDescription.inspectFuncDescription != nil {
+		mmDescription.inspectFuncDescription()
+	}
+
+	if mmDescription.DescriptionMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmDescription.DescriptionMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmDescription.DescriptionMock.defaultExpectation.results
+		if mm_results == nil {
+			mmDescription.t.Fatal("No results are set for the CliCommandMock.Description")
+		}
+		return (*mm_results).s1
+	}
+	if mmDescription.funcDescription != nil {
+		return mmDescription.funcDescription()
+	}
+	mmDescription.t.Fatalf("Unexpected call to CliCommandMock.Description.")
+	return
+}
+
+// DescriptionAfterCounter returns a count of finished CliCommandMock.Description invocations
+func (mmDescription *CliCommandMock) DescriptionAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDescription.afterDescriptionCounter)
+}
+
+// DescriptionBeforeCounter returns a count of CliCommandMock.Description invocations
+func (mmDescription *CliCommandMock) DescriptionBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDescription.beforeDescriptionCounter)
+}
+
+// MinimockDescriptionDone returns true if the count of the Description invocations corresponds
+// the number of defined expectations
+func (m *CliCommandMock) MinimockDescriptionDone() bool {
+	for _, e := range m.DescriptionMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DescriptionMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDescriptionCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDescription != nil && mm_atomic.LoadUint64(&m.afterDescriptionCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockDescriptionInspect logs each unmet expectation
+func (m *CliCommandMock) MinimockDescriptionInspect() {
+	for _, e := range m.DescriptionMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to CliCommandMock.Description")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DescriptionMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDescriptionCounter) < 1 {
+		m.t.Error("Expected call to CliCommandMock.Description")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDescription != nil && mm_atomic.LoadUint64(&m.afterDescriptionCounter) < 1 {
+		m.t.Error("Expected call to CliCommandMock.Description")
+	}
 }
 
 type mCliCommandMockInit struct {
@@ -630,6 +781,8 @@ func (m *CliCommandMock) MinimockRunInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *CliCommandMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockDescriptionInspect()
+
 		m.MinimockInitInspect()
 
 		m.MinimockNameInspect()
@@ -658,6 +811,7 @@ func (m *CliCommandMock) MinimockWait(timeout mm_time.Duration) {
 func (m *CliCommandMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockDescriptionDone() &&
 		m.MinimockInitDone() &&
 		m.MinimockNameDone() &&
 		m.MinimockRunDone()
