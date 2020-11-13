@@ -6,6 +6,7 @@ package mocks
 
 import (
 	mm_infrastructure "fisherman/infrastructure"
+	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
@@ -15,6 +16,12 @@ import (
 // RepositoryMock implements infrastructure.Repository
 type RepositoryMock struct {
 	t minimock.Tester
+
+	funcAddGlob          func(glob string) (err error)
+	inspectFuncAddGlob   func(glob string)
+	afterAddGlobCounter  uint64
+	beforeAddGlobCounter uint64
+	AddGlobMock          mRepositoryMockAddGlob
 
 	funcGetCurrentBranch          func() (s1 string, err error)
 	inspectFuncGetCurrentBranch   func()
@@ -42,6 +49,9 @@ func NewRepositoryMock(t minimock.Tester) *RepositoryMock {
 		controller.RegisterMocker(m)
 	}
 
+	m.AddGlobMock = mRepositoryMockAddGlob{mock: m}
+	m.AddGlobMock.callArgs = []*RepositoryMockAddGlobParams{}
+
 	m.GetCurrentBranchMock = mRepositoryMockGetCurrentBranch{mock: m}
 
 	m.GetLastTagMock = mRepositoryMockGetLastTag{mock: m}
@@ -49,6 +59,221 @@ func NewRepositoryMock(t minimock.Tester) *RepositoryMock {
 	m.GetUserMock = mRepositoryMockGetUser{mock: m}
 
 	return m
+}
+
+type mRepositoryMockAddGlob struct {
+	mock               *RepositoryMock
+	defaultExpectation *RepositoryMockAddGlobExpectation
+	expectations       []*RepositoryMockAddGlobExpectation
+
+	callArgs []*RepositoryMockAddGlobParams
+	mutex    sync.RWMutex
+}
+
+// RepositoryMockAddGlobExpectation specifies expectation struct of the Repository.AddGlob
+type RepositoryMockAddGlobExpectation struct {
+	mock    *RepositoryMock
+	params  *RepositoryMockAddGlobParams
+	results *RepositoryMockAddGlobResults
+	Counter uint64
+}
+
+// RepositoryMockAddGlobParams contains parameters of the Repository.AddGlob
+type RepositoryMockAddGlobParams struct {
+	glob string
+}
+
+// RepositoryMockAddGlobResults contains results of the Repository.AddGlob
+type RepositoryMockAddGlobResults struct {
+	err error
+}
+
+// Expect sets up expected params for Repository.AddGlob
+func (mmAddGlob *mRepositoryMockAddGlob) Expect(glob string) *mRepositoryMockAddGlob {
+	if mmAddGlob.mock.funcAddGlob != nil {
+		mmAddGlob.mock.t.Fatalf("RepositoryMock.AddGlob mock is already set by Set")
+	}
+
+	if mmAddGlob.defaultExpectation == nil {
+		mmAddGlob.defaultExpectation = &RepositoryMockAddGlobExpectation{}
+	}
+
+	mmAddGlob.defaultExpectation.params = &RepositoryMockAddGlobParams{glob}
+	for _, e := range mmAddGlob.expectations {
+		if minimock.Equal(e.params, mmAddGlob.defaultExpectation.params) {
+			mmAddGlob.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmAddGlob.defaultExpectation.params)
+		}
+	}
+
+	return mmAddGlob
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repository.AddGlob
+func (mmAddGlob *mRepositoryMockAddGlob) Inspect(f func(glob string)) *mRepositoryMockAddGlob {
+	if mmAddGlob.mock.inspectFuncAddGlob != nil {
+		mmAddGlob.mock.t.Fatalf("Inspect function is already set for RepositoryMock.AddGlob")
+	}
+
+	mmAddGlob.mock.inspectFuncAddGlob = f
+
+	return mmAddGlob
+}
+
+// Return sets up results that will be returned by Repository.AddGlob
+func (mmAddGlob *mRepositoryMockAddGlob) Return(err error) *RepositoryMock {
+	if mmAddGlob.mock.funcAddGlob != nil {
+		mmAddGlob.mock.t.Fatalf("RepositoryMock.AddGlob mock is already set by Set")
+	}
+
+	if mmAddGlob.defaultExpectation == nil {
+		mmAddGlob.defaultExpectation = &RepositoryMockAddGlobExpectation{mock: mmAddGlob.mock}
+	}
+	mmAddGlob.defaultExpectation.results = &RepositoryMockAddGlobResults{err}
+	return mmAddGlob.mock
+}
+
+//Set uses given function f to mock the Repository.AddGlob method
+func (mmAddGlob *mRepositoryMockAddGlob) Set(f func(glob string) (err error)) *RepositoryMock {
+	if mmAddGlob.defaultExpectation != nil {
+		mmAddGlob.mock.t.Fatalf("Default expectation is already set for the Repository.AddGlob method")
+	}
+
+	if len(mmAddGlob.expectations) > 0 {
+		mmAddGlob.mock.t.Fatalf("Some expectations are already set for the Repository.AddGlob method")
+	}
+
+	mmAddGlob.mock.funcAddGlob = f
+	return mmAddGlob.mock
+}
+
+// When sets expectation for the Repository.AddGlob which will trigger the result defined by the following
+// Then helper
+func (mmAddGlob *mRepositoryMockAddGlob) When(glob string) *RepositoryMockAddGlobExpectation {
+	if mmAddGlob.mock.funcAddGlob != nil {
+		mmAddGlob.mock.t.Fatalf("RepositoryMock.AddGlob mock is already set by Set")
+	}
+
+	expectation := &RepositoryMockAddGlobExpectation{
+		mock:   mmAddGlob.mock,
+		params: &RepositoryMockAddGlobParams{glob},
+	}
+	mmAddGlob.expectations = append(mmAddGlob.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Repository.AddGlob return parameters for the expectation previously defined by the When method
+func (e *RepositoryMockAddGlobExpectation) Then(err error) *RepositoryMock {
+	e.results = &RepositoryMockAddGlobResults{err}
+	return e.mock
+}
+
+// AddGlob implements infrastructure.Repository
+func (mmAddGlob *RepositoryMock) AddGlob(glob string) (err error) {
+	mm_atomic.AddUint64(&mmAddGlob.beforeAddGlobCounter, 1)
+	defer mm_atomic.AddUint64(&mmAddGlob.afterAddGlobCounter, 1)
+
+	if mmAddGlob.inspectFuncAddGlob != nil {
+		mmAddGlob.inspectFuncAddGlob(glob)
+	}
+
+	mm_params := &RepositoryMockAddGlobParams{glob}
+
+	// Record call args
+	mmAddGlob.AddGlobMock.mutex.Lock()
+	mmAddGlob.AddGlobMock.callArgs = append(mmAddGlob.AddGlobMock.callArgs, mm_params)
+	mmAddGlob.AddGlobMock.mutex.Unlock()
+
+	for _, e := range mmAddGlob.AddGlobMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmAddGlob.AddGlobMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmAddGlob.AddGlobMock.defaultExpectation.Counter, 1)
+		mm_want := mmAddGlob.AddGlobMock.defaultExpectation.params
+		mm_got := RepositoryMockAddGlobParams{glob}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmAddGlob.t.Errorf("RepositoryMock.AddGlob got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmAddGlob.AddGlobMock.defaultExpectation.results
+		if mm_results == nil {
+			mmAddGlob.t.Fatal("No results are set for the RepositoryMock.AddGlob")
+		}
+		return (*mm_results).err
+	}
+	if mmAddGlob.funcAddGlob != nil {
+		return mmAddGlob.funcAddGlob(glob)
+	}
+	mmAddGlob.t.Fatalf("Unexpected call to RepositoryMock.AddGlob. %v", glob)
+	return
+}
+
+// AddGlobAfterCounter returns a count of finished RepositoryMock.AddGlob invocations
+func (mmAddGlob *RepositoryMock) AddGlobAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddGlob.afterAddGlobCounter)
+}
+
+// AddGlobBeforeCounter returns a count of RepositoryMock.AddGlob invocations
+func (mmAddGlob *RepositoryMock) AddGlobBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddGlob.beforeAddGlobCounter)
+}
+
+// Calls returns a list of arguments used in each call to RepositoryMock.AddGlob.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmAddGlob *mRepositoryMockAddGlob) Calls() []*RepositoryMockAddGlobParams {
+	mmAddGlob.mutex.RLock()
+
+	argCopy := make([]*RepositoryMockAddGlobParams, len(mmAddGlob.callArgs))
+	copy(argCopy, mmAddGlob.callArgs)
+
+	mmAddGlob.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockAddGlobDone returns true if the count of the AddGlob invocations corresponds
+// the number of defined expectations
+func (m *RepositoryMock) MinimockAddGlobDone() bool {
+	for _, e := range m.AddGlobMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddGlobMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddGlobCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddGlob != nil && mm_atomic.LoadUint64(&m.afterAddGlobCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockAddGlobInspect logs each unmet expectation
+func (m *RepositoryMock) MinimockAddGlobInspect() {
+	for _, e := range m.AddGlobMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RepositoryMock.AddGlob with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddGlobMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddGlobCounter) < 1 {
+		if m.AddGlobMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RepositoryMock.AddGlob")
+		} else {
+			m.t.Errorf("Expected call to RepositoryMock.AddGlob with params: %#v", *m.AddGlobMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddGlob != nil && mm_atomic.LoadUint64(&m.afterAddGlobCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.AddGlob")
+	}
 }
 
 type mRepositoryMockGetCurrentBranch struct {
@@ -486,6 +711,8 @@ func (m *RepositoryMock) MinimockGetUserInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *RepositoryMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockAddGlobInspect()
+
 		m.MinimockGetCurrentBranchInspect()
 
 		m.MinimockGetLastTagInspect()
@@ -514,6 +741,7 @@ func (m *RepositoryMock) MinimockWait(timeout mm_time.Duration) {
 func (m *RepositoryMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockAddGlobDone() &&
 		m.MinimockGetCurrentBranchDone() &&
 		m.MinimockGetLastTagDone() &&
 		m.MinimockGetUserDone()

@@ -24,3 +24,5 @@ pre-commit:
 This section is common variables section without additional params. See more information [here](./../variables.md).
 
 ### shell:
+
+Section with [shell scripts](../shell-script.md) for validation. When script finished with non zero code then push will be rejected and other scrips canceled.

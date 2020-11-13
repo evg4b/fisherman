@@ -95,3 +95,53 @@ func TestPreCommitHandler_IsConfigured(t *testing.T) {
 		})
 	}
 }
+
+func TestPreCommitHandler_ShouldAddFiles(t *testing.T) {
+	var handler handlers.PreCommitHandler
+
+	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
+		GlobalVariables: map[string]interface{}{},
+		Config: &config.FishermanConfig{
+			Hooks: config.HooksConfig{
+				PreCommitHook: hooks.PreCommitHookConfig{
+					AddFilesToIndex: []string{"mocks", "*.go"},
+				},
+			},
+		},
+		Repository: mocks.NewRepositoryMock(t).
+			GetCurrentBranchMock.Return("develop", nil).
+			GetLastTagMock.Return("0.0.0", nil).
+			GetUserMock.Return(infrastructure.User{}, nil).
+			AddGlobMock.When("mocks").Then(nil).
+			AddGlobMock.When("*.go").Then(nil),
+		Shell: mocks.NewShellMock(t),
+		App:   &clicontext.AppInfo{},
+	})
+
+	err := handler.Handle(ctx, []string{})
+	assert.NoError(t, err)
+}
+func TestPreCommitHandler_AddFiles_Error(t *testing.T) {
+	var handler handlers.PreCommitHandler
+
+	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
+		GlobalVariables: map[string]interface{}{},
+		Config: &config.FishermanConfig{
+			Hooks: config.HooksConfig{
+				PreCommitHook: hooks.PreCommitHookConfig{
+					AddFilesToIndex: []string{"mocks", "*.go"},
+				},
+			},
+		},
+		Repository: mocks.NewRepositoryMock(t).
+			GetCurrentBranchMock.Return("develop", nil).
+			GetLastTagMock.Return("0.0.0", nil).
+			GetUserMock.Return(infrastructure.User{}, nil).
+			AddGlobMock.When("mocks").Then(errors.New("test")),
+		Shell: mocks.NewShellMock(t),
+		App:   &clicontext.AppInfo{},
+	})
+
+	err := handler.Handle(ctx, []string{})
+	assert.Error(t, err, "test")
+}

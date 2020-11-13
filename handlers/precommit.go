@@ -26,5 +26,17 @@ func (*PreCommitHandler) Handle(ctx *clicontext.CommandContext, args []string) e
 
 	config.Compile(ctx.Variables())
 
-	return shellhandlers.ExecParallel(ctx, ctx.Shell, config.Shell)
+	err = shellhandlers.ExecParallel(ctx, ctx.Shell, config.Shell)
+	if err != nil {
+		return err
+	}
+
+	for _, glob := range config.AddFilesToIndex {
+		err = ctx.Repository.AddGlob(glob)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

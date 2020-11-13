@@ -16,6 +16,9 @@ pre-commit:
     script2:
       - command3
       - command4
+  add-to-index:
+    - dist/*
+    - styles/**/*.css
 ```
 
 ## Configurations rules:
@@ -24,3 +27,19 @@ pre-commit:
 This section is common variables section without additional params. See more information [here](./../variables.md).
 
 ### shell:
+
+Section with [shell scripts](../shell-script.md) for validation or new file generation. When script finished with non zero code then push will be rejected and other scrips canceled.
+
+### add-to-index:
+
+List of files to be added to index before commit but after when all validations and shell scripts finished. This files always will be added to index.
+
+It can be used for adding auto generated files (mocks, styles and other). This example before commit generate new mocks add add updated files to commit index:
+
+``` yaml
+pre-commit:
+  shell:
+    generate: go generate ./mocks/...
+  add-to-index:
+    - mocks/**/*
+```

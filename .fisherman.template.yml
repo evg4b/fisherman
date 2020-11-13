@@ -31,6 +31,8 @@ hooks:
             - command3 arg1 arg2
       darwin:
         script2: command1 arg1 arg2
+    add-to-index:
+      - mocks/*
   pre-push:
     variables:
       from-branch: 'regexp'
@@ -48,6 +50,8 @@ hooks:
     variables:
       from-branch: 'regexp'
     message: 'template'
+    shell:
+      demo: 'ls'
 
 output:
   level: None

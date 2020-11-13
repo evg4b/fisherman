@@ -17,6 +17,7 @@ type Repository interface {
 	GetCurrentBranch() (string, error)
 	GetUser() (User, error)
 	GetLastTag() (string, error)
+	AddGlob(glob string) error
 }
 
 type FileSystem interface {
