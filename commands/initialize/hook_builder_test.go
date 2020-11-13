@@ -2,33 +2,50 @@ package initialize
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// nolint: lll
 func TestBuildHook(t *testing.T) {
 	testData := []struct {
 		hookName     string
+		binaryPath   string
 		expectedHook string
 	}{
-		{"applypatch-msg", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook applypatch-msg $@"},
-		{"commit-msg", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook commit-msg $@"},
-		{"fsmonitor-watchman", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook fsmonitor-watchman $@"},
-		{"post-update", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook post-update $@"},
-		{"pre-applypatch", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook pre-applypatch $@"},
-		{"pre-commit", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook pre-commit $@"},
-		{"pre-push", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook pre-push $@"},
-		{"pre-rebase", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook pre-rebase $@"},
-		{"pre-receive", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook pre-receive $@"},
-		{"prepare-commit-msg", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook prepare-commit-msg $@"},
-		{"update", "#!/bin/sh\n# This is fisherman hook handler. Please DO NOT touch this file.\nfisherman handle --hook update $@"},
+		{
+			hookName:   "applypatch-msg",
+			binaryPath: "fisherman",
+			expectedHook: strings.Join([]string{
+				"#!/bin/sh",
+				"# This is fisherman hook handler. Please DO NOT touch this file.",
+				"fisherman handle --hook applypatch-msg $@",
+			}, LineBreak),
+		},
+		{
+			hookName:   "pre-commit",
+			binaryPath: "/bin/usr/fisherman",
+			expectedHook: strings.Join([]string{
+				"#!/bin/sh",
+				"# This is fisherman hook handler. Please DO NOT touch this file.",
+				"/bin/usr/fisherman handle --hook pre-commit $@",
+			}, LineBreak),
+		},
+		{
+			hookName:   "pre-push",
+			binaryPath: "C:\\bin\\usr\\fisherman.exe",
+			expectedHook: strings.Join([]string{
+				"#!/bin/sh",
+				"# This is fisherman hook handler. Please DO NOT touch this file.",
+				"C:\\\\bin\\\\usr\\\\fisherman.exe handle --hook pre-push $@",
+			}, LineBreak),
+		},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Build %s hook", tt.hookName), func(t *testing.T) {
-			result := buildHook("fisherman", tt.hookName)
+			result := buildHook(tt.binaryPath, tt.hookName)
 			assert.Equal(t, result, tt.expectedHook)
 		})
 	}

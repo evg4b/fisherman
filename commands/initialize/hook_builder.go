@@ -6,12 +6,18 @@ import (
 	"strings"
 )
 
+const LineBreak = "\n"
+
 func buildHook(binaryPath, hookName string) string {
 	return rows([]string{
 		"#!/bin/sh",
 		fmt.Sprintf("# This is %s hook handler. Please DO NOT touch this file.", constants.AppName),
-		command([]string{binaryPath, "handle", "--hook", hookName, "$@"}),
+		command([]string{escape(binaryPath), "handle", "--hook", hookName, "$@"}),
 	})
+}
+
+func escape(path string) string {
+	return strings.ReplaceAll(path, "\\", "\\\\")
 }
 
 func command(params []string) string {
@@ -19,5 +25,5 @@ func command(params []string) string {
 }
 
 func rows(rows []string) string {
-	return strings.Join(rows, "\n")
+	return strings.Join(rows, LineBreak)
 }
