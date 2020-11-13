@@ -1,0 +1,66 @@
+{
+  "version-0.0.1-alpha.2/someSidebar": [
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.2/fisherman"
+    },
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.2/getting-started"
+    },
+    {
+      "collapsed": false,
+      "type": "category",
+      "label": "Configuration",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.2/configuration/configuration-files"
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Hooks configuration",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.2/configuration/hooks/commit-msg-hook"
+            },
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.2/configuration/hooks/prepare-commit-msg-hook"
+            },
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.2/configuration/hooks/pre-commit-hook"
+            },
+            {
+              "type": "doc",
+              "id": "version-0.0.1-alpha.2/configuration/hooks/pre-push-hook"
+            }
+          ]
+        },
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.2/configuration/variables"
+        },
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.2/configuration/shell-script"
+        },
+        {
+          "type": "doc",
+          "id": "version-0.0.1-alpha.2/configuration/output"
+        }
+      ]
+    },
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.2/cli"
+    },
+    {
+      "type": "doc",
+      "id": "version-0.0.1-alpha.2/faq"
+    }
+  ]
+}
