@@ -2,8 +2,8 @@ package clicontext_test
 
 import (
 	"context"
-	"fisherman/clicontext"
 	"fisherman/config"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 	"testing"
 	"time"

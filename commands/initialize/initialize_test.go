@@ -1,10 +1,10 @@
 package initialize_test
 
 import (
-	"fisherman/clicontext"
 	"fisherman/commands/initialize"
 	"fisherman/config"
 	"fisherman/constants"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 	"flag"
 	"os/user"

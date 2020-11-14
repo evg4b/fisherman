@@ -5,8 +5,8 @@ package mocks
 //go:generate minimock -i fisherman/handlers.Handler -o ./mocks\handlermock.go
 
 import (
-	"fisherman/clicontext"
 	"fisherman/config"
+	"fisherman/internal/clicontext"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"

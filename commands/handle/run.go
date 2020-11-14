@@ -1,20 +1,18 @@
 package handle
 
 import (
-	"fisherman/clicontext"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/clicontext"
 	"fisherman/utils"
 	"fmt"
 	"strings"
 )
 
-// Init initialize handle command
 func (c *Command) Init(args []string) error {
 	return c.flagSet.Parse(args)
 }
 
-// Run executes handle command
 func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
 		if hookHandler.IsConfigured(ctx.Config) {
@@ -27,7 +25,7 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 				constants.FishermanVersionVariable: constants.Version,
 			})
 
-			return hookHandler.Handle(ctx, c.flagSet.Args())
+			return hookHandler.Handle(c.flagSet.Args())
 		}
 
 		log.Debugf("hook %s not presented", c.hook)

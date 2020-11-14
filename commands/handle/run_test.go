@@ -3,11 +3,11 @@ package handle_test
 import (
 	"context"
 	"errors"
-	"fisherman/clicontext"
 	"fisherman/commands/handle"
 	"fisherman/config"
-	"fisherman/handlers"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/clicontext"
+	"fisherman/internal/handling"
 	"fisherman/mocks"
 	"flag"
 	"io/ioutil"
@@ -21,7 +21,7 @@ func init() {
 }
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
-	command := handle.NewCommand(flag.ExitOnError, map[string]handlers.Handler{})
+	command := handle.NewCommand(flag.ExitOnError, map[string]handling.Handler{})
 
 	err := command.Init([]string{"--hook", "test"})
 	assert.NoError(t, err)
@@ -32,7 +32,7 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 }
 
 func TestCommand_Run(t *testing.T) {
-	command := handle.NewCommand(flag.ExitOnError, map[string]handlers.Handler{
+	command := handle.NewCommand(flag.ExitOnError, map[string]handling.Handler{
 		"pre-commit": mocks.NewHandlerMock(t).
 			IsConfiguredMock.Return(false),
 	})
@@ -48,7 +48,7 @@ func TestCommand_Run(t *testing.T) {
 func TestCommand_Run_Hander(t *testing.T) {
 	c := ctx(t)
 
-	command := handle.NewCommand(flag.ExitOnError, map[string]handlers.Handler{
+	command := handle.NewCommand(flag.ExitOnError, map[string]handling.Handler{
 		"pre-commit": mocks.NewHandlerMock(t).
 			IsConfiguredMock.Return(true).
 			HandleMock.Return(errors.New("test error")),

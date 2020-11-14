@@ -4,7 +4,6 @@ import (
 	"fisherman/config/hooks"
 )
 
-// HooksConfig is structure for storage information for hook validation
 type HooksConfig struct {
 	ApplyPatchMsgHook     hooks.ApplyPatchMsgHookConfig     `yaml:"applypatch-msg,omitempty"`
 	FsMonitorWatchmanHook hooks.FsMonitorWatchmanHookConfig `yaml:"fsmonitor-watchman,omitempty"`

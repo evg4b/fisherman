@@ -3,9 +3,9 @@ package remove_test
 import (
 	"context"
 	"errors"
-	"fisherman/clicontext"
 	"fisherman/commands/remove"
 	"fisherman/config"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 	"flag"
 	"os/user"

@@ -3,10 +3,10 @@ package clicontext_test
 import (
 	"context"
 	"errors"
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 	"testing"
 

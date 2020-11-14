@@ -2,7 +2,7 @@ package handle_test
 
 import (
 	"fisherman/commands/handle"
-	"fisherman/handlers"
+	"fisherman/internal/handling"
 	"flag"
 	"testing"
 
@@ -10,7 +10,7 @@ import (
 )
 
 func TestCommand_Name(t *testing.T) {
-	command := handle.NewCommand(flag.ExitOnError, make(map[string]handlers.Handler))
+	command := handle.NewCommand(flag.ExitOnError, make(map[string]handling.Handler))
 
 	assert.Equal(t, "handle", command.Name())
 }

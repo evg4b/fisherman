@@ -1,22 +1,18 @@
 package handle
 
 import (
-	"fisherman/handlers"
-	"fisherman/infrastructure/log"
+	"fisherman/internal/handling"
 	"flag"
 )
 
-// Command is structure for storage information about handle command
 type Command struct {
 	flagSet  *flag.FlagSet
 	hook     string
-	handlers map[string]handlers.Handler
+	handlers map[string]handling.Handler
 	usage    string
 }
 
-// NewCommand is constructor for handle command
-func NewCommand(handling flag.ErrorHandling, handlers map[string]handlers.Handler) *Command {
-	defer log.Debug("Handle command created")
+func NewCommand(handling flag.ErrorHandling, handlers map[string]handling.Handler) *Command {
 	flagSet := flag.NewFlagSet("handle", handling)
 	command := &Command{
 		flagSet:  flagSet,
@@ -28,7 +24,6 @@ func NewCommand(handling flag.ErrorHandling, handlers map[string]handlers.Handle
 	return command
 }
 
-// Name returns handler command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
 }

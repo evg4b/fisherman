@@ -2,10 +2,10 @@ package runner
 
 import (
 	"context"
-	"fisherman/clicontext"
 	"fisherman/commands"
 	"fisherman/config"
 	"fisherman/infrastructure"
+	"fisherman/internal/clicontext"
 	"os/user"
 )
 

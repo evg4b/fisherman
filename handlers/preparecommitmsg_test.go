@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"context"
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/config/hooks"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 
 	"testing"

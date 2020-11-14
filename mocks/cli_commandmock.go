@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/commands.CliCommand -o ./mocks\cli_commandmock.go
 
 import (
-	"fisherman/clicontext"
+	"fisherman/internal/clicontext"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"

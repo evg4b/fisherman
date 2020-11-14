@@ -1,13 +1,6 @@
 package handlers
 
-import (
-	"fisherman/clicontext"
-	"fisherman/config"
-	"fisherman/config/hooks"
-	"fisherman/handlers/shellhandlers"
-	"fisherman/infrastructure/log"
-)
-
+/*
 type PreCommitHandler struct{}
 
 func (*PreCommitHandler) IsConfigured(c *config.HooksConfig) bool {
@@ -40,3 +33,4 @@ func (*PreCommitHandler) Handle(ctx *clicontext.CommandContext, args []string) e
 
 	return nil
 }
+*/

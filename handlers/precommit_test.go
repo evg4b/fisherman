@@ -3,11 +3,11 @@ package handlers_test
 import (
 	"context"
 	"errors"
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/config/hooks"
 	"fisherman/handlers"
 	"fisherman/infrastructure"
+	"fisherman/internal/clicontext"
 	"fisherman/mocks"
 	"testing"
 

@@ -1,11 +1,11 @@
 package initialize
 
 import (
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/clicontext"
 	"fisherman/utils"
 	"flag"
 	"fmt"
@@ -17,7 +17,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Command is structure for storage information about init command
 type Command struct {
 	flagSet *flag.FlagSet
 	mode    string
@@ -26,7 +25,6 @@ type Command struct {
 	usage   string
 }
 
-// NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
 	flagSet := flag.NewFlagSet("init", handling)
 	command := &Command{
@@ -45,12 +43,10 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	return command
 }
 
-// Init initialize handle command
 func (c *Command) Init(args []string) error {
 	return c.flagSet.Parse(args)
 }
 
-// Run executes init command
 func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	log.Debugf("Statring initialization (force = %t)", c.force)
 	if !c.force {
@@ -98,7 +94,6 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	return writeDefaultFishermanConfig(ctx.Files, config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, c.mode))
 }
 
-// Name returns command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
 }

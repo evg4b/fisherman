@@ -1,10 +1,9 @@
-package handlers_test
+package handling_test
 
 import (
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/constants"
-	"fisherman/handlers"
+	"fisherman/internal/handling"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,13 +14,13 @@ const testVertion = "1.0.1"
 func TestNotSupportedHandler(t *testing.T) {
 	constants.Version = testVertion
 	assert.NotPanics(t, func() {
-		err := new(handlers.NotSupportedHandler).Handle(&clicontext.CommandContext{}, []string{})
+		err := new(handling.NotSupportedHandler).Handle([]string{})
 		assert.Error(t, err, "This hook is not supported in version 1.0.1.")
 	})
 }
 
 func TestNotSupportedHandler_IsConfigured(t *testing.T) {
-	var handler handlers.NotSupportedHandler
+	var handler handling.NotSupportedHandler
 	tests := []struct {
 		name   string
 		config *config.HooksConfig

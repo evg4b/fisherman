@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/config/hooks"
+	"fisherman/internal/clicontext"
 	"fisherman/utils"
 )
 

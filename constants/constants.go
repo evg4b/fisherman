@@ -1,9 +1,7 @@
 package constants
 
-// Version is constant to define app version
 var Version = "x.x.x"
 
-// Logo is string width logo
 var Logo = `
  .d888  d8b          888
  d88P"  Y8P          888                                 Version: {{FishermanVersion}}
@@ -16,7 +14,6 @@ var Logo = `
 
 `
 
-// HookHeader is string width header for hook
 var HookHeader = `
            .d8b.  |
           d88888b | Hook: {{HookName}}
@@ -30,8 +27,6 @@ var HookHeader = `
 
 `
 
-// AppName is command application name
 const AppName = "fisherman"
 
-// AppConfigName is string with config file name
 const AppConfigName = ".fisherman.yml"

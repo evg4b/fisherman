@@ -13,14 +13,12 @@ import (
 
 const gitDir = ".git"
 
-// LoadInfo is structure for store information about loaded config files
 type LoadInfo struct {
 	GlobalConfigPath string
 	RepoConfigPath   string
 	LocalConfigPath  string
 }
 
-// Load loads and parse configuration from files
 func Load(cwd string, usr *user.User, files inf.FileSystem) (*FishermanConfig, *LoadInfo, error) {
 	config := FishermanConfig{
 		Output: log.DefaultOutputConfig,
@@ -78,7 +76,6 @@ func checkFile(path string, files inf.FileSystem) string {
 	return ""
 }
 
-// BuildFileConfigPath returns path to config by config mode
 func BuildFileConfigPath(cwd string, usr *user.User, mode string) string {
 	switch mode {
 	case LocalMode:

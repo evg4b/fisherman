@@ -1,8 +1,8 @@
 package runner
 
 import (
-	"fisherman/clicontext"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/clicontext"
 	"fisherman/utils"
 	"fmt"
 	"strings"

@@ -4,18 +4,22 @@ import (
 	"context"
 	"fisherman/commands"
 	"fisherman/commands/handle"
+	"fisherman/commands/handle/hooks"
 	"fisherman/commands/initialize"
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/config"
-	"fisherman/handlers"
+	c "fisherman/constants"
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
-	"fisherman/runner"
+	"fisherman/internal/handling"
+	"fisherman/internal/runner"
+	"fisherman/internal/validation"
 	"fisherman/utils"
 	"flag"
+	"io"
 	"os"
 	"os/user"
 )
@@ -39,25 +43,47 @@ func main() {
 
 	log.Configure(conf.Output)
 
-	handling := flag.ExitOnError
-
 	ctx := context.Background()
+
+	fs := filesystem.NewLocalFileSystem()
+	sh := shell.NewShell(os.Stdout)
+	repo := vcs.NewGitRepository(cwd)
+
+	factory := func(args []string, output io.Writer) *validation.ValidationContext {
+		return validation.NewValidationContext(ctx, fs, sh, repo, args, output)
+	}
+
+	extractor := validation.NewConfigExtractor(repo, conf.GlobalVariables, cwd)
+
+	hooksHandles := map[string]handling.Handler{
+		c.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, extractor),
+		c.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, extractor, sh),
+		c.ApplyPatchMsgHook:     new(handling.NotSupportedHandler),
+		c.FsMonitorWatchmanHook: new(handling.NotSupportedHandler),
+		c.PostUpdateHook:        new(handling.NotSupportedHandler),
+		c.PreApplyPatchHook:     new(handling.NotSupportedHandler),
+		c.PrePushHook:           new(handling.NotSupportedHandler),
+		c.PreRebaseHook:         new(handling.NotSupportedHandler),
+		c.PreReceiveHook:        new(handling.NotSupportedHandler),
+		c.PrepareCommitMsgHook:  new(handling.NotSupportedHandler),
+		c.UpdateHook:            new(handling.NotSupportedHandler),
+	}
 
 	instance := runner.NewRunner(ctx, runner.Args{
 		Commands: []commands.CliCommand{
-			initialize.NewCommand(handling),
-			handle.NewCommand(handling, handlers.HandlerList),
-			remove.NewCommand(handling),
-			version.NewCommand(handling),
+			initialize.NewCommand(flag.ExitOnError),
+			handle.NewCommand(flag.ExitOnError, hooksHandles),
+			remove.NewCommand(flag.ExitOnError),
+			version.NewCommand(flag.ExitOnError),
 		},
 		Config:     conf,
 		ConfigInfo: configInfo,
-		Files:      filesystem.NewLocalFileSystem(),
+		Files:      fs,
 		SystemUser: usr,
 		Cwd:        cwd,
 		Executable: appPath,
-		Repository: vcs.NewGitRepository(cwd),
-		Shell:      shell.NewShell(os.Stdout),
+		Repository: repo,
+		Shell:      sh,
 	})
 
 	if err = instance.Run(os.Args[1:]); err != nil {

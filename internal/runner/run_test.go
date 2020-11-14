@@ -9,7 +9,7 @@ import (
 	"fisherman/mocks"
 	"fmt"
 
-	"fisherman/runner"
+	"fisherman/internal/runner"
 	"io/ioutil"
 	"log"
 	"os/user"

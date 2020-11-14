@@ -1,21 +1,19 @@
 package remove
 
 import (
-	"fisherman/clicontext"
 	"fisherman/config"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/clicontext"
 	"flag"
 	"path/filepath"
 )
 
-// Command is structure for storage information about remove command
 type Command struct {
 	flagSet *flag.FlagSet
 	usage   string
 }
 
-// NewCommand is constructor for init command
 func NewCommand(handling flag.ErrorHandling) *Command {
 	defer log.Debug("Remove command created")
 
@@ -25,12 +23,10 @@ func NewCommand(handling flag.ErrorHandling) *Command {
 	}
 }
 
-// Init initialize handle command
 func (c *Command) Init(args []string) error {
 	return c.flagSet.Parse(args)
 }
 
-// Run executes init command
 func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	filesToDelete := []string{
 		config.BuildFileConfigPath(ctx.App.Cwd, ctx.User, config.RepoMode),
@@ -55,7 +51,6 @@ func (c *Command) Run(ctx *clicontext.CommandContext) error {
 	return nil
 }
 
-// Name returns command name
 func (c *Command) Name() string {
 	return c.flagSet.Name()
 }

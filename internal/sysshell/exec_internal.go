@@ -1,4 +1,4 @@
-package shellhandlers
+package sysshell
 
 import (
 	"context"
