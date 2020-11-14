@@ -19,7 +19,6 @@ import (
 	"fisherman/internal/runner"
 	"fisherman/internal/validation"
 	"fisherman/utils"
-	"flag"
 	"io"
 	"os"
 	"os/user"
@@ -72,10 +71,10 @@ func main() {
 
 	instance := runner.NewRunner(ctx, runner.Args{
 		Commands: []commands.CliCommand{
-			initialize.NewCommand(flag.ExitOnError),
-			handle.NewCommand(flag.ExitOnError, hooksHandles),
-			remove.NewCommand(flag.ExitOnError),
-			version.NewCommand(flag.ExitOnError),
+			initialize.NewCommand(),
+			handle.NewCommand(hooksHandles),
+			remove.NewCommand(),
+			version.NewCommand(),
 		},
 		Config:     conf,
 		ConfigInfo: configInfo,

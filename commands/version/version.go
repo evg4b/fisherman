@@ -13,9 +13,9 @@ type Command struct {
 	usage   string
 }
 
-func NewCommand(handling flag.ErrorHandling) *Command {
+func NewCommand() *Command {
 	return &Command{
-		flagSet: flag.NewFlagSet("version", handling),
+		flagSet: flag.NewFlagSet("version", flag.ExitOnError),
 		usage:   "prints fisherman version",
 	}
 }

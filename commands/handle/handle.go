@@ -12,8 +12,8 @@ type Command struct {
 	usage    string
 }
 
-func NewCommand(handling flag.ErrorHandling, handlers map[string]handling.Handler) *Command {
-	flagSet := flag.NewFlagSet("handle", handling)
+func NewCommand(handlers map[string]handling.Handler) *Command {
+	flagSet := flag.NewFlagSet("handle", flag.ExitOnError)
 	command := &Command{
 		flagSet:  flagSet,
 		handlers: handlers,

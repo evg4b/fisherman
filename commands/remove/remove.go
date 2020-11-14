@@ -14,11 +14,9 @@ type Command struct {
 	usage   string
 }
 
-func NewCommand(handling flag.ErrorHandling) *Command {
-	defer log.Debug("Remove command created")
-
+func NewCommand() *Command {
 	return &Command{
-		flagSet: flag.NewFlagSet("remove", handling),
+		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:   "removes fisherman from git repository",
 	}
 }

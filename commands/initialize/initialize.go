@@ -25,8 +25,8 @@ type Command struct {
 	usage   string
 }
 
-func NewCommand(handling flag.ErrorHandling) *Command {
-	flagSet := flag.NewFlagSet("init", handling)
+func NewCommand() *Command {
+	flagSet := flag.NewFlagSet("init", flag.ExitOnError)
 	command := &Command{
 		flagSet: flagSet,
 		usage:   "initializes fisherman in git repository",
