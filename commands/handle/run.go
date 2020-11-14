@@ -3,7 +3,6 @@ package handle
 import (
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
-	"fisherman/internal/clicontext"
 	"fisherman/utils"
 	"fmt"
 	"strings"
@@ -13,15 +12,15 @@ func (c *Command) Init(args []string) error {
 	return c.flagSet.Parse(args)
 }
 
-func (c *Command) Run(ctx *clicontext.CommandContext) error {
+func (c *Command) Run() error {
 	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
-		if hookHandler.IsConfigured(ctx.Config) {
+		if hookHandler.IsConfigured(c.config) {
 			log.Debugf("handler for '%s' hook founded", c.hook)
 			utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
 				constants.HookName:                 c.hook,
-				constants.GlobalConfigPath:         utils.OriginalOrNA(ctx.App.GlobalConfigPath),
-				constants.LocalConfigPath:          utils.OriginalOrNA(ctx.App.LocalConfigPath),
-				constants.RepoConfigPath:           utils.OriginalOrNA(ctx.App.RepoConfigPath),
+				constants.GlobalConfigPath:         utils.OriginalOrNA(c.app.GlobalConfigPath),
+				constants.LocalConfigPath:          utils.OriginalOrNA(c.app.LocalConfigPath),
+				constants.RepoConfigPath:           utils.OriginalOrNA(c.app.RepoConfigPath),
 				constants.FishermanVersionVariable: constants.Version,
 			})
 

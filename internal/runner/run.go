@@ -2,13 +2,11 @@ package runner
 
 import (
 	"fisherman/infrastructure/log"
-	"fisherman/internal/clicontext"
 	"fisherman/utils"
 	"fmt"
 	"strings"
 )
 
-// Run executes application
 func (r *Runner) Run(args []string) error {
 	if len(args) < 1 {
 		log.Debug("No command detected")
@@ -24,22 +22,11 @@ func (r *Runner) Run(args []string) error {
 
 	for _, command := range r.commands {
 		if strings.EqualFold(command.Name(), commandName) {
-			ctx := clicontext.NewContext(r.context, clicontext.Args{
-				FileSystem:      r.fileSystem,
-				User:            r.systemUser,
-				App:             r.app,
-				Config:          r.config,
-				GlobalVariables: r.config.GlobalVariables,
-				Repository:      r.repository,
-				Shell:           r.shell,
-			})
-			log.Debugf("Context for command '%s' was created", commandName)
-
 			err := command.Init(args[1:])
 			utils.HandleCriticalError(err)
 			log.Debugf("Command '%s' was initialized", commandName)
 
-			if commandError := command.Run(ctx); commandError != nil {
+			if commandError := command.Run(); commandError != nil {
 				log.Debugf("Command '%s' finished with error", commandName)
 
 				return commandError

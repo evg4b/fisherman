@@ -22,3 +22,11 @@ type AsyncContext interface {
 	context.Context
 	Stop()
 }
+
+type AppInfo struct {
+	Cwd              string
+	Executable       string
+	GlobalConfigPath string
+	LocalConfigPath  string
+	RepoConfigPath   string
+}

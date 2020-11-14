@@ -9,7 +9,7 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/config"
-	c "fisherman/constants"
+	"fisherman/constants"
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
@@ -45,46 +45,47 @@ func main() {
 
 	ctx := context.Background()
 
-	fs := filesystem.NewLocalFileSystem()
+	files := filesystem.NewLocalFileSystem()
 	sh := shell.NewShell(os.Stdout)
-	repo := vcs.NewGitRepository(cwd)
+	repository := vcs.NewGitRepository(cwd)
 
 	factory := func(args []string, output io.Writer) *internal.Context {
-		return internal.NewInternalContext(ctx, fs, sh, repo, args, output)
+		return internal.NewInternalContext(ctx, files, sh, repository, args, output)
 	}
 
-	extractor := validation.NewConfigExtractor(repo, conf.GlobalVariables, cwd)
+	extractor := validation.NewConfigExtractor(repository, conf.GlobalVariables, cwd)
 
 	hooksHandles := map[string]handling.Handler{
-		c.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, extractor),
-		c.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, extractor, sh),
-		c.ApplyPatchMsgHook:     new(handling.NotSupportedHandler),
-		c.FsMonitorWatchmanHook: new(handling.NotSupportedHandler),
-		c.PostUpdateHook:        new(handling.NotSupportedHandler),
-		c.PreApplyPatchHook:     new(handling.NotSupportedHandler),
-		c.PrePushHook:           new(handling.NotSupportedHandler),
-		c.PreRebaseHook:         new(handling.NotSupportedHandler),
-		c.PreReceiveHook:        new(handling.NotSupportedHandler),
-		c.PrepareCommitMsgHook:  new(handling.NotSupportedHandler),
-		c.UpdateHook:            new(handling.NotSupportedHandler),
+		constants.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, extractor),
+		constants.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, extractor, sh),
+		constants.ApplyPatchMsgHook:     new(handling.NotSupportedHandler),
+		constants.FsMonitorWatchmanHook: new(handling.NotSupportedHandler),
+		constants.PostUpdateHook:        new(handling.NotSupportedHandler),
+		constants.PreApplyPatchHook:     new(handling.NotSupportedHandler),
+		constants.PrePushHook:           new(handling.NotSupportedHandler),
+		constants.PreRebaseHook:         new(handling.NotSupportedHandler),
+		constants.PreReceiveHook:        new(handling.NotSupportedHandler),
+		constants.PrepareCommitMsgHook:  new(handling.NotSupportedHandler),
+		constants.UpdateHook:            new(handling.NotSupportedHandler),
 	}
 
-	instance := runner.NewRunner(ctx, runner.Args{
-		Commands: []commands.CliCommand{
-			initialize.NewCommand(),
-			handle.NewCommand(hooksHandles),
-			remove.NewCommand(),
+	appInfo := internal.AppInfo{
+		Executable:       appPath,
+		Cwd:              cwd,
+		GlobalConfigPath: configInfo.GlobalConfigPath,
+		LocalConfigPath:  configInfo.LocalConfigPath,
+		RepoConfigPath:   configInfo.RepoConfigPath,
+	}
+
+	instance := runner.NewRunner(
+		[]commands.CliCommand{
+			initialize.NewCommand(files, &appInfo, usr),
+			handle.NewCommand(hooksHandles, &conf.Hooks, &appInfo),
+			remove.NewCommand(files, &appInfo, usr),
 			version.NewCommand(),
 		},
-		Config:     conf,
-		ConfigInfo: configInfo,
-		Files:      fs,
-		SystemUser: usr,
-		Cwd:        cwd,
-		Executable: appPath,
-		Repository: repo,
-		Shell:      sh,
-	})
+		conf,
+		&appInfo)
 
 	if err = instance.Run(os.Args[1:]); err != nil {
 		panic(err)
