@@ -50,7 +50,7 @@ func main() {
 	sh := shell.NewShell(os.Stdout)
 	repo := vcs.NewGitRepository(cwd)
 
-	factory := func(args []string, output io.Writer) *internal.InternalContext {
+	factory := func(args []string, output io.Writer) *internal.Context {
 		return internal.NewInternalContext(ctx, fs, sh, repo, args, output)
 	}
 

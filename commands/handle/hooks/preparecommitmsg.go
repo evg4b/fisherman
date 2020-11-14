@@ -8,8 +8,12 @@ import (
 	v "fisherman/internal/validation"
 )
 
-func PrepareCommitMsg(factory internal.CtxFactory, conf c.PrepareCommitMsgHookConfig, extr v.VariablesExtractor) *h.HookHandler {
-	variables, err := extr.Variables(conf.Variables)
+func PrepareCommitMsg(
+	factory internal.CtxFactory,
+	conf c.PrepareCommitMsgHookConfig,
+	extractor v.VarExtractor,
+) *h.HookHandler {
+	variables, err := extractor.Variables(conf.Variables)
 	if err != nil {
 		panic(err)
 	}

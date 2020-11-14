@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-type CtxFactory = func(args []string, output io.Writer) *InternalContext
+type CtxFactory = func(args []string, output io.Writer) *Context
 
 type SyncContext interface {
 	Files() infrastructure.FileSystem

@@ -11,7 +11,7 @@ import (
 type sourceLoader = func() (string, error)
 type variablesLoader = func(string) (map[string]interface{}, error)
 
-type VariablesExtractor interface {
+type VarExtractor interface {
 	Variables(configSection hooks.Variables) (map[string]interface{}, error)
 }
 

@@ -8,7 +8,7 @@ import (
 	"fisherman/validators"
 )
 
-func CommitMsg(factory internal.CtxFactory, conf c.CommitMsgHookConfig, extractor v.VariablesExtractor) *h.HookHandler {
+func CommitMsg(factory internal.CtxFactory, conf c.CommitMsgHookConfig, extractor v.VarExtractor) *h.HookHandler {
 	variables, err := extractor.Variables(conf.Variables)
 	if err != nil {
 		panic(err)

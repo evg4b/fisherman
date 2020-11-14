@@ -8,7 +8,7 @@ import (
 	v "fisherman/internal/validation"
 )
 
-func PrePush(factory internal.CtxFactory, conf c.PrePushHookConfig, extr v.VariablesExtractor, sh i.Shell) *h.HookHandler {
+func PrePush(factory internal.CtxFactory, conf c.PrePushHookConfig, extr v.VarExtractor, sh i.Shell) *h.HookHandler {
 	variables, err := extr.Variables(conf.Variables)
 	if err != nil {
 		panic(err)

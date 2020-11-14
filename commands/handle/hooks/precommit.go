@@ -9,8 +9,13 @@ import (
 	v "fisherman/internal/validation"
 )
 
-func PreCommit(factory internal.CtxFactory, conf c.PreCommitHookConfig, extr v.VariablesExtractor, sh i.Shell) *h.HookHandler {
-	variables, err := extr.Variables(conf.Variables)
+func PreCommit(
+	factory internal.CtxFactory,
+	conf c.PreCommitHookConfig,
+	extractor v.VarExtractor,
+	sh i.Shell,
+) *h.HookHandler {
+	variables, err := extractor.Variables(conf.Variables)
 	if err != nil {
 		panic(err)
 	}

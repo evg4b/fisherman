@@ -25,7 +25,7 @@ func TestMessageNotEmpty(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewSyncContextMock(t).MessageMock.Return(tt.message)
 
 			err := validators.MessageNotEmpty(ctx, tt.notEmpty)
 
@@ -55,7 +55,7 @@ func TestMessageHasPrefix(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewSyncContextMock(t).MessageMock.Return(tt.message)
 
 			err := validators.MessageHasPrefix(ctx, tt.prefix)
 
@@ -85,7 +85,7 @@ func TestMessageHasSuffix(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewSyncContextMock(t).MessageMock.Return(tt.message)
 
 			err := validators.MessageHasSuffix(ctx, tt.suffix)
 
@@ -114,7 +114,7 @@ func TestMessageRegexp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewSyncContextMock(t).MessageMock.Return(tt.message)
 
 			err := validators.MessageRegexp(ctx, tt.expression)
 
