@@ -1,24 +1,14 @@
 package validation
 
 import (
-	"fisherman/infrastructure"
-	"io"
+	"fisherman/internal"
 
 	"github.com/hashicorp/go-multierror"
 )
 
-type SyncValidationContext interface {
-	Files() infrastructure.FileSystem
-	Shell() infrastructure.Shell
-	Repository() infrastructure.Repository
-	Args() []string
-	Output() io.Writer
-	Message() string
-}
+type SyncValidator = func(ctx internal.SyncContext) error
 
-type SyncValidator = func(ctx SyncValidationContext) error
-
-func RunSync(ctx SyncValidationContext, validators []SyncValidator) error {
+func RunSync(ctx internal.SyncContext, validators []SyncValidator) error {
 	var result *multierror.Error
 
 	for _, validator := range validators {

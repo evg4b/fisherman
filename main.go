@@ -14,6 +14,7 @@ import (
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
+	"fisherman/internal"
 	"fisherman/internal/handling"
 	"fisherman/internal/runner"
 	"fisherman/internal/validation"
@@ -49,8 +50,8 @@ func main() {
 	sh := shell.NewShell(os.Stdout)
 	repo := vcs.NewGitRepository(cwd)
 
-	factory := func(args []string, output io.Writer) *validation.ValidationContext {
-		return validation.NewValidationContext(ctx, fs, sh, repo, args, output)
+	factory := func(args []string, output io.Writer) *internal.InternalContext {
+		return internal.NewInternalContext(ctx, fs, sh, repo, args, output)
 	}
 
 	extractor := validation.NewConfigExtractor(repo, conf.GlobalVariables, cwd)

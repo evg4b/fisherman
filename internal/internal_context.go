@@ -1,4 +1,4 @@
-package validation
+package internal
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type ValidationContext struct {
+type InternalContext struct {
 	fileSystem          infrastructure.FileSystem
 	shell               infrastructure.Shell
 	repository          infrastructure.Repository
@@ -19,17 +19,17 @@ type ValidationContext struct {
 	commitMessage       string
 }
 
-func NewValidationContext(
+func NewInternalContext(
 	ctx context.Context,
 	fileSystem infrastructure.FileSystem,
 	shell infrastructure.Shell,
 	repository infrastructure.Repository,
 	args []string,
 	output io.Writer,
-) *ValidationContext {
+) *InternalContext {
 	var baseContext, cancel = context.WithCancel(ctx)
 
-	return &ValidationContext{
+	return &InternalContext{
 		baseContext:       baseContext,
 		cancelCaseContext: cancel,
 		fileSystem:        fileSystem,
@@ -40,47 +40,47 @@ func NewValidationContext(
 	}
 }
 
-func (ctx *ValidationContext) Files() infrastructure.FileSystem {
+func (ctx *InternalContext) Files() infrastructure.FileSystem {
 	return ctx.fileSystem
 }
 
-func (ctx *ValidationContext) Shell() infrastructure.Shell {
+func (ctx *InternalContext) Shell() infrastructure.Shell {
 	return ctx.shell
 }
 
-func (ctx *ValidationContext) Repository() infrastructure.Repository {
+func (ctx *InternalContext) Repository() infrastructure.Repository {
 	return ctx.repository
 }
 
-func (ctx *ValidationContext) Args() []string {
+func (ctx *InternalContext) Args() []string {
 	return ctx.args
 }
 
-func (ctx *ValidationContext) Output() io.Writer {
+func (ctx *InternalContext) Output() io.Writer {
 	return ctx.output
 }
 
-func (ctx *ValidationContext) Stop() {
+func (ctx *InternalContext) Stop() {
 	ctx.cancelCaseContext()
 }
 
-func (ctx *ValidationContext) Deadline() (deadline time.Time, ok bool) {
+func (ctx *InternalContext) Deadline() (deadline time.Time, ok bool) {
 	return ctx.baseContext.Deadline()
 }
 
-func (ctx *ValidationContext) Done() <-chan struct{} {
+func (ctx *InternalContext) Done() <-chan struct{} {
 	return ctx.baseContext.Done()
 }
 
-func (ctx *ValidationContext) Err() error {
+func (ctx *InternalContext) Err() error {
 	return ctx.baseContext.Err()
 }
 
-func (ctx *ValidationContext) Value(key interface{}) interface{} {
+func (ctx *InternalContext) Value(key interface{}) interface{} {
 	return ctx.baseContext.Value(key)
 }
 
-func (ctx *ValidationContext) Message() string {
+func (ctx *InternalContext) Message() string {
 	if ctx.commitmessageLoaded {
 		return ctx.commitMessage
 	}

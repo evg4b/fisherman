@@ -3,11 +3,12 @@ package hooks
 import (
 	c "fisherman/config/hooks"
 	i "fisherman/infrastructure"
+	"fisherman/internal"
 	h "fisherman/internal/handling"
 	v "fisherman/internal/validation"
 )
 
-func PrePush(factory ctxFactory, conf c.PrePushHookConfig, extr v.VariablesExtractor, sh i.Shell) *h.HookHandler {
+func PrePush(factory internal.CtxFactory, conf c.PrePushHookConfig, extr v.VariablesExtractor, sh i.Shell) *h.HookHandler {
 	variables, err := extr.Variables(conf.Variables)
 	if err != nil {
 		panic(err)

@@ -3,8 +3,8 @@ package handling
 import (
 	c "fisherman/config"
 	"fisherman/infrastructure/log"
+	i "fisherman/internal"
 	v "fisherman/internal/validation"
-	"io"
 )
 
 type Handler interface {
@@ -12,10 +12,10 @@ type Handler interface {
 	Handle(args []string) error
 }
 
-type Action = func(v.SyncValidationContext) (bool, error)
+type Action = func(i.SyncContext) (bool, error)
 
 type HookHandler struct {
-	contextFactory  func(args []string, output io.Writer) *v.ValidationContext
+	contextFactory  i.CtxFactory
 	beforeActions   []Action
 	syncValidators  []v.SyncValidator
 	asyncValidators []v.AsyncValidator
@@ -23,7 +23,7 @@ type HookHandler struct {
 }
 
 func NewHookHandler(
-	contextFactory func(args []string, output io.Writer) *v.ValidationContext,
+	contextFactory i.CtxFactory,
 	beforeActions []Action,
 	syncValidators []v.SyncValidator,
 	asyncValidators []v.AsyncValidator,
@@ -64,7 +64,7 @@ func (h *HookHandler) IsConfigured(config *c.HooksConfig) bool {
 	return true
 }
 
-func RunActions(ctx v.SyncValidationContext, actions []Action) (bool, error) {
+func RunActions(ctx i.SyncContext, actions []Action) (bool, error) {
 	for _, action := range actions {
 		next, err := action(ctx)
 		if err != nil || !next {

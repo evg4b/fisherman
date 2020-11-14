@@ -1,0 +1,128 @@
+// nolint: dupl
+package validators_test
+
+import (
+	"fisherman/mocks"
+	"fisherman/validators"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestMessageNotEmpty(t *testing.T) {
+	message := "commit message should not be empty"
+	tests := []struct {
+		name     string
+		message  string
+		notEmpty bool
+		hasError bool
+	}{
+		{name: "Active with empty string", hasError: true, message: "", notEmpty: true},
+		{name: "Inactive with empty string", hasError: false, message: "", notEmpty: false},
+		{name: "Active with not empty string", hasError: false, message: "message", notEmpty: true},
+		{name: "Active with not empty string", hasError: false, message: "message", notEmpty: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+
+			err := validators.MessageNotEmpty(ctx, tt.notEmpty)
+
+			if tt.hasError {
+				assert.Error(t, err, message)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestMessageHasPrefix(t *testing.T) {
+	tests := []struct {
+		name     string
+		message  string
+		prefix   string
+		hasError bool
+	}{
+		{name: "Active with empty string", hasError: true, message: "", prefix: "prefix-"},
+		{name: "Inactive with empty string", hasError: false, message: "", prefix: ""},
+		{name: "Active with string and prefix", hasError: false, message: "prefix-message", prefix: "prefix-"},
+		{name: "Inactive with string and prefix", hasError: false, message: "prefix-message", prefix: ""},
+		{name: "Active with string and other prefix", hasError: true, message: "other-prefix-message", prefix: "prefix-"},
+		{name: "Inactive with string and other prefix", hasError: false, message: "other-prefix-message", prefix: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+
+			err := validators.MessageHasPrefix(ctx, tt.prefix)
+
+			if tt.hasError {
+				assert.Error(t, err, "commit message should have prefix 'prefix-'")
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestMessageHasSuffix(t *testing.T) {
+	tests := []struct {
+		name     string
+		message  string
+		suffix   string
+		hasError bool
+	}{
+		{name: "Active with empty string", hasError: true, message: "", suffix: "-suffix"},
+		{name: "Inactive with empty string", hasError: false, message: "", suffix: ""},
+		{name: "Active with string and suffix", hasError: false, message: "message-suffix", suffix: "-suffix"},
+		{name: "Inactive with string and suffix", hasError: false, message: "message-suffix", suffix: ""},
+		{name: "Active with string and other suffix", hasError: true, message: "message-suffix-other", suffix: "-suffix"},
+		{name: "Inactive with string and other suffix", hasError: false, message: "message-suffix-other", suffix: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+
+			err := validators.MessageHasSuffix(ctx, tt.suffix)
+
+			if tt.hasError {
+				assert.Error(t, err, "commit message should have suffix '-suffix'")
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestMessageRegexp(t *testing.T) {
+	tests := []struct {
+		name       string
+		message    string
+		expression string
+		hasError   bool
+	}{
+		{name: "Inactive with empty string", hasError: false, message: "", expression: ""},
+		{name: "Active with empty string", hasError: true, message: "", expression: "^[a-z]{5}$"},
+		{name: "Invalid expression", hasError: true, message: "", expression: "[a-z]($"},
+		{name: "Active with correct matching", hasError: true, message: "message", expression: "^[a-z]{5}$"},
+		{name: "Active with correct matching", hasError: false, message: "message", expression: "^[a-z]{7}$"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := mocks.NewSyncValidationContextMock(t).MessageMock.Return(tt.message)
+
+			err := validators.MessageRegexp(ctx, tt.expression)
+
+			if tt.hasError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}

@@ -1,8 +1,8 @@
 package actions
 
-import v "fisherman/internal/validation"
+import "fisherman/internal"
 
-func AddToIndex(ctx v.SyncValidationContext, globs []string) (bool, error) {
+func AddToIndex(ctx internal.SyncContext, globs []string) (bool, error) {
 	if len(globs) > 0 {
 		repo := ctx.Repository()
 		for _, glob := range globs {

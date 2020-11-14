@@ -2,12 +2,13 @@ package hooks
 
 import (
 	c "fisherman/config/hooks"
+	"fisherman/internal"
 	h "fisherman/internal/handling"
 	v "fisherman/internal/validation"
 	"fisherman/validators"
 )
 
-func CommitMsg(factory ctxFactory, conf c.CommitMsgHookConfig, extractor v.VariablesExtractor) *h.HookHandler {
+func CommitMsg(factory internal.CtxFactory, conf c.CommitMsgHookConfig, extractor v.VariablesExtractor) *h.HookHandler {
 	variables, err := extractor.Variables(conf.Variables)
 	if err != nil {
 		panic(err)

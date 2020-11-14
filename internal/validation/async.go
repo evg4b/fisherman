@@ -3,21 +3,16 @@ package validation
 import (
 	"context"
 	"fisherman/infrastructure/log"
+	"fisherman/internal"
 	"fmt"
 	"sync"
 
 	"github.com/hashicorp/go-multierror"
 )
 
-type AsyncValidationContext interface {
-	SyncValidationContext
-	context.Context
-	Stop()
-}
+type AsyncValidator = func(ctx internal.AsyncContext) AsyncValidationResult
 
-type AsyncValidator = func(ctx AsyncValidationContext) AsyncValidationResult
-
-func RunAsync(ctx AsyncValidationContext, validators []AsyncValidator) error {
+func RunAsync(ctx internal.AsyncContext, validators []AsyncValidator) error {
 	output := make(chan AsyncValidationResult)
 
 	var multierr *multierror.Error
@@ -42,7 +37,7 @@ func RunAsync(ctx AsyncValidationContext, validators []AsyncValidator) error {
 	return multierr.ErrorOrNil()
 }
 
-func runAsyncInternal(output chan AsyncValidationResult, ctx AsyncValidationContext, validators []AsyncValidator) {
+func runAsyncInternal(output chan AsyncValidationResult, ctx internal.AsyncContext, validators []AsyncValidator) {
 	var wg sync.WaitGroup
 	for _, validator := range validators {
 		wg.Add(1)
@@ -52,10 +47,10 @@ func runAsyncInternal(output chan AsyncValidationResult, ctx AsyncValidationCont
 	close(output)
 }
 
-type wrappedValidator = func(ctx AsyncValidationContext)
+type wrappedValidator = func(ctx internal.AsyncContext)
 
 func wrap(output chan AsyncValidationResult, wg *sync.WaitGroup, validator AsyncValidator) wrappedValidator {
-	return func(ctx AsyncValidationContext) {
+	return func(ctx internal.AsyncContext) {
 		defer wg.Done()
 		result := validator(ctx)
 

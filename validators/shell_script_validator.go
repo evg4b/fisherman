@@ -2,10 +2,11 @@ package validators
 
 import (
 	"fisherman/infrastructure/shell"
+	i "fisherman/internal"
 	v "fisherman/internal/validation"
 )
 
-func ScriptValidator(ctx v.AsyncValidationContext, script shell.ScriptConfig) v.AsyncValidationResult {
+func ScriptValidator(ctx i.AsyncContext, script shell.ScriptConfig) v.AsyncValidationResult {
 	sh := ctx.Shell()
 	result := sh.Exec(ctx, script)
 

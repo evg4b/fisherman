@@ -1,11 +1,11 @@
 package actions
 
 import (
-	v "fisherman/internal/validation"
+	"fisherman/internal"
 	"fisherman/utils"
 )
 
-func PrepareMessage(ctx v.SyncValidationContext, message string) (bool, error) {
+func PrepareMessage(ctx internal.SyncContext, message string) (bool, error) {
 	if utils.IsNotEmpty(message) {
 		args := ctx.Args()
 		err := ctx.Files().Write(args[0], message)
