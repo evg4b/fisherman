@@ -24,3 +24,7 @@ func (config *CommitMsgHookConfig) GetVarsSection() Variables {
 func (*CommitMsgHookConfig) HasVars() bool {
 	return true
 }
+
+func (config *CommitMsgHookConfig) IsEmpty() bool {
+	return config == &CommitMsgHookConfig{}
+}

@@ -20,7 +20,8 @@
         "mkideal",
         "nolint",
         "prerebase",
-        "stretchr"
+        "stretchr",
+        "valyala"
     ],
     "go.lintTool": "golangci-lint",
     "go.lintFlags": [

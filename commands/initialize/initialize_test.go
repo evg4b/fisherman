@@ -38,5 +38,12 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 
 func TestCommand_Name(t *testing.T) {
 	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &user.User{})
+
 	assert.Equal(t, command.Name(), "init")
+}
+
+func TestCommand_Description(t *testing.T) {
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &user.User{})
+
+	assert.NotEmpty(t, command.Description())
 }

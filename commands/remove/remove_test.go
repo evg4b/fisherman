@@ -55,7 +55,18 @@ func TestCommand_Name(t *testing.T) {
 		&internal.AppInfo{},
 		&user.User{},
 	)
+
 	assert.Equal(t, "remove", command.Name())
+}
+
+func TestCommand_Description(t *testing.T) {
+	command := remove.NewCommand(
+		mocks.NewFileSystemMock(t),
+		&internal.AppInfo{},
+		&user.User{},
+	)
+
+	assert.NotEmpty(t, command.Description())
 }
 
 func makeFakeFS(t *testing.T) *mocks.FileSystemMock {

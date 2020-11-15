@@ -5,7 +5,6 @@ package mocks
 //go:generate minimock -i fisherman/internal/handling.Handler -o ./mocks\handlermock.go
 
 import (
-	c "fisherman/config"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -22,12 +21,6 @@ type HandlerMock struct {
 	afterHandleCounter  uint64
 	beforeHandleCounter uint64
 	HandleMock          mHandlerMockHandle
-
-	funcIsConfigured          func(config *c.HooksConfig) (b1 bool)
-	inspectFuncIsConfigured   func(config *c.HooksConfig)
-	afterIsConfiguredCounter  uint64
-	beforeIsConfiguredCounter uint64
-	IsConfiguredMock          mHandlerMockIsConfigured
 }
 
 // NewHandlerMock returns a mock for handling.Handler
@@ -39,9 +32,6 @@ func NewHandlerMock(t minimock.Tester) *HandlerMock {
 
 	m.HandleMock = mHandlerMockHandle{mock: m}
 	m.HandleMock.callArgs = []*HandlerMockHandleParams{}
-
-	m.IsConfiguredMock = mHandlerMockIsConfigured{mock: m}
-	m.IsConfiguredMock.callArgs = []*HandlerMockIsConfiguredParams{}
 
 	return m
 }
@@ -261,227 +251,10 @@ func (m *HandlerMock) MinimockHandleInspect() {
 	}
 }
 
-type mHandlerMockIsConfigured struct {
-	mock               *HandlerMock
-	defaultExpectation *HandlerMockIsConfiguredExpectation
-	expectations       []*HandlerMockIsConfiguredExpectation
-
-	callArgs []*HandlerMockIsConfiguredParams
-	mutex    sync.RWMutex
-}
-
-// HandlerMockIsConfiguredExpectation specifies expectation struct of the Handler.IsConfigured
-type HandlerMockIsConfiguredExpectation struct {
-	mock    *HandlerMock
-	params  *HandlerMockIsConfiguredParams
-	results *HandlerMockIsConfiguredResults
-	Counter uint64
-}
-
-// HandlerMockIsConfiguredParams contains parameters of the Handler.IsConfigured
-type HandlerMockIsConfiguredParams struct {
-	config *c.HooksConfig
-}
-
-// HandlerMockIsConfiguredResults contains results of the Handler.IsConfigured
-type HandlerMockIsConfiguredResults struct {
-	b1 bool
-}
-
-// Expect sets up expected params for Handler.IsConfigured
-func (mmIsConfigured *mHandlerMockIsConfigured) Expect(config *c.HooksConfig) *mHandlerMockIsConfigured {
-	if mmIsConfigured.mock.funcIsConfigured != nil {
-		mmIsConfigured.mock.t.Fatalf("HandlerMock.IsConfigured mock is already set by Set")
-	}
-
-	if mmIsConfigured.defaultExpectation == nil {
-		mmIsConfigured.defaultExpectation = &HandlerMockIsConfiguredExpectation{}
-	}
-
-	mmIsConfigured.defaultExpectation.params = &HandlerMockIsConfiguredParams{config}
-	for _, e := range mmIsConfigured.expectations {
-		if minimock.Equal(e.params, mmIsConfigured.defaultExpectation.params) {
-			mmIsConfigured.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmIsConfigured.defaultExpectation.params)
-		}
-	}
-
-	return mmIsConfigured
-}
-
-// Inspect accepts an inspector function that has same arguments as the Handler.IsConfigured
-func (mmIsConfigured *mHandlerMockIsConfigured) Inspect(f func(config *c.HooksConfig)) *mHandlerMockIsConfigured {
-	if mmIsConfigured.mock.inspectFuncIsConfigured != nil {
-		mmIsConfigured.mock.t.Fatalf("Inspect function is already set for HandlerMock.IsConfigured")
-	}
-
-	mmIsConfigured.mock.inspectFuncIsConfigured = f
-
-	return mmIsConfigured
-}
-
-// Return sets up results that will be returned by Handler.IsConfigured
-func (mmIsConfigured *mHandlerMockIsConfigured) Return(b1 bool) *HandlerMock {
-	if mmIsConfigured.mock.funcIsConfigured != nil {
-		mmIsConfigured.mock.t.Fatalf("HandlerMock.IsConfigured mock is already set by Set")
-	}
-
-	if mmIsConfigured.defaultExpectation == nil {
-		mmIsConfigured.defaultExpectation = &HandlerMockIsConfiguredExpectation{mock: mmIsConfigured.mock}
-	}
-	mmIsConfigured.defaultExpectation.results = &HandlerMockIsConfiguredResults{b1}
-	return mmIsConfigured.mock
-}
-
-//Set uses given function f to mock the Handler.IsConfigured method
-func (mmIsConfigured *mHandlerMockIsConfigured) Set(f func(config *c.HooksConfig) (b1 bool)) *HandlerMock {
-	if mmIsConfigured.defaultExpectation != nil {
-		mmIsConfigured.mock.t.Fatalf("Default expectation is already set for the Handler.IsConfigured method")
-	}
-
-	if len(mmIsConfigured.expectations) > 0 {
-		mmIsConfigured.mock.t.Fatalf("Some expectations are already set for the Handler.IsConfigured method")
-	}
-
-	mmIsConfigured.mock.funcIsConfigured = f
-	return mmIsConfigured.mock
-}
-
-// When sets expectation for the Handler.IsConfigured which will trigger the result defined by the following
-// Then helper
-func (mmIsConfigured *mHandlerMockIsConfigured) When(config *c.HooksConfig) *HandlerMockIsConfiguredExpectation {
-	if mmIsConfigured.mock.funcIsConfigured != nil {
-		mmIsConfigured.mock.t.Fatalf("HandlerMock.IsConfigured mock is already set by Set")
-	}
-
-	expectation := &HandlerMockIsConfiguredExpectation{
-		mock:   mmIsConfigured.mock,
-		params: &HandlerMockIsConfiguredParams{config},
-	}
-	mmIsConfigured.expectations = append(mmIsConfigured.expectations, expectation)
-	return expectation
-}
-
-// Then sets up Handler.IsConfigured return parameters for the expectation previously defined by the When method
-func (e *HandlerMockIsConfiguredExpectation) Then(b1 bool) *HandlerMock {
-	e.results = &HandlerMockIsConfiguredResults{b1}
-	return e.mock
-}
-
-// IsConfigured implements handling.Handler
-func (mmIsConfigured *HandlerMock) IsConfigured(config *c.HooksConfig) (b1 bool) {
-	mm_atomic.AddUint64(&mmIsConfigured.beforeIsConfiguredCounter, 1)
-	defer mm_atomic.AddUint64(&mmIsConfigured.afterIsConfiguredCounter, 1)
-
-	if mmIsConfigured.inspectFuncIsConfigured != nil {
-		mmIsConfigured.inspectFuncIsConfigured(config)
-	}
-
-	mm_params := &HandlerMockIsConfiguredParams{config}
-
-	// Record call args
-	mmIsConfigured.IsConfiguredMock.mutex.Lock()
-	mmIsConfigured.IsConfiguredMock.callArgs = append(mmIsConfigured.IsConfiguredMock.callArgs, mm_params)
-	mmIsConfigured.IsConfiguredMock.mutex.Unlock()
-
-	for _, e := range mmIsConfigured.IsConfiguredMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.b1
-		}
-	}
-
-	if mmIsConfigured.IsConfiguredMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmIsConfigured.IsConfiguredMock.defaultExpectation.Counter, 1)
-		mm_want := mmIsConfigured.IsConfiguredMock.defaultExpectation.params
-		mm_got := HandlerMockIsConfiguredParams{config}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmIsConfigured.t.Errorf("HandlerMock.IsConfigured got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		mm_results := mmIsConfigured.IsConfiguredMock.defaultExpectation.results
-		if mm_results == nil {
-			mmIsConfigured.t.Fatal("No results are set for the HandlerMock.IsConfigured")
-		}
-		return (*mm_results).b1
-	}
-	if mmIsConfigured.funcIsConfigured != nil {
-		return mmIsConfigured.funcIsConfigured(config)
-	}
-	mmIsConfigured.t.Fatalf("Unexpected call to HandlerMock.IsConfigured. %v", config)
-	return
-}
-
-// IsConfiguredAfterCounter returns a count of finished HandlerMock.IsConfigured invocations
-func (mmIsConfigured *HandlerMock) IsConfiguredAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmIsConfigured.afterIsConfiguredCounter)
-}
-
-// IsConfiguredBeforeCounter returns a count of HandlerMock.IsConfigured invocations
-func (mmIsConfigured *HandlerMock) IsConfiguredBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmIsConfigured.beforeIsConfiguredCounter)
-}
-
-// Calls returns a list of arguments used in each call to HandlerMock.IsConfigured.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmIsConfigured *mHandlerMockIsConfigured) Calls() []*HandlerMockIsConfiguredParams {
-	mmIsConfigured.mutex.RLock()
-
-	argCopy := make([]*HandlerMockIsConfiguredParams, len(mmIsConfigured.callArgs))
-	copy(argCopy, mmIsConfigured.callArgs)
-
-	mmIsConfigured.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockIsConfiguredDone returns true if the count of the IsConfigured invocations corresponds
-// the number of defined expectations
-func (m *HandlerMock) MinimockIsConfiguredDone() bool {
-	for _, e := range m.IsConfiguredMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.IsConfiguredMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterIsConfiguredCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcIsConfigured != nil && mm_atomic.LoadUint64(&m.afterIsConfiguredCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockIsConfiguredInspect logs each unmet expectation
-func (m *HandlerMock) MinimockIsConfiguredInspect() {
-	for _, e := range m.IsConfiguredMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to HandlerMock.IsConfigured with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.IsConfiguredMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterIsConfiguredCounter) < 1 {
-		if m.IsConfiguredMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to HandlerMock.IsConfigured")
-		} else {
-			m.t.Errorf("Expected call to HandlerMock.IsConfigured with params: %#v", *m.IsConfiguredMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcIsConfigured != nil && mm_atomic.LoadUint64(&m.afterIsConfiguredCounter) < 1 {
-		m.t.Error("Expected call to HandlerMock.IsConfigured")
-	}
-}
-
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *HandlerMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockHandleInspect()
-
-		m.MinimockIsConfiguredInspect()
 		m.t.FailNow()
 	}
 }
@@ -505,6 +278,5 @@ func (m *HandlerMock) MinimockWait(timeout mm_time.Duration) {
 func (m *HandlerMock) minimockDone() bool {
 	done := true
 	return done &&
-		m.MinimockHandleDone() &&
-		m.MinimockIsConfiguredDone()
+		m.MinimockHandleDone()
 }

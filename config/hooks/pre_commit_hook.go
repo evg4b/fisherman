@@ -17,3 +17,7 @@ func (config *PreCommitHookConfig) GetVarsSection() Variables {
 func (*PreCommitHookConfig) HasVars() bool {
 	return true
 }
+
+func (config *PreCommitHookConfig) IsEmpty() bool {
+	return len(config.Shell) == 0 && len(config.AddFilesToIndex) == 0 && config.Variables == Variables{}
+}

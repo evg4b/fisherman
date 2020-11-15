@@ -13,10 +13,14 @@ func CommitMsg(
 	ctxFactory internal.CtxFactory,
 	configuration hooks.CommitMsgHookConfig,
 	compile configcompiler.Compiler,
-) *handling.HookHandler {
+) HandlerRegistration {
+	if configuration.IsEmpty() {
+		return NotResigter
+	}
+
 	compile(&configuration)
 
-	return handling.NewHookHandler(
+	handler := handling.NewHookHandler(
 		ctxFactory,
 		NoBeforeActions,
 		[]validation.SyncValidator{
@@ -28,4 +32,6 @@ func CommitMsg(
 		NoAsyncValidators,
 		NoAfterActions,
 	)
+
+	return HandlerRegistration{Registered: true, Handler: handler}
 }

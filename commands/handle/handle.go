@@ -1,22 +1,22 @@
 package handle
 
 import (
+	"fisherman/commands/handle/hooks"
 	"fisherman/config"
 	"fisherman/internal"
-	"fisherman/internal/handling"
 	"flag"
 )
 
 type Command struct {
 	flagSet  *flag.FlagSet
 	hook     string
-	handlers map[string]handling.Handler
+	handlers hooks.HandlerList
 	usage    string
 	config   *config.HooksConfig
 	app      *internal.AppInfo
 }
 
-func NewCommand(handlers map[string]handling.Handler, config *config.HooksConfig, app *internal.AppInfo) *Command {
+func NewCommand(handlers hooks.HandlerList, config *config.HooksConfig, app *internal.AppInfo) *Command {
 	command := &Command{
 		flagSet:  flag.NewFlagSet("handle", flag.ExitOnError),
 		handlers: handlers,

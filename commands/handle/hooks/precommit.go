@@ -14,10 +14,14 @@ func PreCommit(
 	configuration hooks.PreCommitHookConfig,
 	sysShell infrastructure.Shell,
 	compile configcompiler.Compiler,
-) *handling.HookHandler {
+) HandlerRegistration {
+	if configuration.IsEmpty() {
+		return NotResigter
+	}
+
 	compile(&configuration)
 
-	return handling.NewHookHandler(
+	handler := handling.NewHookHandler(
 		ctxFactory,
 		NoBeforeActions,
 		NoSyncValidators,
@@ -28,4 +32,6 @@ func PreCommit(
 			},
 		},
 	)
+
+	return HandlerRegistration{Registered: true, Handler: handler}
 }

@@ -1,14 +1,12 @@
 package handling
 
 import (
-	"fisherman/config"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/validation"
 )
 
 type Handler interface {
-	IsConfigured(*config.HooksConfig) bool
 	Handle(args []string) error
 }
 
@@ -58,10 +56,6 @@ func (h *HookHandler) Handle(args []string) error {
 	_, err = RunActions(ctx, h.afterActions)
 
 	return err
-}
-
-func (h *HookHandler) IsConfigured(configuration *config.HooksConfig) bool {
-	return true
 }
 
 func RunActions(ctx internal.SyncContext, actions []Action) (bool, error) {

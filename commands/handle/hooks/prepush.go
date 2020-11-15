@@ -13,14 +13,20 @@ func PrePush(
 	configuration hooks.PrePushHookConfig,
 	sysShell infrastructure.Shell,
 	compile configcompiler.Compiler,
-) *handling.HookHandler {
+) HandlerRegistration {
+	if configuration.IsEmpty() {
+		return NotResigter
+	}
+
 	compile(&configuration)
 
-	return handling.NewHookHandler(
+	handler := handling.NewHookHandler(
 		ctxFactory,
 		NoBeforeActions,
 		NoSyncValidators,
 		scriptWrapper(configuration.Shell),
 		NoAfterActions,
 	)
+
+	return HandlerRegistration{Registered: true, Handler: handler}
 }

@@ -12,10 +12,14 @@ func PrepareCommitMsg(
 	ctxFactory internal.CtxFactory,
 	configuration hooks.PrepareCommitMsgHookConfig,
 	compile configcompiler.Compiler,
-) *handling.HookHandler {
+) HandlerRegistration {
+	if configuration.IsEmpty() {
+		return NotResigter
+	}
+
 	compile(&configuration)
 
-	return handling.NewHookHandler(
+	handler := handling.NewHookHandler(
 		ctxFactory,
 		[]handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
@@ -26,4 +30,6 @@ func PrepareCommitMsg(
 		NoAsyncValidators,
 		NoAfterActions,
 	)
+
+	return HandlerRegistration{Registered: true, Handler: handler}
 }

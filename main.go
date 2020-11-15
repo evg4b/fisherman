@@ -16,7 +16,6 @@ import (
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
 	"fisherman/internal/configcompiler"
-	"fisherman/internal/handling"
 	"fisherman/internal/runner"
 	"fisherman/utils"
 	"io"
@@ -55,18 +54,18 @@ func main() {
 
 	compiler := configcompiler.NewCompiler(repository, conf.GlobalVariables, cwd)
 
-	hooksHandles := map[string]handling.Handler{
+	hooksHandles := hooks.HandlerList{
 		constants.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, compiler),
 		constants.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, sh, compiler),
-		constants.ApplyPatchMsgHook:     new(handling.NotSupportedHandler),
-		constants.FsMonitorWatchmanHook: new(handling.NotSupportedHandler),
-		constants.PostUpdateHook:        new(handling.NotSupportedHandler),
-		constants.PreApplyPatchHook:     new(handling.NotSupportedHandler),
-		constants.PrePushHook:           new(handling.NotSupportedHandler),
-		constants.PreRebaseHook:         new(handling.NotSupportedHandler),
-		constants.PreReceiveHook:        new(handling.NotSupportedHandler),
-		constants.PrepareCommitMsgHook:  new(handling.NotSupportedHandler),
-		constants.UpdateHook:            new(handling.NotSupportedHandler),
+		constants.ApplyPatchMsgHook:     hooks.NotSupported,
+		constants.FsMonitorWatchmanHook: hooks.NotSupported,
+		constants.PostUpdateHook:        hooks.NotSupported,
+		constants.PreApplyPatchHook:     hooks.NotSupported,
+		constants.PrePushHook:           hooks.PrePush(factory, conf.Hooks.PrePushHook, sh, compiler),
+		constants.PreRebaseHook:         hooks.NotSupported,
+		constants.PreReceiveHook:        hooks.NotSupported,
+		constants.PrepareCommitMsgHook:  hooks.PrepareCommitMsg(factory, conf.Hooks.PrepareCommitMsgHook, compiler),
+		constants.UpdateHook:            hooks.NotSupported,
 	}
 
 	appInfo := internal.AppInfo{
