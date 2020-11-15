@@ -1,12 +1,11 @@
-package clicontext_test
+package configcompiler_test
 
 import (
-	"context"
 	"errors"
-	"fisherman/config"
+	"fisherman/config/hooks"
 	"fisherman/constants"
 	"fisherman/infrastructure"
-	"fisherman/internal/clicontext"
+	"fisherman/internal/configcompiler"
 	"fisherman/mocks"
 	"testing"
 
@@ -19,59 +18,44 @@ type testSource struct {
 	Error error
 }
 
-func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
+func TestVariables(t *testing.T) {
 	defaultTagConfig := testSource{Data: "0.0.1"}
 	defaultBranchConfig := testSource{Data: "refs/heads/master"}
 
 	tests := []struct {
-		name            string
-		expectedError   error
-		fromBranch      string
-		fromBranchVars  map[string]interface{}
-		fromBranchError error
-		fromTag         string
-		fromTagVars     map[string]interface{}
-		fromTagError    error
-		expectVars      map[string]interface{}
-		tagConfig       testSource
-		branchConfig    testSource
+		name          string
+		expectedError error
+		fromBranch    string
+		fromTag       string
+		expectVars    map[string]interface{}
+		tagConfig     testSource
+		branchConfig  testSource
 	}{
 		{
-			name:       "Load CurrentBranch from branch name",
-			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-			},
+			name:          "Load CurrentBranch from branch name",
+			fromBranch:    "refs/heads/(?P<CurrentBranch>.*)",
 			expectedError: nil,
 			expectVars: map[string]interface{}{
 				"CurrentBranch": "master",
+				"UserName":      "username",
 			},
 			tagConfig:    defaultTagConfig,
 			branchConfig: defaultBranchConfig,
 		},
 		{
-			name:       "Load CurrentBranch and oweride Version from branch name",
-			fromBranch: "refs/(?P<Version>.*)/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "heads",
-			},
+			name:          "Load CurrentBranch and oweride Version from branch name",
+			fromBranch:    "refs/(?P<FishermanVersion>.*)/(?P<CurrentBranch>.*)",
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "heads",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "heads",
 			},
 			tagConfig:    defaultTagConfig,
 			branchConfig: defaultBranchConfig,
 		},
 		{
-			name:       "Load multiple variables from branch name",
-			fromBranch: "(?P<Ref>.*)/(?P<Head>.*)/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Head":          "heads",
-				"Ref":           "refs",
-			},
+			name:          "Load multiple variables from branch name",
+			fromBranch:    "(?P<Ref>.*)/(?P<Head>.*)/(?P<CurrentBranch>.*)",
 			expectedError: nil,
 			expectVars: map[string]interface{}{
 				"CurrentBranch": "master",
@@ -82,15 +66,9 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			branchConfig: defaultBranchConfig,
 		},
 		{
-			name:       "Load variables from branch and tag names",
-			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-			},
-			fromTag: "0.0.(?P<Test>.*)",
-			fromTagVars: map[string]interface{}{
-				"Test": "1",
-			},
+			name:          "Load variables from branch and tag names",
+			fromBranch:    "refs/heads/(?P<CurrentBranch>.*)",
+			fromTag:       "0.0.(?P<Test>.*)",
 			expectedError: nil,
 			expectVars: map[string]interface{}{
 				"CurrentBranch": "master",
@@ -100,53 +78,42 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 			branchConfig: defaultBranchConfig,
 		},
 		{
-			name:       "Load CurrentBranch from branch name and oweride Vertion from tag name",
-			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-			},
-			fromTag: "(?P<Version>.*)",
-			fromTagVars: map[string]interface{}{
-				"Version": "0.0.1",
-			},
+			name:          "Load CurrentBranch from branch name and oweride Vertion from tag name",
+			fromBranch:    "refs/heads/(?P<CurrentBranch>.*)",
+			fromTag:       "(?P<FishermanVersion>.*)",
 			expectedError: nil,
 			expectVars: map[string]interface{}{
-				"CurrentBranch": "master",
-				"Version":       "0.0.1",
+				"CurrentBranch":    "master",
+				"FishermanVersion": "0.0.1",
 			},
 			tagConfig:    defaultTagConfig,
 			branchConfig: defaultBranchConfig,
 		},
 		{
-			name:       "Abort loading when source return error",
-			fromBranch: "refs/heads/(?P<CurrentBranch>.*)",
-			fromBranchVars: map[string]interface{}{
-				"CurrentBranch": "master",
-			},
-			fromBranchError: errors.New("Test"),
-			fromTag:         "(?P<Version>.*)",
-			fromTagVars: map[string]interface{}{
-				"Version": "0.0.1",
-			},
+			name:          "Abort loading when branch source return error",
+			fromBranch:    "refs/heads/(?P<CurrentBranch>.*)",
+			fromTag:       "(?P<Version>.*)",
 			expectedError: errors.New("Test"),
 			expectVars: map[string]interface{}{
 				"CurrentBranch": "master",
 				"Version":       "0.0.1",
 			},
-			tagConfig:    defaultTagConfig,
-			branchConfig: defaultBranchConfig,
+			tagConfig: defaultTagConfig,
+			branchConfig: testSource{
+				Error: errors.New("Test"),
+			},
 		},
 		{
 			name:          "Abort loading when source return error",
 			fromTag:       "(?P<Version>.*)",
-			fromTagVars:   map[string]interface{}{},
-			fromTagError:  errors.New("Test"),
 			expectedError: errors.New("Test"),
 			expectVars: map[string]interface{}{
 				"CurrentBranch": "master",
 				"Version":       "0.0.1",
 			},
-			tagConfig:    defaultTagConfig,
+			tagConfig: testSource{
+				Error: errors.New("Test"),
+			},
 			branchConfig: defaultBranchConfig,
 		},
 		{
@@ -176,29 +143,26 @@ func TestCommandContext_LoadAdditionalVariables(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			vars := mocks.NewVariablesExtractorMock(t).
-				GetFromBranchMock.Expect(tt.branchConfig.Data).Return(tt.fromBranchVars, tt.fromBranchError).
-				GetFromTagMock.Expect(tt.tagConfig.Data).Return(tt.fromTagVars, tt.fromTagError)
-
-			withGlobal(&tt.expectVars)
-
-			ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
-				Repository: mocks.NewRepositoryMock(t).
+			globals := map[string]interface{}{"GlobalVar": "global"}
+			extractor := configcompiler.NewConfigExtractor(
+				mocks.NewRepositoryMock(t).
 					GetCurrentBranchMock.Return(tt.branchConfig.Data, tt.branchConfig.Error).
 					GetLastTagMock.Return(tt.tagConfig.Data, tt.tagConfig.Error).
 					GetUserMock.Return(infrastructure.User{Email: "email@test.com", UserName: "username"}, nil),
-				GlobalVariables: map[string]interface{}{"GlobalVar": "global"},
-				Config:          &config.DefaultConfig,
-				App: &clicontext.AppInfo{
-					Cwd: "demo",
-				},
+				globals,
+				"demo",
+			)
+
+			vars, err := extractor.Variables(hooks.Variables{
+				FromBranch:  tt.fromBranch,
+				FromLastTag: tt.fromTag,
 			})
 
-			err := ctx.LoadAdditionalVariables(vars)
+			withGlobal(&tt.expectVars)
 
 			assert.Equal(t, tt.expectedError, err)
 			if tt.expectedError == nil {
-				assert.EqualValues(t, tt.expectVars, ctx.Variables())
+				assert.EqualValues(t, tt.expectVars, vars)
 			}
 		})
 	}

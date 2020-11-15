@@ -1,13 +1,10 @@
 package remove_test
 
 import (
-	"context"
 	"errors"
 	"fisherman/commands/remove"
-	"fisherman/config"
-	"fisherman/internal/clicontext"
+	"fisherman/internal"
 	"fisherman/mocks"
-	"flag"
 	"os/user"
 	"path/filepath"
 	"testing"
@@ -16,57 +13,49 @@ import (
 )
 
 func TestCommand_Run(t *testing.T) {
-	fakeFS := makeFakeFS(t)
-	fakeFS.DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil)
-
-	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
-		App: &clicontext.AppInfo{
+	command := remove.NewCommand(
+		makeFakeFS(t).DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil),
+		&internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
 		},
-		FileSystem: fakeFS,
-		Config:     &config.DefaultConfig,
-		User: &user.User{
+		&user.User{
 			HomeDir: filepath.Join("usr", "home"),
 		},
-	})
-
-	c := remove.NewCommand(flag.ExitOnError)
-	err := c.Init([]string{})
+	)
+	err := command.Init([]string{})
 	assert.NoError(t, err)
 
-	err = c.Run(ctx)
+	err = command.Run()
 	assert.NoError(t, err)
 }
 
 func TestCommand_Run_WithError(t *testing.T) {
 	expectedError := errors.New("Test error")
-	fakeFS := makeFakeFS(t)
-	fakeFS.DeleteMock.Expect(filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError)
-
-	ctx := clicontext.NewContext(context.TODO(), clicontext.Args{
-		App: &clicontext.AppInfo{
+	c := remove.NewCommand(
+		makeFakeFS(t).DeleteMock.Expect(filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError),
+		&internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
 		},
-		FileSystem: fakeFS,
-		Config:     &config.DefaultConfig,
-		User: &user.User{
+		&user.User{
 			HomeDir: filepath.Join("usr", "home"),
 		},
-	})
-
-	c := remove.NewCommand(flag.ExitOnError)
+	)
 	err := c.Init([]string{})
 	assert.NoError(t, err)
 
-	err = c.Run(ctx)
+	err = c.Run()
 	assert.Equal(t, err, expectedError)
 }
 
 func TestCommand_Name(t *testing.T) {
-	c := remove.NewCommand(flag.ExitOnError)
-	assert.Equal(t, "remove", c.Name())
+	command := remove.NewCommand(
+		mocks.NewFileSystemMock(t),
+		&internal.AppInfo{},
+		&user.User{},
+	)
+	assert.Equal(t, "remove", command.Name())
 }
 
 func makeFakeFS(t *testing.T) *mocks.FileSystemMock {

@@ -1,6 +1,5 @@
 package hooks
 
-// PreCommitHookConfig is structure to storage user configuration for pre-commit hook
 type PreCommitHookConfig struct {
 	Variables       Variables     `yaml:"variables,omitempty"`
 	Shell           ScriptsConfig `yaml:"shell,omitempty"`
@@ -9,4 +8,12 @@ type PreCommitHookConfig struct {
 
 func (config *PreCommitHookConfig) Compile(variables map[string]interface{}) {
 	config.Shell.Compile(variables)
+}
+
+func (config *PreCommitHookConfig) GetVarsSection() Variables {
+	return config.Variables
+}
+
+func (*PreCommitHookConfig) HasVars() bool {
+	return true
 }

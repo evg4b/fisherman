@@ -1,26 +1,26 @@
 package hooks
 
 import (
-	c "fisherman/config/hooks"
-	i "fisherman/infrastructure"
+	"fisherman/config/hooks"
+	"fisherman/infrastructure"
 	"fisherman/internal"
-	h "fisherman/internal/handling"
-	v "fisherman/internal/validation"
+	"fisherman/internal/configcompiler"
+	"fisherman/internal/handling"
 )
 
-func PrePush(factory internal.CtxFactory, conf c.PrePushHookConfig, extr v.VarExtractor, sh i.Shell) *h.HookHandler {
-	variables, err := extr.Variables(conf.Variables)
-	if err != nil {
-		panic(err)
-	}
+func PrePush(
+	ctxFactory internal.CtxFactory,
+	configuration hooks.PrePushHookConfig,
+	sysShell infrastructure.Shell,
+	compile configcompiler.Compiler,
+) *handling.HookHandler {
+	compile(&configuration)
 
-	conf.Compile(variables)
-
-	return h.NewHookHandler(
-		factory,
+	return handling.NewHookHandler(
+		ctxFactory,
 		NoBeforeActions,
 		NoSyncValidators,
-		scriptWrapper(conf.Shell),
+		scriptWrapper(configuration.Shell),
 		NoAfterActions,
 	)
 }

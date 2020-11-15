@@ -2,34 +2,29 @@ package hooks
 
 import (
 	"fisherman/actions"
-	c "fisherman/config/hooks"
-	i "fisherman/infrastructure"
+	"fisherman/config/hooks"
+	"fisherman/infrastructure"
 	"fisherman/internal"
-	h "fisherman/internal/handling"
-	v "fisherman/internal/validation"
+	"fisherman/internal/configcompiler"
+	"fisherman/internal/handling"
 )
 
 func PreCommit(
-	factory internal.CtxFactory,
-	conf c.PreCommitHookConfig,
-	extractor v.VarExtractor,
-	sh i.Shell,
-) *h.HookHandler {
-	variables, err := extractor.Variables(conf.Variables)
-	if err != nil {
-		panic(err)
-	}
+	ctxFactory internal.CtxFactory,
+	configuration hooks.PreCommitHookConfig,
+	sysShell infrastructure.Shell,
+	compile configcompiler.Compiler,
+) *handling.HookHandler {
+	compile(&configuration)
 
-	conf.Compile(variables)
-
-	return h.NewHookHandler(
-		factory,
+	return handling.NewHookHandler(
+		ctxFactory,
 		NoBeforeActions,
 		NoSyncValidators,
-		scriptWrapper(conf.Shell),
-		[]h.Action{
+		scriptWrapper(configuration.Shell),
+		[]handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
-				return actions.AddToIndex(ctx, conf.AddFilesToIndex)
+				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
 			},
 		},
 	)

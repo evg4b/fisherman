@@ -4,27 +4,22 @@ import (
 	"fisherman/actions"
 	c "fisherman/config/hooks"
 	"fisherman/internal"
+	"fisherman/internal/configcompiler"
 	h "fisherman/internal/handling"
-	v "fisherman/internal/validation"
 )
 
 func PrepareCommitMsg(
-	factory internal.CtxFactory,
-	conf c.PrepareCommitMsgHookConfig,
-	extractor v.VarExtractor,
+	ctxFactory internal.CtxFactory,
+	configuration c.PrepareCommitMsgHookConfig,
+	compile configcompiler.Compiler,
 ) *h.HookHandler {
-	variables, err := extractor.Variables(conf.Variables)
-	if err != nil {
-		panic(err)
-	}
-
-	conf.Compile(variables)
+	compile(&configuration)
 
 	return h.NewHookHandler(
-		factory,
+		ctxFactory,
 		[]h.Action{
 			func(ctx internal.SyncContext) (bool, error) {
-				return actions.PrepareMessage(ctx, conf.Message)
+				return actions.PrepareMessage(ctx, configuration.Message)
 			},
 		},
 		NoSyncValidators,

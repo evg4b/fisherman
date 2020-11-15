@@ -16,3 +16,11 @@ func (config *CommitMsgHookConfig) Compile(variables map[string]interface{}) {
 	utils.FillTemplate(&config.MessageSuffix, variables)
 	utils.FillTemplate(&config.StaticMessage, variables)
 }
+
+func (config *CommitMsgHookConfig) GetVarsSection() Variables {
+	return config.Variables
+}
+
+func (*CommitMsgHookConfig) HasVars() bool {
+	return true
+}

@@ -2,11 +2,9 @@ package initialize_test
 
 import (
 	"fisherman/commands/initialize"
-	"fisherman/config"
 	"fisherman/constants"
-	"fisherman/internal/clicontext"
+	"fisherman/internal"
 	"fisherman/mocks"
-	"flag"
 	"os/user"
 	"path/filepath"
 	"testing"
@@ -15,35 +13,30 @@ import (
 )
 
 func TestNewCommand(t *testing.T) {
-	command := initialize.NewCommand(flag.ExitOnError)
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &user.User{})
 	assert.NotNil(t, command)
 }
 
 func TestCommand_Run_Force_Mode(t *testing.T) {
-	command := initialize.NewCommand(flag.ExitOnError)
 	cwd := "/demo/"
 
-	d := mocks.NewFileSystemMock(t).
-		WriteMock.Return(nil).
-		ExistMock.When(filepath.Join(cwd, constants.AppConfigName)).Then(true).
-		ChmodMock.Return(nil).
-		ChownMock.Return(nil)
+	command := initialize.NewCommand(
+		mocks.NewFileSystemMock(t).
+			WriteMock.Return(nil).
+			ExistMock.When(filepath.Join(cwd, constants.AppConfigName)).Then(true).
+			ChmodMock.Return(nil).
+			ChownMock.Return(nil),
+		&internal.AppInfo{Cwd: cwd},
+		&user.User{},
+	)
 
-	ctx := clicontext.CommandContext{
-		Files: d,
-		App: &clicontext.AppInfo{
-			Cwd: cwd,
-		},
-		Config: &config.HooksConfig{},
-		User:   &user.User{},
-	}
 	err := command.Init([]string{"--force"})
 	assert.NoError(t, err)
-	err = command.Run(&ctx)
+	err = command.Run()
 	assert.NoError(t, err)
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := initialize.NewCommand(flag.ExitOnError)
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &user.User{})
 	assert.Equal(t, command.Name(), "init")
 }

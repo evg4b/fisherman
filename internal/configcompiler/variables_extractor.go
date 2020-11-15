@@ -1,9 +1,9 @@
-package validation
+package configcompiler
 
 import (
 	"fisherman/config/hooks"
-	c "fisherman/constants"
-	i "fisherman/infrastructure"
+	"fisherman/constants"
+	"fisherman/infrastructure"
 
 	"github.com/imdario/mergo"
 )
@@ -11,23 +11,22 @@ import (
 type sourceLoader = func() (string, error)
 type variablesLoader = func(string) (map[string]interface{}, error)
 
-type VarExtractor interface {
-	Variables(configSection hooks.Variables) (map[string]interface{}, error)
-}
-
 type ConfigExtractor struct {
-	repository      i.Repository
+	repository      infrastructure.Repository
 	variables       map[string]interface{}
 	globalVariables map[string]interface{}
 	cwd             string
 }
 
-func NewConfigExtractor(repository i.Repository, variables map[string]interface{}, cwd string) *ConfigExtractor {
+func NewConfigExtractor(
+	repository infrastructure.Repository,
+	globalVariables map[string]interface{},
+	cwd string,
+) *ConfigExtractor {
 	return &ConfigExtractor{
 		repository:      repository,
 		cwd:             cwd,
-		globalVariables: variables,
-		variables:       nil,
+		globalVariables: globalVariables,
 	}
 }
 
@@ -39,10 +38,10 @@ func (ext *ConfigExtractor) Variables(section hooks.Variables) (map[string]inter
 		}
 
 		ext.variables = map[string]interface{}{
-			c.FishermanVersionVariable: c.Version,
-			c.CwdVariable:              ext.cwd,
-			c.UserNameVariable:         user.UserName,
-			c.EmailVariable:            user.Email,
+			constants.FishermanVersionVariable: constants.Version,
+			constants.CwdVariable:              ext.cwd,
+			constants.UserNameVariable:         user.UserName,
+			constants.EmailVariable:            user.Email,
 		}
 
 		err = mergo.Map(&ext.variables, ext.globalVariables)

@@ -15,9 +15,9 @@ import (
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
+	"fisherman/internal/configcompiler"
 	"fisherman/internal/handling"
 	"fisherman/internal/runner"
-	"fisherman/internal/validation"
 	"fisherman/utils"
 	"io"
 	"os"
@@ -53,11 +53,11 @@ func main() {
 		return internal.NewInternalContext(ctx, files, sh, repository, args, output)
 	}
 
-	extractor := validation.NewConfigExtractor(repository, conf.GlobalVariables, cwd)
+	compiler := configcompiler.NewCompiler(repository, conf.GlobalVariables, cwd)
 
 	hooksHandles := map[string]handling.Handler{
-		constants.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, extractor),
-		constants.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, extractor, sh),
+		constants.CommitMsgHook:         hooks.CommitMsg(factory, conf.Hooks.CommitMsgHook, compiler),
+		constants.PreCommitHook:         hooks.PreCommit(factory, conf.Hooks.PreCommitHook, sh, compiler),
 		constants.ApplyPatchMsgHook:     new(handling.NotSupportedHandler),
 		constants.FsMonitorWatchmanHook: new(handling.NotSupportedHandler),
 		constants.PostUpdateHook:        new(handling.NotSupportedHandler),

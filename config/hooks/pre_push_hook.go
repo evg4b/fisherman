@@ -1,6 +1,5 @@
 package hooks
 
-// PrePushHookConfig is structure to storage user configuration for pre-push hook
 type PrePushHookConfig struct {
 	Variables Variables     `yaml:"variables,omitempty"`
 	Shell     ScriptsConfig `yaml:"shell,omitempty"`
@@ -8,4 +7,12 @@ type PrePushHookConfig struct {
 
 func (config *PrePushHookConfig) Compile(variables map[string]interface{}) {
 	config.Shell.Compile(variables)
+}
+
+func (config *PrePushHookConfig) GetVarsSection() Variables {
+	return config.Variables
+}
+
+func (*PrePushHookConfig) HasVars() bool {
+	return true
 }

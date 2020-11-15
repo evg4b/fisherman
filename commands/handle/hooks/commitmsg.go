@@ -1,29 +1,29 @@
 package hooks
 
 import (
-	c "fisherman/config/hooks"
+	"fisherman/config/hooks"
 	"fisherman/internal"
-	h "fisherman/internal/handling"
-	v "fisherman/internal/validation"
+	"fisherman/internal/configcompiler"
+	"fisherman/internal/handling"
+	"fisherman/internal/validation"
 	"fisherman/validators"
 )
 
-func CommitMsg(factory internal.CtxFactory, conf c.CommitMsgHookConfig, extractor v.VarExtractor) *h.HookHandler {
-	variables, err := extractor.Variables(conf.Variables)
-	if err != nil {
-		panic(err)
-	}
+func CommitMsg(
+	ctxFactory internal.CtxFactory,
+	configuration hooks.CommitMsgHookConfig,
+	compile configcompiler.Compiler,
+) *handling.HookHandler {
+	compile(&configuration)
 
-	conf.Compile(variables)
-
-	return h.NewHookHandler(
-		factory,
+	return handling.NewHookHandler(
+		ctxFactory,
 		NoBeforeActions,
-		[]v.SyncValidator{
-			boolWrapper(validators.MessageNotEmpty, conf.NotEmpty),
-			stringWrapper(validators.MessageHasPrefix, conf.MessagePrefix),
-			stringWrapper(validators.MessageHasSuffix, conf.MessageSuffix),
-			stringWrapper(validators.MessageRegexp, conf.MessageRegexp),
+		[]validation.SyncValidator{
+			boolWrapper(validators.MessageNotEmpty, configuration.NotEmpty),
+			stringWrapper(validators.MessageHasPrefix, configuration.MessagePrefix),
+			stringWrapper(validators.MessageHasSuffix, configuration.MessageSuffix),
+			stringWrapper(validators.MessageRegexp, configuration.MessageRegexp),
 		},
 		NoAsyncValidators,
 		NoAfterActions,

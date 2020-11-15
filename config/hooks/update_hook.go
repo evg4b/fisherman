@@ -1,5 +1,13 @@
 package hooks
 
-// UpdateHookConfig is structure to storage user configuration for update hook
-type UpdateHookConfig struct {
+type UpdateHookConfig struct{}
+
+func (*UpdateHookConfig) Compile(variables map[string]interface{}) {}
+
+func (*UpdateHookConfig) GetVarsSection() Variables {
+	panic("not supported")
+}
+
+func (*UpdateHookConfig) HasVars() bool {
+	return false
 }

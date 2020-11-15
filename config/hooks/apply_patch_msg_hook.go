@@ -1,4 +1,13 @@
 package hooks
 
-type ApplyPatchMsgHookConfig struct {
+type ApplyPatchMsgHookConfig struct{}
+
+func (*ApplyPatchMsgHookConfig) Compile(variables map[string]interface{}) {}
+
+func (*ApplyPatchMsgHookConfig) GetVarsSection() Variables {
+	panic("not supported")
+}
+
+func (*ApplyPatchMsgHookConfig) HasVars() bool {
+	return false
 }

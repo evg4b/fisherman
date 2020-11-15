@@ -1,22 +1,24 @@
 package runner_test
 
 import (
-	"context"
 	"errors"
 	"fisherman/commands"
 	"fisherman/config"
-	"fisherman/infrastructure"
+	"fisherman/infrastructure/log"
+	"fisherman/internal"
 	"fisherman/mocks"
 	"fmt"
 
 	"fisherman/internal/runner"
 	"io/ioutil"
-	"log"
-	"os/user"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestRunner_Run(t *testing.T) {
 	log.SetOutput(ioutil.Discard)
@@ -77,19 +79,15 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(context.TODO(), runner.Args{
-				Commands: tt.commands,
-				Config: &config.FishermanConfig{
+			runnerInstance := runner.NewRunner(
+				tt.commands,
+				&config.FishermanConfig{
 					GlobalVariables: make(map[string]interface{}),
 				},
-				ConfigInfo: &config.LoadInfo{},
-				Cwd:        "demo",
-				Files:      mocks.NewFileSystemMock(t),
-				SystemUser: &user.User{},
-				Executable: "bin",
-				Repository: mocks.NewRepositoryMock(t).
-					GetUserMock.Return(infrastructure.User{}, nil),
-			})
+				&internal.AppInfo{
+					Cwd: "demo",
+				},
+			)
 
 			assert.NotPanics(t, func() {
 				err := runnerInstance.Run(tt.args)

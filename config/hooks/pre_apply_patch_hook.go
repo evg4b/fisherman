@@ -1,5 +1,13 @@
 package hooks
 
-// PreApplyPatchHookConfig is structure to storage user configuration for pre-apply-patch hook
-type PreApplyPatchHookConfig struct {
+type PreApplyPatchHookConfig struct{}
+
+func (*PreApplyPatchHookConfig) Compile(variables map[string]interface{}) {}
+
+func (*PreApplyPatchHookConfig) GetVarsSection() Variables {
+	panic("not supported")
+}
+
+func (*PreApplyPatchHookConfig) HasVars() bool {
+	return false
 }

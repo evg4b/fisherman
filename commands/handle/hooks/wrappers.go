@@ -4,28 +4,28 @@ import (
 	"fisherman/config/hooks"
 	"fisherman/infrastructure/shell"
 	"fisherman/internal"
-	v "fisherman/internal/validation"
+	"fisherman/internal/validation"
 	"fisherman/validators"
 )
 
-type validatorWithString = func(internal.SyncContext, string) error
+type stringF = func(internal.SyncContext, string) error
 
-func stringWrapper(validator validatorWithString, config string) v.SyncValidator {
+func stringWrapper(validator stringF, config string) validation.SyncValidator {
 	return func(ctx internal.SyncContext) error {
 		return validator(ctx, config)
 	}
 }
 
-type validatorWithBool = func(internal.SyncContext, bool) error
+type boolF = func(internal.SyncContext, bool) error
 
-func boolWrapper(validator validatorWithBool, config bool) v.SyncValidator {
+func boolWrapper(validator boolF, config bool) validation.SyncValidator {
 	return func(ctx internal.SyncContext) error {
 		return validator(ctx, config)
 	}
 }
 
-func scriptWrapper(scripts hooks.ScriptsConfig) []v.AsyncValidator {
-	var validatorList = []v.AsyncValidator{}
+func scriptWrapper(scripts hooks.ScriptsConfig) []validation.AsyncValidator {
+	var validatorList = []validation.AsyncValidator{}
 	for name, script := range scripts {
 		shellScript := shell.ScriptConfig{
 			Name:     name,
@@ -33,7 +33,7 @@ func scriptWrapper(scripts hooks.ScriptsConfig) []v.AsyncValidator {
 			Env:      script.Env,
 			Output:   true,
 		}
-		validatorList = append(validatorList, func(ctx internal.AsyncContext) v.AsyncValidationResult {
+		validatorList = append(validatorList, func(ctx internal.AsyncContext) validation.AsyncValidationResult {
 			return validators.ScriptValidator(ctx, shellScript)
 		})
 	}

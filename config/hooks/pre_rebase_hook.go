@@ -1,5 +1,13 @@
 package hooks
 
-// PreRebaseHookConfig is structure to storage user configuration for pre-rebase hook
-type PreRebaseHookConfig struct {
+type PreRebaseHookConfig struct{}
+
+func (*PreRebaseHookConfig) Compile(variables map[string]interface{}) {}
+
+func (*PreRebaseHookConfig) GetVarsSection() Variables {
+	panic("not supported")
+}
+
+func (*PreRebaseHookConfig) HasVars() bool {
+	return false
 }
