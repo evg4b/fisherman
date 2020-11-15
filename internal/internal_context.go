@@ -14,7 +14,7 @@ type Context struct {
 	args                []string
 	output              io.Writer
 	baseContext         context.Context
-	cancelCaseContext   context.CancelFunc
+	cancelBaseContext   context.CancelFunc
 	commitmessageLoaded bool
 	commitMessage       string
 }
@@ -31,7 +31,7 @@ func NewInternalContext(
 
 	return &Context{
 		baseContext:       baseContext,
-		cancelCaseContext: cancel,
+		cancelBaseContext: cancel,
 		fileSystem:        fileSystem,
 		shell:             sysShell,
 		args:              args,
@@ -61,7 +61,7 @@ func (ctx *Context) Output() io.Writer {
 }
 
 func (ctx *Context) Stop() {
-	ctx.cancelCaseContext()
+	ctx.cancelBaseContext()
 }
 
 func (ctx *Context) Deadline() (deadline time.Time, ok bool) {
@@ -81,17 +81,15 @@ func (ctx *Context) Value(key interface{}) interface{} {
 }
 
 func (ctx *Context) Message() string {
-	if ctx.commitmessageLoaded {
-		return ctx.commitMessage
+	if !ctx.commitmessageLoaded {
+		message, err := ctx.fileSystem.Read(ctx.args[0])
+		if err != nil {
+			panic(err)
+		}
+
+		ctx.commitMessage = message
+		ctx.commitmessageLoaded = true
 	}
 
-	message, err := ctx.fileSystem.Read(ctx.args[0])
-	if err != nil {
-		panic(err)
-	}
-
-	ctx.commitMessage = message
-	ctx.commitmessageLoaded = true
-
-	return message
+	return ctx.commitMessage
 }
