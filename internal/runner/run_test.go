@@ -3,7 +3,6 @@ package runner_test
 import (
 	"errors"
 	"fisherman/commands"
-	"fisherman/config"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/mocks"
@@ -81,9 +80,6 @@ func TestRunner_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			runnerInstance := runner.NewRunner(
 				tt.commands,
-				&config.FishermanConfig{
-					GlobalVariables: make(map[string]interface{}),
-				},
 				&internal.AppInfo{
 					Cwd: "demo",
 				},
