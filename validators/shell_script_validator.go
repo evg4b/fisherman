@@ -6,7 +6,7 @@ import (
 	"fisherman/internal/validation"
 )
 
-func ScriptValidator(ctx internal.AsyncContext, script shell.ScriptConfig) validation.AsyncValidationResult {
+func ScriptValidator(ctx internal.AsyncContext, script shell.ShScriptConfig) validation.AsyncValidationResult {
 	sh := ctx.Shell()
 	result := sh.Exec(ctx, script)
 

@@ -12,7 +12,7 @@ import (
 )
 
 func TestScriptValidator(t *testing.T) {
-	script := shell.ScriptConfig{
+	script := shell.ShScriptConfig{
 		Name:     "test",
 		Commands: []string{"command1", "command2"},
 		Env: map[string]string{
@@ -29,7 +29,7 @@ func TestScriptValidator(t *testing.T) {
 		Time:     time.Hour,
 	}
 
-	sh := mocks.NewShellMock(t).ExecMock.Inspect(func(ctx context.Context, shScript shell.ScriptConfig) {
+	sh := mocks.NewShellMock(t).ExecMock.Inspect(func(ctx context.Context, shScript shell.ShScriptConfig) {
 		assert.NotNil(t, ctx)
 		assert.Equal(t, script.Name, shScript.Name)
 		assert.EqualValues(t, script.Commands, shScript.Commands)

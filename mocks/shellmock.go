@@ -18,8 +18,8 @@ import (
 type ShellMock struct {
 	t minimock.Tester
 
-	funcExec          func(ctx context.Context, script shell.ScriptConfig) (e1 shell.ExecResult)
-	inspectFuncExec   func(ctx context.Context, script shell.ScriptConfig)
+	funcExec          func(ctx context.Context, script shell.ShScriptConfig) (e1 shell.ExecResult)
+	inspectFuncExec   func(ctx context.Context, script shell.ShScriptConfig)
 	afterExecCounter  uint64
 	beforeExecCounter uint64
 	ExecMock          mShellMockExec
@@ -58,7 +58,7 @@ type ShellMockExecExpectation struct {
 // ShellMockExecParams contains parameters of the Shell.Exec
 type ShellMockExecParams struct {
 	ctx    context.Context
-	script shell.ScriptConfig
+	script shell.ShScriptConfig
 }
 
 // ShellMockExecResults contains results of the Shell.Exec
@@ -67,7 +67,7 @@ type ShellMockExecResults struct {
 }
 
 // Expect sets up expected params for Shell.Exec
-func (mmExec *mShellMockExec) Expect(ctx context.Context, script shell.ScriptConfig) *mShellMockExec {
+func (mmExec *mShellMockExec) Expect(ctx context.Context, script shell.ShScriptConfig) *mShellMockExec {
 	if mmExec.mock.funcExec != nil {
 		mmExec.mock.t.Fatalf("ShellMock.Exec mock is already set by Set")
 	}
@@ -87,7 +87,7 @@ func (mmExec *mShellMockExec) Expect(ctx context.Context, script shell.ScriptCon
 }
 
 // Inspect accepts an inspector function that has same arguments as the Shell.Exec
-func (mmExec *mShellMockExec) Inspect(f func(ctx context.Context, script shell.ScriptConfig)) *mShellMockExec {
+func (mmExec *mShellMockExec) Inspect(f func(ctx context.Context, script shell.ShScriptConfig)) *mShellMockExec {
 	if mmExec.mock.inspectFuncExec != nil {
 		mmExec.mock.t.Fatalf("Inspect function is already set for ShellMock.Exec")
 	}
@@ -111,7 +111,7 @@ func (mmExec *mShellMockExec) Return(e1 shell.ExecResult) *ShellMock {
 }
 
 //Set uses given function f to mock the Shell.Exec method
-func (mmExec *mShellMockExec) Set(f func(ctx context.Context, script shell.ScriptConfig) (e1 shell.ExecResult)) *ShellMock {
+func (mmExec *mShellMockExec) Set(f func(ctx context.Context, script shell.ShScriptConfig) (e1 shell.ExecResult)) *ShellMock {
 	if mmExec.defaultExpectation != nil {
 		mmExec.mock.t.Fatalf("Default expectation is already set for the Shell.Exec method")
 	}
@@ -126,7 +126,7 @@ func (mmExec *mShellMockExec) Set(f func(ctx context.Context, script shell.Scrip
 
 // When sets expectation for the Shell.Exec which will trigger the result defined by the following
 // Then helper
-func (mmExec *mShellMockExec) When(ctx context.Context, script shell.ScriptConfig) *ShellMockExecExpectation {
+func (mmExec *mShellMockExec) When(ctx context.Context, script shell.ShScriptConfig) *ShellMockExecExpectation {
 	if mmExec.mock.funcExec != nil {
 		mmExec.mock.t.Fatalf("ShellMock.Exec mock is already set by Set")
 	}
@@ -146,7 +146,7 @@ func (e *ShellMockExecExpectation) Then(e1 shell.ExecResult) *ShellMock {
 }
 
 // Exec implements infrastructure.Shell
-func (mmExec *ShellMock) Exec(ctx context.Context, script shell.ScriptConfig) (e1 shell.ExecResult) {
+func (mmExec *ShellMock) Exec(ctx context.Context, script shell.ShScriptConfig) (e1 shell.ExecResult) {
 	mm_atomic.AddUint64(&mmExec.beforeExecCounter, 1)
 	defer mm_atomic.AddUint64(&mmExec.afterExecCounter, 1)
 

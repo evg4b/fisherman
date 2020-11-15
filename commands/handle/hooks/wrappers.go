@@ -27,11 +27,12 @@ func boolWrapper(validator boolF, config bool) validation.SyncValidator {
 func scriptWrapper(scripts hooks.ScriptsConfig) []validation.AsyncValidator {
 	var validatorList = []validation.AsyncValidator{}
 	for name, script := range scripts {
-		shellScript := shell.ScriptConfig{
+		shellScript := shell.ShScriptConfig{
 			Name:     name,
 			Commands: script.Commands,
 			Env:      script.Env,
 			Output:   true,
+			Dir:      script.Dir,
 		}
 		validatorList = append(validatorList, func(ctx internal.AsyncContext) validation.AsyncValidationResult {
 			return validators.ScriptValidator(ctx, shellScript)

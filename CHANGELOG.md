@@ -4,6 +4,7 @@
 
 ## Implemented :
   - Added `add-to-index` section for include files in index after scripts
+  - Added property to configure working directory for shell scripts
 
 ## [0.0.1-alpha.2 - [13 Nov 2020]](https://github.com/evg4b/fisherman/releases/tag/0.0.1-alpha.2)
 

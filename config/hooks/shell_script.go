@@ -9,6 +9,7 @@ import (
 type ScriptConfig struct {
 	Commands []string          `yaml:"commands,omitempty"`
 	Env      map[string]string `yaml:"env,omitempty"`
+	Dir      string            `yaml:"dir,omitempty"`
 	Output   bool              `yaml:"output,omitempty"`
 }
 

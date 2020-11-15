@@ -65,7 +65,7 @@ func Test_scriptWrapper(t *testing.T) {
 	}
 
 	sh := mocks.NewShellMock(t).
-		ExecMock.Inspect(func(actualCtx context.Context, actualScript shell.ScriptConfig) {
+		ExecMock.Inspect(func(actualCtx context.Context, actualScript shell.ShScriptConfig) {
 		assert.Equal(t, ctx, actualCtx)
 		assert.Equal(t, scriptName, actualScript.Name)
 		assert.ObjectsAreEqual(script, actualScript)

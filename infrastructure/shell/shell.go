@@ -11,11 +11,12 @@ import (
 	"github.com/egymgmbh/go-prefix-writer/prefixer"
 )
 
-type ScriptConfig struct {
+type ShScriptConfig struct {
 	Name     string
-	Commands []string          `yaml:"commands,omitempty"`
-	Env      map[string]string `yaml:"env,omitempty"`
-	Output   bool              `yaml:"output,omitempty"`
+	Commands []string
+	Env      map[string]string
+	Output   bool
+	Dir      string
 }
 
 type SystemShell struct {
@@ -23,12 +24,10 @@ type SystemShell struct {
 }
 
 func NewShell(output io.Writer) *SystemShell {
-	return &SystemShell{
-		output: output,
-	}
+	return &SystemShell{output}
 }
 
-func (sh *SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult {
+func (sh *SystemShell) Exec(ctx context.Context, script ShScriptConfig) ExecResult {
 	envList := os.Environ()
 	for key, value := range script.Env {
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
@@ -44,6 +43,10 @@ func (sh *SystemShell) Exec(ctx context.Context, script ScriptConfig) ExecResult
 	}
 
 	command.Env = envList
+	if utils.IsNotEmpty(script.Dir) {
+		command.Dir = script.Dir
+	}
+
 	if script.Output {
 		prefix := fmt.Sprintf("%s |", script.Name)
 		output := prefixer.New(sh.output, func() string {

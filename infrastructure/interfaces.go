@@ -31,5 +31,5 @@ type FileSystem interface {
 }
 
 type Shell interface {
-	Exec(ctx context.Context, script shell.ScriptConfig) shell.ExecResult
+	Exec(ctx context.Context, script shell.ShScriptConfig) shell.ExecResult
 }
