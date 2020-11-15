@@ -14,7 +14,7 @@ func PrepareCommitMsg(
 	compile configcompiler.Compiler,
 ) HandlerRegistration {
 	if configuration.IsEmpty() {
-		return NotResigter
+		return NotRegistered
 	}
 
 	compile(&configuration)

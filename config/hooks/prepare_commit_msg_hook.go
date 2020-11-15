@@ -20,5 +20,5 @@ func (*PrepareCommitMsgHookConfig) HasVars() bool {
 }
 
 func (config *PrepareCommitMsgHookConfig) IsEmpty() bool {
-	return config == &PrepareCommitMsgHookConfig{}
+	return (*config) == PrepareCommitMsgHookConfig{}
 }

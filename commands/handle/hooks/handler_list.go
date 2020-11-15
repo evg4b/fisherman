@@ -11,7 +11,7 @@ type HandlerRegistration struct {
 	Handler    handling.Handler
 }
 
-var NotResigter HandlerRegistration = HandlerRegistration{Registered: false}
+var NotRegistered HandlerRegistration = HandlerRegistration{Registered: false}
 
 var NotSupported HandlerRegistration = HandlerRegistration{
 	Registered: true,
