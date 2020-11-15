@@ -2,7 +2,7 @@ package config
 
 import (
 	"fisherman/constants"
-	inf "fisherman/infrastructure"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 	"os/user"
 	"path/filepath"
@@ -19,7 +19,7 @@ type LoadInfo struct {
 	LocalConfigPath  string
 }
 
-func Load(cwd string, usr *user.User, files inf.FileSystem) (*FishermanConfig, *LoadInfo, error) {
+func Load(cwd string, usr *user.User, files infrastructure.FileSystem) (*FishermanConfig, *LoadInfo, error) {
 	config := FishermanConfig{
 		Output: log.DefaultOutputConfig,
 	}
@@ -51,7 +51,7 @@ func Load(cwd string, usr *user.User, files inf.FileSystem) (*FishermanConfig, *
 	}, nil
 }
 
-func unmarshlFile(path string, files inf.FileSystem) (*FishermanConfig, error) {
+func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfig, error) {
 	var config FishermanConfig
 	reader, err := files.Reader(path)
 	if err != nil {
@@ -68,7 +68,7 @@ func unmarshlFile(path string, files inf.FileSystem) (*FishermanConfig, error) {
 	return &config, nil
 }
 
-func checkFile(path string, files inf.FileSystem) string {
+func checkFile(path string, files infrastructure.FileSystem) string {
 	if files.Exist(path) {
 		return path
 	}

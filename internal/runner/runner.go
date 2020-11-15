@@ -13,9 +13,5 @@ type Runner struct {
 }
 
 func NewRunner(commands []commands.CliCommand, config *config.FishermanConfig, app *internal.AppInfo) *Runner {
-	return &Runner{
-		commands: commands,
-		config:   config,
-		app:      app,
-	}
+	return &Runner{commands, config, app}
 }

@@ -16,12 +16,12 @@ type Variables struct {
 	FromLastTag string `yaml:"from-last-tag,omitempty"`
 }
 
-func (c *Variables) GetFromBranch(branchName string) (map[string]interface{}, error) {
-	return ejectFromString(branchName, c.FromBranch)
+func (config *Variables) GetFromBranch(branchName string) (map[string]interface{}, error) {
+	return ejectFromString(branchName, config.FromBranch)
 }
 
-func (c *Variables) GetFromTag(tag string) (map[string]interface{}, error) {
-	return ejectFromString(tag, c.FromLastTag)
+func (config *Variables) GetFromTag(tag string) (map[string]interface{}, error) {
+	return ejectFromString(tag, config.FromLastTag)
 }
 
 func ejectFromString(tag, expressionString string) (map[string]interface{}, error) {

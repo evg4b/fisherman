@@ -1,11 +1,11 @@
 package hooks
 
 import (
-	h "fisherman/internal/handling"
-	v "fisherman/internal/validation"
+	"fisherman/internal/handling"
+	"fisherman/internal/validation"
 )
 
-var NoSyncValidators = []v.SyncValidator{}
-var NoAsyncValidators = []v.AsyncValidator{}
-var NoBeforeActions = []h.Action{}
-var NoAfterActions = []h.Action{}
+var NoSyncValidators = []validation.SyncValidator{}
+var NoAsyncValidators = []validation.AsyncValidator{}
+var NoBeforeActions = []handling.Action{}
+var NoAfterActions = []handling.Action{}

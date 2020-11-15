@@ -29,23 +29,23 @@ func NewCommand(files i.FileSystem, app *internal.AppInfo, user *user.User) *Com
 	}
 }
 
-func (c *Command) Init(args []string) error {
-	return c.flagSet.Parse(args)
+func (command *Command) Init(args []string) error {
+	return command.flagSet.Parse(args)
 }
 
-func (c *Command) Run() error {
+func (command *Command) Run() error {
 	filesToDelete := []string{
-		config.BuildFileConfigPath(c.app.Cwd, c.user, config.RepoMode),
-		config.BuildFileConfigPath(c.app.Cwd, c.user, config.LocalMode),
+		config.BuildFileConfigPath(command.app.Cwd, command.user, config.RepoMode),
+		config.BuildFileConfigPath(command.app.Cwd, command.user, config.LocalMode),
 	}
 
 	for _, hookName := range constants.HooksNames {
-		filesToDelete = append(filesToDelete, filepath.Join(c.app.Cwd, ".git", "hooks", hookName))
+		filesToDelete = append(filesToDelete, filepath.Join(command.app.Cwd, ".git", "hooks", hookName))
 	}
 
 	for _, hookPath := range filesToDelete {
-		if c.files.Exist(hookPath) {
-			err := c.files.Delete(hookPath)
+		if command.files.Exist(hookPath) {
+			err := command.files.Delete(hookPath)
 			if err != nil {
 				return err
 			}
@@ -57,10 +57,10 @@ func (c *Command) Run() error {
 	return nil
 }
 
-func (c *Command) Name() string {
-	return c.flagSet.Name()
+func (command *Command) Name() string {
+	return command.flagSet.Name()
 }
 
-func (c *Command) Description() string {
-	return c.usage
+func (command *Command) Description() string {
+	return command.usage
 }

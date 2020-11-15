@@ -22,7 +22,7 @@ type Context struct {
 func NewInternalContext(
 	ctx context.Context,
 	fileSystem infrastructure.FileSystem,
-	shell infrastructure.Shell,
+	sysShell infrastructure.Shell,
 	repository infrastructure.Repository,
 	args []string,
 	output io.Writer,
@@ -33,7 +33,7 @@ func NewInternalContext(
 		baseContext:       baseContext,
 		cancelCaseContext: cancel,
 		fileSystem:        fileSystem,
-		shell:             shell,
+		shell:             sysShell,
 		args:              args,
 		output:            output,
 		repository:        repository,

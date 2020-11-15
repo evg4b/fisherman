@@ -9,8 +9,7 @@ import (
 	"strconv"
 )
 
-type LocalFileSystem struct {
-}
+type LocalFileSystem struct{}
 
 func NewLocalFileSystem() *LocalFileSystem {
 	return &LocalFileSystem{}

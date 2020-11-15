@@ -17,23 +17,23 @@ type Command struct {
 }
 
 func NewCommand(handlers map[string]handling.Handler, config *config.HooksConfig, app *internal.AppInfo) *Command {
-	flagSet := flag.NewFlagSet("handle", flag.ExitOnError)
 	command := &Command{
-		flagSet:  flagSet,
+		flagSet:  flag.NewFlagSet("handle", flag.ExitOnError),
 		handlers: handlers,
 		usage:    "starts hook processing based on the config file (for debugging only)",
 		config:   config,
 		app:      app,
 	}
-	flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
+
+	command.flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 
 	return command
 }
 
-func (c *Command) Name() string {
-	return c.flagSet.Name()
+func (command *Command) Name() string {
+	return command.flagSet.Name()
 }
 
-func (c *Command) Description() string {
-	return c.usage
+func (command *Command) Description() string {
+	return command.usage
 }

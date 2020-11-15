@@ -19,20 +19,20 @@ func NewCommand() *Command {
 	}
 }
 
-func (c *Command) Init(args []string) error {
-	return c.flagSet.Parse(args)
+func (command *Command) Init(args []string) error {
+	return command.flagSet.Parse(args)
 }
 
-func (c *Command) Run() error {
+func (command *Command) Run() error {
 	_, err := fmt.Fprintln(log.Stdout(), constants.Version)
 
 	return err
 }
 
-func (c *Command) Name() string {
-	return c.flagSet.Name()
+func (command *Command) Name() string {
+	return command.flagSet.Name()
 }
 
-func (c *Command) Description() string {
-	return c.usage
+func (command *Command) Description() string {
+	return command.usage
 }

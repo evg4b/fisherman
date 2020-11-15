@@ -1,32 +1,32 @@
 package handling
 
 import (
-	c "fisherman/config"
+	"fisherman/config"
 	"fisherman/infrastructure/log"
-	i "fisherman/internal"
-	v "fisherman/internal/validation"
+	"fisherman/internal"
+	"fisherman/internal/validation"
 )
 
 type Handler interface {
-	IsConfigured(config *c.HooksConfig) bool
+	IsConfigured(*config.HooksConfig) bool
 	Handle(args []string) error
 }
 
-type Action = func(i.SyncContext) (bool, error)
+type Action = func(internal.SyncContext) (bool, error)
 
 type HookHandler struct {
-	contextFactory  i.CtxFactory
+	contextFactory  internal.CtxFactory
 	beforeActions   []Action
-	syncValidators  []v.SyncValidator
-	asyncValidators []v.AsyncValidator
+	syncValidators  []validation.SyncValidator
+	asyncValidators []validation.AsyncValidator
 	afterActions    []Action
 }
 
 func NewHookHandler(
-	contextFactory i.CtxFactory,
+	contextFactory internal.CtxFactory,
 	beforeActions []Action,
-	syncValidators []v.SyncValidator,
-	asyncValidators []v.AsyncValidator,
+	syncValidators []validation.SyncValidator,
+	asyncValidators []validation.AsyncValidator,
 	afterActions []Action,
 ) *HookHandler {
 	return &HookHandler{
@@ -45,12 +45,12 @@ func (h *HookHandler) Handle(args []string) error {
 		return err
 	}
 
-	err = v.RunSync(ctx, h.syncValidators)
+	err = validation.RunSync(ctx, h.syncValidators)
 	if err != nil {
 		return err
 	}
 
-	err = v.RunAsync(ctx, h.asyncValidators)
+	err = validation.RunAsync(ctx, h.asyncValidators)
 	if err != nil {
 		return err
 	}
@@ -60,11 +60,11 @@ func (h *HookHandler) Handle(args []string) error {
 	return err
 }
 
-func (h *HookHandler) IsConfigured(config *c.HooksConfig) bool {
+func (h *HookHandler) IsConfigured(configuration *config.HooksConfig) bool {
 	return true
 }
 
-func RunActions(ctx i.SyncContext, actions []Action) (bool, error) {
+func RunActions(ctx internal.SyncContext, actions []Action) (bool, error) {
 	for _, action := range actions {
 		next, err := action(ctx)
 		if err != nil || !next {

@@ -5,19 +5,16 @@ import (
 	"strings"
 )
 
-// OutputConfig is structure to configure logger
 type OutputConfig struct {
 	LogLevel Level `yaml:"level"`
 	Colors   bool  `yaml:"colors"`
 }
 
-// DefaultOutputConfig is default values for configuration
 var DefaultOutputConfig = OutputConfig{
 	LogLevel: InfoLevel,
 	Colors:   true,
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler interface
 func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	(*c) = DefaultOutputConfig
 

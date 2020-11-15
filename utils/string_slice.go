@@ -1,6 +1,5 @@
 package utils
 
-// Filter filters string slice by predicate
 func Filter(slice []string, predicate func(string) bool) []string {
 	resultSlice := []string{}
 

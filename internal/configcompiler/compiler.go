@@ -13,8 +13,8 @@ type CompilableConfig interface {
 	HasVars() bool
 }
 
-func NewCompiler(repository infrastructure.Repository, globalVariables map[string]interface{}, cwd string) Compiler {
-	extractor := NewConfigExtractor(repository, globalVariables, cwd)
+func NewCompiler(repository infrastructure.Repository, globalVars map[string]interface{}, cwd string) Compiler {
+	extractor := NewConfigExtractor(repository, globalVars, cwd)
 
 	return func(config CompilableConfig) {
 		variables, err := extractor.Variables(config.GetVarsSection())

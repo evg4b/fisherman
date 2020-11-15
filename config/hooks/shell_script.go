@@ -16,7 +16,6 @@ type ScriptsConfig map[string]ScriptConfig
 
 const defaultKey = "default"
 
-// UnmarshalYAML implements yaml.Unmarshaler interface
 func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if *config == nil {
 		(*config) = ScriptsConfig{}
@@ -70,7 +69,6 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 	return err
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler interface
 func (config *ScriptConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var outputConfig string
 	err := unmarshal(&outputConfig)

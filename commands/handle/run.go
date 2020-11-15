@@ -8,29 +8,29 @@ import (
 	"strings"
 )
 
-func (c *Command) Init(args []string) error {
-	return c.flagSet.Parse(args)
+func (command *Command) Init(args []string) error {
+	return command.flagSet.Parse(args)
 }
 
-func (c *Command) Run() error {
-	if hookHandler, ok := c.handlers[strings.ToLower(c.hook)]; ok {
-		if hookHandler.IsConfigured(c.config) {
-			log.Debugf("handler for '%s' hook founded", c.hook)
+func (command *Command) Run() error {
+	if hookHandler, ok := command.handlers[strings.ToLower(command.hook)]; ok {
+		if hookHandler.IsConfigured(command.config) {
+			log.Debugf("handler for '%s' hook founded", command.hook)
 			utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
-				constants.HookName:                 c.hook,
-				constants.GlobalConfigPath:         utils.OriginalOrNA(c.app.GlobalConfigPath),
-				constants.LocalConfigPath:          utils.OriginalOrNA(c.app.LocalConfigPath),
-				constants.RepoConfigPath:           utils.OriginalOrNA(c.app.RepoConfigPath),
+				constants.HookName:                 command.hook,
+				constants.GlobalConfigPath:         utils.OriginalOrNA(command.app.GlobalConfigPath),
+				constants.LocalConfigPath:          utils.OriginalOrNA(command.app.LocalConfigPath),
+				constants.RepoConfigPath:           utils.OriginalOrNA(command.app.RepoConfigPath),
 				constants.FishermanVersionVariable: constants.Version,
 			})
 
-			return hookHandler.Handle(c.flagSet.Args())
+			return hookHandler.Handle(command.flagSet.Args())
 		}
 
-		log.Debugf("hook %s not presented", c.hook)
+		log.Debugf("hook %s not presented", command.hook)
 
 		return nil
 	}
 
-	return fmt.Errorf("'%s' is not valid hook name", c.hook)
+	return fmt.Errorf("'%s' is not valid hook name", command.hook)
 }
