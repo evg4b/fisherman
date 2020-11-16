@@ -1,21 +1,13 @@
 package shell
 
-import (
-	"context"
-	"os/exec"
-	"strings"
+const LineBreak = "\n"
+
+const (
+	Bash = "bash"
 )
 
-const LineBreak = "\n"
-const PathVariableSeparator = ":"
+var DefaultShell = Bash
 
-func CommandFactory(ctx context.Context, commands []string) (*exec.Cmd, error) {
-	bash, err := exec.LookPath("bash")
-	if err != nil {
-		return nil, err
-	}
-
-	command := strings.Join(commands, LineBreak)
-
-	return exec.CommandContext(ctx, bash, "-c", command), nil
+var ArgumentBuilders = map[string]ArgumentBuilder{
+	Bash: func() []string { return []string{"-i"} },
 }

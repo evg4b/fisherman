@@ -1,20 +1,17 @@
 package shell
 
-import (
-	"context"
-	"os/exec"
-	"strings"
+const LineBreak = "\r\n"
+
+const (
+	PowerShell = "powershell"
+	Cmd        = "cmd"
 )
 
-const LineBreak = "\r\n"
-const PathVariableSeparator = ";"
+var DefaultShell = Cmd
 
-func CommandFactory(ctx context.Context, commands []string) (*exec.Cmd, error) {
-	powerShell, err := exec.LookPath("powershell")
-	if err != nil {
-		return nil, err
-	}
-	command := strings.Join(commands, LineBreak)
-
-	return exec.CommandContext(ctx, powerShell, "-NoProfile", "-NonInteractive", "-NoLogo", command), nil
+var ArgumentBuilders = map[string]ArgumentBuilder{
+	PowerShell: func() []string {
+		return []string{"-NoProfile", "-NonInteractive", "-NoLogo"}
+	},
+	Cmd: func() []string { return []string{"/Q", "/D"} },
 }

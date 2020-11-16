@@ -7,14 +7,13 @@ import (
 )
 
 type ExecResult struct {
-	Name     string
-	ExitCode int
-	Error    error
-	Time     time.Duration
+	Name  string
+	Error error
+	Time  time.Duration
 }
 
 func (r *ExecResult) IsSuccessful() bool {
-	return r.Error == nil && r.ExitCode == 0
+	return r.Error == nil
 }
 
 func (r *ExecResult) IsCanceled() bool {

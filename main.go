@@ -44,7 +44,7 @@ func main() {
 
 	ctx := context.Background()
 	fileSystem := filesystem.NewLocalFileSystem()
-	sysShell := shell.NewShell(os.Stdout)
+	sysShell := shell.NewShell(os.Stdout, cwd)
 	repository := vcs.NewGitRepository(cwd)
 	compiler := configcompiler.NewCompiler(repository, configuration.GlobalVariables, cwd)
 

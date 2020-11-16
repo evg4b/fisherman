@@ -17,3 +17,11 @@ func OriginalOrNA(path string) string {
 
 	return path
 }
+
+func GetOrDefault(value string, defaultValue string) string {
+	if IsNotEmpty(value) {
+		return value
+	}
+
+	return defaultValue
+}

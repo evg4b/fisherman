@@ -23,13 +23,14 @@ func TestScriptValidator(t *testing.T) {
 	}
 
 	expectedResult := shell.ExecResult{
-		Name:     "test",
-		Error:    nil,
-		ExitCode: 9,
-		Time:     time.Hour,
+		Name:  "test",
+		Error: nil,
+		Time:  time.Hour,
 	}
 
-	sh := mocks.NewShellMock(t).ExecMock.Inspect(func(ctx context.Context, shScript shell.ShScriptConfig) {
+	sh := mocks.NewShellMock(t).
+		ExecMock.Inspect(func(ctx context.Context, shellName string, shScript shell.ShScriptConfig) {
+		assert.Equal(t, shell.DefaultShell, shellName)
 		assert.NotNil(t, ctx)
 		assert.Equal(t, script.Name, shScript.Name)
 		assert.EqualValues(t, script.Commands, shScript.Commands)
@@ -40,7 +41,7 @@ func TestScriptValidator(t *testing.T) {
 	ctx := mocks.NewAsyncContextMock(t).
 		ShellMock.Return(sh)
 
-	result := validators.ScriptValidator(ctx, script)
+	result := validators.ScriptValidator(ctx, shell.DefaultShell, script)
 
 	assert.Equal(t, expectedResult.Name, result.Name)
 	assert.Equal(t, expectedResult.Error, result.Error)

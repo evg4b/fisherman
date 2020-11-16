@@ -56,6 +56,7 @@ func Test_scriptWrapper(t *testing.T) {
 			"var": "value",
 		},
 		Output: true,
+		Shell:  "test",
 	}
 
 	result := shell.ExecResult{
@@ -65,8 +66,9 @@ func Test_scriptWrapper(t *testing.T) {
 	}
 
 	sh := mocks.NewShellMock(t).
-		ExecMock.Inspect(func(actualCtx context.Context, actualScript shell.ShScriptConfig) {
+		ExecMock.Inspect(func(actualCtx context.Context, bin string, actualScript shell.ShScriptConfig) {
 		assert.Equal(t, ctx, actualCtx)
+		assert.Equal(t, "test", bin)
 		assert.Equal(t, scriptName, actualScript.Name)
 		assert.ObjectsAreEqual(script, actualScript)
 	}).Return(result)
