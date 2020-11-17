@@ -32,7 +32,8 @@ hooks:
       darwin:
         script2: command1 arg1 arg2
     add-to-index:
-      - mocks/*
+      globs: ['*.txt', go.sum]
+      optional: true
   pre-push:
     variables:
       from-branch: 'regexp'

@@ -64,11 +64,7 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 	}
 
 	type plain ScriptsConfig
-	if err := unmarshal((*plain)(config)); err == nil {
-		return nil
-	}
-
-	return err
+	return unmarshal((*plain)(config))
 }
 
 func (config *ScriptConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {

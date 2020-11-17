@@ -1,13 +1,22 @@
 package actions
 
-import "fisherman/internal"
+import (
+	"errors"
+	"fisherman/internal"
 
-func AddToIndex(ctx internal.SyncContext, globs []string) (bool, error) {
+	"github.com/go-git/go-git/v5"
+)
+
+func AddToIndex(ctx internal.SyncContext, globs []string, optional bool) (bool, error) {
 	if len(globs) > 0 {
 		repo := ctx.Repository()
 		for _, glob := range globs {
 			err := repo.AddGlob(glob)
 			if err != nil {
+				if optional && errors.Is(err, git.ErrGlobNoMatches) {
+					return true, nil
+				}
+
 				return false, err
 			}
 		}

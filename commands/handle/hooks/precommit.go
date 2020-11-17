@@ -28,7 +28,9 @@ func PreCommit(
 		scriptWrapper(configuration.Shell),
 		[]handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
-				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
+				index := configuration.AddFilesToIndex
+
+				return actions.AddToIndex(ctx, index.Globs, index.Optional)
 			},
 		},
 	)
