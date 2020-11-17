@@ -25,9 +25,10 @@ func TestSystemShell_Exec(t *testing.T) {
 			env:      map[string]string{"demo": "demo"},
 		},
 		{
-			name:     "should return 1,2",
-			commands: []string{"demo"},
+			name:     "should fail",
+			commands: []string{"exit 10"},
 			env:      map[string]string{"demo": "demo"},
+			hasError: true,
 		},
 	}
 	for _, tt := range tests {
