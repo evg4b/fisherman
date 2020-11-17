@@ -85,5 +85,4 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 			}
 		})
 	}
-
 }
