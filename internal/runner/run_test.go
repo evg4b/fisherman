@@ -3,25 +3,17 @@ package runner_test
 import (
 	"errors"
 	"fisherman/commands"
-	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/mocks"
 	"fmt"
 
 	"fisherman/internal/runner"
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
-
 func TestRunner_Run(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
-
 	tests := []struct {
 		name          string
 		args          []string
