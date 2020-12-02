@@ -3,9 +3,9 @@ package handle_test
 import (
 	"errors"
 	"fisherman/commands/handle"
-	"fisherman/commands/handle/hooks"
 	"fisherman/config"
 	"fisherman/internal"
+	hooks "fisherman/internal/hookfactory"
 	"fisherman/mocks"
 	"testing"
 

@@ -2,9 +2,9 @@ package handle_test
 
 import (
 	"fisherman/commands/handle"
-	"fisherman/commands/handle/hooks"
 	"fisherman/config"
 	"fisherman/internal"
+	"fisherman/internal/hookfactory"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +12,7 @@ import (
 
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
-		hooks.HandlerList{},
+		hookfactory.HandlerList{},
 		&config.HooksConfig{},
 		&internal.AppInfo{},
 	)
@@ -22,7 +22,7 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
-		hooks.HandlerList{},
+		hookfactory.HandlerList{},
 		&config.HooksConfig{},
 		&internal.AppInfo{},
 	)

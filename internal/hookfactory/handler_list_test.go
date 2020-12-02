@@ -1,8 +1,8 @@
-package hooks_test
+package hookfactory_test
 
 import (
 	"errors"
-	"fisherman/commands/handle/hooks"
+	"fisherman/internal/hookfactory"
 	"fisherman/mocks"
 	"testing"
 
@@ -10,9 +10,9 @@ import (
 )
 
 func TestHandlerList_Get(t *testing.T) {
-	handlers := hooks.HandlerList{
-		"handler-1": hooks.NotRegistered,
-		"handler-2": hooks.HandlerRegistration{
+	handlers := hookfactory.HandlerList{
+		"handler-1": hookfactory.NotRegistered,
+		"handler-2": hookfactory.HandlerRegistration{
 			Handler:    mocks.NewHandlerMock(t),
 			Registered: true,
 		},

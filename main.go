@@ -4,18 +4,18 @@ import (
 	"context"
 	"fisherman/commands"
 	"fisherman/commands/handle"
-	"fisherman/commands/handle/hooks"
 	"fisherman/commands/initialize"
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/config"
-	"fisherman/constants"
+	. "fisherman/constants" // nolint
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
 	"fisherman/internal/configcompiler"
+	"fisherman/internal/hookfactory"
 	"fisherman/internal/runner"
 	"fisherman/utils"
 	"io"
@@ -48,40 +48,22 @@ func main() {
 	repository := vcs.NewGitRepository(cwd)
 	compiler := configcompiler.NewCompiler(repository, configuration.GlobalVariables, cwd)
 
-	factory := func(args []string, output io.Writer) *internal.Context {
+	hookFactory := hookfactory.NewFactory(func(args []string, output io.Writer) *internal.Context {
 		return internal.NewInternalContext(ctx, fileSystem, sysShell, repository, args, output)
-	}
+	}, compiler)
 
-	hooksHandles := hooks.HandlerList{
-		constants.CommitMsgHook: hooks.CommitMsg(
-			factory,
-			configuration.Hooks.CommitMsgHook,
-			compiler,
-		),
-		constants.PreCommitHook: hooks.PreCommit(
-			factory,
-			configuration.Hooks.PreCommitHook,
-			sysShell,
-			compiler,
-		),
-		constants.PrePushHook: hooks.PrePush(
-			factory,
-			configuration.Hooks.PrePushHook,
-			sysShell,
-			compiler,
-		),
-		constants.PrepareCommitMsgHook: hooks.PrepareCommitMsg(
-			factory,
-			configuration.Hooks.PrepareCommitMsgHook,
-			compiler,
-		),
-		constants.ApplyPatchMsgHook:     hooks.NotSupported,
-		constants.FsMonitorWatchmanHook: hooks.NotSupported,
-		constants.PostUpdateHook:        hooks.NotSupported,
-		constants.PreApplyPatchHook:     hooks.NotSupported,
-		constants.PreRebaseHook:         hooks.NotSupported,
-		constants.PreReceiveHook:        hooks.NotSupported,
-		constants.UpdateHook:            hooks.NotSupported,
+	hooksHandles := hookfactory.HandlerList{
+		CommitMsgHook:         hookFactory.CommitMsg(configuration.Hooks.CommitMsgHook),
+		PreCommitHook:         hookFactory.PreCommit(configuration.Hooks.PreCommitHook),
+		PrePushHook:           hookFactory.PrePush(configuration.Hooks.PrePushHook),
+		PrepareCommitMsgHook:  hookFactory.PrepareCommitMsg(configuration.Hooks.PrepareCommitMsgHook),
+		ApplyPatchMsgHook:     hookfactory.NotSupported,
+		FsMonitorWatchmanHook: hookfactory.NotSupported,
+		PostUpdateHook:        hookfactory.NotSupported,
+		PreApplyPatchHook:     hookfactory.NotSupported,
+		PreRebaseHook:         hookfactory.NotSupported,
+		PreReceiveHook:        hookfactory.NotSupported,
+		UpdateHook:            hookfactory.NotSupported,
 	}
 
 	appInfo := internal.AppInfo{
