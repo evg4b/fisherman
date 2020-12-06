@@ -8,10 +8,11 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 )
 
 func TestAddToIndex_NotConfigured(t *testing.T) {
-	next, err := actions.AddToIndex(mocks.NewSyncContextMock(t), []string{}, false)
+	next, err := actions.AddToIndex(mocks.NewSyncContextMock(t), []actions.Glob{})
 
 	assert.NoError(t, err)
 	assert.True(t, next)
@@ -25,11 +26,11 @@ func TestAddToIndex_CorrectAddToIndex(t *testing.T) {
 
 	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
 
-	next, err := actions.AddToIndex(ctx, []string{
-		"glob1/*.go",
-		"*.css",
-		"mocks",
-	}, false)
+	next, err := actions.AddToIndex(ctx, []actions.Glob{
+		{"glob1/*.go", true},
+		{"*.css", true},
+		{"mocks", true},
+	})
 
 	assert.NoError(t, err)
 	assert.True(t, next)
@@ -43,11 +44,11 @@ func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 
 	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
 
-	next, err := actions.AddToIndex(ctx, []string{
-		"glob1/*.go",
-		"*.css",
-		"mocks",
-	}, false)
+	next, err := actions.AddToIndex(ctx, []actions.Glob{
+		{"glob1/*.go", true},
+		{"*.css", true},
+		{"mocks", true},
+	})
 
 	assert.Error(t, err, "testError")
 	assert.False(t, next)
@@ -62,27 +63,67 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
 
 	tests := []struct {
-		name     string
-		optional bool
+		name       string
+		isRequired bool
 	}{
-		{name: "Optional true", optional: true},
-		{name: "Optional false", optional: false},
+		{name: "Optional true", isRequired: false},
+		{name: "Optional false", isRequired: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			next, err := actions.AddToIndex(ctx, []string{
-				"glob1/*.go",
-				"*.css",
-				"mocks",
-			}, tt.optional)
+			next, err := actions.AddToIndex(ctx, []actions.Glob{
+				{"glob1/*.go", tt.isRequired},
+				{"*.css", tt.isRequired},
+				{"mocks", tt.isRequired},
+			})
 
-			if tt.optional {
+			if !tt.isRequired {
 				assert.NoError(t, err)
 				assert.True(t, next)
 			} else {
 				assert.Equal(t, err, git.ErrGlobNoMatches)
 				assert.False(t, next)
 			}
+		})
+	}
+}
+
+func TestGlob_UnmarshalYAML(t *testing.T) {
+	tests := []struct {
+		name       string
+		yamlSource string
+		expected   actions.Glob
+	}{
+		{
+			name:       "unmarshal string",
+			yamlSource: "\"test string\"",
+			expected:   actions.Glob{Glob: "test string", IsRequired: true},
+		},
+		{
+			name: "unmarshal not required glob",
+			yamlSource: `
+glob: test glob structure
+required: false
+`,
+			expected: actions.Glob{Glob: "test glob structure", IsRequired: false},
+		},
+		{
+			name: "unmarshal not required glob",
+			yamlSource: `
+glob: another test glob structure
+required: true
+`,
+			expected: actions.Glob{Glob: "another test glob structure", IsRequired: true},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result actions.Glob
+			err := yaml.Unmarshal([]byte(tt.yamlSource), &result)
+
+			assert.NoError(t, err)
+			assert.ObjectsAreEqual(tt.expected, result)
 		})
 	}
 }

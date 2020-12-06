@@ -59,9 +59,7 @@ func (factory *Factory) PreCommit(configuration hooks.PreCommitHookConfig) Handl
 			scriptWrapper(configuration.Shell),
 			[]handling.Action{
 				func(ctx internal.SyncContext) (bool, error) {
-					index := configuration.AddFilesToIndex
-
-					return actions.AddToIndex(ctx, index.Globs, index.Optional)
+					return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
 				},
 			},
 		),

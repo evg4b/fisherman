@@ -32,8 +32,10 @@ hooks:
       darwin:
         script2: command1 arg1 arg2
     add-to-index:
-      globs: ['*.txt', go.sum]
-      optional: true
+      - '*.txt'
+      - go.sum]
+      - glob: package.json
+        required: false
   pre-push:
     variables:
       from-branch: 'regexp'

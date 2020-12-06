@@ -18,9 +18,11 @@ pre-commit:
       - command4
   add-to-index:
     globs:
-      - dist/*
-      - styles/**/*.css
-    optional: true
+      - glob: dist/*
+        required: true
+      - glob: styles/**/*.css
+        required: false
+
 ```
 
 ## Configurations rules:
@@ -36,7 +38,7 @@ Section with [shell scripts](../shell-script.md) for validation or new file gene
 
 **globs** - List of files to be added to index before commit but after when all validations and shell scripts finished. This files always will be added to index.
 
-**optional** - This flag marks this action as an optional. Otherwise, if there are no files matched to globs, commit will be rejected.
+**required** - This flag marks this action as an required or not. When glob masked as and where there are no files matched to it, commit will be rejected.
 
 You can also use a short note (optional will be false).:
 
@@ -45,8 +47,6 @@ pre-commit:
   shell: # ...
   add-to-index: [ 'mocks/**/*', 'go.sum', 'go.mod' ]
 ```
-
-
 
 It can be used for adding auto generated files (mocks, styles and other). This example before commit generate new mocks add add updated files to commit index:
 
@@ -57,3 +57,4 @@ pre-commit:
   add-to-index:
     - mocks/**/*
 ```
+
