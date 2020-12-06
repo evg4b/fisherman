@@ -123,7 +123,7 @@
             "type": "command",
             "command": "shellCommand.execute",
             "args": {
-                "command": "git describe --abbrev=0",
+                "command": "git tag --sort=-refname",
                 "cwd": "${workspaceFolder}"
             }
         }

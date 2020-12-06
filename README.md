@@ -9,8 +9,11 @@
         <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/evg4b/fisherman/Go?label=Build">
     </a>
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
-        <img alt="GitHub" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
+        <img alt="GitHub license" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
     </a>
     <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/evg4b/fisherman">
+    <a href="https://goreportcard.com/report/github.com/evg4b/fisherman">
+        <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/evg4b/fisherman">
+    </a>
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/evg4b/fisherman?label=Version">
 </p>
