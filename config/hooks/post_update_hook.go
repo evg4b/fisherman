@@ -7,7 +7,3 @@ func (*PostUpdateHookConfig) Compile(variables map[string]interface{}) {}
 func (*PostUpdateHookConfig) GetVarsSection() Variables {
 	panic("not supported")
 }
-
-func (*PostUpdateHookConfig) HasVars() bool {
-	return false
-}

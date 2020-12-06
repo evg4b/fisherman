@@ -7,7 +7,3 @@ func (*ApplyPatchMsgHookConfig) Compile(variables map[string]interface{}) {}
 func (*ApplyPatchMsgHookConfig) GetVarsSection() Variables {
 	panic("not supported")
 }
-
-func (*ApplyPatchMsgHookConfig) HasVars() bool {
-	return false
-}

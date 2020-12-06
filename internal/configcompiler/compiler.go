@@ -10,7 +10,6 @@ type Compiler = func(config CompilableConfig)
 type CompilableConfig interface {
 	Compile(map[string]interface{})
 	GetVarsSection() hooks.Variables
-	HasVars() bool
 }
 
 func NewCompiler(repository infrastructure.Repository, globalVars map[string]interface{}, cwd string) Compiler {

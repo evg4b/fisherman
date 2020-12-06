@@ -15,10 +15,6 @@ func (config *PrepareCommitMsgHookConfig) GetVarsSection() Variables {
 	return config.Variables
 }
 
-func (*PrepareCommitMsgHookConfig) HasVars() bool {
-	return true
-}
-
 func (config *PrepareCommitMsgHookConfig) IsEmpty() bool {
 	return (*config) == PrepareCommitMsgHookConfig{}
 }

@@ -13,10 +13,6 @@ func (config *PrePushHookConfig) GetVarsSection() Variables {
 	return config.Variables
 }
 
-func (*PrePushHookConfig) HasVars() bool {
-	return true
-}
-
 func (config *PrePushHookConfig) IsEmpty() bool {
 	return len(config.Shell) == 0 && config.Variables == Variables{}
 }
