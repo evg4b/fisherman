@@ -45,7 +45,7 @@ func main() {
 	log.Configure(config.Output)
 
 	ctx := context.Background()
-	sysShell := shell.NewShell(os.Stdout, cwd)
+	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
 	repository := vcs.NewGitRepository(cwd)
 	compiler := configcompiler.NewCompiler(repository, config.GlobalVariables, cwd)
 

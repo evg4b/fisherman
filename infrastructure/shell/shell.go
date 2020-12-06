@@ -24,8 +24,8 @@ type SystemShell struct {
 	defaultShell string
 }
 
-func NewShell(output io.Writer, cwd string) *SystemShell {
-	return &SystemShell{output, cwd, DefaultShell}
+func NewShell(output io.Writer, cwd, defaultShell string) *SystemShell {
+	return &SystemShell{output, cwd, utils.GetOrDefault(defaultShell, DefaultShell)}
 }
 
 func (sh *SystemShell) Exec(ctx context.Context, shell string, script ShScriptConfig) ExecResult {

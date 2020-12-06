@@ -76,7 +76,7 @@ shell:
 
 ## Shell for system
 
-Currently, only the following system shells are supported (They cannot be changed or configured.):
+Currently, only the following system shells are supported (They can be globally with field `default-shell` or with field `shell` fore each script directly):
 
 - **Linux** - `bash`
 - **Mac OS** - `bash`

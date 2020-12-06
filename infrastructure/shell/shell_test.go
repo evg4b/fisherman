@@ -11,7 +11,7 @@ import (
 )
 
 func TestSystemShell_Exec(t *testing.T) {
-	sh := NewShell(ioutil.Discard, "/")
+	sh := NewShell(ioutil.Discard, "/", DefaultShell)
 
 	tests := []struct {
 		name     string
