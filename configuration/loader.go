@@ -1,4 +1,4 @@
-package config
+package configuration
 
 import (
 	"fisherman/constants"
@@ -13,13 +13,7 @@ import (
 
 const gitDir = ".git"
 
-type LoadInfo struct {
-	GlobalConfigPath string
-	RepoConfigPath   string
-	LocalConfigPath  string
-}
-
-func Load(cwd string, usr *user.User, files infrastructure.FileSystem) (*FishermanConfig, *LoadInfo, error) {
+func Load(cwd string, usr *user.User, files infrastructure.FileSystem) (*FishermanConfig, map[string]string, error) {
 	config := FishermanConfig{
 		Output: log.DefaultOutputConfig,
 	}
@@ -41,14 +35,12 @@ func Load(cwd string, usr *user.User, files infrastructure.FileSystem) (*Fisherm
 			if err != nil {
 				return nil, nil, err
 			}
+		} else {
+			configs[key] = ""
 		}
 	}
 
-	return &config, &LoadInfo{
-		GlobalConfigPath: checkFile(configs[GlobalMode], files),
-		RepoConfigPath:   checkFile(configs[RepoMode], files),
-		LocalConfigPath:  checkFile(configs[LocalMode], files),
-	}, nil
+	return &config, configs, nil
 }
 
 func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfig, error) {
@@ -66,14 +58,6 @@ func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfi
 	}
 
 	return &config, nil
-}
-
-func checkFile(path string, files infrastructure.FileSystem) string {
-	if files.Exist(path) {
-		return path
-	}
-
-	return ""
 }
 
 func BuildFileConfigPath(cwd string, usr *user.User, mode string) string {

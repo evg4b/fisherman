@@ -1,7 +1,7 @@
 package hookfactory
 
 import (
-	"fisherman/config/hooks"
+	hooks "fisherman/configuration"
 	"fisherman/infrastructure/shell"
 	"fisherman/internal"
 	"fisherman/internal/validation"

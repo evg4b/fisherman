@@ -1,4 +1,4 @@
-package hooks
+package configuration
 
 import (
 	"fisherman/utils"

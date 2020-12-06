@@ -1,7 +1,7 @@
 package configcompiler
 
 import (
-	"fisherman/config/hooks"
+	hooks "fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 
@@ -33,7 +33,7 @@ func NewConfigExtractor(
 	}
 }
 
-func (ext *ConfigExtractor) Variables(section hooks.Variables) (map[string]interface{}, error) {
+func (ext *ConfigExtractor) Variables(section hooks.VariablesConfig) (map[string]interface{}, error) {
 	user, err := ext.repository.GetUser()
 	if err != nil {
 		return nil, err

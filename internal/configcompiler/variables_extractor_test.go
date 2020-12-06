@@ -2,7 +2,7 @@ package configcompiler_test
 
 import (
 	"errors"
-	"fisherman/config/hooks"
+	hooks "fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/internal/configcompiler"
@@ -153,7 +153,7 @@ func TestVariables(t *testing.T) {
 				"demo",
 			)
 
-			vars, err := extractor.Variables(hooks.Variables{
+			vars, err := extractor.Variables(hooks.VariablesConfig{
 				FromBranch:  tt.fromBranch,
 				FromLastTag: tt.fromTag,
 			})

@@ -7,7 +7,7 @@ import (
 	"fisherman/commands/initialize"
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
-	"fisherman/config"
+	"fisherman/configuration"
 	. "fisherman/constants" // nolint
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
@@ -37,26 +37,27 @@ func main() {
 	executable, err := os.Executable()
 	utils.HandleCriticalError(err)
 
-	configuration, configInfo, err := config.Load(cwd, usr, filesystem.NewLocalFileSystem())
+	fileSystem := filesystem.NewLocalFileSystem()
+
+	config, configFiles, err := configuration.Load(cwd, usr, fileSystem)
 	utils.HandleCriticalError(err)
 
-	log.Configure(configuration.Output)
+	log.Configure(config.Output)
 
 	ctx := context.Background()
-	fileSystem := filesystem.NewLocalFileSystem()
 	sysShell := shell.NewShell(os.Stdout, cwd)
 	repository := vcs.NewGitRepository(cwd)
-	compiler := configcompiler.NewCompiler(repository, configuration.GlobalVariables, cwd)
+	compiler := configcompiler.NewCompiler(repository, config.GlobalVariables, cwd)
 
 	hookFactory := hookfactory.NewFactory(func(args []string, output io.Writer) *internal.Context {
 		return internal.NewInternalContext(ctx, fileSystem, sysShell, repository, args, output)
 	}, compiler)
 
 	hooksHandles := hookfactory.HandlerList{
-		CommitMsgHook:         hookFactory.CommitMsg(configuration.Hooks.CommitMsgHook),
-		PreCommitHook:         hookFactory.PreCommit(configuration.Hooks.PreCommitHook),
-		PrePushHook:           hookFactory.PrePush(configuration.Hooks.PrePushHook),
-		PrepareCommitMsgHook:  hookFactory.PrepareCommitMsg(configuration.Hooks.PrepareCommitMsgHook),
+		CommitMsgHook:         hookFactory.CommitMsg(config.Hooks.CommitMsgHook),
+		PreCommitHook:         hookFactory.PreCommit(config.Hooks.PreCommitHook),
+		PrePushHook:           hookFactory.PrePush(config.Hooks.PrePushHook),
+		PrepareCommitMsgHook:  hookFactory.PrepareCommitMsg(config.Hooks.PrepareCommitMsgHook),
 		ApplyPatchMsgHook:     hookfactory.NotSupported,
 		FsMonitorWatchmanHook: hookfactory.NotSupported,
 		PostUpdateHook:        hookfactory.NotSupported,
@@ -67,16 +68,14 @@ func main() {
 	}
 
 	appInfo := internal.AppInfo{
-		Executable:       executable,
-		Cwd:              cwd,
-		GlobalConfigPath: configInfo.GlobalConfigPath,
-		LocalConfigPath:  configInfo.LocalConfigPath,
-		RepoConfigPath:   configInfo.RepoConfigPath,
+		Executable: executable,
+		Cwd:        cwd,
+		Configs:    configFiles,
 	}
 
 	commands := []commands.CliCommand{
 		initialize.NewCommand(fileSystem, &appInfo, usr),
-		handle.NewCommand(hooksHandles, &configuration.Hooks, &appInfo),
+		handle.NewCommand(hooksHandles, &config.Hooks, &appInfo),
 		remove.NewCommand(fileSystem, &appInfo, usr),
 		version.NewCommand(),
 	}

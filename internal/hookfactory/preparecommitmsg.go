@@ -2,7 +2,7 @@ package hookfactory
 
 import (
 	"fisherman/actions"
-	"fisherman/config/hooks"
+	hooks "fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/handling"
 )

@@ -1,7 +1,7 @@
-package hooks_test
+package configuration_test
 
 import (
-	"fisherman/config/hooks"
+	. "fisherman/configuration" // nolint
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,9 +10,9 @@ import (
 func TestVariables_GetFromBranch(t *testing.T) {
 	tests := []struct {
 		name              string
-		variables         hooks.Variables
+		variables         VariablesConfig
 		branchName        string
-		expectedVariables map[string]interface{}
+		expectedVariables Variables
 		err               error
 	}{
 		{
@@ -22,7 +22,7 @@ func TestVariables_GetFromBranch(t *testing.T) {
 			expectedVariables: map[string]interface{}{
 				"DEMO": "develop",
 			},
-			variables: hooks.Variables{FromBranch: "refs/heads/(?P<DEMO>.*)"},
+			variables: VariablesConfig{FromBranch: "refs/heads/(?P<DEMO>.*)"},
 		},
 		{
 			name:       "Parse multiple variables",
@@ -33,7 +33,7 @@ func TestVariables_GetFromBranch(t *testing.T) {
 				"ROOT":   "refs",
 				"FOLDER": "heads",
 			},
-			variables: hooks.Variables{FromBranch: "(?P<ROOT>.*)/(?P<FOLDER>.*)/(?P<DEMO>.*)"},
+			variables: VariablesConfig{FromBranch: "(?P<ROOT>.*)/(?P<FOLDER>.*)/(?P<DEMO>.*)"},
 		},
 	}
 	for _, tt := range tests {
@@ -50,7 +50,7 @@ func TestVariables_GetFromBranch(t *testing.T) {
 func TestVariables_GetFromTag(t *testing.T) {
 	tests := []struct {
 		name              string
-		variables         hooks.Variables
+		variables         VariablesConfig
 		tagName           string
 		expectedVariables map[string]interface{}
 		err               string
@@ -62,21 +62,21 @@ func TestVariables_GetFromTag(t *testing.T) {
 			expectedVariables: map[string]interface{}{
 				"V": "v1.0.0",
 			},
-			variables: hooks.Variables{FromLastTag: "refs/tags/(?P<V>.*)"},
+			variables: VariablesConfig{FromLastTag: "refs/tags/(?P<V>.*)"},
 		},
 		{
 			name:              "not matched FromLastTag expression",
 			tagName:           "refs/tags/v1.0.0",
 			err:               "filed match 'refs/tags/v1.0.0' to expression 'xxx/tags/(?P<V>.*)'",
 			expectedVariables: nil,
-			variables:         hooks.Variables{FromLastTag: "xxx/tags/(?P<V>.*)"},
+			variables:         VariablesConfig{FromLastTag: "xxx/tags/(?P<V>.*)"},
 		},
 		{
 			name:              "incorrect FromLastTag expression",
 			tagName:           "refs/tags/v1.0.0",
 			err:               "error parsing regexp: missing closing ): `xxx/tags/(((?P<V>.*)`",
 			expectedVariables: nil,
-			variables:         hooks.Variables{FromLastTag: "xxx/tags/(((?P<V>.*)"},
+			variables:         VariablesConfig{FromLastTag: "xxx/tags/(((?P<V>.*)"},
 		},
 	}
 	for _, tt := range tests {

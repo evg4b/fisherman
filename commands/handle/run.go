@@ -1,6 +1,7 @@
 package handle
 
 import (
+	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/utils"
@@ -23,11 +24,12 @@ func (command *Command) Run() error {
 	}
 
 	log.Debugf("handler for '%s' hook founded", command.hook)
+	files := command.app.Configs
 	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
 		constants.HookName:                 command.hook,
-		constants.GlobalConfigPath:         utils.OriginalOrNA(command.app.GlobalConfigPath),
-		constants.LocalConfigPath:          utils.OriginalOrNA(command.app.LocalConfigPath),
-		constants.RepoConfigPath:           utils.OriginalOrNA(command.app.RepoConfigPath),
+		constants.GlobalConfigPath:         utils.OriginalOrNA(files[configuration.GlobalMode]),
+		constants.RepoConfigPath:           utils.OriginalOrNA(files[configuration.RepoMode]),
+		constants.LocalConfigPath:          utils.OriginalOrNA(files[configuration.LocalMode]),
 		constants.FishermanVersionVariable: constants.Version,
 	})
 

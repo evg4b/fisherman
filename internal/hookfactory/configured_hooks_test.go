@@ -2,7 +2,7 @@ package hookfactory_test
 
 import (
 	"context"
-	c "fisherman/config/hooks"
+	c "fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/configcompiler"
 	"fisherman/internal/hookfactory"

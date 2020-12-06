@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"fisherman/config"
+	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
@@ -40,11 +40,11 @@ func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *us
 
 	modeMessage := fmt.Sprintf(
 		"config location (%s, %s (default), %s)",
-		config.LocalMode,
-		config.RepoMode,
-		config.GlobalMode)
+		configuration.LocalMode,
+		configuration.RepoMode,
+		configuration.GlobalMode)
 
-	command.flagSet.StringVar(&command.mode, "mode", config.RepoMode, modeMessage)
+	command.flagSet.StringVar(&command.mode, "mode", configuration.RepoMode, modeMessage)
 	command.flagSet.BoolVar(&command.force, "force", false, "forces overwrites existing hooks")
 	command.flagSet.BoolVar(&command.absolute, "absolute", false, "used absolute path to binary in hook")
 
@@ -101,7 +101,7 @@ func (command *Command) Run() error {
 
 	return writeConfig(
 		command.files,
-		config.BuildFileConfigPath(command.app.Cwd, command.user, command.mode),
+		configuration.BuildFileConfigPath(command.app.Cwd, command.user, command.mode),
 	)
 }
 
@@ -115,7 +115,7 @@ func (command *Command) Description() string {
 
 func writeConfig(accessor infrastructure.FileSystem, configPath string) error {
 	if !accessor.Exist(configPath) {
-		content, err := yaml.Marshal(config.DefaultConfig)
+		content, err := yaml.Marshal(configuration.DefaultConfig)
 		if err != nil {
 			return err
 		}

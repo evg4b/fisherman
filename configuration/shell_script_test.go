@@ -1,6 +1,7 @@
-package hooks
+package configuration_test
 
 import (
+	. "fisherman/configuration" // nolint
 	"runtime"
 	"strings"
 	"testing"

@@ -1,9 +1,9 @@
 package remove
 
 import (
-	"fisherman/config"
+	"fisherman/configuration"
 	"fisherman/constants"
-	i "fisherman/infrastructure"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"flag"
@@ -14,12 +14,12 @@ import (
 type Command struct {
 	flagSet *flag.FlagSet
 	usage   string
-	files   i.FileSystem
+	files   infrastructure.FileSystem
 	app     *internal.AppInfo
 	user    *user.User
 }
 
-func NewCommand(files i.FileSystem, app *internal.AppInfo, user *user.User) *Command {
+func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *user.User) *Command {
 	return &Command{
 		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:   "removes fisherman from git repository",
@@ -35,8 +35,8 @@ func (command *Command) Init(args []string) error {
 
 func (command *Command) Run() error {
 	filesToDelete := []string{
-		config.BuildFileConfigPath(command.app.Cwd, command.user, config.RepoMode),
-		config.BuildFileConfigPath(command.app.Cwd, command.user, config.LocalMode),
+		configuration.BuildFileConfigPath(command.app.Cwd, command.user, configuration.RepoMode),
+		configuration.BuildFileConfigPath(command.app.Cwd, command.user, configuration.LocalMode),
 	}
 
 	for _, hookName := range constants.HooksNames {

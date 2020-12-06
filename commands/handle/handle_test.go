@@ -2,7 +2,7 @@ package handle_test
 
 import (
 	"fisherman/commands/handle"
-	"fisherman/config"
+	"fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/hookfactory"
 	"testing"
@@ -13,7 +13,7 @@ import (
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
 		hookfactory.HandlerList{},
-		&config.HooksConfig{},
+		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
 
@@ -23,7 +23,7 @@ func TestCommand_Name(t *testing.T) {
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
 		hookfactory.HandlerList{},
-		&config.HooksConfig{},
+		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
 

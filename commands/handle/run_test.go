@@ -3,9 +3,9 @@ package handle_test
 import (
 	"errors"
 	"fisherman/commands/handle"
-	"fisherman/config"
+	"fisherman/configuration"
 	"fisherman/internal"
-	hooks "fisherman/internal/hookfactory"
+	"fisherman/internal/hookfactory"
 	"fisherman/mocks"
 	"testing"
 
@@ -14,8 +14,8 @@ import (
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
 	command := handle.NewCommand(
-		hooks.HandlerList{},
-		&config.HooksConfig{},
+		hookfactory.HandlerList{},
+		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
 
@@ -29,13 +29,13 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 
 func TestCommand_Run(t *testing.T) {
 	command := handle.NewCommand(
-		hooks.HandlerList{
-			"pre-commit": hooks.HandlerRegistration{
+		hookfactory.HandlerList{
+			"pre-commit": hookfactory.HandlerRegistration{
 				Handler:    mocks.NewHandlerMock(t),
 				Registered: false,
 			},
 		},
-		&config.HooksConfig{},
+		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
 
@@ -49,14 +49,14 @@ func TestCommand_Run(t *testing.T) {
 
 func TestCommand_Run_Hander(t *testing.T) {
 	command := handle.NewCommand(
-		hooks.HandlerList{
-			"pre-commit": hooks.HandlerRegistration{
+		hookfactory.HandlerList{
+			"pre-commit": hookfactory.HandlerRegistration{
 				Handler: mocks.NewHandlerMock(t).
 					HandleMock.Return(errors.New("test error")),
 				Registered: true,
 			},
 		},
-		&config.HooksConfig{},
+		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
 

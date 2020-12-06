@@ -2,7 +2,7 @@ package hookfactory_test
 
 import (
 	"context"
-	c "fisherman/config/hooks"
+	c "fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/configcompiler"
 	"fisherman/internal/handling"
@@ -26,7 +26,7 @@ func TestConfiguredHooks(t *testing.T) {
 		)
 	}
 
-	vars := c.Variables{FromBranch: "Data"}
+	vars := c.VariablesConfig{FromBranch: "Data"}
 
 	tests := []testCase{
 		{

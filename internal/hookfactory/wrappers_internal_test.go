@@ -3,7 +3,7 @@ package hookfactory
 import (
 	"context"
 	"errors"
-	"fisherman/config/hooks"
+	hooks "fisherman/configuration"
 	"fisherman/infrastructure/shell"
 	"fisherman/internal"
 	"fisherman/mocks"

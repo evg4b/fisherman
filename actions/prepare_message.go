@@ -8,9 +8,9 @@ import (
 func PrepareMessage(ctx internal.SyncContext, message string) (bool, error) {
 	if utils.IsNotEmpty(message) {
 		args := ctx.Args()
-		err := ctx.Files().Write(args[0], message)
+		files := ctx.Files()
 
-		return false, err
+		return false, files.Write(args[0], message)
 	}
 
 	return true, nil

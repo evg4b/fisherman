@@ -24,9 +24,7 @@ type AsyncContext interface {
 }
 
 type AppInfo struct {
-	Cwd              string
-	Executable       string
-	GlobalConfigPath string
-	LocalConfigPath  string
-	RepoConfigPath   string
+	Cwd        string
+	Executable string
+	Configs    map[string]string
 }
