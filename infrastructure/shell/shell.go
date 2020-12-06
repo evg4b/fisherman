@@ -2,13 +2,12 @@ package shell
 
 import (
 	"context"
+	"fisherman/internal/prefixwriter"
 	"fisherman/utils"
 	"fmt"
 	"io"
 	"os"
 	"time"
-
-	"github.com/egymgmbh/go-prefix-writer/prefixer"
 )
 
 type ShScriptConfig struct {
@@ -47,10 +46,7 @@ func (sh *SystemShell) Exec(ctx context.Context, shell string, script ShScriptCo
 	command.Dir = utils.GetOrDefault(script.Dir, sh.cwd)
 
 	if script.Output {
-		prefix := fmt.Sprintf("%s |", script.Name)
-		output := prefixer.New(sh.output, func() string {
-			return prefix
-		})
+		output := prefixwriter.New(sh.output, fmt.Sprintf("%s |", script.Name))
 		command.Stdout = output
 		command.Stderr = output
 	}
