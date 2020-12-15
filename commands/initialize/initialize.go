@@ -39,7 +39,7 @@ func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *us
 	}
 
 	modeMessage := fmt.Sprintf(
-		"config location (%s, %s (default), %s)",
+		"config location: %s, %s (default), %s. read more here shorturl.at/fksDV",
 		configuration.LocalMode,
 		configuration.RepoMode,
 		configuration.GlobalMode)
