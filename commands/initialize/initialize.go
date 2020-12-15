@@ -68,7 +68,10 @@ func (command *Command) Run() error {
 			}
 		}
 
-		return result.ErrorOrNil()
+		err := result.ErrorOrNil()
+		if err != nil {
+			return err
+		}
 	}
 
 	bin := command.app.Executable
