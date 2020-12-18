@@ -62,3 +62,12 @@ func (r *GitRepository) AddGlob(glob string) error {
 
 	return wt.AddGlob(glob)
 }
+
+func (r *GitRepository) RemoveGlob(glob string) error {
+	wt, err := r.repo().Worktree()
+	if err != nil {
+		return err
+	}
+
+	return wt.RemoveGlob(glob)
+}

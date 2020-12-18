@@ -36,6 +36,10 @@ hooks:
       - go.sum]
       - glob: package.json
         required: false
+    suppress-commit-files:
+      globs: [glob1, glob2, glob3]
+      remove-from-index: true
+
   pre-push:
     variables:
       from-branch: 'regexp'

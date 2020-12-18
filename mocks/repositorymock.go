@@ -29,6 +29,12 @@ type RepositoryMock struct {
 	beforeGetCurrentBranchCounter uint64
 	GetCurrentBranchMock          mRepositoryMockGetCurrentBranch
 
+	funcGetFilesInIndex          func() (sa1 []string, err error)
+	inspectFuncGetFilesInIndex   func()
+	afterGetFilesInIndexCounter  uint64
+	beforeGetFilesInIndexCounter uint64
+	GetFilesInIndexMock          mRepositoryMockGetFilesInIndex
+
 	funcGetLastTag          func() (s1 string, err error)
 	inspectFuncGetLastTag   func()
 	afterGetLastTagCounter  uint64
@@ -40,6 +46,12 @@ type RepositoryMock struct {
 	afterGetUserCounter  uint64
 	beforeGetUserCounter uint64
 	GetUserMock          mRepositoryMockGetUser
+
+	funcRemoveGlob          func(glob string) (err error)
+	inspectFuncRemoveGlob   func(glob string)
+	afterRemoveGlobCounter  uint64
+	beforeRemoveGlobCounter uint64
+	RemoveGlobMock          mRepositoryMockRemoveGlob
 }
 
 // NewRepositoryMock returns a mock for infrastructure.Repository
@@ -54,9 +66,14 @@ func NewRepositoryMock(t minimock.Tester) *RepositoryMock {
 
 	m.GetCurrentBranchMock = mRepositoryMockGetCurrentBranch{mock: m}
 
+	m.GetFilesInIndexMock = mRepositoryMockGetFilesInIndex{mock: m}
+
 	m.GetLastTagMock = mRepositoryMockGetLastTag{mock: m}
 
 	m.GetUserMock = mRepositoryMockGetUser{mock: m}
+
+	m.RemoveGlobMock = mRepositoryMockRemoveGlob{mock: m}
+	m.RemoveGlobMock.callArgs = []*RepositoryMockRemoveGlobParams{}
 
 	return m
 }
@@ -420,6 +437,150 @@ func (m *RepositoryMock) MinimockGetCurrentBranchInspect() {
 	}
 }
 
+type mRepositoryMockGetFilesInIndex struct {
+	mock               *RepositoryMock
+	defaultExpectation *RepositoryMockGetFilesInIndexExpectation
+	expectations       []*RepositoryMockGetFilesInIndexExpectation
+}
+
+// RepositoryMockGetFilesInIndexExpectation specifies expectation struct of the Repository.GetFilesInIndex
+type RepositoryMockGetFilesInIndexExpectation struct {
+	mock *RepositoryMock
+
+	results *RepositoryMockGetFilesInIndexResults
+	Counter uint64
+}
+
+// RepositoryMockGetFilesInIndexResults contains results of the Repository.GetFilesInIndex
+type RepositoryMockGetFilesInIndexResults struct {
+	sa1 []string
+	err error
+}
+
+// Expect sets up expected params for Repository.GetFilesInIndex
+func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Expect() *mRepositoryMockGetFilesInIndex {
+	if mmGetFilesInIndex.mock.funcGetFilesInIndex != nil {
+		mmGetFilesInIndex.mock.t.Fatalf("RepositoryMock.GetFilesInIndex mock is already set by Set")
+	}
+
+	if mmGetFilesInIndex.defaultExpectation == nil {
+		mmGetFilesInIndex.defaultExpectation = &RepositoryMockGetFilesInIndexExpectation{}
+	}
+
+	return mmGetFilesInIndex
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repository.GetFilesInIndex
+func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Inspect(f func()) *mRepositoryMockGetFilesInIndex {
+	if mmGetFilesInIndex.mock.inspectFuncGetFilesInIndex != nil {
+		mmGetFilesInIndex.mock.t.Fatalf("Inspect function is already set for RepositoryMock.GetFilesInIndex")
+	}
+
+	mmGetFilesInIndex.mock.inspectFuncGetFilesInIndex = f
+
+	return mmGetFilesInIndex
+}
+
+// Return sets up results that will be returned by Repository.GetFilesInIndex
+func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Return(sa1 []string, err error) *RepositoryMock {
+	if mmGetFilesInIndex.mock.funcGetFilesInIndex != nil {
+		mmGetFilesInIndex.mock.t.Fatalf("RepositoryMock.GetFilesInIndex mock is already set by Set")
+	}
+
+	if mmGetFilesInIndex.defaultExpectation == nil {
+		mmGetFilesInIndex.defaultExpectation = &RepositoryMockGetFilesInIndexExpectation{mock: mmGetFilesInIndex.mock}
+	}
+	mmGetFilesInIndex.defaultExpectation.results = &RepositoryMockGetFilesInIndexResults{sa1, err}
+	return mmGetFilesInIndex.mock
+}
+
+//Set uses given function f to mock the Repository.GetFilesInIndex method
+func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Set(f func() (sa1 []string, err error)) *RepositoryMock {
+	if mmGetFilesInIndex.defaultExpectation != nil {
+		mmGetFilesInIndex.mock.t.Fatalf("Default expectation is already set for the Repository.GetFilesInIndex method")
+	}
+
+	if len(mmGetFilesInIndex.expectations) > 0 {
+		mmGetFilesInIndex.mock.t.Fatalf("Some expectations are already set for the Repository.GetFilesInIndex method")
+	}
+
+	mmGetFilesInIndex.mock.funcGetFilesInIndex = f
+	return mmGetFilesInIndex.mock
+}
+
+// GetFilesInIndex implements infrastructure.Repository
+func (mmGetFilesInIndex *RepositoryMock) GetFilesInIndex() (sa1 []string, err error) {
+	mm_atomic.AddUint64(&mmGetFilesInIndex.beforeGetFilesInIndexCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetFilesInIndex.afterGetFilesInIndexCounter, 1)
+
+	if mmGetFilesInIndex.inspectFuncGetFilesInIndex != nil {
+		mmGetFilesInIndex.inspectFuncGetFilesInIndex()
+	}
+
+	if mmGetFilesInIndex.GetFilesInIndexMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetFilesInIndex.GetFilesInIndexMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmGetFilesInIndex.GetFilesInIndexMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetFilesInIndex.t.Fatal("No results are set for the RepositoryMock.GetFilesInIndex")
+		}
+		return (*mm_results).sa1, (*mm_results).err
+	}
+	if mmGetFilesInIndex.funcGetFilesInIndex != nil {
+		return mmGetFilesInIndex.funcGetFilesInIndex()
+	}
+	mmGetFilesInIndex.t.Fatalf("Unexpected call to RepositoryMock.GetFilesInIndex.")
+	return
+}
+
+// GetFilesInIndexAfterCounter returns a count of finished RepositoryMock.GetFilesInIndex invocations
+func (mmGetFilesInIndex *RepositoryMock) GetFilesInIndexAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetFilesInIndex.afterGetFilesInIndexCounter)
+}
+
+// GetFilesInIndexBeforeCounter returns a count of RepositoryMock.GetFilesInIndex invocations
+func (mmGetFilesInIndex *RepositoryMock) GetFilesInIndexBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetFilesInIndex.beforeGetFilesInIndexCounter)
+}
+
+// MinimockGetFilesInIndexDone returns true if the count of the GetFilesInIndex invocations corresponds
+// the number of defined expectations
+func (m *RepositoryMock) MinimockGetFilesInIndexDone() bool {
+	for _, e := range m.GetFilesInIndexMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetFilesInIndexMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetFilesInIndexCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetFilesInIndex != nil && mm_atomic.LoadUint64(&m.afterGetFilesInIndexCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetFilesInIndexInspect logs each unmet expectation
+func (m *RepositoryMock) MinimockGetFilesInIndexInspect() {
+	for _, e := range m.GetFilesInIndexMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to RepositoryMock.GetFilesInIndex")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetFilesInIndexMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetFilesInIndexCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.GetFilesInIndex")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetFilesInIndex != nil && mm_atomic.LoadUint64(&m.afterGetFilesInIndexCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.GetFilesInIndex")
+	}
+}
+
 type mRepositoryMockGetLastTag struct {
 	mock               *RepositoryMock
 	defaultExpectation *RepositoryMockGetLastTagExpectation
@@ -708,6 +869,221 @@ func (m *RepositoryMock) MinimockGetUserInspect() {
 	}
 }
 
+type mRepositoryMockRemoveGlob struct {
+	mock               *RepositoryMock
+	defaultExpectation *RepositoryMockRemoveGlobExpectation
+	expectations       []*RepositoryMockRemoveGlobExpectation
+
+	callArgs []*RepositoryMockRemoveGlobParams
+	mutex    sync.RWMutex
+}
+
+// RepositoryMockRemoveGlobExpectation specifies expectation struct of the Repository.RemoveGlob
+type RepositoryMockRemoveGlobExpectation struct {
+	mock    *RepositoryMock
+	params  *RepositoryMockRemoveGlobParams
+	results *RepositoryMockRemoveGlobResults
+	Counter uint64
+}
+
+// RepositoryMockRemoveGlobParams contains parameters of the Repository.RemoveGlob
+type RepositoryMockRemoveGlobParams struct {
+	glob string
+}
+
+// RepositoryMockRemoveGlobResults contains results of the Repository.RemoveGlob
+type RepositoryMockRemoveGlobResults struct {
+	err error
+}
+
+// Expect sets up expected params for Repository.RemoveGlob
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) Expect(glob string) *mRepositoryMockRemoveGlob {
+	if mmRemoveGlob.mock.funcRemoveGlob != nil {
+		mmRemoveGlob.mock.t.Fatalf("RepositoryMock.RemoveGlob mock is already set by Set")
+	}
+
+	if mmRemoveGlob.defaultExpectation == nil {
+		mmRemoveGlob.defaultExpectation = &RepositoryMockRemoveGlobExpectation{}
+	}
+
+	mmRemoveGlob.defaultExpectation.params = &RepositoryMockRemoveGlobParams{glob}
+	for _, e := range mmRemoveGlob.expectations {
+		if minimock.Equal(e.params, mmRemoveGlob.defaultExpectation.params) {
+			mmRemoveGlob.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRemoveGlob.defaultExpectation.params)
+		}
+	}
+
+	return mmRemoveGlob
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repository.RemoveGlob
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) Inspect(f func(glob string)) *mRepositoryMockRemoveGlob {
+	if mmRemoveGlob.mock.inspectFuncRemoveGlob != nil {
+		mmRemoveGlob.mock.t.Fatalf("Inspect function is already set for RepositoryMock.RemoveGlob")
+	}
+
+	mmRemoveGlob.mock.inspectFuncRemoveGlob = f
+
+	return mmRemoveGlob
+}
+
+// Return sets up results that will be returned by Repository.RemoveGlob
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) Return(err error) *RepositoryMock {
+	if mmRemoveGlob.mock.funcRemoveGlob != nil {
+		mmRemoveGlob.mock.t.Fatalf("RepositoryMock.RemoveGlob mock is already set by Set")
+	}
+
+	if mmRemoveGlob.defaultExpectation == nil {
+		mmRemoveGlob.defaultExpectation = &RepositoryMockRemoveGlobExpectation{mock: mmRemoveGlob.mock}
+	}
+	mmRemoveGlob.defaultExpectation.results = &RepositoryMockRemoveGlobResults{err}
+	return mmRemoveGlob.mock
+}
+
+//Set uses given function f to mock the Repository.RemoveGlob method
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) Set(f func(glob string) (err error)) *RepositoryMock {
+	if mmRemoveGlob.defaultExpectation != nil {
+		mmRemoveGlob.mock.t.Fatalf("Default expectation is already set for the Repository.RemoveGlob method")
+	}
+
+	if len(mmRemoveGlob.expectations) > 0 {
+		mmRemoveGlob.mock.t.Fatalf("Some expectations are already set for the Repository.RemoveGlob method")
+	}
+
+	mmRemoveGlob.mock.funcRemoveGlob = f
+	return mmRemoveGlob.mock
+}
+
+// When sets expectation for the Repository.RemoveGlob which will trigger the result defined by the following
+// Then helper
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) When(glob string) *RepositoryMockRemoveGlobExpectation {
+	if mmRemoveGlob.mock.funcRemoveGlob != nil {
+		mmRemoveGlob.mock.t.Fatalf("RepositoryMock.RemoveGlob mock is already set by Set")
+	}
+
+	expectation := &RepositoryMockRemoveGlobExpectation{
+		mock:   mmRemoveGlob.mock,
+		params: &RepositoryMockRemoveGlobParams{glob},
+	}
+	mmRemoveGlob.expectations = append(mmRemoveGlob.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Repository.RemoveGlob return parameters for the expectation previously defined by the When method
+func (e *RepositoryMockRemoveGlobExpectation) Then(err error) *RepositoryMock {
+	e.results = &RepositoryMockRemoveGlobResults{err}
+	return e.mock
+}
+
+// RemoveGlob implements infrastructure.Repository
+func (mmRemoveGlob *RepositoryMock) RemoveGlob(glob string) (err error) {
+	mm_atomic.AddUint64(&mmRemoveGlob.beforeRemoveGlobCounter, 1)
+	defer mm_atomic.AddUint64(&mmRemoveGlob.afterRemoveGlobCounter, 1)
+
+	if mmRemoveGlob.inspectFuncRemoveGlob != nil {
+		mmRemoveGlob.inspectFuncRemoveGlob(glob)
+	}
+
+	mm_params := &RepositoryMockRemoveGlobParams{glob}
+
+	// Record call args
+	mmRemoveGlob.RemoveGlobMock.mutex.Lock()
+	mmRemoveGlob.RemoveGlobMock.callArgs = append(mmRemoveGlob.RemoveGlobMock.callArgs, mm_params)
+	mmRemoveGlob.RemoveGlobMock.mutex.Unlock()
+
+	for _, e := range mmRemoveGlob.RemoveGlobMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmRemoveGlob.RemoveGlobMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmRemoveGlob.RemoveGlobMock.defaultExpectation.Counter, 1)
+		mm_want := mmRemoveGlob.RemoveGlobMock.defaultExpectation.params
+		mm_got := RepositoryMockRemoveGlobParams{glob}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRemoveGlob.t.Errorf("RepositoryMock.RemoveGlob got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmRemoveGlob.RemoveGlobMock.defaultExpectation.results
+		if mm_results == nil {
+			mmRemoveGlob.t.Fatal("No results are set for the RepositoryMock.RemoveGlob")
+		}
+		return (*mm_results).err
+	}
+	if mmRemoveGlob.funcRemoveGlob != nil {
+		return mmRemoveGlob.funcRemoveGlob(glob)
+	}
+	mmRemoveGlob.t.Fatalf("Unexpected call to RepositoryMock.RemoveGlob. %v", glob)
+	return
+}
+
+// RemoveGlobAfterCounter returns a count of finished RepositoryMock.RemoveGlob invocations
+func (mmRemoveGlob *RepositoryMock) RemoveGlobAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemoveGlob.afterRemoveGlobCounter)
+}
+
+// RemoveGlobBeforeCounter returns a count of RepositoryMock.RemoveGlob invocations
+func (mmRemoveGlob *RepositoryMock) RemoveGlobBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemoveGlob.beforeRemoveGlobCounter)
+}
+
+// Calls returns a list of arguments used in each call to RepositoryMock.RemoveGlob.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmRemoveGlob *mRepositoryMockRemoveGlob) Calls() []*RepositoryMockRemoveGlobParams {
+	mmRemoveGlob.mutex.RLock()
+
+	argCopy := make([]*RepositoryMockRemoveGlobParams, len(mmRemoveGlob.callArgs))
+	copy(argCopy, mmRemoveGlob.callArgs)
+
+	mmRemoveGlob.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockRemoveGlobDone returns true if the count of the RemoveGlob invocations corresponds
+// the number of defined expectations
+func (m *RepositoryMock) MinimockRemoveGlobDone() bool {
+	for _, e := range m.RemoveGlobMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveGlobMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveGlobCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemoveGlob != nil && mm_atomic.LoadUint64(&m.afterRemoveGlobCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockRemoveGlobInspect logs each unmet expectation
+func (m *RepositoryMock) MinimockRemoveGlobInspect() {
+	for _, e := range m.RemoveGlobMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RepositoryMock.RemoveGlob with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveGlobMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveGlobCounter) < 1 {
+		if m.RemoveGlobMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RepositoryMock.RemoveGlob")
+		} else {
+			m.t.Errorf("Expected call to RepositoryMock.RemoveGlob with params: %#v", *m.RemoveGlobMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemoveGlob != nil && mm_atomic.LoadUint64(&m.afterRemoveGlobCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.RemoveGlob")
+	}
+}
+
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *RepositoryMock) MinimockFinish() {
 	if !m.minimockDone() {
@@ -715,9 +1091,13 @@ func (m *RepositoryMock) MinimockFinish() {
 
 		m.MinimockGetCurrentBranchInspect()
 
+		m.MinimockGetFilesInIndexInspect()
+
 		m.MinimockGetLastTagInspect()
 
 		m.MinimockGetUserInspect()
+
+		m.MinimockRemoveGlobInspect()
 		m.t.FailNow()
 	}
 }
@@ -743,6 +1123,8 @@ func (m *RepositoryMock) minimockDone() bool {
 	return done &&
 		m.MinimockAddGlobDone() &&
 		m.MinimockGetCurrentBranchDone() &&
+		m.MinimockGetFilesInIndexDone() &&
 		m.MinimockGetLastTagDone() &&
-		m.MinimockGetUserDone()
+		m.MinimockGetUserDone() &&
+		m.MinimockRemoveGlobDone()
 }

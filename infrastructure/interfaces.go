@@ -18,6 +18,8 @@ type Repository interface {
 	GetUser() (User, error)
 	GetLastTag() (string, error)
 	AddGlob(glob string) error
+	RemoveGlob(glob string) error
+	GetFilesInIndex() ([]string, error)
 }
 
 type FileSystem interface {

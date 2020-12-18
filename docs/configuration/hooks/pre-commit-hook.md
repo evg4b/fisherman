@@ -22,7 +22,9 @@ pre-commit:
         required: true
       - glob: styles/**/*.css
         required: false
-
+  suppress-commit-files:
+    globs: [glob1, glob2, glob3]
+    remove-from-index: false
 ```
 
 ## Configurations rules:
@@ -58,3 +60,15 @@ pre-commit:
     - mocks/**/*
 ```
 
+### add-to-index:
+
+**globs** - List of files to be checked in index before commit. Commit fill be rejected when file will be founded.
+
+**remove-from-index** - When this flag is `true` then files founded in index will be removed from it and commit
+well be continued.
+
+Also you can use short syntax for this section (strings array, `remove-from-index` is this case will be `false`):
+
+``` yaml
+suppress-commit-files: [glob1, glob2, glob3]
+```

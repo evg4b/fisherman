@@ -3,9 +3,10 @@ package configuration
 import "fisherman/actions"
 
 type PreCommitHookConfig struct {
-	Variables       VariablesConfig `yaml:"variables,omitempty"`
-	Shell           ScriptsConfig   `yaml:"shell,omitempty"`
-	AddFilesToIndex []actions.Glob  `yaml:"add-to-index,omitempty"`
+	Variables           VariablesConfig                    `yaml:"variables,omitempty"`
+	Shell               ScriptsConfig                      `yaml:"shell,omitempty"`
+	AddFilesToIndex     []actions.Glob                     `yaml:"add-to-index,omitempty"`
+	SuppressCommitFiles actions.SuppresCommitFilesSections `yaml:"suppress-commit-files,omitempty"`
 }
 
 func (config *PreCommitHookConfig) Compile(variables map[string]interface{}) {
@@ -19,5 +20,6 @@ func (config *PreCommitHookConfig) GetVariablesConfig() VariablesConfig {
 func (config *PreCommitHookConfig) IsEmpty() bool {
 	return len(config.Shell) == 0 &&
 		len(config.AddFilesToIndex) == 0 &&
-		config.Variables == VariablesConfig{}
+		config.Variables == VariablesConfig{} &&
+		len(config.SuppressCommitFiles.Globs) == 0
 }

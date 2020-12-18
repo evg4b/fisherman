@@ -61,6 +61,9 @@ func (factory *Factory) PreCommit(configuration hooks.PreCommitHookConfig) Handl
 				func(ctx internal.SyncContext) (bool, error) {
 					return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
 				},
+				func(ctx internal.SyncContext) (bool, error) {
+					return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
+				},
 			},
 		),
 	}

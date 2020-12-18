@@ -6,6 +6,7 @@
   - Added `add-to-index` section for include files in index after scripts
   - Added property to configure working directory for shell scripts
   - Added default global shell configuration
+  - Added `suppress-commit-files` section for `pre-commit` hook
 ### Fixed :
  - Problem with new repo initialization.
 ___
