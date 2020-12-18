@@ -31,7 +31,7 @@ jobs:
           version: v1.31
 
       - name: Build
-        run: go build -v -ldflags="-s -w"
+        run: go build -v -ldflags="-s -w -X fisherman/constants.Version='dev-${{ github.sha }}'"
 
       - name: Test
         run: go test -v -cover -coverprofile 'cover.out' ./...
@@ -42,6 +42,14 @@ jobs:
           go get github.com/axw/gocov/gocov
           go get github.com/matm/gocov-html
           gocov convert 'cover.out' | gocov-html > coverage.html
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            fisherman
+            fisherman.exe
 
       - name: Upload coverage profile
         if: startsWith(matrix.os, 'ubuntu')
