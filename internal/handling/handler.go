@@ -13,47 +13,31 @@ type Handler interface {
 type Action = func(internal.SyncContext) (bool, error)
 
 type HookHandler struct {
-	contextFactory  internal.CtxFactory
-	beforeActions   []Action
-	syncValidators  []validation.SyncValidator
-	asyncValidators []validation.AsyncValidator
-	afterActions    []Action
-}
-
-func NewHookHandler(
-	contextFactory internal.CtxFactory,
-	beforeActions []Action,
-	syncValidators []validation.SyncValidator,
-	asyncValidators []validation.AsyncValidator,
-	afterActions []Action,
-) *HookHandler {
-	return &HookHandler{
-		beforeActions:   beforeActions,
-		contextFactory:  contextFactory,
-		asyncValidators: asyncValidators,
-		syncValidators:  syncValidators,
-		afterActions:    afterActions,
-	}
+	ContextFactory  internal.CtxFactory
+	BeforeActions   []Action
+	SyncValidators  []validation.SyncValidator
+	AsyncValidators []validation.AsyncValidator
+	AfterActions    []Action
 }
 
 func (h *HookHandler) Handle(args []string) error {
-	ctx := h.contextFactory(args, log.InfoOutput)
-	next, err := RunActions(ctx, h.beforeActions)
+	ctx := h.ContextFactory(args, log.InfoOutput)
+	next, err := RunActions(ctx, h.BeforeActions)
 	if err != nil || !next {
 		return err
 	}
 
-	err = validation.RunSync(ctx, h.syncValidators)
+	err = validation.RunSync(ctx, h.SyncValidators)
 	if err != nil {
 		return err
 	}
 
-	err = validation.RunAsync(ctx, h.asyncValidators)
+	err = validation.RunAsync(ctx, h.AsyncValidators)
 	if err != nil {
 		return err
 	}
 
-	_, err = RunActions(ctx, h.afterActions)
+	_, err = RunActions(ctx, h.AfterActions)
 
 	return err
 }

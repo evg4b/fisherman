@@ -1,89 +1,52 @@
 package hookfactory
 
 import (
-	"fisherman/actions"
-	hooks "fisherman/configuration"
+	"errors"
+	"fisherman/configuration"
+	"fisherman/constants"
 	"fisherman/internal"
 	"fisherman/internal/configcompiler"
 	"fisherman/internal/handling"
-	"fisherman/internal/validation"
-	"fisherman/validators"
 )
 
-type Factory struct {
-	ctxFactory internal.CtxFactory
-	compile    configcompiler.Compiler
+type builders = map[string]func() *handling.HookHandler
+
+type Factory interface {
+	GetHook(name string) (handling.Handler, error)
 }
 
-func NewFactory(ctxFactory internal.CtxFactory, compile configcompiler.Compiler) *Factory {
-	return &Factory{ctxFactory: ctxFactory, compile: compile}
+type TFactory struct {
+	ctxFactory    internal.CtxFactory
+	compile       configcompiler.Compiler
+	config        configuration.HooksConfig
+	hooksBuilders builders
 }
 
-func (factory *Factory) CommitMsg(configuration hooks.CommitMsgHookConfig) HandlerRegistration {
-	if configuration.IsEmpty() {
-		return NotRegistered
+func NewFactory(
+	ctxFactory internal.CtxFactory,
+	compile configcompiler.Compiler,
+	config configuration.HooksConfig,
+) *TFactory {
+	factory := TFactory{
+		ctxFactory: ctxFactory,
+		compile:    compile,
+		config:     config,
 	}
 
-	factory.compile(&configuration)
-
-	return HandlerRegistration{
-		Registered: true,
-		Handler: handling.NewHookHandler(
-			factory.ctxFactory,
-			NoBeforeActions,
-			[]validation.SyncValidator{
-				boolWrapper(validators.MessageNotEmpty, configuration.NotEmpty),
-				stringWrapper(validators.MessageHasPrefix, configuration.MessagePrefix),
-				stringWrapper(validators.MessageHasSuffix, configuration.MessageSuffix),
-				stringWrapper(validators.MessageRegexp, configuration.MessageRegexp),
-			},
-			NoAsyncValidators,
-			NoAfterActions,
-		),
+	factory.hooksBuilders = builders{
+		constants.CommitMsgHook:        factory.commitMsg,
+		constants.PreCommitHook:        factory.preCommit,
+		constants.PrePushHook:          factory.prePush,
+		constants.PrepareCommitMsgHook: factory.prepareCommitMsg,
 	}
+
+	return &factory
 }
 
-func (factory *Factory) PreCommit(configuration hooks.PreCommitHookConfig) HandlerRegistration {
-	if configuration.IsEmpty() {
-		return NotRegistered
+func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
+	if builder, ok := factory.hooksBuilders[name]; ok {
+		return builder(), nil
 	}
 
-	factory.compile(&configuration)
-
-	return HandlerRegistration{
-		Registered: true,
-		Handler: handling.NewHookHandler(
-			factory.ctxFactory,
-			NoBeforeActions,
-			NoSyncValidators,
-			scriptWrapper(configuration.Shell),
-			[]handling.Action{
-				func(ctx internal.SyncContext) (bool, error) {
-					return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
-				},
-				func(ctx internal.SyncContext) (bool, error) {
-					return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
-				},
-			},
-		),
-	}
-}
-
-func (factory *Factory) PrePush(configuration hooks.PrePushHookConfig) HandlerRegistration {
-	if configuration.IsEmpty() {
-		return NotRegistered
-	}
-
-	factory.compile(&configuration)
-
-	return HandlerRegistration{
-		Registered: true,
-		Handler: handling.NewHookHandler(
-			factory.ctxFactory,
-			NoBeforeActions,
-			NoSyncValidators,
-			scriptWrapper(configuration.Shell),
-			NoAfterActions,
-		),
-	}
+	return nil, errors.New("unknown hook")
 }

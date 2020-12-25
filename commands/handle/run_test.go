@@ -5,7 +5,6 @@ import (
 	"fisherman/commands/handle"
 	"fisherman/configuration"
 	"fisherman/internal"
-	"fisherman/internal/hookfactory"
 	"fisherman/mocks"
 	"testing"
 
@@ -14,7 +13,8 @@ import (
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
 	command := handle.NewCommand(
-		hookfactory.HandlerList{},
+		mocks.NewFactoryMock(t).
+			GetHookMock.Expect("test").Return(nil, errors.New("'test' is not valid hook name")),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
@@ -29,12 +29,9 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 
 func TestCommand_Run(t *testing.T) {
 	command := handle.NewCommand(
-		hookfactory.HandlerList{
-			"pre-commit": hookfactory.HandlerRegistration{
-				Handler:    mocks.NewHandlerMock(t),
-				Registered: false,
-			},
-		},
+		mocks.NewFactoryMock(t).
+			GetHookMock.Expect("pre-commit").
+			Return(mocks.NewHandlerMock(t).HandleMock.Return(nil), nil),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
@@ -48,14 +45,11 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Run_Hander(t *testing.T) {
+	handler := mocks.NewHandlerMock(t).
+		HandleMock.Return(errors.New("test error"))
 	command := handle.NewCommand(
-		hookfactory.HandlerList{
-			"pre-commit": hookfactory.HandlerRegistration{
-				Handler: mocks.NewHandlerMock(t).
-					HandleMock.Return(errors.New("test error")),
-				Registered: true,
-			},
-		},
+		mocks.NewFactoryMock(t).
+			GetHookMock.Expect("pre-commit").Return(handler, nil),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)

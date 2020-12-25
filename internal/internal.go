@@ -28,3 +28,14 @@ type AppInfo struct {
 	Executable string
 	Configs    map[string]string
 }
+
+func NewCtxFactory(
+	ctx context.Context,
+	fileSystem infrastructure.FileSystem,
+	sysShell infrastructure.Shell,
+	repository infrastructure.Repository,
+) CtxFactory {
+	return func(args []string, output io.Writer) *Context {
+		return NewInternalContext(ctx, fileSystem, sysShell, repository, args, output)
+	}
+}

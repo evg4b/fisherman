@@ -12,7 +12,7 @@ func (command *Command) Init(args []string) error {
 }
 
 func (command *Command) Run() error {
-	handler, err := command.handlers.Get(command.hook)
+	handler, err := command.hookFactory.GetHook(command.hook)
 	if err != nil {
 		return err
 	}

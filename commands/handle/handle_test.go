@@ -12,7 +12,7 @@ import (
 
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
-		hookfactory.HandlerList{},
+		&hookfactory.TFactory{},
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
@@ -22,7 +22,7 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
-		hookfactory.HandlerList{},
+		&hookfactory.TFactory{},
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)

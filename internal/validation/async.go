@@ -40,7 +40,6 @@ func RunAsync(ctx internal.AsyncContext, validators []AsyncValidator) error {
 func runAsyncInternal(output chan AsyncValidationResult, ctx internal.AsyncContext, validators []AsyncValidator) {
 	var wg sync.WaitGroup
 	for _, validator := range validators {
-		wg.Add(1)
 		go wrap(output, &wg, validator)(ctx)
 	}
 	wg.Wait()
@@ -50,6 +49,8 @@ func runAsyncInternal(output chan AsyncValidationResult, ctx internal.AsyncConte
 type wrappedValidator = func(ctx internal.AsyncContext)
 
 func wrap(output chan AsyncValidationResult, wg *sync.WaitGroup, validator AsyncValidator) wrappedValidator {
+	wg.Add(1)
+
 	return func(ctx internal.AsyncContext) {
 		defer wg.Done()
 		result := validator(ctx)

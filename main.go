@@ -8,7 +8,6 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/configuration"
-	. "fisherman/constants" // nolint
 	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
@@ -18,7 +17,6 @@ import (
 	"fisherman/internal/hookfactory"
 	"fisherman/internal/runner"
 	"fisherman/utils"
-	"io"
 	"os"
 	"os/user"
 )
@@ -49,23 +47,8 @@ func main() {
 	repository := vcs.NewGitRepository(cwd)
 	compiler := configcompiler.NewCompiler(repository, config.GlobalVariables, cwd)
 
-	hookFactory := hookfactory.NewFactory(func(args []string, output io.Writer) *internal.Context {
-		return internal.NewInternalContext(ctx, fileSystem, sysShell, repository, args, output)
-	}, compiler)
-
-	hooksHandles := hookfactory.HandlerList{
-		CommitMsgHook:         hookFactory.CommitMsg(config.Hooks.CommitMsgHook),
-		PreCommitHook:         hookFactory.PreCommit(config.Hooks.PreCommitHook),
-		PrePushHook:           hookFactory.PrePush(config.Hooks.PrePushHook),
-		PrepareCommitMsgHook:  hookFactory.PrepareCommitMsg(config.Hooks.PrepareCommitMsgHook),
-		ApplyPatchMsgHook:     hookfactory.NotSupported,
-		FsMonitorWatchmanHook: hookfactory.NotSupported,
-		PostUpdateHook:        hookfactory.NotSupported,
-		PreApplyPatchHook:     hookfactory.NotSupported,
-		PreRebaseHook:         hookfactory.NotSupported,
-		PreReceiveHook:        hookfactory.NotSupported,
-		UpdateHook:            hookfactory.NotSupported,
-	}
+	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
+	hookFactory := hookfactory.NewFactory(ctxFactory, compiler, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,
@@ -75,7 +58,7 @@ func main() {
 
 	commands := []commands.CliCommand{
 		initialize.NewCommand(fileSystem, &appInfo, usr),
-		handle.NewCommand(hooksHandles, &config.Hooks, &appInfo),
+		handle.NewCommand(hookFactory, &config.Hooks, &appInfo),
 		remove.NewCommand(fileSystem, &appInfo, usr),
 		version.NewCommand(),
 	}

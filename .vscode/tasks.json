@@ -115,6 +115,20 @@
                 "generate"
             ],
             "problemMatcher": []
+        },
+        {
+            "label": "Generate mock",
+            "type": "shell",
+            "command": "minimock",
+            "args": [
+                "-i",
+                "${input:packageSource}",
+                "-o",
+                "./mocks",
+                "-s",
+                "_mock.go"
+            ],
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -126,6 +140,12 @@
                 "command": "git tag --sort=-refname",
                 "cwd": "${workspaceFolder}"
             }
-        }
+        },
+        {
+            "id": "packageSource",
+            "default": "fisherman/",
+            "type": "promptString",
+            "description": "package"
+        },
     ]
 }
