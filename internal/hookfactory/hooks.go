@@ -3,19 +3,19 @@ package hookfactory
 import (
 	"fisherman/actions"
 	"fisherman/internal"
+	"fisherman/internal/expression"
 	"fisherman/internal/handling"
 	"fisherman/internal/validation"
 	"fisherman/validators"
 )
 
-func (factory *TFactory) commitMsg() *handling.HookHandler {
+func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.CommitMsgHook
 
-	if configuration.IsEmpty() {
-		return nil
+	variables, err := factory.prepareConfig(&configuration)
+	if err != nil || variables == nil {
+		return nil, err
 	}
-
-	factory.compile(&configuration)
 
 	return &handling.HookHandler{
 		ContextFactory: factory.ctxFactory,
@@ -28,22 +28,22 @@ func (factory *TFactory) commitMsg() *handling.HookHandler {
 		},
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
-	}
+	}, nil
 }
 
-func (factory *TFactory) preCommit() *handling.HookHandler {
+func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	configuration := factory.config.PreCommitHook
-	if configuration.IsEmpty() {
-		return nil
-	}
 
-	factory.compile(&configuration)
+	variables, err := factory.prepareConfig(&configuration)
+	if err != nil || variables == nil {
+		return nil, err
+	}
 
 	return &handling.HookHandler{
 		ContextFactory:  factory.ctxFactory,
 		BeforeActions:   NoBeforeActions,
 		SyncValidators:  NoSyncValidators,
-		AsyncValidators: scriptWrapper(configuration.Shell),
+		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions: []handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
 				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
@@ -52,33 +52,33 @@ func (factory *TFactory) preCommit() *handling.HookHandler {
 				return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
 			},
 		},
-	}
+	}, nil
 }
 
-func (factory *TFactory) prePush() *handling.HookHandler {
+func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	configuration := factory.config.PrePushHook
-	if configuration.IsEmpty() {
-		return nil
-	}
 
-	factory.compile(&configuration)
+	variables, err := factory.prepareConfig(&configuration)
+	if err != nil || variables == nil {
+		return nil, err
+	}
 
 	return &handling.HookHandler{
 		ContextFactory:  factory.ctxFactory,
 		BeforeActions:   NoBeforeActions,
 		SyncValidators:  NoSyncValidators,
-		AsyncValidators: scriptWrapper(configuration.Shell),
+		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions:    NoAfterActions,
-	}
+	}, nil
 }
 
-func (factory *TFactory) prepareCommitMsg() *handling.HookHandler {
+func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.PrepareCommitMsgHook
-	if configuration.IsEmpty() {
-		return nil
-	}
 
-	factory.compile(&configuration)
+	variables, err := factory.prepareConfig(&configuration)
+	if err != nil || variables == nil {
+		return nil, err
+	}
 
 	return &handling.HookHandler{
 		ContextFactory: factory.ctxFactory,
@@ -90,5 +90,5 @@ func (factory *TFactory) prepareCommitMsg() *handling.HookHandler {
 		SyncValidators:  NoSyncValidators,
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
-	}
+	}, nil
 }

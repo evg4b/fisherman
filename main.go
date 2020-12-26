@@ -45,10 +45,10 @@ func main() {
 	ctx := context.Background()
 	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
 	repository := vcs.NewGitRepository(cwd)
-	compiler := configcompiler.NewCompiler(repository, config.GlobalVariables, cwd)
 
 	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
-	hookFactory := hookfactory.NewFactory(ctxFactory, compiler, config.Hooks)
+	extractor := configcompiler.NewConfigExtractor(repository, config.GlobalVariables, cwd)
+	hookFactory := hookfactory.NewFactory(ctxFactory, extractor, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,

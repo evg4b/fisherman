@@ -9,7 +9,7 @@ import (
 	"fisherman/internal/handling"
 )
 
-type builders = map[string]func() *handling.HookHandler
+type builders = map[string]func() (*handling.HookHandler, error)
 
 type Factory interface {
 	GetHook(name string) (handling.Handler, error)
@@ -17,19 +17,19 @@ type Factory interface {
 
 type TFactory struct {
 	ctxFactory    internal.CtxFactory
-	compile       configcompiler.Compiler
+	extractor     configcompiler.Extractor
 	config        configuration.HooksConfig
 	hooksBuilders builders
 }
 
 func NewFactory(
 	ctxFactory internal.CtxFactory,
-	compile configcompiler.Compiler,
+	extractor configcompiler.Extractor,
 	config configuration.HooksConfig,
 ) *TFactory {
 	factory := TFactory{
 		ctxFactory: ctxFactory,
-		compile:    compile,
+		extractor:  extractor,
 		config:     config,
 	}
 
@@ -45,8 +45,28 @@ func NewFactory(
 
 func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
 	if builder, ok := factory.hooksBuilders[name]; ok {
-		return builder(), nil
+		hookHandler, err := builder()
+		if err != nil {
+			return nil, err
+		}
+
+		return hookHandler, nil
 	}
 
 	return nil, errors.New("unknown hook")
+}
+
+func (factory *TFactory) prepareConfig(configuration configcompiler.CompilableConfig) (map[string]interface{}, error) {
+	if configuration.IsEmpty() {
+		return nil, nil
+	}
+
+	variables, err := factory.extractor.Variables(configuration.GetVariablesConfig())
+	if err != nil {
+		return nil, err
+	}
+
+	configuration.Compile(variables)
+
+	return variables, nil
 }

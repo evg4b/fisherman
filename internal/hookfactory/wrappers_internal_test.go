@@ -75,9 +75,7 @@ func Test_scriptWrapper(t *testing.T) {
 
 	ctx.ShellMock.Return(sh)
 
-	wrappers := scriptWrapper(hooks.ScriptsConfig{
-		scriptName: script,
-	})
+	wrappers := scriptWrapper(hooks.ScriptsConfig{scriptName: script}, mocks.NewExpressionMock(t))
 
 	for _, wrapper := range wrappers {
 		actualResult := wrapper(ctx)

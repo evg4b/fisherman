@@ -7,11 +7,12 @@ import (
 )
 
 type ScriptConfig struct {
-	Shell    string            `yaml:"shell,omitempty"`
-	Commands []string          `yaml:"commands,omitempty"`
-	Env      map[string]string `yaml:"env,omitempty"`
-	Dir      string            `yaml:"dir,omitempty"`
-	Output   bool              `yaml:"output,omitempty"`
+	Shell     string            `yaml:"shell,omitempty"`
+	Commands  []string          `yaml:"commands,omitempty"`
+	Env       map[string]string `yaml:"env,omitempty"`
+	Dir       string            `yaml:"dir,omitempty"`
+	Output    bool              `yaml:"output,omitempty"`
+	Condition string            `yaml:"condition,omitempty"`
 }
 
 type ScriptsConfig map[string]ScriptConfig

@@ -49,6 +49,10 @@ module.exports = {
         },
         {
           type: "doc",
+          id: "configuration/expressions"
+        },
+        {
+          type: "doc",
           id: "configuration/output"
         },
       ],

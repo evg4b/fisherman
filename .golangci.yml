@@ -18,7 +18,6 @@ linters:
     - misspell
     - unparam
     - whitespace
-    - godox
     - golint
     - interfacer
     - goconst

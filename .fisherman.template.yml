@@ -23,6 +23,7 @@ hooks:
       windows: command4 arg1 arg2 arg3
       linux:
         script1:
+          condition: 1 == 1
           env:
             VAR1: VALUE1
             VAR2: VALUE2

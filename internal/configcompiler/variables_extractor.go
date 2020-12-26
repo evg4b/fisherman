@@ -1,7 +1,7 @@
 package configcompiler
 
 import (
-	hooks "fisherman/configuration"
+	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 
@@ -13,6 +13,16 @@ type variablesLoader = func(string) (map[string]interface{}, error)
 type sourceLoaderConfig = struct {
 	source sourceLoader
 	load   variablesLoader
+}
+
+type CompilableConfig interface {
+	Compile(configuration.Variables)
+	GetVariablesConfig() configuration.VariablesConfig
+	IsEmpty() bool
+}
+
+type Extractor interface {
+	Variables(section configuration.VariablesConfig) (map[string]interface{}, error)
 }
 
 type ConfigExtractor struct {
@@ -33,7 +43,7 @@ func NewConfigExtractor(
 	}
 }
 
-func (ext *ConfigExtractor) Variables(section hooks.VariablesConfig) (map[string]interface{}, error) {
+func (ext *ConfigExtractor) Variables(section configuration.VariablesConfig) (map[string]interface{}, error) {
 	user, err := ext.repository.GetUser()
 	if err != nil {
 		return nil, err

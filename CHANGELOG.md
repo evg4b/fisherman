@@ -3,10 +3,11 @@
 ## Unrealized
 
 ### Implemented :
-  - Added `add-to-index` section for include files in index after scripts
-  - Added property to configure working directory for shell scripts
-  - Added default global shell configuration
-  - Added `suppress-commit-files` section for `pre-commit` hook
+  - Added `add-to-index` section for include files in index after scripts.
+  - Added property to configure working directory for shell scripts.
+  - Added default global shell configuration.
+  - Added possibility to disable file commit or automatic exclusion of files from index.
+  - Added ability to run shell scripts by condition.
 ### Fixed :
  - Problem with new repo initialization.
 ___

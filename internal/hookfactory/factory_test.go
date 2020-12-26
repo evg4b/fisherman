@@ -3,7 +3,6 @@ package hookfactory_test
 import (
 	"fisherman/configuration"
 	"fisherman/constants"
-	"fisherman/internal/configcompiler"
 	"fisherman/internal/hookfactory"
 	"fisherman/mocks"
 	"testing"
@@ -17,7 +16,7 @@ func TestFactory_GetHook(t *testing.T) {
 	}
 	factory := hookfactory.NewFactory(
 		mocks.NewCtxFactoryMock(t),
-		func(config configcompiler.CompilableConfig) {},
+		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{
 			PreCommitHook:        configuration.PreCommitHookConfig{Shell: shell},
 			PrePushHook:          configuration.PrePushHookConfig{Shell: shell},
@@ -39,7 +38,7 @@ func TestFactory_GetHook(t *testing.T) {
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
 	factory := hookfactory.NewFactory(
 		mocks.NewCtxFactoryMock(t),
-		func(config configcompiler.CompilableConfig) {},
+		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{},
 	)
 
@@ -56,7 +55,7 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
 	factory := hookfactory.NewFactory(
 		mocks.NewCtxFactoryMock(t),
-		func(config configcompiler.CompilableConfig) {},
+		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{},
 	)
 
