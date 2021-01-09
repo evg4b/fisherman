@@ -29,7 +29,7 @@ func boolWrapper(validator boolF, config bool) validation.SyncValidator {
 func scriptWrapper(scripts hooks.ScriptsConfig, engine expression.Expression) []validation.AsyncValidator {
 	var validatorList = []validation.AsyncValidator{}
 	for name, script := range scripts {
-		if utils.IsNotEmpty(script.Condition) {
+		if !utils.IsEmpty(script.Condition) {
 			condition, err := engine.Eval(script.Condition)
 			utils.HandleCriticalError(err)
 			if !condition {

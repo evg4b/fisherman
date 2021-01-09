@@ -6,7 +6,7 @@ import (
 )
 
 func PrepareMessage(ctx internal.SyncContext, message string) (bool, error) {
-	if utils.IsNotEmpty(message) {
+	if !utils.IsEmpty(message) {
 		args := ctx.Args()
 		files := ctx.Files()
 

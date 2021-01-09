@@ -1,7 +1,6 @@
 package expression_test
 
 import (
-	"errors"
 	"fisherman/internal/expression"
 	"testing"
 
@@ -34,28 +33,6 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			name:       "IsEmpty with not empty value",
 			expression: "IsEmpty(X)",
 			expected:   false,
-		},
-		{
-			name:       "IsNotEmpty with not empty value",
-			expression: "IsNotEmpty(X)",
-			expected:   true,
-		},
-		{
-			name:       "IsNotEmpty with empty value",
-			expression: "IsNotEmpty(EmptyValue)",
-			expected:   false,
-		},
-		{
-			name:       "Envalid ex",
-			expression: "IsNotEmpty(EmptyValue",
-			expected:   false,
-			err:        errors.New("Unbalanced parenthesis"),
-		},
-		{
-			name:       "Envalid ex",
-			expression: "IsNotEmpty(EmptyValue, X)",
-			expected:   false,
-			err:        errors.New("incorrect arguments for isNotEmpty"),
 		},
 	}
 	for _, tt := range tests {

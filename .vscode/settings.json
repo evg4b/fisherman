@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "Debugf",
+        "Evaluable",
         "Infof",
         "Unmarshl",
         "clicontext",
@@ -13,6 +14,7 @@
         "golangci",
         "golint",
         "goreleaser",
+        "govaluate",
         "hashicorp",
         "imdario",
         "ldflags",

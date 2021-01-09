@@ -29,7 +29,7 @@ func (config *VariablesConfig) GetFromTag(tag string) (Variables, error) {
 func ejectFromString(tag, expression string) (Variables, error) {
 	variables := make(Variables)
 
-	if utils.IsNotEmpty(expression) && utils.IsNotEmpty(tag) {
+	if !utils.IsEmpty(expression) && !utils.IsEmpty(tag) {
 		reg, err := regexp.Compile(expression)
 		if err != nil {
 			return nil, err
@@ -41,7 +41,7 @@ func ejectFromString(tag, expression string) (Variables, error) {
 		}
 
 		for i, name := range reg.SubexpNames() {
-			if utils.IsNotEmpty(name) {
+			if !utils.IsEmpty(name) {
 				variables[name] = match[i]
 			}
 		}

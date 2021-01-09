@@ -6,10 +6,6 @@ func IsEmpty(value string) bool {
 	return len(strings.TrimSpace(value)) == 0
 }
 
-func IsNotEmpty(value string) bool {
-	return !IsEmpty(value)
-}
-
 func OriginalOrNA(path string) string {
 	if IsEmpty(path) {
 		return "N/A"
@@ -19,7 +15,7 @@ func OriginalOrNA(path string) string {
 }
 
 func GetOrDefault(value string, defaultValue string) string {
-	if IsNotEmpty(value) {
+	if !IsEmpty(value) {
 		return value
 	}
 

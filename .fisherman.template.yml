@@ -11,10 +11,15 @@ hooks:
     commit-prefix: 'template'
     commit-suffix: 'template'
     static-message: 'template'
+
   apply-patch-msg: null
+
   fs-monitor-watchman: null
+
   post-update: null
+
   pre-apply-patch: null
+
   pre-commit:
     variables:
       from-branch: 'regexp'
@@ -52,8 +57,11 @@ hooks:
       script2:
         - command3
         - command4
+
   pre-rebase: null
+
   pre-receive: null
+
   prepare-commit-msg:
     variables:
       from-branch: 'regexp'

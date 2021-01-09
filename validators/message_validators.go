@@ -17,7 +17,7 @@ func MessageNotEmpty(ctx internal.SyncContext, notEmpty bool) error {
 }
 
 func MessageHasPrefix(ctx internal.SyncContext, prefix string) error {
-	if utils.IsNotEmpty(prefix) && !strings.HasPrefix(ctx.Message(), prefix) {
+	if !utils.IsEmpty(prefix) && !strings.HasPrefix(ctx.Message(), prefix) {
 		return fmt.Errorf("commit message should have prefix '%s'", prefix)
 	}
 
@@ -25,7 +25,7 @@ func MessageHasPrefix(ctx internal.SyncContext, prefix string) error {
 }
 
 func MessageHasSuffix(ctx internal.SyncContext, suffix string) error {
-	if utils.IsNotEmpty(suffix) && !strings.HasSuffix(ctx.Message(), suffix) {
+	if !utils.IsEmpty(suffix) && !strings.HasSuffix(ctx.Message(), suffix) {
 		return fmt.Errorf("commit message should have suffix '%s'", suffix)
 	}
 
@@ -33,7 +33,7 @@ func MessageHasSuffix(ctx internal.SyncContext, suffix string) error {
 }
 
 func MessageRegexp(ctx internal.SyncContext, expression string) error {
-	if utils.IsNotEmpty(expression) {
+	if !utils.IsEmpty(expression) {
 		matched, err := regexp.MatchString(expression, ctx.Message())
 		if err != nil {
 			return err

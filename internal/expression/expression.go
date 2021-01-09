@@ -21,8 +21,7 @@ func NewExpressionEngine(variables map[string]interface{}) *Engine {
 		// - filesExist(...glob)
 		// - env(name string)
 		functions: map[string]govaluate.ExpressionFunction{
-			"IsEmpty":    isEmpty,
-			"IsNotEmpty": isNotEmpty,
+			"IsEmpty": isEmpty,
 		},
 	}
 }
