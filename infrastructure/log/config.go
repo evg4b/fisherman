@@ -6,13 +6,20 @@ import (
 )
 
 type OutputConfig struct {
-	LogLevel Level `yaml:"level"`
-	Colors   bool  `yaml:"colors"`
+	LogLevel Level
+	Colors   bool
 }
 
 var DefaultOutputConfig = OutputConfig{
 	LogLevel: InfoLevel,
 	Colors:   true,
+}
+
+var levelMatching = map[string]Level{
+	"error": ErrorLevel,
+	"debug": DebugLevel,
+	"info":  InfoLevel,
+	"none":  NoneLevel,
 }
 
 func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -39,20 +46,9 @@ func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func parselogLevel(level string) (Level, error) {
-	if strings.EqualFold(level, "error") {
-		return ErrorLevel, nil
-	}
-
-	if strings.EqualFold(level, "debug") {
-		return DebugLevel, nil
-	}
-
-	if strings.EqualFold(level, "info") {
-		return InfoLevel, nil
-	}
-
-	if strings.EqualFold(level, "none") {
-		return NoneLevel, nil
+	value, ok := levelMatching[strings.Trim(level, " ")]
+	if ok {
+		return value, nil
 	}
 
 	return NoneLevel, errors.New("incorrect log level")
