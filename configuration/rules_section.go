@@ -2,15 +2,18 @@ package configuration
 
 import (
 	"errors"
+	"fisherman/internal"
 	"fisherman/internal/rules"
 	"fmt"
+	"io"
 
 	"github.com/mitchellh/mapstructure"
 )
 
 type Rule interface {
-	GetContition() string
 	GetType() string
+	GetContition() string
+	RunRule(io.Writer, internal.AsyncContext) error
 }
 
 type RulesSection struct {

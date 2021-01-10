@@ -45,12 +45,7 @@ func NewFactory(
 
 func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
 	if builder, ok := factory.hooksBuilders[name]; ok {
-		hookHandler, err := builder()
-		if err != nil || hookHandler == nil {
-			return nil, err
-		}
-
-		return hookHandler, nil
+		return builder()
 	}
 
 	return nil, errors.New("unknown hook")

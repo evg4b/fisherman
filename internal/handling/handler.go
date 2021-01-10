@@ -1,6 +1,7 @@
 package handling
 
 import (
+	"fisherman/configuration"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/validation"
@@ -15,8 +16,10 @@ type Action = func(internal.SyncContext) (bool, error)
 type HookHandler struct {
 	ContextFactory  internal.CtxFactory
 	BeforeActions   []Action
+	BeforeRules     []configuration.Rule
 	SyncValidators  []validation.SyncValidator
 	AsyncValidators []validation.AsyncValidator
+	AfterRules      []configuration.Rule
 	AfterActions    []Action
 }
 

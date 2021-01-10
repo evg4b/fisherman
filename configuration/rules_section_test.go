@@ -168,7 +168,7 @@ other-custom-filed: 11
 		testType{
 			RulesSection: configuration.RulesSection{
 				Rules: []configuration.Rule{
-					rules.SuppressCommitFiles{
+					&rules.SuppressCommitFiles{
 						BaseRule: rules.BaseRule{
 							Type:      rules.SuppressCommitType,
 							Condition: "1 == 1",
