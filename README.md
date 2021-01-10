@@ -15,7 +15,7 @@
     <a href="https://goreportcard.com/report/github.com/evg4b/fisherman">
         <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/evg4b/fisherman">
     </a>
-    <a href="https://codecov.io/gh/evg4b/fisherman">
+    <a href="https://app.codecov.io/gh/evg4b/fisherman/">
       <img src="https://codecov.io/gh/evg4b/fisherman/branch/master/graph/badge.svg?token=03j5Jsqw3E"/>
     </a>
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/evg4b/fisherman?label=Version">
