@@ -3,6 +3,7 @@ package configuration
 import "fisherman/utils"
 
 type CommitMsgHookConfig struct {
+	RulesSection  `yaml:"-,inline"`
 	Variables     VariablesConfig `yaml:"variables,omitempty"`
 	NotEmpty      bool            `yaml:"not-empty,omitempty"`
 	MessageRegexp string          `yaml:"commit-regexp,omitempty"`
@@ -22,5 +23,12 @@ func (config *CommitMsgHookConfig) GetVariablesConfig() VariablesConfig {
 }
 
 func (config *CommitMsgHookConfig) IsEmpty() bool {
-	return (*config) == CommitMsgHookConfig{}
+	return !config.NotEmpty &&
+		utils.IsEmpty(config.MessageRegexp) &&
+		utils.IsEmpty(config.MessagePrefix) &&
+		utils.IsEmpty(config.MessageSuffix) &&
+		utils.IsEmpty(config.StaticMessage) &&
+		len(config.Rules) == 0 &&
+		utils.IsEmpty(config.Variables.FromBranch) &&
+		utils.IsEmpty(config.Variables.FromLastTag)
 }

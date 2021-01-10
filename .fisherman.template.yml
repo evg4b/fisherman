@@ -2,15 +2,31 @@ variables:
   name: value
 
 hooks:
+
   commit-msg:
     variables:
-      from-branch: 'regexp'
-      from-last-tag: 'regexp'
+      from-branch: regexp
+      from-last-tag: regexp
+
+    rules:
+      - type: commit-suffix
+        condition: 1 == 1
+        suffix: string
+
+      - type: commit-prefix
+        condition: 1 == 1
+        prefix: string
+        suffix: string
+
+      - type: commit-regexp
+        condition: 1 == 1
+        prefix: string
+
     not-empty: false
-    commit-regexp: 'regexp'
-    commit-prefix: 'template'
-    commit-suffix: 'template'
-    static-message: 'template'
+    commit-regexp: regexp
+    commit-prefix: string
+    commit-suffix: string
+    static-message: string
 
   apply-patch-msg: null
 
@@ -22,8 +38,29 @@ hooks:
 
   pre-commit:
     variables:
-      from-branch: 'regexp'
-      from-last-tag: 'regexp'
+      from-branch: regexp
+      from-last-tag: regexp
+
+    rules:
+
+      - type: suppress-commit-files
+        condition: 1 == 1
+        globs: [glob1, glob2, glob3]
+        remove-from-index: true
+
+      - type: commit-suffix
+        condition: 1 == 1
+        suffix: string
+
+      - type: commit-prefix
+        condition: 1 == 1
+        prefix: string
+        suffix: string
+
+      - type: commit-regexp
+        condition: 1 == 1
+        prefix: string
+
     shell:
       windows: command4 arg1 arg2 arg3
       linux:
@@ -48,8 +85,8 @@ hooks:
 
   pre-push:
     variables:
-      from-branch: 'regexp'
-      from-last-tag: 'regexp'
+      from-branch: regexp
+      from-last-tag: regexp
     shell:
       script1:
         - command1
@@ -64,8 +101,8 @@ hooks:
 
   prepare-commit-msg:
     variables:
-      from-branch: 'regexp'
-    message: 'template'
+      from-branch: regexp
+    message: string
     shell:
       demo: 'ls'
 

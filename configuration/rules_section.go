@@ -1,0 +1,92 @@
+package configuration
+
+import (
+	"errors"
+	"fisherman/internal/rules"
+	"fmt"
+
+	"github.com/mitchellh/mapstructure"
+)
+
+type Rule interface {
+	GetContition() string
+	GetType() string
+}
+
+type RulesSection struct {
+	Rules []Rule
+}
+
+func (config *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	config.Rules = []Rule{}
+	var rawSection map[string]interface{}
+
+	err := unmarshal(&rawSection)
+	if err != nil {
+		return err
+	}
+
+	rulesSection, ok := rawSection["rules"]
+	if !ok {
+		return nil
+	}
+
+	rawRules, ok := rulesSection.([]interface{})
+	if !ok {
+		return errors.New("unknown rules markup")
+	}
+
+	for index, rawRule := range rawRules {
+		rule, err := unmarshalRule(rawRule)
+		if err != nil {
+			return fmt.Errorf("error for rule at index %d: %w", index, err)
+		}
+
+		config.Rules = append(config.Rules, rule)
+	}
+
+	return nil
+}
+
+func unmarshalRule(rawRule interface{}) (Rule, error) {
+	typeString, ok := rawRule.(map[string]interface{})["type"]
+	if !ok {
+		return nil, errors.New("property 'type' not defined")
+	}
+
+	switch typeString.(string) {
+	case rules.SuppressCommitType:
+		var rule rules.SuppressCommitFiles
+		err := decode(rawRule, &rule)
+		if err != nil {
+			return nil, err
+		}
+
+		return rule, nil
+
+	case rules.CommitMessageType:
+		var rule rules.CommitMessage
+		err := decode(rawRule, &rule)
+		if err != nil {
+			return nil, err
+		}
+
+		return rule, nil
+
+	default:
+		return nil, errors.New("unknown rule type")
+	}
+}
+
+func decode(input interface{}, output interface{}) error {
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		Result:      output,
+		ErrorUnused: true,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return decoder.Decode(input)
+}
