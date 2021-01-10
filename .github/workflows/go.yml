@@ -34,14 +34,14 @@ jobs:
         run: go build -v -ldflags="-s -w -X fisherman/constants.Version=${{ github.sha }}"
 
       - name: Test
-        run: go test -v -race -cover -coverprofile 'cover.out' ./...
+        run: go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
 
-      - name: Build coverage profile
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          go get github.com/axw/gocov/gocov
-          go get github.com/matm/gocov-html
-          gocov convert 'cover.out' | gocov-html > coverage.html
+      - name: Upload coverage profile
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
+          name: fisherman
+          fail_ci_if_error: true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
@@ -50,13 +50,6 @@ jobs:
           path: |
             fisherman
             fisherman.exe
-
-      - name: Upload coverage profile
-        if: startsWith(matrix.os, 'ubuntu')
-        uses: actions/upload-artifact@v2
-        with:
-          name: Coverage profile
-          path: coverage.html
 
   realise:
     name: Realise application
