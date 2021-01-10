@@ -9,23 +9,8 @@
             "command": "go",
             "args": [
                 "test",
+                "-cover",
                 "./..."
-            ],
-            "problemMatcher": [
-                "$go"
-            ]
-        },
-        {
-            "label": "Coverage report",
-            "type": "shell",
-            "command": "gocov",
-            "args": [
-                "test",
-                "./...",
-                "|",
-                "gocov-html",
-                ">",
-                "coverage.html"
             ],
             "problemMatcher": [
                 "$go"
