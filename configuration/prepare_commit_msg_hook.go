@@ -14,7 +14,3 @@ func (config *PrepareCommitMsgHookConfig) Compile(variables map[string]interface
 func (config *PrepareCommitMsgHookConfig) GetVariablesConfig() VariablesConfig {
 	return config.Variables
 }
-
-func (config *PrepareCommitMsgHookConfig) IsEmpty() bool {
-	return (*config) == PrepareCommitMsgHookConfig{}
-}

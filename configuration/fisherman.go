@@ -13,7 +13,7 @@ type FishermanConfig struct {
 
 var DefaultConfig = FishermanConfig{
 	Hooks: HooksConfig{
-		CommitMsgHook: CommitMsgHookConfig{
+		CommitMsgHook: &CommitMsgHookConfig{
 			MessagePrefix: "[fisherman]",
 			NotEmpty:      true,
 		},

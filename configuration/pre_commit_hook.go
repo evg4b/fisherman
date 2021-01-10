@@ -17,10 +17,3 @@ func (config *PreCommitHookConfig) Compile(variables map[string]interface{}) {
 func (config *PreCommitHookConfig) GetVariablesConfig() VariablesConfig {
 	return config.Variables
 }
-
-func (config *PreCommitHookConfig) IsEmpty() bool {
-	return len(config.Shell) == 0 &&
-		len(config.AddFilesToIndex) == 0 &&
-		config.Variables == VariablesConfig{} &&
-		len(config.SuppressCommitFiles.Globs) == 0
-}

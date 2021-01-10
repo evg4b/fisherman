@@ -18,10 +18,10 @@ func TestFactory_GetHook(t *testing.T) {
 		mocks.NewCtxFactoryMock(t),
 		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{
-			PreCommitHook:        configuration.PreCommitHookConfig{Shell: shell},
-			PrePushHook:          configuration.PrePushHookConfig{Shell: shell},
-			CommitMsgHook:        configuration.CommitMsgHookConfig{MessagePrefix: "test"},
-			PrepareCommitMsgHook: configuration.PrepareCommitMsgHookConfig{Message: "test"},
+			PreCommitHook:        &configuration.PreCommitHookConfig{Shell: shell},
+			PrePushHook:          &configuration.PrePushHookConfig{Shell: shell},
+			CommitMsgHook:        &configuration.CommitMsgHookConfig{MessagePrefix: "test"},
+			PrepareCommitMsgHook: &configuration.PrepareCommitMsgHookConfig{Message: "test"},
 		},
 	)
 

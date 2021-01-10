@@ -12,7 +12,3 @@ func (config *PrePushHookConfig) Compile(variables map[string]interface{}) {
 func (config *PrePushHookConfig) GetVariablesConfig() VariablesConfig {
 	return config.Variables
 }
-
-func (config *PrePushHookConfig) IsEmpty() bool {
-	return len(config.Shell) == 0 && config.Variables == VariablesConfig{}
-}

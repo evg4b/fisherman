@@ -18,7 +18,6 @@ type sourceLoaderConfig = struct {
 type CompilableConfig interface {
 	Compile(configuration.Variables)
 	GetVariablesConfig() configuration.VariablesConfig
-	IsEmpty() bool
 }
 
 type Extractor interface {

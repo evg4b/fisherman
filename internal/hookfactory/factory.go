@@ -46,7 +46,7 @@ func NewFactory(
 func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
 	if builder, ok := factory.hooksBuilders[name]; ok {
 		hookHandler, err := builder()
-		if err != nil {
+		if err != nil || hookHandler == nil {
 			return nil, err
 		}
 
@@ -57,7 +57,7 @@ func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
 }
 
 func (factory *TFactory) prepareConfig(configuration configcompiler.CompilableConfig) (map[string]interface{}, error) {
-	if configuration.IsEmpty() {
+	if configuration == nil {
 		return nil, nil
 	}
 

@@ -21,14 +21,3 @@ func (config *CommitMsgHookConfig) Compile(vars Variables) {
 func (config *CommitMsgHookConfig) GetVariablesConfig() VariablesConfig {
 	return config.Variables
 }
-
-func (config *CommitMsgHookConfig) IsEmpty() bool {
-	return !config.NotEmpty &&
-		utils.IsEmpty(config.MessageRegexp) &&
-		utils.IsEmpty(config.MessagePrefix) &&
-		utils.IsEmpty(config.MessageSuffix) &&
-		utils.IsEmpty(config.StaticMessage) &&
-		len(config.Rules) == 0 &&
-		utils.IsEmpty(config.Variables.FromBranch) &&
-		utils.IsEmpty(config.Variables.FromLastTag)
-}

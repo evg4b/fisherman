@@ -11,8 +11,11 @@ import (
 
 func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.CommitMsgHook
+	if configuration == nil {
+		return nil, nil
+	}
 
-	variables, err := factory.prepareConfig(&configuration)
+	variables, err := factory.prepareConfig(configuration)
 	if err != nil || variables == nil {
 		return nil, err
 	}
@@ -33,8 +36,11 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 
 func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	configuration := factory.config.PreCommitHook
+	if configuration == nil {
+		return nil, nil
+	}
 
-	variables, err := factory.prepareConfig(&configuration)
+	variables, err := factory.prepareConfig(configuration)
 	if err != nil || variables == nil {
 		return nil, err
 	}
@@ -57,8 +63,11 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 
 func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	configuration := factory.config.PrePushHook
+	if configuration == nil {
+		return nil, nil
+	}
 
-	variables, err := factory.prepareConfig(&configuration)
+	variables, err := factory.prepareConfig(configuration)
 	if err != nil || variables == nil {
 		return nil, err
 	}
@@ -74,8 +83,11 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 
 func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.PrepareCommitMsgHook
+	if configuration == nil {
+		return nil, nil
+	}
 
-	variables, err := factory.prepareConfig(&configuration)
+	variables, err := factory.prepareConfig(configuration)
 	if err != nil || variables == nil {
 		return nil, err
 	}
