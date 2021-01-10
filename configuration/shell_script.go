@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fisherman/constants"
 	"fisherman/utils"
 	"fmt"
 	"runtime"
@@ -43,11 +44,11 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 
 	if err := unmarshal(&systemConfig); err == nil {
 		switch runtime.GOOS {
-		case "linux":
+		case constants.LinuxOS:
 			(*config) = systemConfig.Linux
-		case "windows":
+		case constants.WindowsOS:
 			(*config) = systemConfig.Windows
-		case "darwin":
+		case constants.DarwinOS:
 			(*config) = systemConfig.Darwin
 		default:
 			panic(fmt.Sprintf("System %s is not supported", runtime.GOOS))

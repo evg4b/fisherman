@@ -1,16 +1,28 @@
 package filesystem_test
 
 import (
+	"fisherman/constants"
 	"fisherman/infrastructure/filesystem"
 	"fisherman/utils"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+var systemNoFileMessage = ""
+
+func init() {
+	if runtime.GOOS == constants.WindowsOS {
+		systemNoFileMessage = "The system cannot find the path specified."
+	} else {
+		systemNoFileMessage = "no such file or directory"
+	}
+}
 
 func TestLocalFileSystem_Exist(t *testing.T) {
 	existPath := writeFile(t, "test.txt", "Hello word")
@@ -52,7 +64,7 @@ func TestLocalFileSystem_Read(t *testing.T) {
 			name:        "not exist file",
 			path:        "/demo/no/files",
 			expected:    "",
-			expectedErr: "open /demo/no/files: The system cannot find the path specified.",
+			expectedErr: "open /demo/no/files: " + systemNoFileMessage,
 		},
 	}
 
@@ -88,7 +100,7 @@ func TestLocalFileSystem_Delete(t *testing.T) {
 		{
 			name:        "not exist file",
 			path:        "/demo/no/files",
-			expectedErr: "remove /demo/no/files: The system cannot find the path specified.",
+			expectedErr: "remove /demo/no/files: " + systemNoFileMessage,
 		},
 	}
 
@@ -181,7 +193,7 @@ func TestLocalFileSystem_Reader(t *testing.T) {
 			name:        "not exist file",
 			path:        "/demo/no/files",
 			expected:    "",
-			expectedErr: "open /demo/no/files: The system cannot find the path specified.",
+			expectedErr: "open /demo/no/files: " + systemNoFileMessage,
 		},
 	}
 
@@ -229,13 +241,13 @@ func TestLocalFileSystem_Chmod(t *testing.T) {
 			name:         "ModeSetuid",
 			path:         existPath,
 			mode:         os.ModeSetuid,
-			shouldApplay: false,
+			shouldApplay: runtime.GOOS != constants.WindowsOS,
 		},
 		{
 			name:         "ModeSetgid",
 			path:         existPath,
 			mode:         os.ModeSetgid,
-			shouldApplay: false,
+			shouldApplay: runtime.GOOS != constants.WindowsOS,
 		},
 	}
 	for _, tt := range tests {

@@ -2,6 +2,7 @@ package configuration_test
 
 import (
 	. "fisherman/configuration" // nolint
+	"fisherman/constants"
 	"runtime"
 	"strings"
 	"testing"
@@ -66,11 +67,11 @@ darwin:
 
 	assert.NoError(t, err)
 	switch runtime.GOOS {
-	case "linux":
+	case constants.LinuxOS:
 		assert.Equal(t, expectedLinuxConfig, data)
-	case "windows":
+	case constants.WindowsOS:
 		assert.Equal(t, expectedWindowsConfig, data)
-	case "darwin":
+	case constants.DarwinOS:
 		assert.Equal(t, expectedDarwinConfig, data)
 	}
 }
