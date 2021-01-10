@@ -25,7 +25,7 @@ type Repository interface {
 type FileSystem interface {
 	Write(path, content string) error
 	Read(path string) (string, error)
-	Reader(path string) (io.Reader, error)
+	Reader(path string) (io.ReadCloser, error)
 	Exist(path string) bool
 	Delete(path string) error
 	Chmod(path string, mode os.FileMode) error

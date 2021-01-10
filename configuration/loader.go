@@ -49,6 +49,7 @@ func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfi
 	if err != nil {
 		return nil, err
 	}
+	defer reader.Close()
 
 	decoder := yaml.NewDecoder(reader)
 	decoder.KnownFields(true)

@@ -1,11 +1,11 @@
 package filesystem
 
 import (
-	"bufio"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/user"
+	"runtime"
 	"strconv"
 )
 
@@ -33,13 +33,8 @@ func (f *LocalFileSystem) Read(path string) (string, error) {
 	return string(content), nil
 }
 
-func (f *LocalFileSystem) Reader(path string) (io.Reader, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-
-	return bufio.NewReader(file), nil
+func (f *LocalFileSystem) Reader(path string) (io.ReadCloser, error) {
+	return os.Open(path)
 }
 
 func (f *LocalFileSystem) Delete(path string) error {
@@ -55,6 +50,10 @@ func (f *LocalFileSystem) Chmod(path string, mode os.FileMode) error {
 }
 
 func (f *LocalFileSystem) Chown(path string, user *user.User) error {
+	if runtime.GOOS == "windows" {
+		return nil
+	}
+
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
 		return err

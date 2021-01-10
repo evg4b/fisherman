@@ -49,7 +49,7 @@ type FileSystemMock struct {
 	beforeReadCounter uint64
 	ReadMock          mFileSystemMockRead
 
-	funcReader          func(path string) (r1 io.Reader, err error)
+	funcReader          func(path string) (r1 io.ReadCloser, err error)
 	inspectFuncReader   func(path string)
 	afterReaderCounter  uint64
 	beforeReaderCounter uint64
@@ -1195,7 +1195,7 @@ type FileSystemMockReaderParams struct {
 
 // FileSystemMockReaderResults contains results of the FileSystem.Reader
 type FileSystemMockReaderResults struct {
-	r1  io.Reader
+	r1  io.ReadCloser
 	err error
 }
 
@@ -1231,7 +1231,7 @@ func (mmReader *mFileSystemMockReader) Inspect(f func(path string)) *mFileSystem
 }
 
 // Return sets up results that will be returned by FileSystem.Reader
-func (mmReader *mFileSystemMockReader) Return(r1 io.Reader, err error) *FileSystemMock {
+func (mmReader *mFileSystemMockReader) Return(r1 io.ReadCloser, err error) *FileSystemMock {
 	if mmReader.mock.funcReader != nil {
 		mmReader.mock.t.Fatalf("FileSystemMock.Reader mock is already set by Set")
 	}
@@ -1244,7 +1244,7 @@ func (mmReader *mFileSystemMockReader) Return(r1 io.Reader, err error) *FileSyst
 }
 
 //Set uses given function f to mock the FileSystem.Reader method
-func (mmReader *mFileSystemMockReader) Set(f func(path string) (r1 io.Reader, err error)) *FileSystemMock {
+func (mmReader *mFileSystemMockReader) Set(f func(path string) (r1 io.ReadCloser, err error)) *FileSystemMock {
 	if mmReader.defaultExpectation != nil {
 		mmReader.mock.t.Fatalf("Default expectation is already set for the FileSystem.Reader method")
 	}
@@ -1273,13 +1273,13 @@ func (mmReader *mFileSystemMockReader) When(path string) *FileSystemMockReaderEx
 }
 
 // Then sets up FileSystem.Reader return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockReaderExpectation) Then(r1 io.Reader, err error) *FileSystemMock {
+func (e *FileSystemMockReaderExpectation) Then(r1 io.ReadCloser, err error) *FileSystemMock {
 	e.results = &FileSystemMockReaderResults{r1, err}
 	return e.mock
 }
 
 // Reader implements infrastructure.FileSystem
-func (mmReader *FileSystemMock) Reader(path string) (r1 io.Reader, err error) {
+func (mmReader *FileSystemMock) Reader(path string) (r1 io.ReadCloser, err error) {
 	mm_atomic.AddUint64(&mmReader.beforeReaderCounter, 1)
 	defer mm_atomic.AddUint64(&mmReader.afterReaderCounter, 1)
 

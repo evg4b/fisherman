@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"runtime"
 
 	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v3"
@@ -93,13 +92,11 @@ func (command *Command) Run() error {
 		}
 		log.Debugf("Hook file mode changed to %s", fileMode.String())
 
-		if runtime.GOOS != "windows" {
-			err = command.files.Chown(hookPath, command.user)
-			if err != nil {
-				return err
-			}
-			log.Debug("Hook file ownership changed to currect user")
+		err = command.files.Chown(hookPath, command.user)
+		if err != nil {
+			return err
 		}
+		log.Debug("Hook file ownership changed to currect user")
 	}
 
 	return writeConfig(
