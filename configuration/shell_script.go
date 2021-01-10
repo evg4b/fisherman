@@ -1,7 +1,6 @@
 package configuration
 
 import (
-	"fisherman/constants"
 	"fisherman/utils"
 	"fmt"
 	"runtime"
@@ -36,24 +35,8 @@ func (config *ScriptsConfig) UnmarshalYAML(unmarshal func(interface{}) error) er
 		return nil
 	}
 
-	var systemConfig struct {
-		Windows ScriptsConfig `yaml:"windows,omitempty"`
-		Linux   ScriptsConfig `yaml:"linux,omitempty"`
-		Darwin  ScriptsConfig `yaml:"darwin,omitempty"`
-	}
-
-	if err := unmarshal(&systemConfig); err == nil {
-		switch runtime.GOOS {
-		case constants.LinuxOS:
-			(*config) = systemConfig.Linux
-		case constants.WindowsOS:
-			(*config) = systemConfig.Windows
-		case constants.DarwinOS:
-			(*config) = systemConfig.Darwin
-		default:
-			panic(fmt.Sprintf("System %s is not supported", runtime.GOOS))
-		}
-
+	err = unmarshalOSRelated(unmarshal, config)
+	if err == nil {
 		return nil
 	}
 
@@ -102,4 +85,20 @@ func (config *ScriptsConfig) Compile(variables map[string]interface{}) {
 			utils.FillTemplate(&shellScript.Commands[key], variables)
 		}
 	}
+}
+
+func unmarshalOSRelated(unmarshal func(interface{}) error, config *ScriptsConfig) error {
+	var scriptsConfigs map[string]ScriptsConfig
+
+	err := unmarshal(&scriptsConfigs)
+	if err == nil {
+		data, ok := scriptsConfigs[runtime.GOOS]
+		if !ok {
+			return fmt.Errorf("script for %s os is not defined", runtime.GOOS)
+		}
+
+		(*config) = data
+	}
+
+	return err
 }
