@@ -10,10 +10,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+const rulesKey = "rules"
+const typeKey = "type"
+
 type Rule interface {
 	GetType() string
 	GetContition() string
-	RunRule(io.Writer, internal.AsyncContext) error
+	Check(io.Writer, internal.AsyncContext) error
 }
 
 type RulesSection struct {
@@ -29,7 +32,7 @@ func (config *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) err
 		return err
 	}
 
-	rulesSection, ok := rawSection["rules"]
+	rulesSection, ok := rawSection[rulesKey]
 	if !ok {
 		return nil
 	}
@@ -52,9 +55,9 @@ func (config *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) err
 }
 
 func unmarshalRule(rawRule interface{}) (Rule, error) {
-	typeString, ok := rawRule.(map[string]interface{})["type"]
+	typeString, ok := rawRule.(map[string]interface{})[typeKey]
 	if !ok {
-		return nil, errors.New("property 'type' not defined")
+		return nil, fmt.Errorf("required property '%s' not defined", typeKey)
 	}
 
 	switch typeString.(string) {

@@ -13,6 +13,6 @@ type SuppressCommitFiles struct {
 	RemoveFromIndex bool     `mapstructure:"remove-from-index"`
 }
 
-func (config SuppressCommitFiles) RunRule(io.Writer, internal.AsyncContext) error {
+func (config SuppressCommitFiles) Check(io.Writer, internal.AsyncContext) error {
 	return nil
 }
