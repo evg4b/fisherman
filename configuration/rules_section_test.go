@@ -95,7 +95,7 @@ rules:
 rules:
   - condition: 1 == 1
 `,
-			expectedError: "error for rule at index 0: property 'type' not defined",
+			expectedError: "error for rule at index 0: required property 'type' not defined",
 		},
 		{
 			name: "no type section",
