@@ -3,14 +3,20 @@ package remove_test
 import (
 	"errors"
 	"fisherman/commands/remove"
+	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/mocks"
+	"io/ioutil"
 	"os/user"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestCommand_Run(t *testing.T) {
 	command := remove.NewCommand(

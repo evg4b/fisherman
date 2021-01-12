@@ -4,12 +4,18 @@ import (
 	"errors"
 	"fisherman/commands/handle"
 	"fisherman/configuration"
+	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/mocks"
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
 	command := handle.NewCommand(

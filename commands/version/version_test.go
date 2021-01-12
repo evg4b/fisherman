@@ -6,10 +6,15 @@ import (
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestCommand_Run(t *testing.T) {
 	output := bytes.NewBufferString("")
