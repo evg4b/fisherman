@@ -23,12 +23,14 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	return &handling.HookHandler{
 		ContextFactory: factory.ctxFactory,
 		BeforeActions:  NoBeforeActions,
+		Rules:          getBaseRules(configuration.Rules),
 		SyncValidators: []validation.SyncValidator{
 			boolWrapper(validators.MessageNotEmpty, configuration.NotEmpty),
 			stringWrapper(validators.MessageHasPrefix, configuration.MessagePrefix),
 			stringWrapper(validators.MessageHasSuffix, configuration.MessageSuffix),
 			stringWrapper(validators.MessageRegexp, configuration.MessageRegexp),
 		},
+		PostScriptRules: getPostScriptRules(configuration.Rules),
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
 	}, nil

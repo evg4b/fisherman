@@ -16,10 +16,10 @@ type Action = func(internal.SyncContext) (bool, error)
 type HookHandler struct {
 	ContextFactory  internal.CtxFactory
 	BeforeActions   []Action
-	BeforeRules     []configuration.Rule
+	Rules           []configuration.Rule
 	SyncValidators  []validation.SyncValidator
 	AsyncValidators []validation.AsyncValidator
-	AfterRules      []configuration.Rule
+	PostScriptRules []configuration.Rule
 	AfterActions    []Action
 }
 

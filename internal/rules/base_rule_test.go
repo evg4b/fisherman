@@ -17,3 +17,9 @@ func TestBaseRule_GetContition(t *testing.T) {
 
 	assert.Equal(t, "rule-condition", rule.GetContition())
 }
+
+func TestBaseRule_GetPosition(t *testing.T) {
+	rule := BaseRule{Type: "demo-rule", Condition: "rule-condition"}
+
+	assert.Equal(t, BeforeScripts, rule.GetPosition())
+}

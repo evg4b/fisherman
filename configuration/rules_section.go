@@ -16,6 +16,7 @@ const typeKey = "type"
 type Rule interface {
 	GetType() string
 	GetContition() string
+	GetPosition() byte
 	Check(io.Writer, internal.AsyncContext) error
 }
 
