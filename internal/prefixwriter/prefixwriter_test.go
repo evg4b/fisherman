@@ -1,7 +1,8 @@
-package prefixwriter
+package prefixwriter_test
 
 import (
 	"bytes"
+	"fisherman/internal/prefixwriter"
 	"fmt"
 	"testing"
 
@@ -26,7 +27,7 @@ func TestPrefixWriter_Write(t *testing.T) {
 	for _, dd := range testData {
 		t.Run(dd.name, func(t *testing.T) {
 			var buf bytes.Buffer
-			prefixwriter := New(&buf, prefix)
+			prefixwriter := prefixwriter.New(&buf, prefix)
 			fmt.Fprintf(prefixwriter, dd.input)
 
 			assert.Equal(t, dd.expected, buf.String())
@@ -38,7 +39,7 @@ func TestPrefixWriter_Write_AppendMode(t *testing.T) {
 	prefix := "prefix: "
 
 	var buf bytes.Buffer
-	prefixwriter := New(&buf, prefix)
+	prefixwriter := prefixwriter.New(&buf, prefix)
 
 	fmt.Fprintln(prefixwriter, "input 1")
 	fmt.Fprint(prefixwriter, "input 2")
