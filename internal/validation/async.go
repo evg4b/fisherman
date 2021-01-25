@@ -10,9 +10,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-type AsyncValidator = func(ctx internal.AsyncContext) AsyncValidationResult
+type AsyncValidator = func(ctx internal.ExecutionContext) AsyncValidationResult
 
-func RunAsync(ctx internal.AsyncContext, validators []AsyncValidator) error {
+func RunAsync(ctx internal.ExecutionContext, validators []AsyncValidator) error {
 	output := make(chan AsyncValidationResult)
 
 	var multierr *multierror.Error
@@ -37,7 +37,7 @@ func RunAsync(ctx internal.AsyncContext, validators []AsyncValidator) error {
 	return multierr.ErrorOrNil()
 }
 
-func runAsyncInternal(output chan AsyncValidationResult, ctx internal.AsyncContext, validators []AsyncValidator) {
+func runAsyncInternal(output chan AsyncValidationResult, ctx internal.ExecutionContext, validators []AsyncValidator) {
 	var wg sync.WaitGroup
 	for _, validator := range validators {
 		go wrap(output, &wg, validator)(ctx)
@@ -46,12 +46,12 @@ func runAsyncInternal(output chan AsyncValidationResult, ctx internal.AsyncConte
 	close(output)
 }
 
-type wrappedValidator = func(ctx internal.AsyncContext)
+type wrappedValidator = func(ctx internal.ExecutionContext)
 
 func wrap(output chan AsyncValidationResult, wg *sync.WaitGroup, validator AsyncValidator) wrappedValidator {
 	wg.Add(1)
 
-	return func(ctx internal.AsyncContext) {
+	return func(ctx internal.ExecutionContext) {
 		defer wg.Done()
 		result := validator(ctx)
 

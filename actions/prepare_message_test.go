@@ -9,7 +9,7 @@ import (
 )
 
 func TestPrepareMessage_NotConfigured(t *testing.T) {
-	next, err := actions.PrepareMessage(mocks.NewAsyncContextMock(t), "")
+	next, err := actions.PrepareMessage(mocks.NewExecutionContextMock(t), "")
 
 	assert.NoError(t, err)
 	assert.True(t, next)
@@ -22,7 +22,7 @@ func TestPrepareMessage_CorrectWrite(t *testing.T) {
 	fs := mocks.NewFileSystemMock(t).
 		WriteMock.Expect(messageFilePath, message).Return(nil)
 
-	ctx := mocks.NewAsyncContextMock(t).
+	ctx := mocks.NewExecutionContextMock(t).
 		ArgsMock.Return([]string{messageFilePath}).
 		FilesMock.Return(fs)
 

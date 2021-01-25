@@ -12,7 +12,7 @@ import (
 )
 
 func TestSuppresCommitFiles_NotConfigured(t *testing.T) {
-	next, err := actions.SuppresCommitFiles(mocks.NewAsyncContextMock(t), actions.SuppresCommitFilesSections{})
+	next, err := actions.SuppresCommitFiles(mocks.NewExecutionContextMock(t), actions.SuppresCommitFilesSections{})
 
 	assert.NoError(t, err)
 	assert.True(t, next)
@@ -24,7 +24,7 @@ func TestSuppresCommitFiles_WithRemoveFromIndex(t *testing.T) {
 		RemoveGlobMock.When("demo.css").Then(git.ErrGlobNoMatches).
 		GetFilesInIndexMock.Expect().Return([]string{"glob1/demo.go", "demo.css"}, nil)
 
-	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.SuppresCommitFiles(ctx, actions.SuppresCommitFilesSections{
 		Globs:           []string{"glob1/*.go", "*.css", "mocks"},
@@ -40,7 +40,7 @@ func TestSuppresCommitFiles(t *testing.T) {
 		RemoveGlobMock.When("glob1/demo.go").Then(nil).
 		GetFilesInIndexMock.Expect().Return([]string{"glob1/demo.go"}, nil)
 
-	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.SuppresCommitFiles(ctx, actions.SuppresCommitFilesSections{
 		Globs: []string{"glob1/*.go", "*.css", "mocks"},
@@ -54,7 +54,7 @@ func TestSuppresCommitFiles_GetFilesInIndexError(t *testing.T) {
 	repo := mocks.NewRepositoryMock(t).
 		GetFilesInIndexMock.Expect().Return([]string{"glob1/demo.go"}, errors.New("test error"))
 
-	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.SuppresCommitFiles(ctx, actions.SuppresCommitFilesSections{
 		Globs: []string{"glob1/*.go", "*.css", "mocks"},
@@ -68,7 +68,7 @@ func TestSuppresCommitFiles_MatchingError(t *testing.T) {
 	repo := mocks.NewRepositoryMock(t).
 		GetFilesInIndexMock.Expect().Return([]string{"glob1/demo.go"}, nil)
 
-	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.SuppresCommitFiles(ctx, actions.SuppresCommitFilesSections{
 		Globs: []string{"[/"},
@@ -83,7 +83,7 @@ func TestSuppresCommitFiles_RemoveGlobError(t *testing.T) {
 		RemoveGlobMock.Expect("glob1/demo.go").Return(errors.New("test error")).
 		GetFilesInIndexMock.Expect().Return([]string{"glob1/demo.go"}, nil)
 
-	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.SuppresCommitFiles(ctx, actions.SuppresCommitFilesSections{
 		Globs:           []string{"glob1/*.go", "*.css", "mocks"},

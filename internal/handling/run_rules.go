@@ -15,7 +15,7 @@ import (
 
 type in = <-chan configuration.Rule
 type out = chan<- error
-type coxtext = internal.AsyncContext
+type coxtext = internal.ExecutionContext
 
 func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	input := make(chan configuration.Rule)

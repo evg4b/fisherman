@@ -14,30 +14,30 @@ import (
 )
 
 func TestRunAsync_Empty(t *testing.T) {
-	err := validation.RunAsync(mocks.NewAsyncContextMock(t), []validation.AsyncValidator{})
+	err := validation.RunAsync(mocks.NewExecutionContextMock(t), []validation.AsyncValidator{})
 
 	assert.NoError(t, err)
 }
 
 func TestRunAsync(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t).ErrMock.Return(nil).StopMock.Return()
+	ctx := mocks.NewExecutionContextMock(t).ErrMock.Return(nil).StopMock.Return()
 
 	validators := []validation.AsyncValidator{
-		func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validation.AsyncValidationResult{
 				Name:  "test",
 				Error: nil,
 				Time:  time.Hour,
 			}
 		},
-		func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validation.AsyncValidationResult{
 				Name:  "test-2",
 				Error: errors.New("error-1"),
 				Time:  time.Hour,
 			}
 		},
-		func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validation.AsyncValidationResult{
 				Name:  "test-3",
 				Error: nil,
@@ -56,12 +56,12 @@ func TestRunAsync(t *testing.T) {
 }
 
 func TestRunAsync_Canceled(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t).
+	ctx := mocks.NewExecutionContextMock(t).
 		ErrMock.Return(context.Canceled).
 		StopMock.Return()
 
 	validators := []validation.AsyncValidator{
-		func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validation.AsyncValidationResult{
 				Name:  "test-2",
 				Error: nil,
@@ -76,12 +76,12 @@ func TestRunAsync_Canceled(t *testing.T) {
 }
 
 func TestRunAsync_DeadlineExceeded(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t).
+	ctx := mocks.NewExecutionContextMock(t).
 		ErrMock.Return(context.DeadlineExceeded).
 		StopMock.Return()
 
 	validators := []validation.AsyncValidator{
-		func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validation.AsyncValidationResult{
 				Name:  "test-2",
 				Error: nil,

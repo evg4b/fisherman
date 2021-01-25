@@ -8,7 +8,7 @@ import (
 
 type CtxFactory = func(args []string, output io.Writer) *Context
 
-type AsyncContext interface {
+type ExecutionContext interface {
 	context.Context
 	Files() infrastructure.FileSystem
 	Shell() infrastructure.Shell

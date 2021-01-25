@@ -21,7 +21,7 @@ func scriptWrapper(scripts hooks.ScriptsConfig, engine expression.Engine) []vali
 			}
 		}
 
-		validatorList = append(validatorList, func(ctx internal.AsyncContext) validation.AsyncValidationResult {
+		validatorList = append(validatorList, func(ctx internal.ExecutionContext) validation.AsyncValidationResult {
 			return validators.ScriptValidator(ctx, script.Shell, shell.ShScriptConfig{
 				Name:     name,
 				Commands: script.Commands,

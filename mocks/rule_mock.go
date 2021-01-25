@@ -18,8 +18,8 @@ import (
 type RuleMock struct {
 	t minimock.Tester
 
-	funcCheck          func(w1 io.Writer, a1 internal.AsyncContext) (err error)
-	inspectFuncCheck   func(w1 io.Writer, a1 internal.AsyncContext)
+	funcCheck          func(w1 io.Writer, a1 internal.ExecutionContext) (err error)
+	inspectFuncCheck   func(w1 io.Writer, a1 internal.ExecutionContext)
 	afterCheckCounter  uint64
 	beforeCheckCounter uint64
 	CheckMock          mRuleMockCheck
@@ -82,7 +82,7 @@ type RuleMockCheckExpectation struct {
 // RuleMockCheckParams contains parameters of the Rule.Check
 type RuleMockCheckParams struct {
 	w1 io.Writer
-	a1 internal.AsyncContext
+	a1 internal.ExecutionContext
 }
 
 // RuleMockCheckResults contains results of the Rule.Check
@@ -91,7 +91,7 @@ type RuleMockCheckResults struct {
 }
 
 // Expect sets up expected params for Rule.Check
-func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, a1 internal.AsyncContext) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, a1 internal.ExecutionContext) *mRuleMockCheck {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
@@ -111,7 +111,7 @@ func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, a1 internal.AsyncContext) *m
 }
 
 // Inspect accepts an inspector function that has same arguments as the Rule.Check
-func (mmCheck *mRuleMockCheck) Inspect(f func(w1 io.Writer, a1 internal.AsyncContext)) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Inspect(f func(w1 io.Writer, a1 internal.ExecutionContext)) *mRuleMockCheck {
 	if mmCheck.mock.inspectFuncCheck != nil {
 		mmCheck.mock.t.Fatalf("Inspect function is already set for RuleMock.Check")
 	}
@@ -135,7 +135,7 @@ func (mmCheck *mRuleMockCheck) Return(err error) *RuleMock {
 }
 
 //Set uses given function f to mock the Rule.Check method
-func (mmCheck *mRuleMockCheck) Set(f func(w1 io.Writer, a1 internal.AsyncContext) (err error)) *RuleMock {
+func (mmCheck *mRuleMockCheck) Set(f func(w1 io.Writer, a1 internal.ExecutionContext) (err error)) *RuleMock {
 	if mmCheck.defaultExpectation != nil {
 		mmCheck.mock.t.Fatalf("Default expectation is already set for the Rule.Check method")
 	}
@@ -150,7 +150,7 @@ func (mmCheck *mRuleMockCheck) Set(f func(w1 io.Writer, a1 internal.AsyncContext
 
 // When sets expectation for the Rule.Check which will trigger the result defined by the following
 // Then helper
-func (mmCheck *mRuleMockCheck) When(w1 io.Writer, a1 internal.AsyncContext) *RuleMockCheckExpectation {
+func (mmCheck *mRuleMockCheck) When(w1 io.Writer, a1 internal.ExecutionContext) *RuleMockCheckExpectation {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
@@ -170,7 +170,7 @@ func (e *RuleMockCheckExpectation) Then(err error) *RuleMock {
 }
 
 // Check implements configuration.Rule
-func (mmCheck *RuleMock) Check(w1 io.Writer, a1 internal.AsyncContext) (err error) {
+func (mmCheck *RuleMock) Check(w1 io.Writer, a1 internal.ExecutionContext) (err error) {
 	mm_atomic.AddUint64(&mmCheck.beforeCheckCounter, 1)
 	defer mm_atomic.AddUint64(&mmCheck.afterCheckCounter, 1)
 

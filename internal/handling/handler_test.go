@@ -12,7 +12,7 @@ import (
 
 // nolint: dupl
 func TestHookHandler_Handle_Rules(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t)
+	ctx := mocks.NewExecutionContextMock(t)
 
 	tests := []struct {
 		name    string
@@ -115,7 +115,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 
 // nolint: dupl
 func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t)
+	ctx := mocks.NewExecutionContextMock(t)
 
 	tests := []struct {
 		name    string

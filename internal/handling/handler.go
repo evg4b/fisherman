@@ -8,10 +8,10 @@ import (
 )
 
 type Handler interface {
-	Handle(ctx internal.AsyncContext, args []string) error
+	Handle(ctx internal.ExecutionContext, args []string) error
 }
 
-type Action = func(internal.AsyncContext) (bool, error)
+type Action = func(internal.ExecutionContext) (bool, error)
 
 type HookHandler struct {
 	Engine          expression.Engine
@@ -24,7 +24,7 @@ type HookHandler struct {
 	WorkersCount    int
 }
 
-func (handler *HookHandler) Handle(ctx internal.AsyncContext, args []string) error {
+func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string) error {
 	next, err := RunActions(ctx, handler.BeforeActions)
 	if err != nil || !next {
 		return err
@@ -50,7 +50,7 @@ func (handler *HookHandler) Handle(ctx internal.AsyncContext, args []string) err
 	return err
 }
 
-func RunActions(ctx internal.AsyncContext, actions []Action) (bool, error) {
+func RunActions(ctx internal.ExecutionContext, actions []Action) (bool, error) {
 	for _, action := range actions {
 		next, err := action(ctx)
 		if err != nil || !next {

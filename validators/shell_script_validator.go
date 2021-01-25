@@ -7,7 +7,7 @@ import (
 )
 
 func ScriptValidator(
-	ctx internal.AsyncContext,
+	ctx internal.ExecutionContext,
 	shellName string,
 	script shell.ShScriptConfig,
 ) validation.AsyncValidationResult {

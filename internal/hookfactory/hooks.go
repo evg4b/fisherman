@@ -46,10 +46,10 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 		BeforeActions:   NoBeforeActions,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions: []handling.Action{
-			func(ctx internal.AsyncContext) (bool, error) {
+			func(ctx internal.ExecutionContext) (bool, error) {
 				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
 			},
-			func(ctx internal.AsyncContext) (bool, error) {
+			func(ctx internal.ExecutionContext) (bool, error) {
 				return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
 			},
 		},
@@ -89,7 +89,7 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 
 	return &handling.HookHandler{
 		BeforeActions: []handling.Action{
-			func(ctx internal.AsyncContext) (bool, error) {
+			func(ctx internal.ExecutionContext) (bool, error) {
 				return actions.PrepareMessage(ctx, configuration.Message)
 			},
 		},

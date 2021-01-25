@@ -38,7 +38,7 @@ func TestScriptValidator(t *testing.T) {
 		assert.Equal(t, script.Output, shScript.Output)
 	}).Return(expectedResult)
 
-	ctx := mocks.NewAsyncContextMock(t).
+	ctx := mocks.NewExecutionContextMock(t).
 		ShellMock.Return(sh)
 
 	result := validators.ScriptValidator(ctx, shell.DefaultShell, script)

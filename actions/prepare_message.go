@@ -5,7 +5,7 @@ import (
 	"fisherman/utils"
 )
 
-func PrepareMessage(ctx internal.AsyncContext, message string) (bool, error) {
+func PrepareMessage(ctx internal.ExecutionContext, message string) (bool, error) {
 	if !utils.IsEmpty(message) {
 		args := ctx.Args()
 		files := ctx.Files()

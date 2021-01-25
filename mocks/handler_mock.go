@@ -17,8 +17,8 @@ import (
 type HandlerMock struct {
 	t minimock.Tester
 
-	funcHandle          func(a1 internal.AsyncContext, args []string) (err error)
-	inspectFuncHandle   func(a1 internal.AsyncContext, args []string)
+	funcHandle          func(a1 internal.ExecutionContext, args []string) (err error)
+	inspectFuncHandle   func(a1 internal.ExecutionContext, args []string)
 	afterHandleCounter  uint64
 	beforeHandleCounter uint64
 	HandleMock          mHandlerMockHandle
@@ -56,7 +56,7 @@ type HandlerMockHandleExpectation struct {
 
 // HandlerMockHandleParams contains parameters of the Handler.Handle
 type HandlerMockHandleParams struct {
-	a1   internal.AsyncContext
+	a1   internal.ExecutionContext
 	args []string
 }
 
@@ -66,7 +66,7 @@ type HandlerMockHandleResults struct {
 }
 
 // Expect sets up expected params for Handler.Handle
-func (mmHandle *mHandlerMockHandle) Expect(a1 internal.AsyncContext, args []string) *mHandlerMockHandle {
+func (mmHandle *mHandlerMockHandle) Expect(a1 internal.ExecutionContext, args []string) *mHandlerMockHandle {
 	if mmHandle.mock.funcHandle != nil {
 		mmHandle.mock.t.Fatalf("HandlerMock.Handle mock is already set by Set")
 	}
@@ -86,7 +86,7 @@ func (mmHandle *mHandlerMockHandle) Expect(a1 internal.AsyncContext, args []stri
 }
 
 // Inspect accepts an inspector function that has same arguments as the Handler.Handle
-func (mmHandle *mHandlerMockHandle) Inspect(f func(a1 internal.AsyncContext, args []string)) *mHandlerMockHandle {
+func (mmHandle *mHandlerMockHandle) Inspect(f func(a1 internal.ExecutionContext, args []string)) *mHandlerMockHandle {
 	if mmHandle.mock.inspectFuncHandle != nil {
 		mmHandle.mock.t.Fatalf("Inspect function is already set for HandlerMock.Handle")
 	}
@@ -110,7 +110,7 @@ func (mmHandle *mHandlerMockHandle) Return(err error) *HandlerMock {
 }
 
 //Set uses given function f to mock the Handler.Handle method
-func (mmHandle *mHandlerMockHandle) Set(f func(a1 internal.AsyncContext, args []string) (err error)) *HandlerMock {
+func (mmHandle *mHandlerMockHandle) Set(f func(a1 internal.ExecutionContext, args []string) (err error)) *HandlerMock {
 	if mmHandle.defaultExpectation != nil {
 		mmHandle.mock.t.Fatalf("Default expectation is already set for the Handler.Handle method")
 	}
@@ -125,7 +125,7 @@ func (mmHandle *mHandlerMockHandle) Set(f func(a1 internal.AsyncContext, args []
 
 // When sets expectation for the Handler.Handle which will trigger the result defined by the following
 // Then helper
-func (mmHandle *mHandlerMockHandle) When(a1 internal.AsyncContext, args []string) *HandlerMockHandleExpectation {
+func (mmHandle *mHandlerMockHandle) When(a1 internal.ExecutionContext, args []string) *HandlerMockHandleExpectation {
 	if mmHandle.mock.funcHandle != nil {
 		mmHandle.mock.t.Fatalf("HandlerMock.Handle mock is already set by Set")
 	}
@@ -145,7 +145,7 @@ func (e *HandlerMockHandleExpectation) Then(err error) *HandlerMock {
 }
 
 // Handle implements handling.Handler
-func (mmHandle *HandlerMock) Handle(a1 internal.AsyncContext, args []string) (err error) {
+func (mmHandle *HandlerMock) Handle(a1 internal.ExecutionContext, args []string) (err error) {
 	mm_atomic.AddUint64(&mmHandle.beforeHandleCounter, 1)
 	defer mm_atomic.AddUint64(&mmHandle.afterHandleCounter, 1)
 

@@ -29,7 +29,7 @@ func (section *SuppresCommitFilesSections) UnmarshalYAML(unmarshal func(interfac
 	return unmarshal((*plain)(section))
 }
 
-func SuppresCommitFiles(ctx internal.AsyncContext, section SuppresCommitFilesSections) (bool, error) {
+func SuppresCommitFiles(ctx internal.ExecutionContext, section SuppresCommitFilesSections) (bool, error) {
 	if len(section.Globs) == 0 {
 		return true, nil
 	}

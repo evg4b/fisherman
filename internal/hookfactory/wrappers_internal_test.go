@@ -13,7 +13,7 @@ import (
 )
 
 func Test_scriptWrapper(t *testing.T) {
-	ctx := mocks.NewAsyncContextMock(t)
+	ctx := mocks.NewExecutionContextMock(t)
 	scriptName := "test-script"
 	script := hooks.ScriptConfig{
 		Commands: []string{"1", "2"},

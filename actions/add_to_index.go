@@ -27,7 +27,7 @@ func (glob *Glob) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return unmarshal((*plain)(glob))
 }
 
-func AddToIndex(ctx internal.AsyncContext, globs []Glob) (bool, error) {
+func AddToIndex(ctx internal.ExecutionContext, globs []Glob) (bool, error) {
 	if len(globs) > 0 {
 		repo := ctx.Repository()
 		for _, glob := range globs {
