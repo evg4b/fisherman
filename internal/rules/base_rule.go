@@ -1,5 +1,6 @@
 package rules
 
+// TODO: Create more flexible approach to create correct execution order
 var (
 	BeforeScripts byte = 1
 	AfterScripts  byte = 2

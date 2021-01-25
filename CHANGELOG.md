@@ -3,6 +3,7 @@
 ## Unrealized
 
 ### Implemented :
+  - Implemented new rule based approach to validation
   - Added `add-to-index` section for include files in index after scripts.
   - Added property to configure working directory for shell scripts.
   - Added default global shell configuration.

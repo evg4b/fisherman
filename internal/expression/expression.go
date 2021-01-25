@@ -28,6 +28,7 @@ func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
 }
 
 func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
+	// TODO: add global and local function. This case need to configure unique functions for each hook
 	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.functions)
 	if err != nil {
 		return false, err

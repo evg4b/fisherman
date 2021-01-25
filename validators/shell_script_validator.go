@@ -6,6 +6,7 @@ import (
 	"fisherman/internal/validation"
 )
 
+// TODO: Port to rule
 func ScriptValidator(
 	ctx internal.ExecutionContext,
 	shellName string,
