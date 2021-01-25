@@ -17,9 +17,10 @@ func NewExpressionEngine(variables map[string]interface{}) *Engine {
 	return &Engine{
 		variables: variables,
 		// TODO: Add functions:
-		// - filesChanged(...glob)
-		// - filesExist(...glob)
-		// - env(name string)
+		// - filesChanged(...glob) bool
+		// - filesExist(...glob) bool
+		// - env(name string) string
+		// - filesChangedRelativeTo(...glob, branch) bool
 		functions: map[string]govaluate.ExpressionFunction{
 			"IsEmpty": isEmpty,
 		},
