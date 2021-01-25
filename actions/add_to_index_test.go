@@ -12,7 +12,7 @@ import (
 )
 
 func TestAddToIndex_NotConfigured(t *testing.T) {
-	next, err := actions.AddToIndex(mocks.NewSyncContextMock(t), []actions.Glob{})
+	next, err := actions.AddToIndex(mocks.NewAsyncContextMock(t), []actions.Glob{})
 
 	assert.NoError(t, err)
 	assert.True(t, next)
@@ -24,7 +24,7 @@ func TestAddToIndex_CorrectAddToIndex(t *testing.T) {
 		AddGlobMock.When("*.css").Then(nil).
 		AddGlobMock.When("mocks").Then(nil)
 
-	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.AddToIndex(ctx, []actions.Glob{
 		{"glob1/*.go", true},
@@ -42,7 +42,7 @@ func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 		AddGlobMock.When("*.css").Then(errors.New("testError")).
 		AddGlobMock.When("mocks").Then(nil)
 
-	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
 
 	next, err := actions.AddToIndex(ctx, []actions.Glob{
 		{"glob1/*.go", true},
@@ -60,7 +60,7 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 		AddGlobMock.When("*.css").Then(git.ErrGlobNoMatches).
 		AddGlobMock.When("mocks").Then(nil)
 
-	ctx := mocks.NewSyncContextMock(t).RepositoryMock.Return(repo)
+	ctx := mocks.NewAsyncContextMock(t).RepositoryMock.Return(repo)
 
 	tests := []struct {
 		name       string

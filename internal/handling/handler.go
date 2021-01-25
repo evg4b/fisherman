@@ -11,7 +11,7 @@ type Handler interface {
 	Handle(ctx internal.AsyncContext, args []string) error
 }
 
-type Action = func(internal.SyncContext) (bool, error)
+type Action = func(internal.AsyncContext) (bool, error)
 
 type HookHandler struct {
 	Engine          expression.Engine
@@ -50,7 +50,7 @@ func (handler *HookHandler) Handle(ctx internal.AsyncContext, args []string) err
 	return err
 }
 
-func RunActions(ctx internal.SyncContext, actions []Action) (bool, error) {
+func RunActions(ctx internal.AsyncContext, actions []Action) (bool, error) {
 	for _, action := range actions {
 		next, err := action(ctx)
 		if err != nil || !next {

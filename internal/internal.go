@@ -8,18 +8,14 @@ import (
 
 type CtxFactory = func(args []string, output io.Writer) *Context
 
-type SyncContext interface {
+type AsyncContext interface {
+	context.Context
 	Files() infrastructure.FileSystem
 	Shell() infrastructure.Shell
 	Repository() infrastructure.Repository
 	Args() []string
 	Output() io.Writer
 	Message() string
-}
-
-type AsyncContext interface {
-	SyncContext
-	context.Context
 	Stop()
 }
 
