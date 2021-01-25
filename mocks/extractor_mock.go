@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal/configcompiler.Extractor -o ./mocks\extractor_mock.go
 
 import (
-	hooks "fisherman/configuration"
+	"fisherman/configuration"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -17,8 +17,8 @@ import (
 type ExtractorMock struct {
 	t minimock.Tester
 
-	funcVariables          func(section hooks.VariablesConfig) (m1 map[string]interface{}, err error)
-	inspectFuncVariables   func(section hooks.VariablesConfig)
+	funcVariables          func(section configuration.VariablesConfig) (m1 map[string]interface{}, err error)
+	inspectFuncVariables   func(section configuration.VariablesConfig)
 	afterVariablesCounter  uint64
 	beforeVariablesCounter uint64
 	VariablesMock          mExtractorMockVariables
@@ -56,7 +56,7 @@ type ExtractorMockVariablesExpectation struct {
 
 // ExtractorMockVariablesParams contains parameters of the Extractor.Variables
 type ExtractorMockVariablesParams struct {
-	section hooks.VariablesConfig
+	section configuration.VariablesConfig
 }
 
 // ExtractorMockVariablesResults contains results of the Extractor.Variables
@@ -66,7 +66,7 @@ type ExtractorMockVariablesResults struct {
 }
 
 // Expect sets up expected params for Extractor.Variables
-func (mmVariables *mExtractorMockVariables) Expect(section hooks.VariablesConfig) *mExtractorMockVariables {
+func (mmVariables *mExtractorMockVariables) Expect(section configuration.VariablesConfig) *mExtractorMockVariables {
 	if mmVariables.mock.funcVariables != nil {
 		mmVariables.mock.t.Fatalf("ExtractorMock.Variables mock is already set by Set")
 	}
@@ -86,7 +86,7 @@ func (mmVariables *mExtractorMockVariables) Expect(section hooks.VariablesConfig
 }
 
 // Inspect accepts an inspector function that has same arguments as the Extractor.Variables
-func (mmVariables *mExtractorMockVariables) Inspect(f func(section hooks.VariablesConfig)) *mExtractorMockVariables {
+func (mmVariables *mExtractorMockVariables) Inspect(f func(section configuration.VariablesConfig)) *mExtractorMockVariables {
 	if mmVariables.mock.inspectFuncVariables != nil {
 		mmVariables.mock.t.Fatalf("Inspect function is already set for ExtractorMock.Variables")
 	}
@@ -110,7 +110,7 @@ func (mmVariables *mExtractorMockVariables) Return(m1 map[string]interface{}, er
 }
 
 //Set uses given function f to mock the Extractor.Variables method
-func (mmVariables *mExtractorMockVariables) Set(f func(section hooks.VariablesConfig) (m1 map[string]interface{}, err error)) *ExtractorMock {
+func (mmVariables *mExtractorMockVariables) Set(f func(section configuration.VariablesConfig) (m1 map[string]interface{}, err error)) *ExtractorMock {
 	if mmVariables.defaultExpectation != nil {
 		mmVariables.mock.t.Fatalf("Default expectation is already set for the Extractor.Variables method")
 	}
@@ -125,7 +125,7 @@ func (mmVariables *mExtractorMockVariables) Set(f func(section hooks.VariablesCo
 
 // When sets expectation for the Extractor.Variables which will trigger the result defined by the following
 // Then helper
-func (mmVariables *mExtractorMockVariables) When(section hooks.VariablesConfig) *ExtractorMockVariablesExpectation {
+func (mmVariables *mExtractorMockVariables) When(section configuration.VariablesConfig) *ExtractorMockVariablesExpectation {
 	if mmVariables.mock.funcVariables != nil {
 		mmVariables.mock.t.Fatalf("ExtractorMock.Variables mock is already set by Set")
 	}
@@ -145,7 +145,7 @@ func (e *ExtractorMockVariablesExpectation) Then(m1 map[string]interface{}, err 
 }
 
 // Variables implements configcompiler.Extractor
-func (mmVariables *ExtractorMock) Variables(section hooks.VariablesConfig) (m1 map[string]interface{}, err error) {
+func (mmVariables *ExtractorMock) Variables(section configuration.VariablesConfig) (m1 map[string]interface{}, err error) {
 	mm_atomic.AddUint64(&mmVariables.beforeVariablesCounter, 1)
 	defer mm_atomic.AddUint64(&mmVariables.afterVariablesCounter, 1)
 

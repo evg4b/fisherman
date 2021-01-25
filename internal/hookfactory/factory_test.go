@@ -15,7 +15,6 @@ func TestFactory_GetHook(t *testing.T) {
 		"demo": configuration.ScriptConfig{},
 	}
 	factory := hookfactory.NewFactory(
-		mocks.NewCtxFactoryMock(t),
 		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{
 			PreCommitHook:        &configuration.PreCommitHookConfig{Shell: shell},
@@ -37,7 +36,6 @@ func TestFactory_GetHook(t *testing.T) {
 
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
 	factory := hookfactory.NewFactory(
-		mocks.NewCtxFactoryMock(t),
 		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{},
 	)
@@ -54,7 +52,6 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
 	factory := hookfactory.NewFactory(
-		mocks.NewCtxFactoryMock(t),
 		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{},
 	)

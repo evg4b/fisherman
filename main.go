@@ -48,7 +48,7 @@ func main() {
 
 	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
 	extractor := configcompiler.NewConfigExtractor(repository, config.GlobalVariables, cwd)
-	hookFactory := hookfactory.NewFactory(ctxFactory, extractor, config.Hooks)
+	hookFactory := hookfactory.NewFactory(extractor, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,
@@ -58,7 +58,7 @@ func main() {
 
 	commands := []commands.CliCommand{
 		initialize.NewCommand(fileSystem, &appInfo, usr),
-		handle.NewCommand(hookFactory, &config.Hooks, &appInfo),
+		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, &appInfo),
 		remove.NewCommand(fileSystem, &appInfo, usr),
 		version.NewCommand(),
 	}

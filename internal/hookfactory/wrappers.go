@@ -26,7 +26,7 @@ func boolWrapper(validator boolF, config bool) validation.SyncValidator {
 	}
 }
 
-func scriptWrapper(scripts hooks.ScriptsConfig, engine expression.Expression) []validation.AsyncValidator {
+func scriptWrapper(scripts hooks.ScriptsConfig, engine expression.Engine) []validation.AsyncValidator {
 	var validatorList = []validation.AsyncValidator{}
 	for name, script := range scripts {
 		if !utils.IsEmpty(script.Condition) {

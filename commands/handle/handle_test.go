@@ -5,6 +5,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/hookfactory"
+	"fisherman/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,6 +14,7 @@ import (
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
 		&hookfactory.TFactory{},
+		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)
@@ -23,6 +25,7 @@ func TestCommand_Name(t *testing.T) {
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
 		&hookfactory.TFactory{},
+		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
 	)

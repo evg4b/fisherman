@@ -4,17 +4,17 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-type Expression interface {
+type Engine interface {
 	Eval(expression string) (bool, error)
 }
 
-type Engine struct {
+type GovaluateEngine struct {
 	functions map[string]govaluate.ExpressionFunction
 	variables map[string]interface{}
 }
 
-func NewExpressionEngine(variables map[string]interface{}) *Engine {
-	return &Engine{
+func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
+	return &GovaluateEngine{
 		variables: variables,
 		// TODO: Add functions:
 		// - filesChanged(...glob) bool
@@ -27,7 +27,7 @@ func NewExpressionEngine(variables map[string]interface{}) *Engine {
 	}
 }
 
-func (engine *Engine) Eval(expressionString string) (bool, error) {
+func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
 	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.functions)
 	if err != nil {
 		return false, err

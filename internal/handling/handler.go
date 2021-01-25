@@ -2,45 +2,56 @@ package handling
 
 import (
 	"fisherman/configuration"
-	"fisherman/infrastructure/log"
 	"fisherman/internal"
+	"fisherman/internal/expression"
 	"fisherman/internal/validation"
 )
 
 type Handler interface {
-	Handle(args []string) error
+	Handle(ctx internal.AsyncContext, args []string) error
 }
 
 type Action = func(internal.SyncContext) (bool, error)
 
 type HookHandler struct {
-	ContextFactory  internal.CtxFactory
+	Engine          expression.Engine
 	BeforeActions   []Action
 	Rules           []configuration.Rule
+	Scripts         configuration.ScriptsConfig
 	SyncValidators  []validation.SyncValidator
 	AsyncValidators []validation.AsyncValidator
 	PostScriptRules []configuration.Rule
 	AfterActions    []Action
+	WorkersCount    int
 }
 
-func (h *HookHandler) Handle(args []string) error {
-	ctx := h.ContextFactory(args, log.InfoOutput)
-	next, err := RunActions(ctx, h.BeforeActions)
+func (handler *HookHandler) Handle(ctx internal.AsyncContext, args []string) error {
+	next, err := RunActions(ctx, handler.BeforeActions)
 	if err != nil || !next {
 		return err
 	}
 
-	err = validation.RunSync(ctx, h.SyncValidators)
+	err = handler.runRules(ctx, handler.Rules)
 	if err != nil {
 		return err
 	}
 
-	err = validation.RunAsync(ctx, h.AsyncValidators)
+	err = validation.RunSync(ctx, handler.SyncValidators)
 	if err != nil {
 		return err
 	}
 
-	_, err = RunActions(ctx, h.AfterActions)
+	err = validation.RunAsync(ctx, handler.AsyncValidators)
+	if err != nil {
+		return err
+	}
+
+	err = handler.runRules(ctx, handler.PostScriptRules)
+	if err != nil {
+		return err
+	}
+
+	_, err = RunActions(ctx, handler.AfterActions)
 
 	return err
 }

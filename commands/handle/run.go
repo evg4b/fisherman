@@ -33,5 +33,7 @@ func (command *Command) Run() error {
 		constants.FishermanVersionVariable: constants.Version,
 	})
 
-	return handler.Handle(command.flagSet.Args())
+	ctx := command.ctxFactory(command.flagSet.Args(), log.Stdout())
+
+	return handler.Handle(ctx, command.flagSet.Args())
 }

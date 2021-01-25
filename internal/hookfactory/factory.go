@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
-	"fisherman/internal"
 	"fisherman/internal/configcompiler"
 	"fisherman/internal/handling"
 )
@@ -16,21 +15,15 @@ type Factory interface {
 }
 
 type TFactory struct {
-	ctxFactory    internal.CtxFactory
 	extractor     configcompiler.Extractor
 	config        configuration.HooksConfig
 	hooksBuilders builders
 }
 
-func NewFactory(
-	ctxFactory internal.CtxFactory,
-	extractor configcompiler.Extractor,
-	config configuration.HooksConfig,
-) *TFactory {
+func NewFactory(extractor configcompiler.Extractor, config configuration.HooksConfig) *TFactory {
 	factory := TFactory{
-		ctxFactory: ctxFactory,
-		extractor:  extractor,
-		config:     config,
+		extractor: extractor,
+		config:    config,
 	}
 
 	factory.hooksBuilders = builders{

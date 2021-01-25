@@ -9,6 +9,9 @@ import (
 	"fisherman/validators"
 )
 
+// TODO: move to configuration
+const workersCount = 5
+
 func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.CommitMsgHook
 	if configuration == nil {
@@ -21,9 +24,8 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		ContextFactory: factory.ctxFactory,
-		BeforeActions:  NoBeforeActions,
-		Rules:          getBaseRules(configuration.Rules),
+		BeforeActions: NoBeforeActions,
+		Rules:         getBaseRules(configuration.Rules),
 		SyncValidators: []validation.SyncValidator{
 			boolWrapper(validators.MessageNotEmpty, configuration.NotEmpty),
 			stringWrapper(validators.MessageHasPrefix, configuration.MessagePrefix),
@@ -33,6 +35,7 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 		PostScriptRules: getPostScriptRules(configuration.Rules),
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
+		WorkersCount:    workersCount,
 	}, nil
 }
 
@@ -48,7 +51,6 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		ContextFactory:  factory.ctxFactory,
 		BeforeActions:   NoBeforeActions,
 		SyncValidators:  NoSyncValidators,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
@@ -60,6 +62,7 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 				return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
 			},
 		},
+		WorkersCount: workersCount,
 	}, nil
 }
 
@@ -75,11 +78,11 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		ContextFactory:  factory.ctxFactory,
 		BeforeActions:   NoBeforeActions,
 		SyncValidators:  NoSyncValidators,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions:    NoAfterActions,
+		WorkersCount:    workersCount,
 	}, nil
 }
 
@@ -95,7 +98,6 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		ContextFactory: factory.ctxFactory,
 		BeforeActions: []handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
 				return actions.PrepareMessage(ctx, configuration.Message)
@@ -104,5 +106,6 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 		SyncValidators:  NoSyncValidators,
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
+		WorkersCount:    workersCount,
 	}, nil
 }
