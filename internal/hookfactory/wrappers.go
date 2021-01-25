@@ -10,22 +10,6 @@ import (
 	"fisherman/validators"
 )
 
-type stringF = func(internal.SyncContext, string) error
-
-func stringWrapper(validator stringF, config string) validation.SyncValidator {
-	return func(ctx internal.SyncContext) error {
-		return validator(ctx, config)
-	}
-}
-
-type boolF = func(internal.SyncContext, bool) error
-
-func boolWrapper(validator boolF, config bool) validation.SyncValidator {
-	return func(ctx internal.SyncContext) error {
-		return validator(ctx, config)
-	}
-}
-
 func scriptWrapper(scripts hooks.ScriptsConfig, engine expression.Engine) []validation.AsyncValidator {
 	var validatorList = []validation.AsyncValidator{}
 	for name, script := range scripts {

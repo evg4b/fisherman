@@ -5,47 +5,12 @@ import (
 	"errors"
 	hooks "fisherman/configuration"
 	"fisherman/infrastructure/shell"
-	"fisherman/internal"
 	"fisherman/mocks"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func Test_stringWrapper(t *testing.T) {
-	ctx := mocks.NewSyncContextMock(t)
-	configuration := "configString"
-	expectedError := errors.New("Error")
-
-	wrapper := stringWrapper(func(actualCtx internal.SyncContext, actualString string) error {
-		assert.Equal(t, ctx, actualCtx)
-		assert.Equal(t, actualString, configuration)
-
-		return expectedError
-	}, configuration)
-
-	err := wrapper(ctx)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func Test_boolWrapper(t *testing.T) {
-	ctx := mocks.NewSyncContextMock(t)
-	configuration := true
-	expectedError := errors.New("Error")
-
-	wrapper := boolWrapper(func(actualCtx internal.SyncContext, actualConfig bool) error {
-		assert.Equal(t, ctx, actualCtx)
-		assert.Equal(t, actualConfig, configuration)
-
-		return expectedError
-	}, configuration)
-
-	err := wrapper(ctx)
-
-	assert.Equal(t, expectedError, err)
-}
 
 func Test_scriptWrapper(t *testing.T) {
 	ctx := mocks.NewAsyncContextMock(t)

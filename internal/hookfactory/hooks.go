@@ -5,8 +5,6 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/expression"
 	"fisherman/internal/handling"
-	"fisherman/internal/validation"
-	"fisherman/validators"
 )
 
 // TODO: move to configuration
@@ -24,14 +22,8 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		BeforeActions: NoBeforeActions,
-		Rules:         getBaseRules(configuration.Rules),
-		SyncValidators: []validation.SyncValidator{
-			boolWrapper(validators.MessageNotEmpty, configuration.NotEmpty),
-			stringWrapper(validators.MessageHasPrefix, configuration.MessagePrefix),
-			stringWrapper(validators.MessageHasSuffix, configuration.MessageSuffix),
-			stringWrapper(validators.MessageRegexp, configuration.MessageRegexp),
-		},
+		BeforeActions:   NoBeforeActions,
+		Rules:           getBaseRules(configuration.Rules),
 		PostScriptRules: getPostScriptRules(configuration.Rules),
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
@@ -52,7 +44,6 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 
 	return &handling.HookHandler{
 		BeforeActions:   NoBeforeActions,
-		SyncValidators:  NoSyncValidators,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions: []handling.Action{
 			func(ctx internal.SyncContext) (bool, error) {
@@ -79,7 +70,6 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 
 	return &handling.HookHandler{
 		BeforeActions:   NoBeforeActions,
-		SyncValidators:  NoSyncValidators,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions:    NoAfterActions,
 		WorkersCount:    workersCount,
@@ -103,7 +93,6 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 				return actions.PrepareMessage(ctx, configuration.Message)
 			},
 		},
-		SyncValidators:  NoSyncValidators,
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
 		WorkersCount:    workersCount,

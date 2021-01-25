@@ -18,7 +18,6 @@ type HookHandler struct {
 	BeforeActions   []Action
 	Rules           []configuration.Rule
 	Scripts         configuration.ScriptsConfig
-	SyncValidators  []validation.SyncValidator
 	AsyncValidators []validation.AsyncValidator
 	PostScriptRules []configuration.Rule
 	AfterActions    []Action
@@ -32,11 +31,6 @@ func (handler *HookHandler) Handle(ctx internal.AsyncContext, args []string) err
 	}
 
 	err = handler.runRules(ctx, handler.Rules)
-	if err != nil {
-		return err
-	}
-
-	err = validation.RunSync(ctx, handler.SyncValidators)
 	if err != nil {
 		return err
 	}
