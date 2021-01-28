@@ -13,14 +13,19 @@ jobs:
     name: Build, Lint and Test
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu, windows, macos]
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.15
         id: go
+
+      - name: Install Taskfile
+        uses: Arduino/actions/setup-taskfile@master
+        with:
+          version: '3.2.2'
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
@@ -31,10 +36,10 @@ jobs:
           version: v1.31
 
       - name: Build
-        run: go build -v -ldflags="-s -w -X fisherman/constants.Version=${{ github.sha }}"
+        run: task build:ci
 
       - name: Test
-        run: go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+        run: task test:ci
 
       - name: Upload coverage profile
         if: startsWith(matrix.os, 'ubuntu')
@@ -42,7 +47,7 @@ jobs:
         with:
           file: ./coverage.xml
           name: fisherman
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
