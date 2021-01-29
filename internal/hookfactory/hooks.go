@@ -49,9 +49,6 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 			func(ctx internal.ExecutionContext) (bool, error) {
 				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
 			},
-			func(ctx internal.ExecutionContext) (bool, error) {
-				return actions.SuppresCommitFiles(ctx, configuration.SuppressCommitFiles)
-			},
 		},
 		WorkersCount: workersCount,
 	}, nil
