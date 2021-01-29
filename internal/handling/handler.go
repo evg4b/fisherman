@@ -15,7 +15,6 @@ type Action = func(internal.ExecutionContext) (bool, error)
 
 type HookHandler struct {
 	Engine          expression.Engine
-	BeforeActions   []Action
 	Rules           []configuration.Rule
 	Scripts         configuration.ScriptsConfig
 	AsyncValidators []validation.AsyncValidator
@@ -25,12 +24,7 @@ type HookHandler struct {
 }
 
 func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string) error {
-	next, err := RunActions(ctx, handler.BeforeActions)
-	if err != nil || !next {
-		return err
-	}
-
-	err = handler.runRules(ctx, handler.Rules)
+	err := handler.runRules(ctx, handler.Rules)
 	if err != nil {
 		return err
 	}

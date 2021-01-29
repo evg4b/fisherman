@@ -62,7 +62,7 @@ func unmarshalRule(rawRule interface{}) (Rule, error) {
 	}
 
 	switch typeString.(string) {
-	case rules.SuppressCommitType:
+	case rules.SuppressCommitFilesType:
 		var rule rules.SuppressCommitFiles
 		err := decode(rawRule, &rule)
 		if err != nil {
@@ -73,6 +73,15 @@ func unmarshalRule(rawRule interface{}) (Rule, error) {
 
 	case rules.CommitMessageType:
 		var rule rules.CommitMessage
+		err := decode(rawRule, &rule)
+		if err != nil {
+			return nil, err
+		}
+
+		return rule, nil
+
+	case rules.PrepareMessageType:
+		var rule rules.PrepareMessage
 		err := decode(rawRule, &rule)
 		if err != nil {
 			return nil, err

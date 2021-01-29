@@ -50,11 +50,29 @@ rules:
 			rules: []configuration.Rule{
 				rules.SuppressCommitFiles{
 					BaseRule: rules.BaseRule{
-						Type:      rules.SuppressCommitType,
+						Type:      rules.SuppressCommitFilesType,
 						Condition: "1 == 1",
 					},
 					Globs:           []string{"glob1", "glob2", "glob3"},
 					RemoveFromIndex: true,
+				},
+			},
+		},
+		{
+			name: "prepare-message rule",
+			source: `
+rules:
+  - type: prepare-message
+    condition: 1 == 1
+    message: "test message"
+`,
+			rules: []configuration.Rule{
+				rules.PrepareMessage{
+					BaseRule: rules.BaseRule{
+						Type:      rules.PrepareMessageType,
+						Condition: "1 == 1",
+					},
+					Message: "test message",
 				},
 			},
 		},
@@ -123,6 +141,15 @@ rules:
 `,
 			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
 		},
+		{
+			name: "incorrect prepare-message",
+			source: `
+rules:
+  - type: prepare-message
+    unknown: unknown value
+`,
+			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
+		},
 	}
 
 	for _, tt := range tests {
@@ -170,7 +197,7 @@ other-custom-filed: 11
 				Rules: []configuration.Rule{
 					&rules.SuppressCommitFiles{
 						BaseRule: rules.BaseRule{
-							Type:      rules.SuppressCommitType,
+							Type:      rules.SuppressCommitFilesType,
 							Condition: "1 == 1",
 						},
 						Globs:           []string{"glob1", "glob2", "glob3"},

@@ -22,7 +22,6 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		BeforeActions:   NoBeforeActions,
 		Rules:           getBaseRules(configuration.Rules),
 		PostScriptRules: getPostScriptRules(configuration.Rules),
 		AsyncValidators: NoAsyncValidators,
@@ -43,7 +42,6 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		BeforeActions:   NoBeforeActions,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions: []handling.Action{
 			func(ctx internal.ExecutionContext) (bool, error) {
@@ -66,7 +64,6 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		BeforeActions:   NoBeforeActions,
 		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions:    NoAfterActions,
 		WorkersCount:    workersCount,
@@ -85,11 +82,6 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		BeforeActions: []handling.Action{
-			func(ctx internal.ExecutionContext) (bool, error) {
-				return actions.PrepareMessage(ctx, configuration.Message)
-			},
-		},
 		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
 		WorkersCount:    workersCount,

@@ -6,5 +6,4 @@ import (
 )
 
 var NoAsyncValidators = []validation.AsyncValidator{}
-var NoBeforeActions = []handling.Action{}
 var NoAfterActions = []handling.Action{}

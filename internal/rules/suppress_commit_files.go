@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-const SuppressCommitType = "suppress-commit-files"
+const SuppressCommitFilesType = "suppress-commit-files"
 
 type SuppressCommitFiles struct {
 	BaseRule        `mapstructure:",squash"`
