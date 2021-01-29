@@ -15,7 +15,7 @@ tasks:
   build:ci:
     desc: '[For CI] Build the go binary in production mode (NOT REALISE)'
     cmds:
-      - go build -v -ldflags="-s -w -X fisherman/constants.Version=dev-{{ .GIT_COMMIT }}"
+      - go build -v -ldflags="-s -w -X fisherman/constants.Version=dev-{{ .GIT_COMMIT | upper }}"
 
   test:
     desc: Run all tests
