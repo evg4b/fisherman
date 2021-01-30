@@ -63,7 +63,7 @@ func main() {
 		version.NewCommand(),
 	}
 
-	instance := runner.NewRunner(commands, &appInfo)
+	instance := runner.NewRunner(commands)
 	if err = instance.Run(os.Args[1:]); err != nil {
 		panic(err)
 	}

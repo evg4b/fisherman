@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fisherman/commands"
 	"fisherman/infrastructure/log"
-	"fisherman/internal"
 	"fisherman/mocks"
 	"fmt"
 	"io/ioutil"
@@ -76,12 +75,7 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(
-				tt.commands,
-				&internal.AppInfo{
-					Cwd: "demo",
-				},
-			)
+			runnerInstance := runner.NewRunner(tt.commands)
 
 			assert.NotPanics(t, func() {
 				err := runnerInstance.Run(tt.args)
