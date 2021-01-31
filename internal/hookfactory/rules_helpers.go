@@ -7,15 +7,21 @@ import (
 
 type Rule = configuration.Rule
 
-func getBaseRules(ruleCollection []Rule) []Rule {
+func getPreScripts(ruleCollection []Rule) []Rule {
 	return filterRules(ruleCollection, func(r Rule) bool {
-		return r.GetPosition() == rules.BeforeScripts
+		return r.GetPosition() == rules.PreScripts
 	})
 }
 
 func getPostScriptRules(ruleCollection []Rule) []Rule {
 	return filterRules(ruleCollection, func(r Rule) bool {
 		return r.GetPosition() == rules.AfterScripts
+	})
+}
+
+func getScriptRules(ruleCollection []Rule) []Rule {
+	return filterRules(ruleCollection, func(r Rule) bool {
+		return r.GetPosition() == rules.PreScripts
 	})
 }
 

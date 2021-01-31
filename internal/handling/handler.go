@@ -4,7 +4,6 @@ import (
 	"fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/expression"
-	"fisherman/internal/validation"
 )
 
 type Handler interface {
@@ -16,8 +15,7 @@ type Action = func(internal.ExecutionContext) (bool, error)
 type HookHandler struct {
 	Engine          expression.Engine
 	Rules           []configuration.Rule
-	Scripts         configuration.ScriptsConfig
-	AsyncValidators []validation.AsyncValidator
+	Scripts         []configuration.Rule
 	PostScriptRules []configuration.Rule
 	AfterActions    []Action
 	WorkersCount    int
@@ -29,7 +27,7 @@ func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string)
 		return err
 	}
 
-	err = validation.RunAsync(ctx, handler.AsyncValidators)
+	err = handler.runRules(ctx, handler.Scripts)
 	if err != nil {
 		return err
 	}

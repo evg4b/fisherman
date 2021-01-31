@@ -104,7 +104,6 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
 			testutils.CheckError(t, tt.err, err)
-
 		})
 	}
 }

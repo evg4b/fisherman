@@ -61,34 +61,26 @@ func unmarshalRule(rawRule interface{}) (Rule, error) {
 		return nil, fmt.Errorf("required property '%s' not defined", typeKey)
 	}
 
-	switch typeString.(string) {
+	rule, err := selectRule(typeString.(string))
+	if err != nil {
+		return nil, err
+	}
+
+	err = decode(rawRule, rule)
+
+	return rule, err
+}
+
+func selectRule(typeName string) (Rule, error) {
+	switch typeName {
 	case rules.SuppressCommitFilesType:
-		var rule rules.SuppressCommitFiles
-		err := decode(rawRule, &rule)
-		if err != nil {
-			return nil, err
-		}
-
-		return rule, nil
-
+		return &rules.SuppressCommitFiles{}, nil
 	case rules.CommitMessageType:
-		var rule rules.CommitMessage
-		err := decode(rawRule, &rule)
-		if err != nil {
-			return nil, err
-		}
-
-		return rule, nil
-
+		return &rules.CommitMessage{}, nil
 	case rules.PrepareMessageType:
-		var rule rules.PrepareMessage
-		err := decode(rawRule, &rule)
-		if err != nil {
-			return nil, err
-		}
-
-		return rule, nil
-
+		return &rules.PrepareMessage{}, nil
+	case rules.ShellScriptType:
+		return &rules.ShellScript{}, nil
 	default:
 		return nil, errors.New("unknown rule type")
 	}

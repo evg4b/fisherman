@@ -7,6 +7,7 @@ package mocks
 import (
 	"context"
 	"fisherman/infrastructure/shell"
+	"io"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -18,8 +19,8 @@ import (
 type ShellMock struct {
 	t minimock.Tester
 
-	funcExec          func(ctx context.Context, s1 string, s2 shell.ShScriptConfig) (e1 shell.ExecResult)
-	inspectFuncExec   func(ctx context.Context, s1 string, s2 shell.ShScriptConfig)
+	funcExec          func(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) (err error)
+	inspectFuncExec   func(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript)
 	afterExecCounter  uint64
 	beforeExecCounter uint64
 	ExecMock          mShellMockExec
@@ -58,17 +59,18 @@ type ShellMockExecExpectation struct {
 // ShellMockExecParams contains parameters of the Shell.Exec
 type ShellMockExecParams struct {
 	ctx context.Context
+	w1  io.Writer
 	s1  string
-	s2  shell.ShScriptConfig
+	s2  shell.ShScript
 }
 
 // ShellMockExecResults contains results of the Shell.Exec
 type ShellMockExecResults struct {
-	e1 shell.ExecResult
+	err error
 }
 
 // Expect sets up expected params for Shell.Exec
-func (mmExec *mShellMockExec) Expect(ctx context.Context, s1 string, s2 shell.ShScriptConfig) *mShellMockExec {
+func (mmExec *mShellMockExec) Expect(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) *mShellMockExec {
 	if mmExec.mock.funcExec != nil {
 		mmExec.mock.t.Fatalf("ShellMock.Exec mock is already set by Set")
 	}
@@ -77,7 +79,7 @@ func (mmExec *mShellMockExec) Expect(ctx context.Context, s1 string, s2 shell.Sh
 		mmExec.defaultExpectation = &ShellMockExecExpectation{}
 	}
 
-	mmExec.defaultExpectation.params = &ShellMockExecParams{ctx, s1, s2}
+	mmExec.defaultExpectation.params = &ShellMockExecParams{ctx, w1, s1, s2}
 	for _, e := range mmExec.expectations {
 		if minimock.Equal(e.params, mmExec.defaultExpectation.params) {
 			mmExec.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmExec.defaultExpectation.params)
@@ -88,7 +90,7 @@ func (mmExec *mShellMockExec) Expect(ctx context.Context, s1 string, s2 shell.Sh
 }
 
 // Inspect accepts an inspector function that has same arguments as the Shell.Exec
-func (mmExec *mShellMockExec) Inspect(f func(ctx context.Context, s1 string, s2 shell.ShScriptConfig)) *mShellMockExec {
+func (mmExec *mShellMockExec) Inspect(f func(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript)) *mShellMockExec {
 	if mmExec.mock.inspectFuncExec != nil {
 		mmExec.mock.t.Fatalf("Inspect function is already set for ShellMock.Exec")
 	}
@@ -99,7 +101,7 @@ func (mmExec *mShellMockExec) Inspect(f func(ctx context.Context, s1 string, s2 
 }
 
 // Return sets up results that will be returned by Shell.Exec
-func (mmExec *mShellMockExec) Return(e1 shell.ExecResult) *ShellMock {
+func (mmExec *mShellMockExec) Return(err error) *ShellMock {
 	if mmExec.mock.funcExec != nil {
 		mmExec.mock.t.Fatalf("ShellMock.Exec mock is already set by Set")
 	}
@@ -107,12 +109,12 @@ func (mmExec *mShellMockExec) Return(e1 shell.ExecResult) *ShellMock {
 	if mmExec.defaultExpectation == nil {
 		mmExec.defaultExpectation = &ShellMockExecExpectation{mock: mmExec.mock}
 	}
-	mmExec.defaultExpectation.results = &ShellMockExecResults{e1}
+	mmExec.defaultExpectation.results = &ShellMockExecResults{err}
 	return mmExec.mock
 }
 
 //Set uses given function f to mock the Shell.Exec method
-func (mmExec *mShellMockExec) Set(f func(ctx context.Context, s1 string, s2 shell.ShScriptConfig) (e1 shell.ExecResult)) *ShellMock {
+func (mmExec *mShellMockExec) Set(f func(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) (err error)) *ShellMock {
 	if mmExec.defaultExpectation != nil {
 		mmExec.mock.t.Fatalf("Default expectation is already set for the Shell.Exec method")
 	}
@@ -127,35 +129,35 @@ func (mmExec *mShellMockExec) Set(f func(ctx context.Context, s1 string, s2 shel
 
 // When sets expectation for the Shell.Exec which will trigger the result defined by the following
 // Then helper
-func (mmExec *mShellMockExec) When(ctx context.Context, s1 string, s2 shell.ShScriptConfig) *ShellMockExecExpectation {
+func (mmExec *mShellMockExec) When(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) *ShellMockExecExpectation {
 	if mmExec.mock.funcExec != nil {
 		mmExec.mock.t.Fatalf("ShellMock.Exec mock is already set by Set")
 	}
 
 	expectation := &ShellMockExecExpectation{
 		mock:   mmExec.mock,
-		params: &ShellMockExecParams{ctx, s1, s2},
+		params: &ShellMockExecParams{ctx, w1, s1, s2},
 	}
 	mmExec.expectations = append(mmExec.expectations, expectation)
 	return expectation
 }
 
 // Then sets up Shell.Exec return parameters for the expectation previously defined by the When method
-func (e *ShellMockExecExpectation) Then(e1 shell.ExecResult) *ShellMock {
-	e.results = &ShellMockExecResults{e1}
+func (e *ShellMockExecExpectation) Then(err error) *ShellMock {
+	e.results = &ShellMockExecResults{err}
 	return e.mock
 }
 
 // Exec implements infrastructure.Shell
-func (mmExec *ShellMock) Exec(ctx context.Context, s1 string, s2 shell.ShScriptConfig) (e1 shell.ExecResult) {
+func (mmExec *ShellMock) Exec(ctx context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) (err error) {
 	mm_atomic.AddUint64(&mmExec.beforeExecCounter, 1)
 	defer mm_atomic.AddUint64(&mmExec.afterExecCounter, 1)
 
 	if mmExec.inspectFuncExec != nil {
-		mmExec.inspectFuncExec(ctx, s1, s2)
+		mmExec.inspectFuncExec(ctx, w1, s1, s2)
 	}
 
-	mm_params := &ShellMockExecParams{ctx, s1, s2}
+	mm_params := &ShellMockExecParams{ctx, w1, s1, s2}
 
 	// Record call args
 	mmExec.ExecMock.mutex.Lock()
@@ -165,14 +167,14 @@ func (mmExec *ShellMock) Exec(ctx context.Context, s1 string, s2 shell.ShScriptC
 	for _, e := range mmExec.ExecMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.e1
+			return e.results.err
 		}
 	}
 
 	if mmExec.ExecMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmExec.ExecMock.defaultExpectation.Counter, 1)
 		mm_want := mmExec.ExecMock.defaultExpectation.params
-		mm_got := ShellMockExecParams{ctx, s1, s2}
+		mm_got := ShellMockExecParams{ctx, w1, s1, s2}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmExec.t.Errorf("ShellMock.Exec got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -181,12 +183,12 @@ func (mmExec *ShellMock) Exec(ctx context.Context, s1 string, s2 shell.ShScriptC
 		if mm_results == nil {
 			mmExec.t.Fatal("No results are set for the ShellMock.Exec")
 		}
-		return (*mm_results).e1
+		return (*mm_results).err
 	}
 	if mmExec.funcExec != nil {
-		return mmExec.funcExec(ctx, s1, s2)
+		return mmExec.funcExec(ctx, w1, s1, s2)
 	}
-	mmExec.t.Fatalf("Unexpected call to ShellMock.Exec. %v %v %v", ctx, s1, s2)
+	mmExec.t.Fatalf("Unexpected call to ShellMock.Exec. %v %v %v %v", ctx, w1, s1, s2)
 	return
 }
 

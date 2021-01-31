@@ -1,17 +1,16 @@
-package shell
+package shell_test
 
 import (
 	"context"
-	"errors"
+	"fisherman/infrastructure/shell"
 	"io/ioutil"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSystemShell_Exec(t *testing.T) {
-	sh := NewShell(ioutil.Discard, "/", DefaultShell)
+	sh := shell.NewShell(ioutil.Discard, "/", shell.DefaultShell)
 
 	tests := []struct {
 		name     string
@@ -33,43 +32,17 @@ func TestSystemShell_Exec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sh.Exec(context.TODO(), sh.defaultShell, ShScriptConfig{
-				Name:     "test",
+			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.ShScript{
 				Commands: tt.commands,
 				Env:      tt.env,
-				Output:   true,
+				Dir:      "/",
 			})
 
 			if tt.hasError {
-				assert.Error(t, result.Error)
+				assert.Error(t, result)
 			} else {
-				assert.NoError(t, result.Error)
+				assert.NoError(t, result)
 			}
-		})
-	}
-}
-
-func TestExecResult_IsSuccessful(t *testing.T) {
-	tests := []struct {
-		name     string
-		err      error
-		expected bool
-	}{
-		{name: "Correct execution", err: nil, expected: true},
-		{name: "Exit code zero with error", err: errors.New("test"), expected: false},
-		{name: "Exit code not zero with error", err: errors.New("test"), expected: false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			execResult := ExecResult{
-				Error: tt.err,
-				Name:  "test",
-				Time:  time.Second,
-			}
-
-			actual := execResult.IsSuccessful()
-
-			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }

@@ -3,7 +3,6 @@ package hookfactory
 import (
 	"fisherman/actions"
 	"fisherman/internal"
-	"fisherman/internal/expression"
 	"fisherman/internal/handling"
 )
 
@@ -22,9 +21,9 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		Rules:           getBaseRules(configuration.Rules),
+		Rules:           getPreScripts(configuration.Rules),
+		Scripts:         getScriptRules(configuration.Rules),
 		PostScriptRules: getPostScriptRules(configuration.Rules),
-		AsyncValidators: NoAsyncValidators,
 		AfterActions:    NoAfterActions,
 		WorkersCount:    workersCount,
 	}, nil
@@ -42,7 +41,6 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
 		AfterActions: []handling.Action{
 			func(ctx internal.ExecutionContext) (bool, error) {
 				return actions.AddToIndex(ctx, configuration.AddFilesToIndex)
@@ -64,9 +62,8 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		AsyncValidators: scriptWrapper(configuration.Shell, expression.NewExpressionEngine(variables)),
-		AfterActions:    NoAfterActions,
-		WorkersCount:    workersCount,
+		AfterActions: NoAfterActions,
+		WorkersCount: workersCount,
 	}, nil
 }
 
@@ -82,8 +79,7 @@ func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	}
 
 	return &handling.HookHandler{
-		AsyncValidators: NoAsyncValidators,
-		AfterActions:    NoAfterActions,
-		WorkersCount:    workersCount,
+		AfterActions: NoAfterActions,
+		WorkersCount: workersCount,
 	}, nil
 }

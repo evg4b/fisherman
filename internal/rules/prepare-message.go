@@ -19,7 +19,6 @@ func (config PrepareMessage) Check(_ io.Writer, ctx internal.ExecutionContext) e
 	}
 
 	args := ctx.Args()
-	files := ctx.Files()
 
-	return files.Write(args[0], config.Message)
+	return ctx.Files().Write(args[0], config.Message)
 }

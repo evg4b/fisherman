@@ -2,8 +2,9 @@ package rules
 
 // TODO: Create more flexible approach to create correct execution order
 var (
-	BeforeScripts byte = 1
-	AfterScripts  byte = 2
+	PreScripts   byte = 1
+	Scripts      byte = 2
+	AfterScripts byte = 3
 )
 
 type BaseRule struct {
@@ -11,14 +12,14 @@ type BaseRule struct {
 	Condition string `yaml:"condition,omitempty"`
 }
 
-func (rule BaseRule) GetType() string {
+func (rule *BaseRule) GetType() string {
 	return rule.Type
 }
 
-func (rule BaseRule) GetContition() string {
+func (rule *BaseRule) GetContition() string {
 	return rule.Condition
 }
 
-func (rule BaseRule) GetPosition() byte {
-	return BeforeScripts
+func (rule *BaseRule) GetPosition() byte {
+	return PreScripts
 }

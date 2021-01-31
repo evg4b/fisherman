@@ -33,5 +33,5 @@ type FileSystem interface {
 }
 
 type Shell interface {
-	Exec(context.Context, string, shell.ShScriptConfig) shell.ExecResult
+	Exec(context.Context, io.Writer, string, shell.ShScript) error
 }

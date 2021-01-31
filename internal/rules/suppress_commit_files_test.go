@@ -23,7 +23,9 @@ func TestSuppressCommitFiles_GetPosition(t *testing.T) {
 
 func TestSuppresCommitFiles_NotConfigured(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
-	err := rules.SuppressCommitFiles{}.Check(ioutil.Discard, ctx)
+	rule := rules.SuppressCommitFiles{}
+
+	err := rule.Check(ioutil.Discard, ctx)
 
 	assert.NoError(t, err)
 }

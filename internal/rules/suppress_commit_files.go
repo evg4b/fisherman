@@ -19,7 +19,7 @@ type SuppressCommitFiles struct {
 	RemoveFromIndex bool     `mapstructure:"remove-from-index"`
 }
 
-func (rule SuppressCommitFiles) Check(_ io.Writer, ctx internal.ExecutionContext) error {
+func (rule *SuppressCommitFiles) Check(_ io.Writer, ctx internal.ExecutionContext) error {
 	if len(rule.Globs) == 0 {
 		return nil
 	}
@@ -58,6 +58,6 @@ func (rule SuppressCommitFiles) Check(_ io.Writer, ctx internal.ExecutionContext
 	return multiError.ErrorOrNil()
 }
 
-func (rule SuppressCommitFiles) GetPosition() byte {
+func (rule *SuppressCommitFiles) GetPosition() byte {
 	return AfterScripts
 }

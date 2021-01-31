@@ -27,7 +27,7 @@ rules:
     regexp: message-prefix
 `,
 			rules: []configuration.Rule{
-				rules.CommitMessage{
+				&rules.CommitMessage{
 					BaseRule: rules.BaseRule{
 						Type:      rules.CommitMessageType,
 						Condition: "1 == 1",
@@ -48,7 +48,7 @@ rules:
     remove-from-index: true
 `,
 			rules: []configuration.Rule{
-				rules.SuppressCommitFiles{
+				&rules.SuppressCommitFiles{
 					BaseRule: rules.BaseRule{
 						Type:      rules.SuppressCommitFilesType,
 						Condition: "1 == 1",
@@ -67,12 +67,32 @@ rules:
     message: "test message"
 `,
 			rules: []configuration.Rule{
-				rules.PrepareMessage{
+				&rules.PrepareMessage{
 					BaseRule: rules.BaseRule{
 						Type:      rules.PrepareMessageType,
 						Condition: "1 == 1",
 					},
 					Message: "test message",
+				},
+			},
+		},
+		{
+			name: "shell-script rule",
+			source: `
+rules:
+  - type: shell-script
+    condition: 1 == 1
+    name: "test name"
+    commands: ["command1", "command2"]
+`,
+			rules: []configuration.Rule{
+				&rules.ShellScript{
+					BaseRule: rules.BaseRule{
+						Type:      rules.ShellScriptType,
+						Condition: "1 == 1",
+					},
+					Name:     "test name",
+					Commands: []string{"command1", "command2"},
 				},
 			},
 		},
@@ -146,6 +166,15 @@ rules:
 			source: `
 rules:
   - type: prepare-message
+    unknown: unknown value 
+`,
+			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
+		},
+		{
+			name: "incorrect shell-scrpit",
+			source: `
+rules:
+  - type: shell-script
     unknown: unknown value
 `,
 			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
