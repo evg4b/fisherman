@@ -3,7 +3,7 @@ package validators_test
 import (
 	"context"
 	"fisherman/infrastructure/shell"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"fisherman/validators"
 	"testing"
 	"time"

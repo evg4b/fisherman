@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fisherman/internal"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
 

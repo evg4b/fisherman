@@ -3,6 +3,7 @@ package filesystem_test
 import (
 	"fisherman/constants"
 	"fisherman/infrastructure/filesystem"
+	"fisherman/testing/testutils"
 	"fisherman/utils"
 	"io/ioutil"
 	"os"
@@ -70,14 +71,10 @@ func TestLocalFileSystem_Read(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := fs.Read(tt.path)
+			actual, err := fs.Read(tt.path)
 
-			if len(tt.expectedErr) > 0 {
-				assert.EqualError(t, err, tt.expectedErr)
-			} else {
-				assert.NoError(t, err)
-			}
-			assert.Equal(t, tt.expected, got)
+			testutils.CheckError(t, tt.expectedErr, err)
+			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }
@@ -108,11 +105,7 @@ func TestLocalFileSystem_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := fs.Delete(tt.path)
 
-			if len(tt.expectedErr) > 0 {
-				assert.EqualError(t, err, tt.expectedErr)
-			} else {
-				assert.NoError(t, err)
-			}
+			testutils.CheckError(t, tt.expectedErr, err)
 			assert.NoFileExists(t, tt.path)
 		})
 	}
@@ -204,11 +197,8 @@ func TestLocalFileSystem_Reader(t *testing.T) {
 				defer got.Close()
 			}
 
-			if len(tt.expectedErr) > 0 {
-				assert.EqualError(t, err, tt.expectedErr)
-				assert.Nil(t, got)
-			} else {
-				assert.NoError(t, err)
+			testutils.CheckError(t, tt.expectedErr, err)
+			if len(tt.expectedErr) == 0 {
 				assert.NotNil(t, got)
 				data, err := ioutil.ReadAll(got)
 				if err != nil {

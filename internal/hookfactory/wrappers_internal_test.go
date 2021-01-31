@@ -5,7 +5,7 @@ import (
 	"errors"
 	hooks "fisherman/configuration"
 	"fisherman/infrastructure/shell"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"testing"
 	"time"
 

@@ -2,7 +2,7 @@ package rules_test
 
 import (
 	"fisherman/internal/rules"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
 

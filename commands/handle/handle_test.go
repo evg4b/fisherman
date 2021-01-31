@@ -5,7 +5,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/hookfactory"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

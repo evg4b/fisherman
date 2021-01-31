@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fisherman/internal"
 	"fisherman/internal/validation"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"testing"
 	"time"
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fisherman/commands"
 	"fisherman/infrastructure/log"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"fmt"
 	"io/ioutil"
 

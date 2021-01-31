@@ -4,7 +4,7 @@ import (
 	"fisherman/commands/initialize"
 	"fisherman/constants"
 	"fisherman/internal"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"os/user"
 	"path/filepath"
 	"testing"

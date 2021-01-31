@@ -3,7 +3,7 @@ package actions_test
 import (
 	"errors"
 	"fisherman/actions"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/go-git/go-git/v5"

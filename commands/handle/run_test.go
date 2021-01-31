@@ -6,7 +6,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
 

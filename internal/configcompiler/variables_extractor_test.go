@@ -6,7 +6,7 @@ import (
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/internal/configcompiler"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/imdario/mergo"

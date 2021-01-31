@@ -2,6 +2,7 @@ package configuration_test
 
 import (
 	. "fisherman/configuration" // nolint
+	"fisherman/testing/testutils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,6 +37,7 @@ func TestVariables_GetFromBranch(t *testing.T) {
 			variables: VariablesConfig{FromBranch: "(?P<ROOT>.*)/(?P<FOLDER>.*)/(?P<DEMO>.*)"},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			variables, err := tt.variables.GetFromBranch(tt.branchName)
@@ -79,16 +81,13 @@ func TestVariables_GetFromTag(t *testing.T) {
 			variables:         VariablesConfig{FromLastTag: "xxx/tags/(((?P<V>.*)"},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			variables, err := tt.variables.GetFromTag(tt.tagName)
 
-			if len(tt.err) == 0 {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedVariables, variables)
-			} else {
-				assert.EqualError(t, err, tt.err)
-			}
+			testutils.CheckError(t, tt.err, err)
+			assert.Equal(t, tt.expectedVariables, variables)
 		})
 	}
 }

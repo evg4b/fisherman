@@ -5,7 +5,7 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
 	"io/ioutil"
 	"os/user"
 	"path/filepath"

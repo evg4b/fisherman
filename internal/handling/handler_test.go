@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fisherman/configuration"
 	"fisherman/internal/handling"
-	"fisherman/mocks"
+	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 // nolint: dupl
@@ -104,11 +103,8 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			if len(tt.err) > 0 {
-				assert.EqualError(t, err, tt.err)
-			} else {
-				assert.NoError(t, err)
-			}
+			testutils.CheckError(t, tt.err, err)
+
 		})
 	}
 }
@@ -207,11 +203,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			if len(tt.err) > 0 {
-				assert.EqualError(t, err, tt.err)
-			} else {
-				assert.NoError(t, err)
-			}
+			testutils.CheckError(t, tt.err, err)
 		})
 	}
 }
