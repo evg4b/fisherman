@@ -13,6 +13,8 @@ import (
 const rulesKey = "rules"
 const typeKey = "type"
 
+// TODO: Add new method in Rule interface to Decode rule from map[string]interface{} and
+// try implement comman realization in base rule structure.
 type Rule interface {
 	GetType() string
 	GetContition() string

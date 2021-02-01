@@ -11,14 +11,11 @@ import (
 )
 
 func TestFactory_GetHook(t *testing.T) {
-	shell := configuration.ScriptsConfig{
-		"demo": configuration.ScriptConfig{},
-	}
 	factory := hookfactory.NewFactory(
 		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
 		configuration.HooksConfig{
-			PreCommitHook:        &configuration.PreCommitHookConfig{Shell: shell},
-			PrePushHook:          &configuration.PrePushHookConfig{Shell: shell},
+			PreCommitHook:        &configuration.PreCommitHookConfig{},
+			PrePushHook:          &configuration.PrePushHookConfig{},
 			CommitMsgHook:        &configuration.CommitMsgHookConfig{MessagePrefix: "test"},
 			PrepareCommitMsgHook: &configuration.PrepareCommitMsgHookConfig{Message: "test"},
 		},

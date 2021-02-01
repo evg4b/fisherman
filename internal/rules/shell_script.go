@@ -41,3 +41,20 @@ func formatOutput(output io.Writer, config *ShellScript) io.Writer {
 
 	return ioutil.Discard
 }
+
+// TODO: Adde OS Related marshaling:
+// func unmarshalOSRelated(unmarshal func(interface{}) error, config *ScriptsConfig) error {
+// 	var scriptsConfigs map[string]ScriptsConfig
+
+// 	err := unmarshal(&scriptsConfigs)
+// 	if err == nil {
+// 		data, ok := scriptsConfigs[runtime.GOOS]
+// 		if !ok {
+// 			return fmt.Errorf("script for %s os is not defined", runtime.GOOS)
+// 		}
+
+// 		(*config) = data
+// 	}
+
+// 	return err
+// }
