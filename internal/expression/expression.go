@@ -2,15 +2,17 @@ package expression
 
 import (
 	"github.com/Knetic/govaluate"
+	"github.com/imdario/mergo"
 )
 
 type Engine interface {
 	Eval(expression string) (bool, error)
+	EvalMap(expression string) (map[string]interface{}, error)
 }
 
 type GovaluateEngine struct {
-	functions map[string]govaluate.ExpressionFunction
-	variables map[string]interface{}
+	globalFunctions map[string]govaluate.ExpressionFunction
+	variables       map[string]interface{}
 }
 
 func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
@@ -21,7 +23,7 @@ func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
 		// - filesExist(...glob) bool
 		// - env(name string) string
 		// - filesChangedRelativeTo(...glob, branch) bool
-		functions: map[string]govaluate.ExpressionFunction{
+		globalFunctions: map[string]govaluate.ExpressionFunction{
 			"IsEmpty": isEmpty,
 		},
 	}
@@ -29,7 +31,7 @@ func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
 
 func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
 	// TODO: add global and local function. This case need to configure unique functions for each hook
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.functions)
+	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.globalFunctions)
 	if err != nil {
 		return false, err
 	}
@@ -41,4 +43,27 @@ func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
 
 	// TODO: Add casting to bool (https://github.com/spf13/cast/blob/8d17101741c81653ee960aa20f9febb31f1218aa/caste.go#L74)
 	return result.(bool), nil
+}
+
+func (engine *GovaluateEngine) EvalMap(expressionString string) (map[string]interface{}, error) {
+	functions := map[string]govaluate.ExpressionFunction{
+		"Extract": extract,
+	}
+
+	err := mergo.Merge(&functions, engine.globalFunctions)
+	if err != nil {
+		return nil, err
+	}
+
+	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, functions)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := expression.Evaluate(engine.variables)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.(map[string]interface{}), nil
 }
