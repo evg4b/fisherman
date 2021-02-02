@@ -73,11 +73,11 @@ func TestFillTemplate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			utils.FillTemplate(&tt.template, map[string]interface{}{
+			actual := utils.FillTemplate(tt.template, map[string]interface{}{
 				"Test": "Test value",
 			})
 
-			assert.Equal(t, tt.expected, tt.template)
+			assert.Equal(t, tt.expected, actual)
 		})
 	}
 }

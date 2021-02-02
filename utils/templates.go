@@ -12,8 +12,8 @@ func PrintGraphics(wr io.Writer, content string, data map[string]interface{}) {
 	HandleCriticalError(err)
 }
 
-func FillTemplate(src *string, data map[string]interface{}) {
-	*src = fasttemplate.
-		New(*src, "{{", "}}").
+func FillTemplate(src string, data map[string]interface{}) string {
+	return fasttemplate.
+		New(src, "{{", "}}").
 		ExecuteString(data)
 }

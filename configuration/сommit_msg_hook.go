@@ -13,9 +13,9 @@ type CommitMsgHookConfig struct {
 }
 
 func (config *CommitMsgHookConfig) Compile(vars Variables) {
-	utils.FillTemplate(&config.MessagePrefix, vars)
-	utils.FillTemplate(&config.MessageSuffix, vars)
-	utils.FillTemplate(&config.StaticMessage, vars)
+	config.MessagePrefix = utils.FillTemplate(config.MessagePrefix, vars)
+	config.MessageSuffix = utils.FillTemplate(config.MessageSuffix, vars)
+	config.StaticMessage = utils.FillTemplate(config.StaticMessage, vars)
 }
 
 func (config *CommitMsgHookConfig) GetVariablesConfig() VariablesConfig {

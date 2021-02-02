@@ -8,7 +8,7 @@ type PrepareCommitMsgHookConfig struct {
 }
 
 func (config *PrepareCommitMsgHookConfig) Compile(variables map[string]interface{}) {
-	utils.FillTemplate(&config.Message, variables)
+	config.Message = utils.FillTemplate(config.Message, variables)
 }
 
 func (config *PrepareCommitMsgHookConfig) GetVariablesConfig() VariablesConfig {
