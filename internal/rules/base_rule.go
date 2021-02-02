@@ -4,7 +4,7 @@ package rules
 var (
 	PreScripts   byte = 1
 	Scripts      byte = 2
-	AfterScripts byte = 3
+	PostScripts byte = 3
 )
 
 type BaseRule struct {

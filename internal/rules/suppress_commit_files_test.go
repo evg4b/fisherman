@@ -18,7 +18,7 @@ func TestSuppressCommitFiles_GetPosition(t *testing.T) {
 		RemoveFromIndex: true,
 	}
 
-	assert.Equal(t, rules.AfterScripts, rule.GetPosition())
+	assert.Equal(t, rules.PostScripts, rule.GetPosition())
 }
 
 func TestSuppresCommitFiles_NotConfigured(t *testing.T) {

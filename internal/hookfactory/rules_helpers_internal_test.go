@@ -12,7 +12,7 @@ import (
 // nolint: dupl
 func Test_getPreScripts(t *testing.T) {
 	rule1 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PreScripts)
-	rule2 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.AfterScripts)
+	rule2 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PostScripts)
 	rule3 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PreScripts)
 	rule4 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.Scripts)
 
@@ -48,9 +48,9 @@ func Test_getPreScripts(t *testing.T) {
 
 // nolint: dupl
 func Test_getPostScriptRules(t *testing.T) {
-	rule1 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.AfterScripts)
+	rule1 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PostScripts)
 	rule2 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.Scripts)
-	rule3 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.AfterScripts)
+	rule3 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PostScripts)
 	rule4 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PreScripts)
 
 	tests := []struct {
@@ -86,7 +86,7 @@ func Test_getPostScriptRules(t *testing.T) {
 // nolint: dupl
 func Test_getScriptRules(t *testing.T) {
 	rule1 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.Scripts)
-	rule2 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.AfterScripts)
+	rule2 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PostScripts)
 	rule3 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.Scripts)
 	rule4 := mocks.NewRuleMock(t).GetPositionMock.Return(rules.PreScripts)
 

@@ -15,7 +15,7 @@ func getPreScripts(ruleCollection []Rule) []Rule {
 
 func getPostScriptRules(ruleCollection []Rule) []Rule {
 	return filterRules(ruleCollection, func(r Rule) bool {
-		return r.GetPosition() == rules.AfterScripts
+		return r.GetPosition() == rules.PostScripts
 	})
 }
 

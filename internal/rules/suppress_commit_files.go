@@ -59,5 +59,5 @@ func (rule *SuppressCommitFiles) Check(_ io.Writer, ctx internal.ExecutionContex
 }
 
 func (rule *SuppressCommitFiles) GetPosition() byte {
-	return AfterScripts
+	return PostScripts
 }
