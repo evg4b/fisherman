@@ -96,6 +96,31 @@ rules:
 				},
 			},
 		},
+		{
+			name: "add-to-index rule",
+			source: `
+rules:
+  - type: add-to-index
+    condition: 1 == 1
+    Globs:
+      - glob: demo.go
+        required: true
+      - glob: test.go
+        required: false
+`,
+			rules: []configuration.Rule{
+				&rules.AddToIndex{
+					BaseRule: rules.BaseRule{
+						Type:      rules.AddToIndexType,
+						Condition: "1 == 1",
+					},
+					Globs: []rules.Glob{
+						{Glob: "demo.go", IsRequired: true},
+						{Glob: "demo.go", IsRequired: false},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -166,7 +191,7 @@ rules:
 			source: `
 rules:
   - type: prepare-message
-    unknown: unknown value 
+    unknown: unknown value
 `,
 			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
 		},
@@ -175,6 +200,15 @@ rules:
 			source: `
 rules:
   - type: shell-script
+    unknown: unknown value
+`,
+			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
+		},
+		{
+			name: "incorrect add-to-index",
+			source: `
+rules:
+  - type: add-to-index
     unknown: unknown value
 `,
 			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",

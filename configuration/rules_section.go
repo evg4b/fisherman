@@ -83,6 +83,8 @@ func selectRule(typeName string) (Rule, error) {
 		return &rules.PrepareMessage{}, nil
 	case rules.ShellScriptType:
 		return &rules.ShellScript{}, nil
+	case rules.AddToIndexType:
+		return &rules.AddToIndex{}, nil
 	default:
 		return nil, errors.New("unknown rule type")
 	}
