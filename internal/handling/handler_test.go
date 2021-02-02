@@ -183,10 +183,9 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 			err: "1 error occurred:\n\t* [rule3] test\n\n",
 		},
 		{
-			name: "rule returns error",
+			name: "incorrect workers count",
 			handler: handling.HookHandler{
-				Engine: mocks.NewEngineMock(t).
-					EvalMock.Return(true, nil),
+				Engine: mocks.NewEngineMock(t),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t),
 					mocks.NewRuleMock(t),
@@ -196,6 +195,27 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 			},
 			err: "incorrect workers count",
 		},
+		{
+			name: "empty condition",
+			handler: handling.HookHandler{
+				Engine: mocks.NewEngineMock(t),
+				PostScriptRules: []configuration.Rule{
+					mocks.NewRuleMock(t).
+						GetContitionMock.Return("").
+						CheckMock.Return(nil).
+						GetTypeMock.Return("test1"),
+					mocks.NewRuleMock(t).
+						GetContitionMock.Return("").
+						CheckMock.Return(nil).
+						GetTypeMock.Return("test2"),
+					mocks.NewRuleMock(t).
+						GetContitionMock.Return("").
+						CheckMock.Return(nil).
+						GetTypeMock.Return("test3"),
+				},
+				WorkersCount: 3,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -203,6 +223,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
 			testutils.CheckError(t, tt.err, err)
+			print(tt.name)
 		})
 	}
 }

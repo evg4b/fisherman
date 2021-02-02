@@ -6,6 +6,7 @@ import (
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/prefixwriter"
+	"fisherman/utils"
 	"fmt"
 	"os"
 	"sync"
@@ -28,14 +29,19 @@ func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) er
 
 	filteredRules := []configuration.Rule{}
 	for _, rule := range rules {
-		condition, err := handler.Engine.Eval(rule.GetContition())
-		if err != nil {
-			close(input)
+		shouldAadd := true
 
-			return err
+		condition := rule.GetContition()
+		if !utils.IsEmpty(condition) {
+			shouldAadd, err = handler.Engine.Eval(condition)
+			if err != nil {
+				close(input)
+
+				return err
+			}
 		}
 
-		if condition {
+		if shouldAadd {
 			filteredRules = append(filteredRules, rule)
 		}
 	}
@@ -43,6 +49,7 @@ func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) er
 	for _, rule := range filteredRules {
 		input <- rule
 	}
+
 	close(input)
 
 	var multierr *multierror.Error
