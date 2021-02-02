@@ -11,8 +11,8 @@ import (
 const AddToIndexType = "add-to-index"
 
 type Glob struct {
-	Glob       string `yaml:"glob"`
-	IsRequired bool   `yaml:"required"`
+	Glob       string `mapstructure:"glob"`
+	IsRequired bool   `mapstructure:"required"`
 }
 
 type AddToIndex struct {

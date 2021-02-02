@@ -17,7 +17,6 @@ type HookHandler struct {
 	Rules           []configuration.Rule
 	Scripts         []configuration.Rule
 	PostScriptRules []configuration.Rule
-	AfterActions    []Action
 	WorkersCount    int
 }
 
@@ -37,18 +36,5 @@ func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string)
 		return err
 	}
 
-	_, err = RunActions(ctx, handler.AfterActions)
-
 	return err
-}
-
-func RunActions(ctx internal.ExecutionContext, actions []Action) (bool, error) {
-	for _, action := range actions {
-		next, err := action(ctx)
-		if err != nil || !next {
-			return false, err
-		}
-	}
-
-	return true, nil
 }

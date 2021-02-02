@@ -102,11 +102,11 @@ rules:
 rules:
   - type: add-to-index
     condition: 1 == 1
-    Globs:
-      - glob: demo.go
-        required: true
-      - glob: test.go
-        required: false
+    globs:
+    - glob: demo.go
+      required: true
+    - glob: test.go
+      required: false
 `,
 			rules: []configuration.Rule{
 				&rules.AddToIndex{
@@ -116,7 +116,7 @@ rules:
 					},
 					Globs: []rules.Glob{
 						{Glob: "demo.go", IsRequired: true},
-						{Glob: "demo.go", IsRequired: false},
+						{Glob: "test.go", IsRequired: false},
 					},
 				},
 			},

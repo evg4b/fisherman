@@ -24,12 +24,6 @@ type RuleMock struct {
 	beforeCheckCounter uint64
 	CheckMock          mRuleMockCheck
 
-	funcDecode          func(input interface{}) (err error)
-	inspectFuncDecode   func(input interface{})
-	afterDecodeCounter  uint64
-	beforeDecodeCounter uint64
-	DecodeMock          mRuleMockDecode
-
 	funcGetContition          func() (s1 string)
 	inspectFuncGetContition   func()
 	afterGetContitionCounter  uint64
@@ -58,9 +52,6 @@ func NewRuleMock(t minimock.Tester) *RuleMock {
 
 	m.CheckMock = mRuleMockCheck{mock: m}
 	m.CheckMock.callArgs = []*RuleMockCheckParams{}
-
-	m.DecodeMock = mRuleMockDecode{mock: m}
-	m.DecodeMock.callArgs = []*RuleMockDecodeParams{}
 
 	m.GetContitionMock = mRuleMockGetContition{mock: m}
 
@@ -284,221 +275,6 @@ func (m *RuleMock) MinimockCheckInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcCheck != nil && mm_atomic.LoadUint64(&m.afterCheckCounter) < 1 {
 		m.t.Error("Expected call to RuleMock.Check")
-	}
-}
-
-type mRuleMockDecode struct {
-	mock               *RuleMock
-	defaultExpectation *RuleMockDecodeExpectation
-	expectations       []*RuleMockDecodeExpectation
-
-	callArgs []*RuleMockDecodeParams
-	mutex    sync.RWMutex
-}
-
-// RuleMockDecodeExpectation specifies expectation struct of the Rule.Decode
-type RuleMockDecodeExpectation struct {
-	mock    *RuleMock
-	params  *RuleMockDecodeParams
-	results *RuleMockDecodeResults
-	Counter uint64
-}
-
-// RuleMockDecodeParams contains parameters of the Rule.Decode
-type RuleMockDecodeParams struct {
-	input interface{}
-}
-
-// RuleMockDecodeResults contains results of the Rule.Decode
-type RuleMockDecodeResults struct {
-	err error
-}
-
-// Expect sets up expected params for Rule.Decode
-func (mmDecode *mRuleMockDecode) Expect(input interface{}) *mRuleMockDecode {
-	if mmDecode.mock.funcDecode != nil {
-		mmDecode.mock.t.Fatalf("RuleMock.Decode mock is already set by Set")
-	}
-
-	if mmDecode.defaultExpectation == nil {
-		mmDecode.defaultExpectation = &RuleMockDecodeExpectation{}
-	}
-
-	mmDecode.defaultExpectation.params = &RuleMockDecodeParams{input}
-	for _, e := range mmDecode.expectations {
-		if minimock.Equal(e.params, mmDecode.defaultExpectation.params) {
-			mmDecode.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDecode.defaultExpectation.params)
-		}
-	}
-
-	return mmDecode
-}
-
-// Inspect accepts an inspector function that has same arguments as the Rule.Decode
-func (mmDecode *mRuleMockDecode) Inspect(f func(input interface{})) *mRuleMockDecode {
-	if mmDecode.mock.inspectFuncDecode != nil {
-		mmDecode.mock.t.Fatalf("Inspect function is already set for RuleMock.Decode")
-	}
-
-	mmDecode.mock.inspectFuncDecode = f
-
-	return mmDecode
-}
-
-// Return sets up results that will be returned by Rule.Decode
-func (mmDecode *mRuleMockDecode) Return(err error) *RuleMock {
-	if mmDecode.mock.funcDecode != nil {
-		mmDecode.mock.t.Fatalf("RuleMock.Decode mock is already set by Set")
-	}
-
-	if mmDecode.defaultExpectation == nil {
-		mmDecode.defaultExpectation = &RuleMockDecodeExpectation{mock: mmDecode.mock}
-	}
-	mmDecode.defaultExpectation.results = &RuleMockDecodeResults{err}
-	return mmDecode.mock
-}
-
-//Set uses given function f to mock the Rule.Decode method
-func (mmDecode *mRuleMockDecode) Set(f func(input interface{}) (err error)) *RuleMock {
-	if mmDecode.defaultExpectation != nil {
-		mmDecode.mock.t.Fatalf("Default expectation is already set for the Rule.Decode method")
-	}
-
-	if len(mmDecode.expectations) > 0 {
-		mmDecode.mock.t.Fatalf("Some expectations are already set for the Rule.Decode method")
-	}
-
-	mmDecode.mock.funcDecode = f
-	return mmDecode.mock
-}
-
-// When sets expectation for the Rule.Decode which will trigger the result defined by the following
-// Then helper
-func (mmDecode *mRuleMockDecode) When(input interface{}) *RuleMockDecodeExpectation {
-	if mmDecode.mock.funcDecode != nil {
-		mmDecode.mock.t.Fatalf("RuleMock.Decode mock is already set by Set")
-	}
-
-	expectation := &RuleMockDecodeExpectation{
-		mock:   mmDecode.mock,
-		params: &RuleMockDecodeParams{input},
-	}
-	mmDecode.expectations = append(mmDecode.expectations, expectation)
-	return expectation
-}
-
-// Then sets up Rule.Decode return parameters for the expectation previously defined by the When method
-func (e *RuleMockDecodeExpectation) Then(err error) *RuleMock {
-	e.results = &RuleMockDecodeResults{err}
-	return e.mock
-}
-
-// Decode implements configuration.Rule
-func (mmDecode *RuleMock) Decode(input interface{}) (err error) {
-	mm_atomic.AddUint64(&mmDecode.beforeDecodeCounter, 1)
-	defer mm_atomic.AddUint64(&mmDecode.afterDecodeCounter, 1)
-
-	if mmDecode.inspectFuncDecode != nil {
-		mmDecode.inspectFuncDecode(input)
-	}
-
-	mm_params := &RuleMockDecodeParams{input}
-
-	// Record call args
-	mmDecode.DecodeMock.mutex.Lock()
-	mmDecode.DecodeMock.callArgs = append(mmDecode.DecodeMock.callArgs, mm_params)
-	mmDecode.DecodeMock.mutex.Unlock()
-
-	for _, e := range mmDecode.DecodeMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.err
-		}
-	}
-
-	if mmDecode.DecodeMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmDecode.DecodeMock.defaultExpectation.Counter, 1)
-		mm_want := mmDecode.DecodeMock.defaultExpectation.params
-		mm_got := RuleMockDecodeParams{input}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmDecode.t.Errorf("RuleMock.Decode got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		mm_results := mmDecode.DecodeMock.defaultExpectation.results
-		if mm_results == nil {
-			mmDecode.t.Fatal("No results are set for the RuleMock.Decode")
-		}
-		return (*mm_results).err
-	}
-	if mmDecode.funcDecode != nil {
-		return mmDecode.funcDecode(input)
-	}
-	mmDecode.t.Fatalf("Unexpected call to RuleMock.Decode. %v", input)
-	return
-}
-
-// DecodeAfterCounter returns a count of finished RuleMock.Decode invocations
-func (mmDecode *RuleMock) DecodeAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmDecode.afterDecodeCounter)
-}
-
-// DecodeBeforeCounter returns a count of RuleMock.Decode invocations
-func (mmDecode *RuleMock) DecodeBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmDecode.beforeDecodeCounter)
-}
-
-// Calls returns a list of arguments used in each call to RuleMock.Decode.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmDecode *mRuleMockDecode) Calls() []*RuleMockDecodeParams {
-	mmDecode.mutex.RLock()
-
-	argCopy := make([]*RuleMockDecodeParams, len(mmDecode.callArgs))
-	copy(argCopy, mmDecode.callArgs)
-
-	mmDecode.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockDecodeDone returns true if the count of the Decode invocations corresponds
-// the number of defined expectations
-func (m *RuleMock) MinimockDecodeDone() bool {
-	for _, e := range m.DecodeMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.DecodeMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDecodeCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcDecode != nil && mm_atomic.LoadUint64(&m.afterDecodeCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockDecodeInspect logs each unmet expectation
-func (m *RuleMock) MinimockDecodeInspect() {
-	for _, e := range m.DecodeMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to RuleMock.Decode with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.DecodeMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDecodeCounter) < 1 {
-		if m.DecodeMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to RuleMock.Decode")
-		} else {
-			m.t.Errorf("Expected call to RuleMock.Decode with params: %#v", *m.DecodeMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcDecode != nil && mm_atomic.LoadUint64(&m.afterDecodeCounter) < 1 {
-		m.t.Error("Expected call to RuleMock.Decode")
 	}
 }
 
@@ -936,8 +712,6 @@ func (m *RuleMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockCheckInspect()
 
-		m.MinimockDecodeInspect()
-
 		m.MinimockGetContitionInspect()
 
 		m.MinimockGetPositionInspect()
@@ -967,7 +741,6 @@ func (m *RuleMock) minimockDone() bool {
 	done := true
 	return done &&
 		m.MinimockCheckDone() &&
-		m.MinimockDecodeDone() &&
 		m.MinimockGetContitionDone() &&
 		m.MinimockGetPositionDone() &&
 		m.MinimockGetTypeDone()
