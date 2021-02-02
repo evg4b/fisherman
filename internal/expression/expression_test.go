@@ -14,10 +14,10 @@ func TestExpressionEngine_Eval(t *testing.T) {
 	})
 
 	tests := []struct {
-		name       string
-		expression string
-		expected   bool
-		err        error
+		name        string
+		expression  string
+		expected    bool
+		expectedErr error
 	}{
 		{
 			name:       "arithmetic expression",
@@ -35,12 +35,13 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			expected:   false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			actual, err := engine.Eval(tt.expression)
 
 			assert.Equal(t, tt.expected, actual)
-			assert.Equal(t, tt.err, err)
+			assert.Equal(t, tt.expectedErr, err)
 		})
 	}
 }

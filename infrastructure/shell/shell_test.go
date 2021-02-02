@@ -30,6 +30,7 @@ func TestSystemShell_Exec(t *testing.T) {
 			hasError: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.ShScript{

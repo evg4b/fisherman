@@ -240,6 +240,7 @@ func TestLocalFileSystem_Chmod(t *testing.T) {
 			shouldApplay: runtime.GOOS != constants.WindowsOS,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := fs.Chmod(tt.path, tt.mode)

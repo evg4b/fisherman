@@ -15,6 +15,7 @@ func TestPanicInterceptor(t *testing.T) {
 		{name: "Intercepts panic and return with exit code 3", exitCode: 3},
 		{name: "Intercepts panic and return with exit code 0", exitCode: 0},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			called := false

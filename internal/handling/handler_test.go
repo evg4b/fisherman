@@ -14,9 +14,9 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
 
 	tests := []struct {
-		name    string
-		handler handling.HookHandler
-		err     string
+		name        string
+		handler     handling.HookHandler
+		expectedErr string
 	}{
 		{
 			name: "positive case",
@@ -58,7 +58,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			err: "test",
+			expectedErr: "test",
 		},
 		{
 			name: "rule returns error",
@@ -81,7 +81,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			err: "1 error occurred:\n\t* [rule3] test\n\n",
+			expectedErr: "1 error occurred:\n\t* [rule3] test\n\n",
 		},
 		{
 			name: "rule returns error",
@@ -95,7 +95,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 				},
 				WorkersCount: 0,
 			},
-			err: "incorrect workers count",
+			expectedErr: "incorrect workers count",
 		},
 	}
 
@@ -103,7 +103,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			testutils.CheckError(t, tt.err, err)
+			testutils.CheckError(t, tt.expectedErr, err)
 		})
 	}
 }
@@ -113,9 +113,9 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
 
 	tests := []struct {
-		name    string
-		handler handling.HookHandler
-		err     string
+		name        string
+		handler     handling.HookHandler
+		expectedErr string
 	}{
 		{
 			name: "positive case",
@@ -157,7 +157,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			err: "test",
+			expectedErr: "test",
 		},
 		{
 			name: "rule returns error",
@@ -180,7 +180,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			err: "1 error occurred:\n\t* [rule3] test\n\n",
+			expectedErr: "1 error occurred:\n\t* [rule3] test\n\n",
 		},
 		{
 			name: "incorrect workers count",
@@ -193,7 +193,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 				},
 				WorkersCount: 0,
 			},
-			err: "incorrect workers count",
+			expectedErr: "incorrect workers count",
 		},
 		{
 			name: "empty condition",
@@ -222,7 +222,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			testutils.CheckError(t, tt.err, err)
+			testutils.CheckError(t, tt.expectedErr, err)
 			print(tt.name)
 		})
 	}

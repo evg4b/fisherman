@@ -37,6 +37,7 @@ func Test_getPreScripts(t *testing.T) {
 			want:           []configuration.Rule{},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getPreScripts(tt.ruleCollection)
@@ -74,6 +75,7 @@ func Test_getPostScriptRules(t *testing.T) {
 			want:           []configuration.Rule{},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getPostScriptRules(tt.ruleCollection)
@@ -111,6 +113,7 @@ func Test_getScriptRules(t *testing.T) {
 			want:           []configuration.Rule{},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := getScriptRules(tt.ruleCollection)

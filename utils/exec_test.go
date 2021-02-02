@@ -36,6 +36,7 @@ func TestNormalizePath(t *testing.T) {
 			expected: filepath.Base(pingFullPath),
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			path := utils.NormalizePath(tt.binary)

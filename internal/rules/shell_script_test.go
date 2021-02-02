@@ -72,6 +72,7 @@ func TestShellScript_Check(t *testing.T) {
 			expectedShell:  "zsh",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			output := &bytes.Buffer{}
