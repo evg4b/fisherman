@@ -19,7 +19,7 @@ type CommitMessage struct {
 	NotEmpty bool   `mapstructure:"not-empty"`
 }
 
-func (config CommitMessage) Check(_ io.Writer, ctx internal.ExecutionContext) error {
+func (config CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	message := ctx.Message()
 
 	if config.NotEmpty && utils.IsEmpty(message) {

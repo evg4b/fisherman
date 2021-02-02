@@ -13,7 +13,7 @@ type PrepareMessage struct {
 	Message  string `mapstructure:"message"`
 }
 
-func (config PrepareMessage) Check(_ io.Writer, ctx internal.ExecutionContext) error {
+func (config PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	if utils.IsEmpty(config.Message) {
 		return nil
 	}

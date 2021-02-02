@@ -90,7 +90,7 @@ func TestShellScript_Check(t *testing.T) {
 
 			ctx.ShellMock.Return(sh)
 
-			err := tt.config.Check(output, ctx)
+			err := tt.config.Check(ctx, output)
 
 			assert.Equal(t, tt.expectedErr, err)
 			assert.Equal(t, tt.expectedOutput, output.String())

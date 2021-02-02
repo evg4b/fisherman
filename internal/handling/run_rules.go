@@ -89,7 +89,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	for rule := range input {
 		prefix := fmt.Sprintf("[%s]", rule.GetType())
 		writer := prefixwriter.New(os.Stdout, prefix)
-		err := rule.Check(writer, ctx)
+		err := rule.Check(ctx, writer)
 		if err != nil {
 			typeName := rule.GetType()
 			output <- fmt.Errorf("[%s] %s", typeName, err)

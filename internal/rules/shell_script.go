@@ -25,7 +25,7 @@ func (config *ShellScript) GetPosition() byte {
 	return Scripts
 }
 
-func (config *ShellScript) Check(output io.Writer, ctx internal.ExecutionContext) error {
+func (config *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
 	return ctx.Shell().
 		Exec(ctx, formatOutput(output, config), config.Shell, shell.ShScript{
 			Commands: config.Commands,

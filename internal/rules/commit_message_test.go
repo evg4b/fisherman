@@ -32,7 +32,7 @@ func TestCommitMessage_NotEmpty(t *testing.T) {
 				NotEmpty: tt.notEmpty,
 			}
 
-			err := rule.Check(ioutil.Discard, ctx)
+			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
 				assert.Error(t, err, message)
@@ -66,7 +66,7 @@ func TestCommitMessage_HasPrefix(t *testing.T) {
 				Prefix: tt.prefix,
 			}
 
-			err := rule.Check(ioutil.Discard, ctx)
+			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
 				assert.Error(t, err, "commit message should have prefix 'prefix-'")
@@ -100,7 +100,7 @@ func TestCommitMessage_HasSuffix(t *testing.T) {
 				Suffix: tt.suffix,
 			}
 
-			err := rule.Check(ioutil.Discard, ctx)
+			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
 				assert.Error(t, err, "commit message should have suffix '-suffix'")
@@ -133,7 +133,7 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 				Regexp: tt.expression,
 			}
 
-			err := rule.Check(ioutil.Discard, ctx)
+			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
 				assert.Error(t, err)

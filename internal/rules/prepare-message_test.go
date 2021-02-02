@@ -21,7 +21,8 @@ func TestPrepareMessage_Check(t *testing.T) {
 		FilesMock.Return(fs)
 
 	rule := rules.PrepareMessage{Message: message}
-	err := rule.Check(ioutil.Discard, ctx)
+
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.NoError(t, err)
 }
@@ -30,6 +31,7 @@ func TestPrepareMessage_Check_NotConfigured(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
 	rule := rules.PrepareMessage{}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
+
 	assert.NoError(t, err)
 }

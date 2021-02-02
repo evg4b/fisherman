@@ -14,7 +14,7 @@ import (
 func TestAddToIndex_NotConfigured(t *testing.T) {
 	rule := rules.AddToIndex{}
 
-	err := rule.Check(ioutil.Discard, mocks.NewExecutionContextMock(t))
+	err := rule.Check(mocks.NewExecutionContextMock(t), ioutil.Discard)
 
 	assert.NoError(t, err)
 }
@@ -35,7 +35,7 @@ func TestAddToIndex_CorrectAddToIndex(t *testing.T) {
 		},
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.NoError(t, err)
 }
@@ -55,7 +55,7 @@ func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 			{"mocks", true},
 		},
 	}
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.Error(t, err, "testError")
 }
@@ -86,7 +86,7 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 				},
 			}
 
-			err := rule.Check(ioutil.Discard, ctx)
+			err := rule.Check(ctx, ioutil.Discard)
 
 			if !tt.isRequired {
 				assert.NoError(t, err)

@@ -24,10 +24,10 @@ func (rule *AddToIndex) GetPosition() byte {
 	return PostScripts
 }
 
-func (config AddToIndex) Check(_ io.Writer, ctx internal.ExecutionContext) error {
-	if len(config.Globs) > 0 {
+func (rule AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+	if len(rule.Globs) > 0 {
 		repo := ctx.Repository()
-		for _, glob := range config.Globs {
+		for _, glob := range rule.Globs {
 			err := repo.AddGlob(glob.Glob)
 			if err != nil {
 				if errors.Is(err, git.ErrGlobNoMatches) && !glob.IsRequired {

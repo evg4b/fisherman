@@ -18,8 +18,8 @@ import (
 type RuleMock struct {
 	t minimock.Tester
 
-	funcCheck          func(w1 io.Writer, e1 internal.ExecutionContext) (err error)
-	inspectFuncCheck   func(w1 io.Writer, e1 internal.ExecutionContext)
+	funcCheck          func(e1 internal.ExecutionContext, w1 io.Writer) (err error)
+	inspectFuncCheck   func(e1 internal.ExecutionContext, w1 io.Writer)
 	afterCheckCounter  uint64
 	beforeCheckCounter uint64
 	CheckMock          mRuleMockCheck
@@ -81,8 +81,8 @@ type RuleMockCheckExpectation struct {
 
 // RuleMockCheckParams contains parameters of the Rule.Check
 type RuleMockCheckParams struct {
-	w1 io.Writer
 	e1 internal.ExecutionContext
+	w1 io.Writer
 }
 
 // RuleMockCheckResults contains results of the Rule.Check
@@ -91,7 +91,7 @@ type RuleMockCheckResults struct {
 }
 
 // Expect sets up expected params for Rule.Check
-func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, e1 internal.ExecutionContext) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Expect(e1 internal.ExecutionContext, w1 io.Writer) *mRuleMockCheck {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
@@ -100,7 +100,7 @@ func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, e1 internal.ExecutionContext
 		mmCheck.defaultExpectation = &RuleMockCheckExpectation{}
 	}
 
-	mmCheck.defaultExpectation.params = &RuleMockCheckParams{w1, e1}
+	mmCheck.defaultExpectation.params = &RuleMockCheckParams{e1, w1}
 	for _, e := range mmCheck.expectations {
 		if minimock.Equal(e.params, mmCheck.defaultExpectation.params) {
 			mmCheck.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCheck.defaultExpectation.params)
@@ -111,7 +111,7 @@ func (mmCheck *mRuleMockCheck) Expect(w1 io.Writer, e1 internal.ExecutionContext
 }
 
 // Inspect accepts an inspector function that has same arguments as the Rule.Check
-func (mmCheck *mRuleMockCheck) Inspect(f func(w1 io.Writer, e1 internal.ExecutionContext)) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Inspect(f func(e1 internal.ExecutionContext, w1 io.Writer)) *mRuleMockCheck {
 	if mmCheck.mock.inspectFuncCheck != nil {
 		mmCheck.mock.t.Fatalf("Inspect function is already set for RuleMock.Check")
 	}
@@ -135,7 +135,7 @@ func (mmCheck *mRuleMockCheck) Return(err error) *RuleMock {
 }
 
 //Set uses given function f to mock the Rule.Check method
-func (mmCheck *mRuleMockCheck) Set(f func(w1 io.Writer, e1 internal.ExecutionContext) (err error)) *RuleMock {
+func (mmCheck *mRuleMockCheck) Set(f func(e1 internal.ExecutionContext, w1 io.Writer) (err error)) *RuleMock {
 	if mmCheck.defaultExpectation != nil {
 		mmCheck.mock.t.Fatalf("Default expectation is already set for the Rule.Check method")
 	}
@@ -150,14 +150,14 @@ func (mmCheck *mRuleMockCheck) Set(f func(w1 io.Writer, e1 internal.ExecutionCon
 
 // When sets expectation for the Rule.Check which will trigger the result defined by the following
 // Then helper
-func (mmCheck *mRuleMockCheck) When(w1 io.Writer, e1 internal.ExecutionContext) *RuleMockCheckExpectation {
+func (mmCheck *mRuleMockCheck) When(e1 internal.ExecutionContext, w1 io.Writer) *RuleMockCheckExpectation {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
 
 	expectation := &RuleMockCheckExpectation{
 		mock:   mmCheck.mock,
-		params: &RuleMockCheckParams{w1, e1},
+		params: &RuleMockCheckParams{e1, w1},
 	}
 	mmCheck.expectations = append(mmCheck.expectations, expectation)
 	return expectation
@@ -170,15 +170,15 @@ func (e *RuleMockCheckExpectation) Then(err error) *RuleMock {
 }
 
 // Check implements configuration.Rule
-func (mmCheck *RuleMock) Check(w1 io.Writer, e1 internal.ExecutionContext) (err error) {
+func (mmCheck *RuleMock) Check(e1 internal.ExecutionContext, w1 io.Writer) (err error) {
 	mm_atomic.AddUint64(&mmCheck.beforeCheckCounter, 1)
 	defer mm_atomic.AddUint64(&mmCheck.afterCheckCounter, 1)
 
 	if mmCheck.inspectFuncCheck != nil {
-		mmCheck.inspectFuncCheck(w1, e1)
+		mmCheck.inspectFuncCheck(e1, w1)
 	}
 
-	mm_params := &RuleMockCheckParams{w1, e1}
+	mm_params := &RuleMockCheckParams{e1, w1}
 
 	// Record call args
 	mmCheck.CheckMock.mutex.Lock()
@@ -195,7 +195,7 @@ func (mmCheck *RuleMock) Check(w1 io.Writer, e1 internal.ExecutionContext) (err 
 	if mmCheck.CheckMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCheck.CheckMock.defaultExpectation.Counter, 1)
 		mm_want := mmCheck.CheckMock.defaultExpectation.params
-		mm_got := RuleMockCheckParams{w1, e1}
+		mm_got := RuleMockCheckParams{e1, w1}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCheck.t.Errorf("RuleMock.Check got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -207,9 +207,9 @@ func (mmCheck *RuleMock) Check(w1 io.Writer, e1 internal.ExecutionContext) (err 
 		return (*mm_results).err
 	}
 	if mmCheck.funcCheck != nil {
-		return mmCheck.funcCheck(w1, e1)
+		return mmCheck.funcCheck(e1, w1)
 	}
-	mmCheck.t.Fatalf("Unexpected call to RuleMock.Check. %v %v", w1, e1)
+	mmCheck.t.Fatalf("Unexpected call to RuleMock.Check. %v %v", e1, w1)
 	return
 }
 

@@ -19,7 +19,7 @@ type Rule interface {
 	GetType() string
 	GetContition() string
 	GetPosition() byte
-	Check(io.Writer, internal.ExecutionContext) error
+	Check(internal.ExecutionContext, io.Writer) error
 }
 
 type RulesSection struct {

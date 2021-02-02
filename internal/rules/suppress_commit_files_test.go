@@ -25,7 +25,7 @@ func TestSuppresCommitFiles_NotConfigured(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
 	rule := rules.SuppressCommitFiles{}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.NoError(t, err)
 }
@@ -41,7 +41,7 @@ func TestSuppresCommitFiles(t *testing.T) {
 		Globs: []string{"glob1/*.go", "*.css", "mocks"},
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.EqualError(t, err, "1 error occurred:\n\t* file glob1/demo.go can not be committed\n\n")
 }
@@ -59,7 +59,7 @@ func TestSuppresCommitFiles_WithRemoveFromIndex(t *testing.T) {
 		RemoveFromIndex: true,
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.NoError(t, err)
 }
@@ -74,7 +74,7 @@ func TestSuppresCommitFiles_GetFilesInIndexError(t *testing.T) {
 		Globs: []string{"glob1/*.go", "*.css", "mocks"},
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.EqualError(t, err, "test error")
 }
@@ -89,7 +89,7 @@ func TestSuppresCommitFiles_MatchingError(t *testing.T) {
 		Globs: []string{"[/"},
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.EqualError(t, err, "syntax error in pattern")
 }
@@ -106,7 +106,7 @@ func TestSuppresCommitFiles_RemoveGlobError(t *testing.T) {
 		RemoveFromIndex: true,
 	}
 
-	err := rule.Check(ioutil.Discard, ctx)
+	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.EqualError(t, err, "test error")
 }
