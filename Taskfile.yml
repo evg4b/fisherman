@@ -35,14 +35,4 @@ tasks:
   generate:
     desc: Generates mocks
     cmds:
-      - minimock -i fisherman/commands.CliCommand -o ./testing/mocks/cli_command_mock.go
-      - minimock -i fisherman/internal/expression.Engine -o ./testing/mocks/engine_mock.go
-      - minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
-      - minimock -i fisherman/internal/configcompiler.Extractor -o ./testing/mocks/extractor_mock.go
-      - minimock -i fisherman/internal/hookfactory.Factory -o ./testing/mocks/factory_mock.go
-      - minimock -i fisherman/infrastructure.FileSystem -o ./testing/mocks/file_system_mock.go
-      - minimock -i fisherman/internal/handling.Handler -o ./testing/mocks/handler_mock.go
-      - minimock -i fisherman/infrastructure.Repository -o ./testing/mocks/repository_mock.go
-      - minimock -i fisherman/configuration.Rule -o ./testing/mocks/rule_mock.go
-      - minimock -i fisherman/infrastructure.Shell -o ./testing/mocks/shell_mock.go
-      - minimock -i fisherman/configuration.VariablesExtractor -o ./testing/mocks/variables_extractor_mock.go
+     - go generate -n ./...
