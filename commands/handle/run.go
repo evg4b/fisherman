@@ -1,9 +1,11 @@
 package handle
 
 import (
+	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/hookfactory"
 	"fisherman/utils"
 )
 
@@ -14,13 +16,13 @@ func (command *Command) Init(args []string) error {
 func (command *Command) Run() error {
 	handler, err := command.hookFactory.GetHook(command.hook)
 	if err != nil {
+		if errors.Is(err, hookfactory.ErrNotPresented) {
+			log.Debugf("hook %s not presented", command.hook)
+
+			return nil
+		}
+
 		return err
-	}
-
-	if handler == nil {
-		log.Debugf("hook %s not presented", command.hook)
-
-		return nil
 	}
 
 	log.Debugf("handler for '%s' hook founded", command.hook)

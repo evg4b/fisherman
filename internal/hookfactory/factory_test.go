@@ -42,7 +42,7 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 			hook, err := factory.GetHook(tt)
 
 			assert.Nil(t, hook)
-			assert.NoError(t, err)
+			assert.Equal(t, hookfactory.ErrNotPresented, err)
 		})
 	}
 }

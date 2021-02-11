@@ -1,8 +1,11 @@
 package hookfactory
 
 import (
+	"errors"
 	"fisherman/internal/handling"
 )
+
+var ErrNotPresented = errors.New("configuration for hook is not presented")
 
 // TODO: move to configuration
 const workersCount = 5
@@ -10,7 +13,7 @@ const workersCount = 5
 func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.CommitMsgHook
 	if configuration == nil {
-		return nil, nil
+		return nil, ErrNotPresented
 	}
 
 	variables, err := factory.prepareConfig(configuration)
@@ -29,7 +32,7 @@ func (factory *TFactory) commitMsg() (*handling.HookHandler, error) {
 func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 	configuration := factory.config.PreCommitHook
 	if configuration == nil {
-		return nil, nil
+		return nil, ErrNotPresented
 	}
 
 	variables, err := factory.prepareConfig(configuration)
@@ -48,7 +51,7 @@ func (factory *TFactory) preCommit() (*handling.HookHandler, error) {
 func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 	configuration := factory.config.PrePushHook
 	if configuration == nil {
-		return nil, nil
+		return nil, ErrNotPresented
 	}
 
 	variables, err := factory.prepareConfig(configuration)
@@ -67,7 +70,7 @@ func (factory *TFactory) prePush() (*handling.HookHandler, error) {
 func (factory *TFactory) prepareCommitMsg() (*handling.HookHandler, error) {
 	configuration := factory.config.PrepareCommitMsgHook
 	if configuration == nil {
-		return nil, nil
+		return nil, ErrNotPresented
 	}
 
 	variables, err := factory.prepareConfig(configuration)
