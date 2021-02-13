@@ -38,10 +38,11 @@ func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *us
 	}
 
 	modeMessage := fmt.Sprintf(
-		"config location: %s, %s (default), %s. read more here shorturl.at/fksDV",
+		"config location: %s, %s (default), %s. read more here %s",
 		configuration.LocalMode,
 		configuration.RepoMode,
-		configuration.GlobalMode)
+		configuration.GlobalMode,
+		constants.ConfigurationInheritanceURL)
 
 	command.flagSet.StringVar(&command.mode, "mode", configuration.RepoMode, modeMessage)
 	command.flagSet.BoolVar(&command.force, "force", false, "forces overwrites existing hooks")
