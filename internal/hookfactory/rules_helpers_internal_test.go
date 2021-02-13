@@ -19,30 +19,30 @@ func Test_getPreScripts(t *testing.T) {
 	tests := []struct {
 		name           string
 		ruleCollection []Rule
-		want           []Rule
+		expected       []Rule
 	}{
 		{
 			name:           "common filtering",
 			ruleCollection: []configuration.Rule{rule1, rule2, rule3, rule4},
-			want:           []configuration.Rule{rule1, rule3},
+			expected:       []configuration.Rule{rule1, rule3},
 		},
 		{
 			name:           "empty collection",
 			ruleCollection: []configuration.Rule{},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 		{
 			name:           "collection without target rules",
 			ruleCollection: []configuration.Rule{rule2, rule4, rule2, rule4},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getPreScripts(tt.ruleCollection)
+			actual := getPreScriptRules(tt.ruleCollection)
 
-			assert.EqualValues(t, tt.want, got)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }
@@ -57,30 +57,30 @@ func Test_getPostScriptRules(t *testing.T) {
 	tests := []struct {
 		name           string
 		ruleCollection []Rule
-		want           []Rule
+		expected       []Rule
 	}{
 		{
 			name:           "common filtering",
 			ruleCollection: []configuration.Rule{rule1, rule2, rule3, rule4},
-			want:           []configuration.Rule{rule1, rule3},
+			expected:       []configuration.Rule{rule1, rule3},
 		},
 		{
 			name:           "empty collection",
 			ruleCollection: []configuration.Rule{},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 		{
 			name:           "collection without target rules",
 			ruleCollection: []configuration.Rule{rule2, rule4, rule2, rule4},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getPostScriptRules(tt.ruleCollection)
+			actual := getPostScriptRules(tt.ruleCollection)
 
-			assert.EqualValues(t, tt.want, got)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }
@@ -95,30 +95,30 @@ func Test_getScriptRules(t *testing.T) {
 	tests := []struct {
 		name           string
 		ruleCollection []Rule
-		want           []Rule
+		expected       []Rule
 	}{
 		{
 			name:           "common filtering",
 			ruleCollection: []configuration.Rule{rule1, rule2, rule3, rule4},
-			want:           []configuration.Rule{rule1, rule3},
+			expected:       []configuration.Rule{rule1, rule3},
 		},
 		{
 			name:           "empty collection",
 			ruleCollection: []configuration.Rule{},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 		{
 			name:           "collection without target rules",
 			ruleCollection: []configuration.Rule{rule2, rule4, rule2, rule4},
-			want:           []configuration.Rule{},
+			expected:       []configuration.Rule{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getScriptRules(tt.ruleCollection)
+			actual := getScriptRules(tt.ruleCollection)
 
-			assert.EqualValues(t, tt.want, got)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }

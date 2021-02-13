@@ -14,14 +14,14 @@ type Factory interface {
 	GetHook(name string) (handling.Handler, error)
 }
 
-type TFactory struct {
+type GitHookFactory struct {
 	extractor     configcompiler.Extractor
 	config        configuration.HooksConfig
 	hooksBuilders builders
 }
 
-func NewFactory(extractor configcompiler.Extractor, config configuration.HooksConfig) *TFactory {
-	factory := TFactory{
+func NewFactory(extractor configcompiler.Extractor, config configuration.HooksConfig) *GitHookFactory {
+	factory := GitHookFactory{
 		extractor: extractor,
 		config:    config,
 	}
@@ -36,7 +36,7 @@ func NewFactory(extractor configcompiler.Extractor, config configuration.HooksCo
 	return &factory
 }
 
-func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
+func (factory *GitHookFactory) GetHook(name string) (handling.Handler, error) {
 	if builder, ok := factory.hooksBuilders[name]; ok {
 		return builder()
 	}
@@ -44,17 +44,13 @@ func (factory *TFactory) GetHook(name string) (handling.Handler, error) {
 	return nil, errors.New("unknown hook")
 }
 
-func (factory *TFactory) prepareConfig(configuration configcompiler.CompilableConfig) (map[string]interface{}, error) {
-	if configuration == nil {
-		return nil, nil
-	}
-
+func (factory *GitHookFactory) prepareConfig(configuration configcompiler.CompilableConfig) error {
 	variables, err := factory.extractor.Variables(configuration.GetVariablesConfig())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	configuration.Compile(variables)
 
-	return variables, nil
+	return nil
 }

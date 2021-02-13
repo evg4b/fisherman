@@ -13,7 +13,7 @@ import (
 
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
-		&hookfactory.TFactory{},
+		&hookfactory.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
@@ -24,7 +24,7 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
-		&hookfactory.TFactory{},
+		&hookfactory.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},

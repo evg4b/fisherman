@@ -10,17 +10,17 @@ import (
 
 func TestPrintGraphics(t *testing.T) {
 	tests := []struct {
-		name    string
-		content string
-		data    map[string]interface{}
-		wantWr  string
+		name           string
+		content        string
+		data           map[string]interface{}
+		expectedOutput string
 	}{
-		{name: "Print template without data", content: "Template", data: nil, wantWr: "Template"},
+		{name: "Print template without data", content: "Template", data: nil, expectedOutput: "Template"},
 		{
-			name:    "Print template with empty data map",
-			content: "Template",
-			data:    make(map[string]interface{}),
-			wantWr:  "Template",
+			name:           "Print template with empty data map",
+			content:        "Template",
+			data:           make(map[string]interface{}),
+			expectedOutput: "Template",
 		},
 		{
 			name:    "Print template with correct data",
@@ -29,7 +29,7 @@ func TestPrintGraphics(t *testing.T) {
 				"Demo": "this is demo",
 				"Test": "this is test",
 			},
-			wantWr: "Template [this is demo] = this is test",
+			expectedOutput: "Template [this is demo] = this is test",
 		},
 	}
 
@@ -37,7 +37,7 @@ func TestPrintGraphics(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			wr := &bytes.Buffer{}
 			utils.PrintGraphics(wr, tt.content, tt.data)
-			assert.Equal(t, tt.wantWr, wr.String())
+			assert.Equal(t, tt.expectedOutput, wr.String())
 		})
 	}
 }

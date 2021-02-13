@@ -192,15 +192,15 @@ func TestLocalFileSystem_Reader(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := fs.Reader(tt.path)
+			actual, err := fs.Reader(tt.path)
 			if err == nil {
-				defer got.Close()
+				defer actual.Close()
 			}
 
 			testutils.CheckError(t, tt.expectedErr, err)
 			if len(tt.expectedErr) == 0 {
-				assert.NotNil(t, got)
-				data, err := ioutil.ReadAll(got)
+				assert.NotNil(t, actual)
+				data, err := ioutil.ReadAll(actual)
 				if err != nil {
 					t.Fatal(err)
 				}
