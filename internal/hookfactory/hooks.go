@@ -16,10 +16,7 @@ func (factory *GitHookFactory) commitMsg() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := factory.prepareConfig(configuration)
-	if err != nil {
-		return nil, err
-	}
+	configuration.Compile(factory.engine, map[string]interface{}{})
 
 	return &handling.HookHandler{
 		Rules:           getPreScriptRules(configuration.Rules),
@@ -35,10 +32,7 @@ func (factory *GitHookFactory) preCommit() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := factory.prepareConfig(configuration)
-	if err != nil {
-		return nil, err
-	}
+	configuration.Compile(factory.engine, map[string]interface{}{})
 
 	return &handling.HookHandler{
 		Rules:           getPreScriptRules(configuration.Rules),
@@ -54,10 +48,7 @@ func (factory *GitHookFactory) prePush() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := factory.prepareConfig(configuration)
-	if err != nil {
-		return nil, err
-	}
+	configuration.Compile(factory.engine, map[string]interface{}{})
 
 	return &handling.HookHandler{
 		Rules:           getPreScriptRules(configuration.Rules),
@@ -73,10 +64,7 @@ func (factory *GitHookFactory) prepareCommitMsg() (*handling.HookHandler, error)
 		return nil, ErrNotPresented
 	}
 
-	err := factory.prepareConfig(configuration)
-	if err != nil {
-		return nil, err
-	}
+	configuration.Compile(factory.engine, map[string]interface{}{})
 
 	return &handling.HookHandler{
 		WorkersCount: workersCount,

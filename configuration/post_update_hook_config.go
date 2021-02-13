@@ -1,11 +1,13 @@
 package configuration
 
+import "fisherman/internal/expression"
+
 type PostUpdateHookConfig struct{}
 
-func (*PostUpdateHookConfig) Compile(variables map[string]interface{}) {
+func (*PostUpdateHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
 	panic("not supported")
 }
 
-func (*PostUpdateHookConfig) GetVariablesConfig() VariablesConfig {
+func (*PostUpdateHookConfig) GetVariables() map[string]interface{} {
 	panic("not supported")
 }

@@ -12,7 +12,7 @@ import (
 
 func TestFactory_GetHook(t *testing.T) {
 	factory := hookfactory.NewFactory(
-		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
+		mocks.NewEngineMock(t),
 		configuration.HooksConfig{
 			PreCommitHook:        &configuration.PreCommitHookConfig{},
 			PrePushHook:          &configuration.PrePushHookConfig{},
@@ -33,7 +33,7 @@ func TestFactory_GetHook(t *testing.T) {
 
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
 	factory := hookfactory.NewFactory(
-		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
+		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
 
@@ -49,7 +49,7 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
 	factory := hookfactory.NewFactory(
-		mocks.NewExtractorMock(t).VariablesMock.Return(map[string]interface{}{}, nil),
+		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
 

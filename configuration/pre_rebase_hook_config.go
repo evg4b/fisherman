@@ -1,11 +1,13 @@
 package configuration
 
+import "fisherman/internal/expression"
+
 type PreRebaseHookConfig struct{}
 
-func (*PreRebaseHookConfig) Compile(variables map[string]interface{}) {
+func (*PreRebaseHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
 	panic("not supported")
 }
 
-func (*PreRebaseHookConfig) GetVariablesConfig() VariablesConfig {
+func (*PreRebaseHookConfig) GetVariables() map[string]interface{} {
 	panic("not supported")
 }

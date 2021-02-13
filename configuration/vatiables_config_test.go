@@ -1,93 +1,82 @@
 package configuration_test
 
 import (
-	. "fisherman/configuration" // nolint
-	"fisherman/testing/testutils"
+	. "fisherman/configuration"
+	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVariables_GetFromBranch(t *testing.T) {
-	tests := []struct {
-		name              string
-		variables         VariablesConfig
-		branchName        string
-		expectedVariables Variables
-		expectedError     error
-	}{
-		{
-			name:          "Parse single variable",
-			branchName:    "refs/heads/develop",
-			expectedError: nil,
-			expectedVariables: map[string]interface{}{
-				"DEMO": "develop",
-			},
-			variables: VariablesConfig{FromBranch: "refs/heads/(?P<DEMO>.*)"},
-		},
-		{
-			name:          "Parse multiple variables",
-			branchName:    "refs/heads/develop",
-			expectedError: nil,
-			expectedVariables: map[string]interface{}{
-				"DEMO":   "develop",
-				"ROOT":   "refs",
-				"FOLDER": "heads",
-			},
-			variables: VariablesConfig{FromBranch: "(?P<ROOT>.*)/(?P<FOLDER>.*)/(?P<DEMO>.*)"},
-		},
-	}
+func TestVariablesSection_GetVariables_Panic(t *testing.T) {
+	section := VariablesSection{}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			variables, err := tt.variables.GetFromBranch(tt.branchName)
-			assert.Equal(t, tt.expectedError, err)
-			if tt.expectedError == nil {
-				assert.Equal(t, tt.expectedVariables, variables)
-			}
-		})
-	}
+	assert.Panics(t, func() {
+		_ = section.GetVariables()
+	})
 }
 
-func TestVariables_GetFromTag(t *testing.T) {
-	tests := []struct {
-		name              string
-		variables         VariablesConfig
-		tagName           string
-		expectedVariables map[string]interface{}
-		expectedErr       string
-	}{
-		{
-			name:        "correct FromLastTag expression",
-			tagName:     "refs/tags/v1.0.0",
-			expectedErr: "",
-			expectedVariables: map[string]interface{}{
-				"V": "v1.0.0",
-			},
-			variables: VariablesConfig{FromLastTag: "refs/tags/(?P<V>.*)"},
+func TestVariablesSection_Compile_Empty(t *testing.T) {
+	section := VariablesSection{}
+
+	assert.NotPanics(t, func() {
+		section.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
+		variables := section.GetVariables()
+
+		assert.Empty(t, variables)
+	})
+}
+
+func TestVariables_Compile(t *testing.T) {
+	engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
+
+	section := VariablesSection{
+		StaticVariables: map[string]string{
+			"VAR_1": "{{var1}}",
+			"VAR_2": "{{var2}}_demo",
+			"VAR_3": "{var2}_test",
 		},
-		{
-			name:              "not matched FromLastTag expression",
-			tagName:           "refs/tags/v1.0.0",
-			expectedErr:       "filed match 'refs/tags/v1.0.0' to expression 'xxx/tags/(?P<V>.*)'",
-			expectedVariables: nil,
-			variables:         VariablesConfig{FromLastTag: "xxx/tags/(?P<V>.*)"},
-		},
-		{
-			name:              "incorrect FromLastTag expression",
-			tagName:           "refs/tags/v1.0.0",
-			expectedErr:       "error parsing regexp: missing closing ): `xxx/tags/(((?P<V>.*)`",
-			expectedVariables: nil,
-			variables:         VariablesConfig{FromLastTag: "xxx/tags/(((?P<V>.*)"},
+		ExtractVariables: []string{
+			"Extract({{var1}}, {{var2}})",
+			"Extract('{{var1}}', \"{{var1}}\")",
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			variables, err := tt.variables.GetFromTag(tt.tagName)
+	section.Compile(engine, map[string]interface{}{
+		"var1": "localValue1",
+		"var2": "localValue2",
+	})
 
-			testutils.CheckError(t, tt.expectedErr, err)
-			assert.Equal(t, tt.expectedVariables, variables)
+	assert.Equal(t, map[string]string{
+		"VAR_1": "localValue1",
+		"VAR_2": "localValue2_demo",
+		"VAR_3": "{var2}_test",
+	}, section.StaticVariables)
+
+	assert.Equal(t, []string{
+		"Extract(localValue1, localValue2)",
+		"Extract('localValue1', \"localValue1\")",
+	}, section.ExtractVariables)
+}
+
+func TestVariablesSection_CompileAndReturnVariables(t *testing.T) {
+	section := VariablesSection{
+		ExtractVariables: []string{"stub"},
+	}
+	engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{
+		"var1": "new value",
+	}, nil)
+
+	assert.NotPanics(t, func() {
+		section.Compile(engine, map[string]interface{}{
+			"var1": "value",
+			"var2": "value2",
 		})
-	}
+		variables := section.GetVariables()
+
+		assert.Equal(t, map[string]interface{}{
+			"var1": "new value",
+			"var2": "value2",
+		}, variables)
+	})
 }

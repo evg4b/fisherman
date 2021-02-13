@@ -13,7 +13,7 @@ import (
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
-	"fisherman/internal/configcompiler"
+	"fisherman/internal/expression"
 	"fisherman/internal/hookfactory"
 	"fisherman/internal/runner"
 	"fisherman/utils"
@@ -50,9 +50,10 @@ func main() {
 	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
 	repository := vcs.NewGitRepository(cwd)
 
+	engine := expression.NewExpressionEngine(config.GlobalVariables)
+
 	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
-	extractor := configcompiler.NewConfigExtractor(repository, config.GlobalVariables, cwd)
-	hookFactory := hookfactory.NewFactory(extractor, config.Hooks)
+	hookFactory := hookfactory.NewFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,

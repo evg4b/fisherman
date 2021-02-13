@@ -1,12 +1,12 @@
 package configuration
 
+import "fisherman/internal/expression"
+
 type PreCommitHookConfig struct {
-	RulesSection `yaml:"-,inline"`
-	Variables    VariablesConfig `yaml:"variables,omitempty"`
+	VariablesSection `yaml:"-,inline"`
+	RulesSection     `yaml:"-,inline"`
 }
 
-func (config *PreCommitHookConfig) Compile(variables map[string]interface{}) {}
-
-func (config *PreCommitHookConfig) GetVariablesConfig() VariablesConfig {
-	return config.Variables
+func (config *PreCommitHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
+	// config.VariablesSection.Compile(variables)
 }

@@ -7,17 +7,17 @@ import (
 
 type Engine interface {
 	Eval(expression string) (bool, error)
-	EvalMap(expression string) (map[string]interface{}, error)
+	EvalMap(expression string, variables map[string]interface{}) (map[string]interface{}, error)
 }
 
 type GovaluateEngine struct {
 	globalFunctions map[string]govaluate.ExpressionFunction
-	variables       map[string]interface{}
+	globalVariables map[string]interface{}
 }
 
 func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
 	return &GovaluateEngine{
-		variables: variables,
+		globalVariables: variables,
 		// TODO: Add functions:
 		// - filesChanged(...glob) bool
 		// - filesExist(...glob) bool
@@ -36,7 +36,7 @@ func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
 		return false, err
 	}
 
-	result, err := expression.Evaluate(engine.variables)
+	result, err := expression.Evaluate(engine.globalVariables)
 	if err != nil {
 		return false, err
 	}
@@ -45,7 +45,7 @@ func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
 	return result.(bool), nil
 }
 
-func (engine *GovaluateEngine) EvalMap(expressionString string) (map[string]interface{}, error) {
+func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{}) (map[string]interface{}, error) {
 	functions := map[string]govaluate.ExpressionFunction{
 		"Extract": extract,
 	}
@@ -55,12 +55,23 @@ func (engine *GovaluateEngine) EvalMap(expressionString string) (map[string]inte
 		return nil, err
 	}
 
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, functions)
+	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expr, functions)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := expression.Evaluate(engine.variables)
+	combinedVars := map[string]interface{}{}
+	err = mergo.MergeWithOverwrite(&combinedVars, engine.globalVariables)
+	if err != nil {
+		return nil, err
+	}
+
+	err = mergo.MergeWithOverwrite(&combinedVars, vars)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := expression.Evaluate(combinedVars)
 	if err != nil {
 		return nil, err
 	}

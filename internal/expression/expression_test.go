@@ -57,6 +57,8 @@ func TestGovaluateEngine_EvalMap(t *testing.T) {
 	engine := expression.NewExpressionEngine(map[string]interface{}{
 		"X":          "this is x value",
 		"EmptyValue": "",
+		"variable1":  "refs/heads/master",
+		"variable2":  "this is overwrites values",
 	})
 
 	tests := []struct {
@@ -96,11 +98,20 @@ func TestGovaluateEngine_EvalMap(t *testing.T) {
 			expected:    nil,
 			expectedErr: "error parsing regexp: missing closing ): `refs/heads/(?P<CurrentBranch>`",
 		},
+		{
+			name:       "static expression",
+			expression: "Extract(variable1, \"refs/heads/(?P<CurrentBranch>.*)\")",
+			expected: map[string]interface{}{
+				"CurrentBranch": "master",
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := engine.EvalMap(tt.expression)
+			actual, err := engine.EvalMap(tt.expression, map[string]interface{}{
+				"variable2": "refs/heads/master",
+			})
 
 			assert.Equal(t, tt.expected, actual)
 			testutils.CheckError(t, tt.expectedErr, err)

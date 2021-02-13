@@ -19,7 +19,7 @@ func TestPrintGraphics(t *testing.T) {
 		{
 			name:           "Print template with empty data map",
 			content:        "Template",
-			data:           make(map[string]interface{}),
+			data:           map[string]interface{}{},
 			expectedOutput: "Template",
 		},
 		{
@@ -65,17 +65,40 @@ func TestFillTemplate(t *testing.T) {
 	tests := []struct {
 		name     string
 		template string
+		data     []map[string]interface{}
 		expected string
 	}{
-		{name: "Should update template correctly", template: "Template = {{Test}}", expected: "Template = Test value"},
-		{name: "Should skip template correctly", template: "Template", expected: "Template"},
+		{
+			name: "Should update template correctly",
+			data: []map[string]interface{}{
+				{"Test": "Test value"},
+				{"Test2": "Test value2"},
+			},
+			template: "Template = {{Test}} + {{Test2}}",
+			expected: "Template = Test value + Test value2",
+		},
+		{
+			name: "Should skip template correctly",
+			data: []map[string]interface{}{
+				{"Test": "Test value"},
+				{"Test2": "Test value2"},
+			},
+			template: "Template test",
+			expected: "Template test",
+		},
+		{
+			name: "Should skip template correctly",
+			data: []map[string]interface{}{
+				{"Test": "[value]"},
+			},
+			template: "{{Test}}={{Test}}={{Test}}",
+			expected: "[value]=[value]=[value]",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := utils.FillTemplate(tt.template, map[string]interface{}{
-				"Test": "Test value",
-			})
+			actual := utils.FillTemplate(tt.template, tt.data...)
 
 			assert.Equal(t, tt.expected, actual)
 		})

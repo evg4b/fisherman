@@ -2,7 +2,8 @@ package configuration_test
 
 import (
 	"fisherman/configuration"
-	"fisherman/internal/configcompiler"
+	"fisherman/internal/hookfactory"
+	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +11,7 @@ import (
 
 type testData struct {
 	name   string
-	config configcompiler.CompilableConfig
+	config hookfactory.CompilableConfig
 }
 
 var tests []testData = []testData{
@@ -52,7 +53,7 @@ func TestFsMonitorWatchmanHookConfig_GetVariablesConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Panics(t, func() {
-				_ = tt.config.GetVariablesConfig()
+				_ = tt.config.GetVariables()
 			})
 		})
 	}
@@ -62,7 +63,7 @@ func TestFsMonitorWatchmanHookConfig_Compile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Panics(t, func() {
-				tt.config.Compile(map[string]interface{}{})
+				tt.config.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
 			})
 		})
 	}

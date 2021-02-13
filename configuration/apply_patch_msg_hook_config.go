@@ -1,11 +1,13 @@
 package configuration
 
+import "fisherman/internal/expression"
+
 type ApplyPatchMsgHookConfig struct{}
 
-func (*ApplyPatchMsgHookConfig) Compile(variables map[string]interface{}) {
+func (*ApplyPatchMsgHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
 	panic("not supported")
 }
 
-func (*ApplyPatchMsgHookConfig) GetVariablesConfig() VariablesConfig {
+func (*ApplyPatchMsgHookConfig) GetVariables() map[string]interface{} {
 	panic("not supported")
 }

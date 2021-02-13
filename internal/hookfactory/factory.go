@@ -4,9 +4,14 @@ import (
 	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
-	"fisherman/internal/configcompiler"
+	"fisherman/internal/expression"
 	"fisherman/internal/handling"
 )
+
+type CompilableConfig interface {
+	Compile(engine expression.Engine, global map[string]interface{})
+	GetVariables() map[string]interface{}
+}
 
 type builders = map[string]func() (*handling.HookHandler, error)
 
@@ -15,15 +20,15 @@ type Factory interface {
 }
 
 type GitHookFactory struct {
-	extractor     configcompiler.Extractor
+	engine        expression.Engine
 	config        configuration.HooksConfig
 	hooksBuilders builders
 }
 
-func NewFactory(extractor configcompiler.Extractor, config configuration.HooksConfig) *GitHookFactory {
+func NewFactory(engine expression.Engine, config configuration.HooksConfig) *GitHookFactory {
 	factory := GitHookFactory{
-		extractor: extractor,
-		config:    config,
+		engine: engine,
+		config: config,
 	}
 
 	factory.hooksBuilders = builders{
@@ -42,15 +47,4 @@ func (factory *GitHookFactory) GetHook(name string) (handling.Handler, error) {
 	}
 
 	return nil, errors.New("unknown hook")
-}
-
-func (factory *GitHookFactory) prepareConfig(configuration configcompiler.CompilableConfig) error {
-	variables, err := factory.extractor.Variables(configuration.GetVariablesConfig())
-	if err != nil {
-		return err
-	}
-
-	configuration.Compile(variables)
-
-	return nil
 }

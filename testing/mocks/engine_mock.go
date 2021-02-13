@@ -22,8 +22,8 @@ type EngineMock struct {
 	beforeEvalCounter uint64
 	EvalMock          mEngineMockEval
 
-	funcEvalMap          func(expression string) (m1 map[string]interface{}, err error)
-	inspectFuncEvalMap   func(expression string)
+	funcEvalMap          func(expression string, variables map[string]interface{}) (m1 map[string]interface{}, err error)
+	inspectFuncEvalMap   func(expression string, variables map[string]interface{})
 	afterEvalMapCounter  uint64
 	beforeEvalMapCounter uint64
 	EvalMapMock          mEngineMockEvalMap
@@ -281,6 +281,7 @@ type EngineMockEvalMapExpectation struct {
 // EngineMockEvalMapParams contains parameters of the Engine.EvalMap
 type EngineMockEvalMapParams struct {
 	expression string
+	variables  map[string]interface{}
 }
 
 // EngineMockEvalMapResults contains results of the Engine.EvalMap
@@ -290,7 +291,7 @@ type EngineMockEvalMapResults struct {
 }
 
 // Expect sets up expected params for Engine.EvalMap
-func (mmEvalMap *mEngineMockEvalMap) Expect(expression string) *mEngineMockEvalMap {
+func (mmEvalMap *mEngineMockEvalMap) Expect(expression string, variables map[string]interface{}) *mEngineMockEvalMap {
 	if mmEvalMap.mock.funcEvalMap != nil {
 		mmEvalMap.mock.t.Fatalf("EngineMock.EvalMap mock is already set by Set")
 	}
@@ -299,7 +300,7 @@ func (mmEvalMap *mEngineMockEvalMap) Expect(expression string) *mEngineMockEvalM
 		mmEvalMap.defaultExpectation = &EngineMockEvalMapExpectation{}
 	}
 
-	mmEvalMap.defaultExpectation.params = &EngineMockEvalMapParams{expression}
+	mmEvalMap.defaultExpectation.params = &EngineMockEvalMapParams{expression, variables}
 	for _, e := range mmEvalMap.expectations {
 		if minimock.Equal(e.params, mmEvalMap.defaultExpectation.params) {
 			mmEvalMap.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmEvalMap.defaultExpectation.params)
@@ -310,7 +311,7 @@ func (mmEvalMap *mEngineMockEvalMap) Expect(expression string) *mEngineMockEvalM
 }
 
 // Inspect accepts an inspector function that has same arguments as the Engine.EvalMap
-func (mmEvalMap *mEngineMockEvalMap) Inspect(f func(expression string)) *mEngineMockEvalMap {
+func (mmEvalMap *mEngineMockEvalMap) Inspect(f func(expression string, variables map[string]interface{})) *mEngineMockEvalMap {
 	if mmEvalMap.mock.inspectFuncEvalMap != nil {
 		mmEvalMap.mock.t.Fatalf("Inspect function is already set for EngineMock.EvalMap")
 	}
@@ -334,7 +335,7 @@ func (mmEvalMap *mEngineMockEvalMap) Return(m1 map[string]interface{}, err error
 }
 
 //Set uses given function f to mock the Engine.EvalMap method
-func (mmEvalMap *mEngineMockEvalMap) Set(f func(expression string) (m1 map[string]interface{}, err error)) *EngineMock {
+func (mmEvalMap *mEngineMockEvalMap) Set(f func(expression string, variables map[string]interface{}) (m1 map[string]interface{}, err error)) *EngineMock {
 	if mmEvalMap.defaultExpectation != nil {
 		mmEvalMap.mock.t.Fatalf("Default expectation is already set for the Engine.EvalMap method")
 	}
@@ -349,14 +350,14 @@ func (mmEvalMap *mEngineMockEvalMap) Set(f func(expression string) (m1 map[strin
 
 // When sets expectation for the Engine.EvalMap which will trigger the result defined by the following
 // Then helper
-func (mmEvalMap *mEngineMockEvalMap) When(expression string) *EngineMockEvalMapExpectation {
+func (mmEvalMap *mEngineMockEvalMap) When(expression string, variables map[string]interface{}) *EngineMockEvalMapExpectation {
 	if mmEvalMap.mock.funcEvalMap != nil {
 		mmEvalMap.mock.t.Fatalf("EngineMock.EvalMap mock is already set by Set")
 	}
 
 	expectation := &EngineMockEvalMapExpectation{
 		mock:   mmEvalMap.mock,
-		params: &EngineMockEvalMapParams{expression},
+		params: &EngineMockEvalMapParams{expression, variables},
 	}
 	mmEvalMap.expectations = append(mmEvalMap.expectations, expectation)
 	return expectation
@@ -369,15 +370,15 @@ func (e *EngineMockEvalMapExpectation) Then(m1 map[string]interface{}, err error
 }
 
 // EvalMap implements expression.Engine
-func (mmEvalMap *EngineMock) EvalMap(expression string) (m1 map[string]interface{}, err error) {
+func (mmEvalMap *EngineMock) EvalMap(expression string, variables map[string]interface{}) (m1 map[string]interface{}, err error) {
 	mm_atomic.AddUint64(&mmEvalMap.beforeEvalMapCounter, 1)
 	defer mm_atomic.AddUint64(&mmEvalMap.afterEvalMapCounter, 1)
 
 	if mmEvalMap.inspectFuncEvalMap != nil {
-		mmEvalMap.inspectFuncEvalMap(expression)
+		mmEvalMap.inspectFuncEvalMap(expression, variables)
 	}
 
-	mm_params := &EngineMockEvalMapParams{expression}
+	mm_params := &EngineMockEvalMapParams{expression, variables}
 
 	// Record call args
 	mmEvalMap.EvalMapMock.mutex.Lock()
@@ -394,7 +395,7 @@ func (mmEvalMap *EngineMock) EvalMap(expression string) (m1 map[string]interface
 	if mmEvalMap.EvalMapMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmEvalMap.EvalMapMock.defaultExpectation.Counter, 1)
 		mm_want := mmEvalMap.EvalMapMock.defaultExpectation.params
-		mm_got := EngineMockEvalMapParams{expression}
+		mm_got := EngineMockEvalMapParams{expression, variables}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmEvalMap.t.Errorf("EngineMock.EvalMap got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -406,9 +407,9 @@ func (mmEvalMap *EngineMock) EvalMap(expression string) (m1 map[string]interface
 		return (*mm_results).m1, (*mm_results).err
 	}
 	if mmEvalMap.funcEvalMap != nil {
-		return mmEvalMap.funcEvalMap(expression)
+		return mmEvalMap.funcEvalMap(expression, variables)
 	}
-	mmEvalMap.t.Fatalf("Unexpected call to EngineMock.EvalMap. %v", expression)
+	mmEvalMap.t.Fatalf("Unexpected call to EngineMock.EvalMap. %v %v", expression, variables)
 	return
 }
 

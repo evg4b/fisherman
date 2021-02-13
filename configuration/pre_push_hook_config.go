@@ -1,13 +1,12 @@
 package configuration
 
+import "fisherman/internal/expression"
+
 type PrePushHookConfig struct {
-	RulesSection `yaml:"-,inline"`
-	Variables    VariablesConfig `yaml:"variables,omitempty"`
+	VariablesSection `yaml:"-,inline"`
+	RulesSection     `yaml:"-,inline"`
 }
 
-func (config *PrePushHookConfig) Compile(variables map[string]interface{}) {
-}
+func (config *PrePushHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
 
-func (config *PrePushHookConfig) GetVariablesConfig() VariablesConfig {
-	return config.Variables
 }

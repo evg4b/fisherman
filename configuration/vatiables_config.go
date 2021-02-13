@@ -1,51 +1,67 @@
 package configuration
 
 import (
+	"fisherman/internal/expression"
 	"fisherman/utils"
-	"fmt"
-	"regexp"
+
+	"github.com/imdario/mergo"
 )
 
 type Variables = map[string]interface{}
 
-type VariablesExtractor interface {
-	GetFromBranch(branchName string) (Variables, error)
-	GetFromTag(tag string) (Variables, error)
+type VariablesSection struct {
+	StaticVariables  map[string]string `yaml:"variables,omitempty"`
+	ExtractVariables []string          `yaml:"extract-variables,omitempty"`
+	compiled         map[string]interface{}
 }
 
-type VariablesConfig struct {
-	FromBranch  string `yaml:"from-branch,omitempty"`
-	FromLastTag string `yaml:"from-last-tag,omitempty"`
-}
+func (config *VariablesSection) Compile(engine expression.Engine, globalVariables map[string]interface{}) {
+	for key, value := range config.StaticVariables {
+		config.StaticVariables[key] = utils.FillTemplate(value, globalVariables)
+	}
 
-func (config *VariablesConfig) GetFromBranch(branch string) (Variables, error) {
-	return ejectFromString(branch, config.FromBranch)
-}
+	combinedVariables := map[string]interface{}{}
+	err := mergo.MergeWithOverwrite(&combinedVariables, globalVariables)
+	if err != nil {
+		panic(err)
+	}
 
-func (config *VariablesConfig) GetFromTag(tag string) (Variables, error) {
-	return ejectFromString(tag, config.FromLastTag)
-}
-
-func ejectFromString(tag, expression string) (Variables, error) {
-	variables := make(Variables)
-
-	if !utils.IsEmpty(expression) && !utils.IsEmpty(tag) {
-		reg, err := regexp.Compile(expression)
+	if config.StaticVariables != nil {
+		interfaceMap := utils.StringMapToInterfaceMap(config.StaticVariables)
+		err = mergo.MergeWithOverwrite(&combinedVariables, interfaceMap)
 		if err != nil {
-			return nil, err
-		}
-
-		match := reg.FindStringSubmatch(tag)
-		if match == nil {
-			return nil, fmt.Errorf("filed match '%s' to expression '%s'", tag, expression)
-		}
-
-		for i, name := range reg.SubexpNames() {
-			if !utils.IsEmpty(name) {
-				variables[name] = match[i]
-			}
+			panic(err)
 		}
 	}
 
-	return variables, nil
+	config.compiled = map[string]interface{}{}
+	err = mergo.MergeWithOverwrite(&config.compiled, combinedVariables)
+	if err != nil {
+		panic(err)
+	}
+
+	filledExtractVariables := []string{}
+	for _, value := range config.ExtractVariables {
+		filledValue := utils.FillTemplate(value, combinedVariables)
+		filledExtractVariables = append(filledExtractVariables, filledValue)
+		extractedVariables, err := engine.EvalMap(filledValue, combinedVariables)
+		if err != nil {
+			panic(err)
+		}
+
+		err = mergo.MergeWithOverwrite(&config.compiled, extractedVariables)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	config.ExtractVariables = filledExtractVariables
+}
+
+func (config *VariablesSection) GetVariables() map[string]interface{} {
+	if config.compiled == nil {
+		panic("config id not compiled")
+	}
+
+	return config.compiled
 }
