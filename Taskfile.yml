@@ -20,7 +20,7 @@ tasks:
   test:
     desc: Run all tests
     cmds:
-      - go test -cover -v ./...
+      - go test -cover ./...
 
   test:ci:
     desc: '[For CI] Run all tests with coverage and race detection'
