@@ -4,6 +4,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
 )
 
 type LocalFileSystem struct{}
@@ -44,4 +46,31 @@ func (f *LocalFileSystem) Write(path, content string) error {
 
 func (f *LocalFileSystem) Chmod(path string, mode os.FileMode) error {
 	return os.Chmod(path, mode)
+}
+
+func (f *LocalFileSystem) Find(folder string, globs []string) ([]string, error) {
+	files := []string{}
+
+	err := filepath.Walk(folder, func(file string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return err
+		}
+
+		for _, glob := range globs {
+			matched, err := path.Match(glob, info.Name())
+			if err != nil {
+				return err
+			}
+
+			if matched {
+				files = append(files, file)
+
+				return nil
+			}
+		}
+
+		return nil
+	})
+
+	return files, err
 }

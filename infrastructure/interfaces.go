@@ -27,6 +27,7 @@ type FileSystem interface {
 	Read(path string) (string, error)
 	Reader(path string) (io.ReadCloser, error)
 	Exist(path string) bool
+	Find(folder string, globs []string) ([]string, error)
 	Delete(path string) error
 	Chmod(path string, mode os.FileMode) error
 	Chown(name string, user *user.User) error

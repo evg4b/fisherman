@@ -43,6 +43,12 @@ type FileSystemMock struct {
 	beforeExistCounter uint64
 	ExistMock          mFileSystemMockExist
 
+	funcFind          func(folder string, globs []string) (sa1 []string, err error)
+	inspectFuncFind   func(folder string, globs []string)
+	afterFindCounter  uint64
+	beforeFindCounter uint64
+	FindMock          mFileSystemMockFind
+
 	funcRead          func(path string) (s1 string, err error)
 	inspectFuncRead   func(path string)
 	afterReadCounter  uint64
@@ -80,6 +86,9 @@ func NewFileSystemMock(t minimock.Tester) *FileSystemMock {
 
 	m.ExistMock = mFileSystemMockExist{mock: m}
 	m.ExistMock.callArgs = []*FileSystemMockExistParams{}
+
+	m.FindMock = mFileSystemMockFind{mock: m}
+	m.FindMock.callArgs = []*FileSystemMockFindParams{}
 
 	m.ReadMock = mFileSystemMockRead{mock: m}
 	m.ReadMock.callArgs = []*FileSystemMockReadParams{}
@@ -955,6 +964,223 @@ func (m *FileSystemMock) MinimockExistInspect() {
 	}
 }
 
+type mFileSystemMockFind struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockFindExpectation
+	expectations       []*FileSystemMockFindExpectation
+
+	callArgs []*FileSystemMockFindParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockFindExpectation specifies expectation struct of the FileSystem.Find
+type FileSystemMockFindExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockFindParams
+	results *FileSystemMockFindResults
+	Counter uint64
+}
+
+// FileSystemMockFindParams contains parameters of the FileSystem.Find
+type FileSystemMockFindParams struct {
+	folder string
+	globs  []string
+}
+
+// FileSystemMockFindResults contains results of the FileSystem.Find
+type FileSystemMockFindResults struct {
+	sa1 []string
+	err error
+}
+
+// Expect sets up expected params for FileSystem.Find
+func (mmFind *mFileSystemMockFind) Expect(folder string, globs []string) *mFileSystemMockFind {
+	if mmFind.mock.funcFind != nil {
+		mmFind.mock.t.Fatalf("FileSystemMock.Find mock is already set by Set")
+	}
+
+	if mmFind.defaultExpectation == nil {
+		mmFind.defaultExpectation = &FileSystemMockFindExpectation{}
+	}
+
+	mmFind.defaultExpectation.params = &FileSystemMockFindParams{folder, globs}
+	for _, e := range mmFind.expectations {
+		if minimock.Equal(e.params, mmFind.defaultExpectation.params) {
+			mmFind.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmFind.defaultExpectation.params)
+		}
+	}
+
+	return mmFind
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Find
+func (mmFind *mFileSystemMockFind) Inspect(f func(folder string, globs []string)) *mFileSystemMockFind {
+	if mmFind.mock.inspectFuncFind != nil {
+		mmFind.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Find")
+	}
+
+	mmFind.mock.inspectFuncFind = f
+
+	return mmFind
+}
+
+// Return sets up results that will be returned by FileSystem.Find
+func (mmFind *mFileSystemMockFind) Return(sa1 []string, err error) *FileSystemMock {
+	if mmFind.mock.funcFind != nil {
+		mmFind.mock.t.Fatalf("FileSystemMock.Find mock is already set by Set")
+	}
+
+	if mmFind.defaultExpectation == nil {
+		mmFind.defaultExpectation = &FileSystemMockFindExpectation{mock: mmFind.mock}
+	}
+	mmFind.defaultExpectation.results = &FileSystemMockFindResults{sa1, err}
+	return mmFind.mock
+}
+
+//Set uses given function f to mock the FileSystem.Find method
+func (mmFind *mFileSystemMockFind) Set(f func(folder string, globs []string) (sa1 []string, err error)) *FileSystemMock {
+	if mmFind.defaultExpectation != nil {
+		mmFind.mock.t.Fatalf("Default expectation is already set for the FileSystem.Find method")
+	}
+
+	if len(mmFind.expectations) > 0 {
+		mmFind.mock.t.Fatalf("Some expectations are already set for the FileSystem.Find method")
+	}
+
+	mmFind.mock.funcFind = f
+	return mmFind.mock
+}
+
+// When sets expectation for the FileSystem.Find which will trigger the result defined by the following
+// Then helper
+func (mmFind *mFileSystemMockFind) When(folder string, globs []string) *FileSystemMockFindExpectation {
+	if mmFind.mock.funcFind != nil {
+		mmFind.mock.t.Fatalf("FileSystemMock.Find mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockFindExpectation{
+		mock:   mmFind.mock,
+		params: &FileSystemMockFindParams{folder, globs},
+	}
+	mmFind.expectations = append(mmFind.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.Find return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockFindExpectation) Then(sa1 []string, err error) *FileSystemMock {
+	e.results = &FileSystemMockFindResults{sa1, err}
+	return e.mock
+}
+
+// Find implements infrastructure.FileSystem
+func (mmFind *FileSystemMock) Find(folder string, globs []string) (sa1 []string, err error) {
+	mm_atomic.AddUint64(&mmFind.beforeFindCounter, 1)
+	defer mm_atomic.AddUint64(&mmFind.afterFindCounter, 1)
+
+	if mmFind.inspectFuncFind != nil {
+		mmFind.inspectFuncFind(folder, globs)
+	}
+
+	mm_params := &FileSystemMockFindParams{folder, globs}
+
+	// Record call args
+	mmFind.FindMock.mutex.Lock()
+	mmFind.FindMock.callArgs = append(mmFind.FindMock.callArgs, mm_params)
+	mmFind.FindMock.mutex.Unlock()
+
+	for _, e := range mmFind.FindMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.sa1, e.results.err
+		}
+	}
+
+	if mmFind.FindMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmFind.FindMock.defaultExpectation.Counter, 1)
+		mm_want := mmFind.FindMock.defaultExpectation.params
+		mm_got := FileSystemMockFindParams{folder, globs}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmFind.t.Errorf("FileSystemMock.Find got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmFind.FindMock.defaultExpectation.results
+		if mm_results == nil {
+			mmFind.t.Fatal("No results are set for the FileSystemMock.Find")
+		}
+		return (*mm_results).sa1, (*mm_results).err
+	}
+	if mmFind.funcFind != nil {
+		return mmFind.funcFind(folder, globs)
+	}
+	mmFind.t.Fatalf("Unexpected call to FileSystemMock.Find. %v %v", folder, globs)
+	return
+}
+
+// FindAfterCounter returns a count of finished FileSystemMock.Find invocations
+func (mmFind *FileSystemMock) FindAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmFind.afterFindCounter)
+}
+
+// FindBeforeCounter returns a count of FileSystemMock.Find invocations
+func (mmFind *FileSystemMock) FindBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmFind.beforeFindCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.Find.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmFind *mFileSystemMockFind) Calls() []*FileSystemMockFindParams {
+	mmFind.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockFindParams, len(mmFind.callArgs))
+	copy(argCopy, mmFind.callArgs)
+
+	mmFind.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockFindDone returns true if the count of the Find invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockFindDone() bool {
+	for _, e := range m.FindMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.FindMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcFind != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockFindInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockFindInspect() {
+	for _, e := range m.FindMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.Find with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.FindMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
+		if m.FindMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Find")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.Find with params: %#v", *m.FindMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcFind != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Find")
+	}
+}
+
 type mFileSystemMockRead struct {
 	mock               *FileSystemMock
 	defaultExpectation *FileSystemMockReadExpectation
@@ -1614,6 +1840,8 @@ func (m *FileSystemMock) MinimockFinish() {
 
 		m.MinimockExistInspect()
 
+		m.MinimockFindInspect()
+
 		m.MinimockReadInspect()
 
 		m.MinimockReaderInspect()
@@ -1646,6 +1874,7 @@ func (m *FileSystemMock) minimockDone() bool {
 		m.MinimockChownDone() &&
 		m.MinimockDeleteDone() &&
 		m.MinimockExistDone() &&
+		m.MinimockFindDone() &&
 		m.MinimockReadDone() &&
 		m.MinimockReaderDone() &&
 		m.MinimockWriteDone()
