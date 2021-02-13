@@ -3,6 +3,7 @@ package remove_test
 import (
 	"errors"
 	"fisherman/commands/remove"
+	"fisherman/configuration"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
@@ -43,6 +44,9 @@ func TestCommand_Run_WithError(t *testing.T) {
 		&internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
+			Configs: map[string]string{
+				configuration.GlobalMode: filepath.Join("usr", "home", ".fisherman.yml"),
+			},
 		},
 		&user.User{
 			HomeDir: filepath.Join("usr", "home"),

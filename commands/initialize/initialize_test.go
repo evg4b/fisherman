@@ -23,7 +23,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 	command := initialize.NewCommand(
 		mocks.NewFileSystemMock(t).
 			WriteMock.Return(nil).
-			ExistMock.When(filepath.Join(cwd, constants.AppConfigName)).Then(true).
+			ExistMock.When(filepath.Join(cwd, constants.AppConfigNames[0])).Then(true).
 			ChmodMock.Return(nil).
 			ChownMock.Return(nil),
 		&internal.AppInfo{Cwd: cwd},

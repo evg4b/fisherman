@@ -99,10 +99,7 @@ func (command *Command) Run() error {
 		log.Debug("Hook file ownership changed to currect user")
 	}
 
-	return writeConfig(
-		command.files,
-		configuration.BuildFileConfigPath(command.app.Cwd, command.user, command.mode),
-	)
+	return command.writeConfig()
 }
 
 func (command *Command) Name() string {
@@ -113,14 +110,17 @@ func (command *Command) Description() string {
 	return command.usage
 }
 
-func writeConfig(accessor infrastructure.FileSystem, configPath string) error {
-	if !accessor.Exist(configPath) {
+func (command *Command) writeConfig() error {
+	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
+	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
+
+	if !command.files.Exist(configPath) {
 		content, err := yaml.Marshal(configuration.DefaultConfig)
 		if err != nil {
 			return err
 		}
 
-		err = accessor.Write(configPath, string(content))
+		err = command.files.Write(configPath, string(content))
 		if err != nil {
 			return err
 		}

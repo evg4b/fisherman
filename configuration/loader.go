@@ -1,9 +1,11 @@
 package configuration
 
 import (
+	"errors"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
+	"fmt"
 	"os/user"
 	"path/filepath"
 
@@ -13,39 +15,85 @@ import (
 
 const gitDir = ".git"
 
-func Load(cwd string, usr *user.User, files infrastructure.FileSystem) (*FishermanConfig, map[string]string, error) {
+type ConfigLoader struct {
+	usr   *user.User
+	cwd   string
+	files infrastructure.FileSystem
+}
+
+func NewLoader(usr *user.User, cwd string, files infrastructure.FileSystem) *ConfigLoader {
+	return &ConfigLoader{
+		usr:   usr,
+		cwd:   cwd,
+		files: files,
+	}
+}
+
+func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
+	configs := map[string]string{}
+
+	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
+		folder := GetConfigFolder(loader.usr, loader.cwd, mode)
+		files, err := loader.files.Find(folder, constants.AppConfigNames)
+		if err != nil {
+			return configs, err
+		}
+
+		if len(files) > 1 {
+			return configs, fmt.Errorf("more then one config file specifies in folder '%s'", folder)
+		}
+
+		if len(files) == 1 {
+			configs[mode] = files[0]
+		}
+	}
+
+	if len(configs) == 0 {
+		return configs, errors.New("no configuration found")
+	}
+
+	return configs, nil
+}
+
+func GetConfigFolder(usr *user.User, cwd, mode string) string {
+	switch mode {
+	case LocalMode:
+		return filepath.Join(cwd, gitDir)
+	case RepoMode:
+		return filepath.Join(cwd)
+	case GlobalMode:
+		return filepath.Join(usr.HomeDir)
+	default:
+		panic("unknown config mode")
+	}
+}
+
+func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, error) {
 	config := FishermanConfig{
 		Output: log.DefaultOutputConfig,
 	}
 
-	configs := map[string]string{
-		GlobalMode: BuildFileConfigPath(cwd, usr, GlobalMode),
-		RepoMode:   BuildFileConfigPath(cwd, usr, RepoMode),
-		LocalMode:  BuildFileConfigPath(cwd, usr, LocalMode),
-	}
+	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
+		file, ok := files[mode]
+		if ok {
+			loadedConfig, err := loader.unmarshlFile(file)
+			if err != nil {
+				return &config, err
+			}
 
-	for key, path := range configs {
-		if files.Exist(path) {
-			log.Debugf("detected %s config file %s", key, path)
-			loadedConfig, err := unmarshlFile(path, files)
+			err = mergo.MergeWithOverwrite(&config, loadedConfig)
 			if err != nil {
-				return nil, nil, err
+				return &config, err
 			}
-			err = mergo.Merge(&config, loadedConfig)
-			if err != nil {
-				return nil, nil, err
-			}
-		} else {
-			configs[key] = ""
 		}
 	}
 
-	return &config, configs, nil
+	return &config, nil
 }
 
-func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfig, error) {
+func (loader *ConfigLoader) unmarshlFile(path string) (*FishermanConfig, error) {
 	var config FishermanConfig
-	reader, err := files.Reader(path)
+	reader, err := loader.files.Reader(path)
 	if err != nil {
 		return nil, err
 	}
@@ -59,17 +107,4 @@ func unmarshlFile(path string, files infrastructure.FileSystem) (*FishermanConfi
 	}
 
 	return &config, nil
-}
-
-func BuildFileConfigPath(cwd string, usr *user.User, mode string) string {
-	switch mode {
-	case LocalMode:
-		return filepath.Join(cwd, gitDir, constants.AppConfigName)
-	case RepoMode:
-		return filepath.Join(cwd, constants.AppConfigName)
-	case GlobalMode:
-		return filepath.Join(usr.HomeDir, constants.AppConfigName)
-	default:
-		panic("unknown config mode")
-	}
 }

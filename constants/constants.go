@@ -29,4 +29,4 @@ var HookHeader = `
 
 const AppName = "fisherman"
 
-const AppConfigName = ".fisherman.yml"
+var AppConfigNames = []string{".fisherman.yaml", ".fisherman.yml"}

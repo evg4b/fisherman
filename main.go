@@ -37,7 +37,11 @@ func main() {
 
 	fileSystem := filesystem.NewLocalFileSystem()
 
-	config, configFiles, err := configuration.Load(cwd, usr, fileSystem)
+	configLoader := configuration.NewLoader(usr, cwd, fileSystem)
+	configFiles, err := configLoader.FindConfigFiles()
+	utils.HandleCriticalError(err)
+
+	config, err := configLoader.Load(configFiles)
 	utils.HandleCriticalError(err)
 
 	log.Configure(config.Output)

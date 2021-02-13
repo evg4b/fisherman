@@ -16,8 +16,8 @@ func (factory *GitHookFactory) commitMsg() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	variables, err := factory.prepareConfig(configuration)
-	if err != nil || variables == nil {
+	err := factory.prepareConfig(configuration)
+	if err != nil {
 		return nil, err
 	}
 
@@ -35,8 +35,8 @@ func (factory *GitHookFactory) preCommit() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	variables, err := factory.prepareConfig(configuration)
-	if err != nil || variables == nil {
+	err := factory.prepareConfig(configuration)
+	if err != nil {
 		return nil, err
 	}
 
@@ -54,8 +54,8 @@ func (factory *GitHookFactory) prePush() (*handling.HookHandler, error) {
 		return nil, ErrNotPresented
 	}
 
-	variables, err := factory.prepareConfig(configuration)
-	if err != nil || variables == nil {
+	err := factory.prepareConfig(configuration)
+	if err != nil {
 		return nil, err
 	}
 
@@ -73,8 +73,8 @@ func (factory *GitHookFactory) prepareCommitMsg() (*handling.HookHandler, error)
 		return nil, ErrNotPresented
 	}
 
-	variables, err := factory.prepareConfig(configuration)
-	if err != nil || variables == nil {
+	err := factory.prepareConfig(configuration)
+	if err != nil {
 		return nil, err
 	}
 

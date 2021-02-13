@@ -1,7 +1,6 @@
 package remove
 
 import (
-	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
@@ -34,9 +33,10 @@ func (command *Command) Init(args []string) error {
 }
 
 func (command *Command) Run() error {
-	filesToDelete := []string{
-		configuration.BuildFileConfigPath(command.app.Cwd, command.user, configuration.RepoMode),
-		configuration.BuildFileConfigPath(command.app.Cwd, command.user, configuration.LocalMode),
+	filesToDelete := []string{}
+
+	for _, config := range command.app.Configs {
+		filesToDelete = append(filesToDelete, config)
 	}
 
 	for _, hookName := range constants.HooksNames {
