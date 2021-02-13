@@ -34,9 +34,12 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 
 	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
 		folder := GetConfigFolder(loader.usr, loader.cwd, mode)
-		files, err := loader.files.Find(folder, constants.AppConfigNames)
-		if err != nil {
-			return configs, err
+		files := []string{}
+		for _, name := range constants.AppConfigNames {
+			configPath := filepath.Join(folder, name)
+			if loader.files.Exist(configPath) {
+				files = append(files, configPath)
+			}
 		}
 
 		if len(files) > 1 {

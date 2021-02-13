@@ -38,9 +38,12 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 				&usr,
 				cwd,
 				mocks.NewFileSystemMock(t).
-					FindMock.When(localConfig, constants.AppConfigNames).Then([]string{}, nil).
-					FindMock.When(repoConfig, constants.AppConfigNames).Then([]string{}, nil).
-					FindMock.When(globalConfig, constants.AppConfigNames).Then([]string{}, nil)),
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(false).
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(false).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(false).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(false).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
 			expectedErr: errors.New("no configuration found"),
 		},
 		{
@@ -49,9 +52,12 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 				&usr,
 				cwd,
 				mocks.NewFileSystemMock(t).
-					FindMock.When(localConfig, constants.AppConfigNames).Then([]string{"file1", "file2"}, nil).
-					FindMock.When(repoConfig, constants.AppConfigNames).Then([]string{}, nil).
-					FindMock.When(globalConfig, constants.AppConfigNames).Then([]string{}, nil)),
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(true).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
 			expectedErr: fmt.Errorf("more then one config file specifies in folder '%s'", localConfig),
 		},
 		{
@@ -60,25 +66,17 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 				&usr,
 				cwd,
 				mocks.NewFileSystemMock(t).
-					FindMock.When(localConfig, constants.AppConfigNames).Then([]string{"file1"}, nil).
-					FindMock.When(repoConfig, constants.AppConfigNames).Then([]string{"file2"}, nil).
-					FindMock.When(globalConfig, constants.AppConfigNames).Then([]string{"file3"}, nil)),
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(false).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(true).
+					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
 			expected: map[string]string{
-				configuration.LocalMode:  "file1",
-				configuration.RepoMode:   "file2",
-				configuration.GlobalMode: "file3",
+				configuration.LocalMode:  filepath.Join(localConfig, constants.AppConfigNames[0]),
+				configuration.RepoMode:   filepath.Join(repoConfig, constants.AppConfigNames[0]),
+				configuration.GlobalMode: filepath.Join(globalConfig, constants.AppConfigNames[0]),
 			},
-		},
-		{
-			name: "unknown I/O error",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).
-					FindMock.When(localConfig, constants.AppConfigNames).Then([]string{"file1"}, errors.New("Unknown error")).
-					FindMock.When(repoConfig, constants.AppConfigNames).Then([]string{"file2"}, nil).
-					FindMock.When(globalConfig, constants.AppConfigNames).Then([]string{"file3"}, nil)),
-			expectedErr: errors.New("Unknown error"),
 		},
 	}
 	for _, tt := range tests {

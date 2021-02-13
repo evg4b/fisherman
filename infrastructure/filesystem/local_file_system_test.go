@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/user"
 	"path"
-	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -271,48 +270,4 @@ func TestLocalFileSystem_Chown(t *testing.T) {
 		err := fs.Chown(existPath, usr)
 		assert.NoError(t, err)
 	})
-}
-
-func TestLocalFileSystem_Find(t *testing.T) {
-	dir := t.TempDir()
-	err := ioutil.WriteFile(path.Join(dir, "demo.go"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "demo_test.go"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "config.yaml"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "config.json"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = os.Mkdir(path.Join(dir, "test"), 0777)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "test", "config.go"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "test", "config.json"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	err = ioutil.WriteFile(path.Join(dir, "test", "config.yaml"), []byte("X"), 0600)
-	utils.HandleCriticalError(err)
-
-	fs := filesystem.NewLocalFileSystem()
-
-	files, err := fs.Find(dir, []string{
-		"*.go",
-		filepath.Join("*.json"),
-	})
-
-	assert.NoError(t, err)
-
-	assert.ElementsMatch(t, []string{
-		filepath.Join(dir, "demo.go"),
-		filepath.Join(dir, "demo_test.go"),
-		filepath.Join(dir, "config.json"),
-		filepath.Join(dir, "test", "config.go"),
-		filepath.Join(dir, "test", "config.json"),
-	}, files)
 }
