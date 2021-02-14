@@ -16,8 +16,8 @@ import (
 type EngineMock struct {
 	t minimock.Tester
 
-	funcEval          func(expression string) (b1 bool, err error)
-	inspectFuncEval   func(expression string)
+	funcEval          func(expression string, vars map[string]interface{}) (b1 bool, err error)
+	inspectFuncEval   func(expression string, vars map[string]interface{})
 	afterEvalCounter  uint64
 	beforeEvalCounter uint64
 	EvalMock          mEngineMockEval
@@ -65,6 +65,7 @@ type EngineMockEvalExpectation struct {
 // EngineMockEvalParams contains parameters of the Engine.Eval
 type EngineMockEvalParams struct {
 	expression string
+	vars       map[string]interface{}
 }
 
 // EngineMockEvalResults contains results of the Engine.Eval
@@ -74,7 +75,7 @@ type EngineMockEvalResults struct {
 }
 
 // Expect sets up expected params for Engine.Eval
-func (mmEval *mEngineMockEval) Expect(expression string) *mEngineMockEval {
+func (mmEval *mEngineMockEval) Expect(expression string, vars map[string]interface{}) *mEngineMockEval {
 	if mmEval.mock.funcEval != nil {
 		mmEval.mock.t.Fatalf("EngineMock.Eval mock is already set by Set")
 	}
@@ -83,7 +84,7 @@ func (mmEval *mEngineMockEval) Expect(expression string) *mEngineMockEval {
 		mmEval.defaultExpectation = &EngineMockEvalExpectation{}
 	}
 
-	mmEval.defaultExpectation.params = &EngineMockEvalParams{expression}
+	mmEval.defaultExpectation.params = &EngineMockEvalParams{expression, vars}
 	for _, e := range mmEval.expectations {
 		if minimock.Equal(e.params, mmEval.defaultExpectation.params) {
 			mmEval.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmEval.defaultExpectation.params)
@@ -94,7 +95,7 @@ func (mmEval *mEngineMockEval) Expect(expression string) *mEngineMockEval {
 }
 
 // Inspect accepts an inspector function that has same arguments as the Engine.Eval
-func (mmEval *mEngineMockEval) Inspect(f func(expression string)) *mEngineMockEval {
+func (mmEval *mEngineMockEval) Inspect(f func(expression string, vars map[string]interface{})) *mEngineMockEval {
 	if mmEval.mock.inspectFuncEval != nil {
 		mmEval.mock.t.Fatalf("Inspect function is already set for EngineMock.Eval")
 	}
@@ -118,7 +119,7 @@ func (mmEval *mEngineMockEval) Return(b1 bool, err error) *EngineMock {
 }
 
 //Set uses given function f to mock the Engine.Eval method
-func (mmEval *mEngineMockEval) Set(f func(expression string) (b1 bool, err error)) *EngineMock {
+func (mmEval *mEngineMockEval) Set(f func(expression string, vars map[string]interface{}) (b1 bool, err error)) *EngineMock {
 	if mmEval.defaultExpectation != nil {
 		mmEval.mock.t.Fatalf("Default expectation is already set for the Engine.Eval method")
 	}
@@ -133,14 +134,14 @@ func (mmEval *mEngineMockEval) Set(f func(expression string) (b1 bool, err error
 
 // When sets expectation for the Engine.Eval which will trigger the result defined by the following
 // Then helper
-func (mmEval *mEngineMockEval) When(expression string) *EngineMockEvalExpectation {
+func (mmEval *mEngineMockEval) When(expression string, vars map[string]interface{}) *EngineMockEvalExpectation {
 	if mmEval.mock.funcEval != nil {
 		mmEval.mock.t.Fatalf("EngineMock.Eval mock is already set by Set")
 	}
 
 	expectation := &EngineMockEvalExpectation{
 		mock:   mmEval.mock,
-		params: &EngineMockEvalParams{expression},
+		params: &EngineMockEvalParams{expression, vars},
 	}
 	mmEval.expectations = append(mmEval.expectations, expectation)
 	return expectation
@@ -153,15 +154,15 @@ func (e *EngineMockEvalExpectation) Then(b1 bool, err error) *EngineMock {
 }
 
 // Eval implements expression.Engine
-func (mmEval *EngineMock) Eval(expression string) (b1 bool, err error) {
+func (mmEval *EngineMock) Eval(expression string, vars map[string]interface{}) (b1 bool, err error) {
 	mm_atomic.AddUint64(&mmEval.beforeEvalCounter, 1)
 	defer mm_atomic.AddUint64(&mmEval.afterEvalCounter, 1)
 
 	if mmEval.inspectFuncEval != nil {
-		mmEval.inspectFuncEval(expression)
+		mmEval.inspectFuncEval(expression, vars)
 	}
 
-	mm_params := &EngineMockEvalParams{expression}
+	mm_params := &EngineMockEvalParams{expression, vars}
 
 	// Record call args
 	mmEval.EvalMock.mutex.Lock()
@@ -178,7 +179,7 @@ func (mmEval *EngineMock) Eval(expression string) (b1 bool, err error) {
 	if mmEval.EvalMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmEval.EvalMock.defaultExpectation.Counter, 1)
 		mm_want := mmEval.EvalMock.defaultExpectation.params
-		mm_got := EngineMockEvalParams{expression}
+		mm_got := EngineMockEvalParams{expression, vars}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmEval.t.Errorf("EngineMock.Eval got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -190,9 +191,9 @@ func (mmEval *EngineMock) Eval(expression string) (b1 bool, err error) {
 		return (*mm_results).b1, (*mm_results).err
 	}
 	if mmEval.funcEval != nil {
-		return mmEval.funcEval(expression)
+		return mmEval.funcEval(expression, vars)
 	}
-	mmEval.t.Fatalf("Unexpected call to EngineMock.Eval. %v", expression)
+	mmEval.t.Fatalf("Unexpected call to EngineMock.Eval. %v %v", expression, vars)
 	return
 }
 

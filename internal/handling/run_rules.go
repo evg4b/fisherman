@@ -33,7 +33,8 @@ func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) er
 
 		condition := rule.GetContition()
 		if !utils.IsEmpty(condition) {
-			shouldAadd, err = handler.Engine.Eval(condition)
+			// TODO provide variables
+			shouldAadd, err = handler.Engine.Eval(condition, map[string]interface{}{})
 			if err != nil {
 				close(input)
 

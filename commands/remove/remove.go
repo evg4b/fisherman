@@ -34,24 +34,24 @@ func (command *Command) Init(args []string) error {
 
 func (command *Command) Run() error {
 	filesToDelete := []string{}
-
 	for _, config := range command.app.Configs {
 		filesToDelete = append(filesToDelete, config)
 	}
 
 	for _, hookName := range constants.HooksNames {
-		filesToDelete = append(filesToDelete, filepath.Join(command.app.Cwd, ".git", "hooks", hookName))
+		path := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
+		if command.files.Exist(path) {
+			filesToDelete = append(filesToDelete, path)
+		}
 	}
 
 	for _, hookPath := range filesToDelete {
-		if command.files.Exist(hookPath) {
-			err := command.files.Delete(hookPath)
-			if err != nil {
-				return err
-			}
-
-			log.Infof("File '%s' was removed", hookPath)
+		err := command.files.Delete(hookPath)
+		if err != nil {
+			return err
 		}
+
+		log.Infof("File '%s' was removed", hookPath)
 	}
 
 	return nil

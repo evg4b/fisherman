@@ -15,47 +15,40 @@ type VariablesSection struct {
 	compiled         map[string]interface{}
 }
 
-func (config *VariablesSection) Compile(engine expression.Engine, globalVariables map[string]interface{}) {
-	for key, value := range config.StaticVariables {
-		config.StaticVariables[key] = utils.FillTemplate(value, globalVariables)
-	}
-
-	combinedVariables := map[string]interface{}{}
-	err := mergo.MergeWithOverwrite(&combinedVariables, globalVariables)
+func (config *VariablesSection) Compile(engine expression.Engine, globalVariables map[string]interface{}) error {
+	config.compiled = map[string]interface{}{}
+	err := mergo.MergeWithOverwrite(&config.compiled, globalVariables)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if config.StaticVariables != nil {
+		utils.FillTemplatesMap(config.StaticVariables, config.compiled)
+
 		interfaceMap := utils.StringMapToInterfaceMap(config.StaticVariables)
-		err = mergo.MergeWithOverwrite(&combinedVariables, interfaceMap)
+		err = mergo.MergeWithOverwrite(&config.compiled, interfaceMap)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
-	config.compiled = map[string]interface{}{}
-	err = mergo.MergeWithOverwrite(&config.compiled, combinedVariables)
-	if err != nil {
-		panic(err)
-	}
+	if config.ExtractVariables != nil {
+		utils.FillTemplatesArray(config.ExtractVariables, config.compiled)
 
-	filledExtractVariables := []string{}
-	for _, value := range config.ExtractVariables {
-		filledValue := utils.FillTemplate(value, combinedVariables)
-		filledExtractVariables = append(filledExtractVariables, filledValue)
-		extractedVariables, err := engine.EvalMap(filledValue, combinedVariables)
-		if err != nil {
-			panic(err)
-		}
+		for _, value := range config.ExtractVariables {
+			extractedVariables, err := engine.EvalMap(value, config.compiled)
+			if err != nil {
+				return err
+			}
 
-		err = mergo.MergeWithOverwrite(&config.compiled, extractedVariables)
-		if err != nil {
-			panic(err)
+			err = mergo.MergeWithOverwrite(&config.compiled, extractedVariables)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	config.ExtractVariables = filledExtractVariables
+	return nil
 }
 
 func (config *VariablesSection) GetVariables() map[string]interface{} {

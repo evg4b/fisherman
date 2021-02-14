@@ -4,6 +4,7 @@ import (
 	"fisherman/infrastructure/shell"
 	"fisherman/internal"
 	"fisherman/internal/prefixwriter"
+	"fisherman/utils"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -21,22 +22,30 @@ type ShellScript struct {
 	Dir      string            `mapstructure:"dir"`
 }
 
-func (config *ShellScript) GetPosition() byte {
+func (rule *ShellScript) GetPosition() byte {
 	return Scripts
 }
 
-func (config *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
+func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
 	return ctx.Shell().
-		Exec(ctx, formatOutput(output, config), config.Shell, shell.ShScript{
-			Commands: config.Commands,
-			Env:      config.Env,
-			Dir:      config.Dir,
+		Exec(ctx, formatOutput(output, rule), rule.Shell, shell.ShScript{
+			Commands: rule.Commands,
+			Env:      rule.Env,
+			Dir:      rule.Dir,
 		})
 }
 
-func formatOutput(output io.Writer, config *ShellScript) io.Writer {
-	if config.Output {
-		return prefixwriter.New(output, fmt.Sprintf("[%s] ", config.Name))
+func (rule *ShellScript) Compile(variables map[string]interface{}) {
+	rule.BaseRule.Compile(variables)
+	utils.FillTemplate(&rule.Dir, variables)
+	utils.FillTemplate(&rule.Name, variables)
+	utils.FillTemplatesArray(rule.Commands, variables)
+	utils.FillTemplatesMap(rule.Env, variables)
+}
+
+func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
+	if rule.Output {
+		return prefixwriter.New(output, fmt.Sprintf("[%s] ", rule.Name))
 	}
 
 	return ioutil.Discard

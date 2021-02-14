@@ -208,16 +208,18 @@ hooks:
 				},
 				Hooks: configuration.HooksConfig{
 					PrePushHook: &configuration.PrePushHookConfig{
-						RulesSection: configuration.RulesSection{
-							Rules: []configuration.Rule{
-								&rules.ShellScript{
-									BaseRule: rules.BaseRule{
-										Type: "shell-script",
-									},
-									Name: "Demo",
-									Commands: []string{
-										"echo '1213123' >> log.txt",
-										"exit 1",
+						CommonConfig: configuration.CommonConfig{
+							RulesSection: configuration.RulesSection{
+								Rules: []configuration.Rule{
+									&rules.ShellScript{
+										BaseRule: rules.BaseRule{
+											Type: "shell-script",
+										},
+										Name: "Demo",
+										Commands: []string{
+											"echo '1213123' >> log.txt",
+											"exit 1",
+										},
 									},
 								},
 							},

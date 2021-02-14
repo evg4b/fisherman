@@ -106,3 +106,29 @@ func TestShellScript_GetPosition(t *testing.T) {
 
 	assert.Equal(t, actual, rules.Scripts)
 }
+
+func TestShellScript_Compile(t *testing.T) {
+	rule := rules.ShellScript{
+		Name:     "{{var1}}",
+		Shell:    "{{var1}}",
+		Commands: []string{"{{var1}}1", "{{var1}}2"},
+		Env: map[string]string{
+			"{{var1}}": "{{var1}}",
+		},
+		Dir:    "{{var1}}",
+		Output: true,
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.ShellScript{
+		Name:     "VALUE",
+		Shell:    "{{var1}}",
+		Commands: []string{"VALUE1", "VALUE2"},
+		Env: map[string]string{
+			"{{var1}}": "VALUE",
+		},
+		Dir:    "VALUE",
+		Output: true,
+	}, rule)
+}

@@ -15,15 +15,15 @@ var (
 )
 
 var HooksNames = []string{
-	// ApplyPatchMsgHook,
+	ApplyPatchMsgHook,
 	CommitMsgHook,
-	// FsMonitorWatchmanHook,
-	// PostUpdateHook,
-	// PreApplyPatchHook,
+	FsMonitorWatchmanHook,
+	PostUpdateHook,
+	PreApplyPatchHook,
 	PreCommitHook,
 	PrePushHook,
-	// PreRebaseHook,
-	// PreReceiveHook,
+	PreRebaseHook,
+	PreReceiveHook,
 	PrepareCommitMsgHook,
-	// UpdateHook,
+	UpdateHook,
 }

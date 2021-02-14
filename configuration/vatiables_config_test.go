@@ -20,10 +20,12 @@ func TestVariablesSection_Compile_Empty(t *testing.T) {
 	section := VariablesSection{}
 
 	assert.NotPanics(t, func() {
-		section.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
+		err := section.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
+
 		variables := section.GetVariables()
 
 		assert.Empty(t, variables)
+		assert.NoError(t, err)
 	})
 }
 
@@ -42,10 +44,12 @@ func TestVariables_Compile(t *testing.T) {
 		},
 	}
 
-	section.Compile(engine, map[string]interface{}{
+	err := section.Compile(engine, map[string]interface{}{
 		"var1": "localValue1",
 		"var2": "localValue2",
 	})
+
+	assert.NoError(t, err)
 
 	assert.Equal(t, map[string]string{
 		"VAR_1": "localValue1",
@@ -68,15 +72,17 @@ func TestVariablesSection_CompileAndReturnVariables(t *testing.T) {
 	}, nil)
 
 	assert.NotPanics(t, func() {
-		section.Compile(engine, map[string]interface{}{
+		err := section.Compile(engine, map[string]interface{}{
 			"var1": "value",
 			"var2": "value2",
 		})
+
 		variables := section.GetVariables()
 
 		assert.Equal(t, map[string]interface{}{
 			"var1": "new value",
 			"var2": "value2",
 		}, variables)
+		assert.NoError(t, err)
 	})
 }

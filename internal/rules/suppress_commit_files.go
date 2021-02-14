@@ -3,6 +3,7 @@ package rules
 import (
 	"errors"
 	"fisherman/internal"
+	"fisherman/utils"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -60,4 +61,9 @@ func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Write
 
 func (rule *SuppressCommitFiles) GetPosition() byte {
 	return PostScripts
+}
+
+func (rule *SuppressCommitFiles) Compile(variables map[string]interface{}) {
+	rule.BaseRule.Compile(variables)
+	utils.FillTemplatesArray(rule.Globs, variables)
 }

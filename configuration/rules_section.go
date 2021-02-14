@@ -20,14 +20,15 @@ type Rule interface {
 	GetContition() string
 	GetPosition() byte
 	Check(internal.ExecutionContext, io.Writer) error
+	Compile(map[string]interface{})
 }
 
 type RulesSection struct {
 	Rules []Rule
 }
 
-func (config *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	config.Rules = []Rule{}
+func (section *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	section.Rules = []Rule{}
 	var rawSection map[string]interface{}
 
 	err := unmarshal(&rawSection)
@@ -51,10 +52,16 @@ func (config *RulesSection) UnmarshalYAML(unmarshal func(interface{}) error) err
 			return fmt.Errorf("error for rule at index %d: %w", index, err)
 		}
 
-		config.Rules = append(config.Rules, rule)
+		section.Rules = append(section.Rules, rule)
 	}
 
 	return nil
+}
+
+func (section *RulesSection) Compile(variables map[string]interface{}) {
+	for _, rule := range section.Rules {
+		rule.Compile(variables)
+	}
 }
 
 func unmarshalRule(rawRule interface{}) (Rule, error) {

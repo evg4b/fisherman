@@ -50,7 +50,7 @@ func main() {
 	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
 	repository := vcs.NewGitRepository(cwd)
 
-	engine := expression.NewExpressionEngine(config.GlobalVariables)
+	engine := expression.NewExpressionEngine()
 
 	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
 	hookFactory := hookfactory.NewFactory(engine, config.Hooks)

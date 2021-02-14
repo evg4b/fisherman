@@ -3,6 +3,7 @@ package rules
 import (
 	"errors"
 	"fisherman/internal"
+	"fisherman/utils"
 	"io"
 
 	"github.com/go-git/go-git/v5"
@@ -24,7 +25,7 @@ func (rule *AddToIndex) GetPosition() byte {
 	return PostScripts
 }
 
-func (rule AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+func (rule *AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	if len(rule.Globs) > 0 {
 		repo := ctx.Repository()
 		for _, glob := range rule.Globs {
@@ -40,4 +41,11 @@ func (rule AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	}
 
 	return nil
+}
+
+func (rule *AddToIndex) Compile(variables map[string]interface{}) {
+	rule.BaseRule.Compile(variables)
+	for index := range rule.Globs {
+		utils.FillTemplate(&rule.Globs[index].Glob, variables)
+	}
 }

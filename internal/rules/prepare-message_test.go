@@ -35,3 +35,15 @@ func TestPrepareMessage_Check_NotConfigured(t *testing.T) {
 
 	assert.NoError(t, err)
 }
+
+func TestPrepareMessage_Compile(t *testing.T) {
+	rule := rules.PrepareMessage{
+		Message: "{{var1}}",
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.PrepareMessage{
+		Message: "VALUE",
+	}, rule)
+}

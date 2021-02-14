@@ -102,3 +102,21 @@ func TestAddToIndex_GetPosition(t *testing.T) {
 
 	assert.Equal(t, rules.PostScripts, rule.GetPosition())
 }
+
+func TestAddToIndex_Compile(t *testing.T) {
+	rule := rules.AddToIndex{
+		Globs: []rules.Glob{
+			{Glob: "{{var1}}", IsRequired: false},
+			{Glob: "data", IsRequired: false},
+		},
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.AddToIndex{
+		Globs: []rules.Glob{
+			{Glob: "VALUE", IsRequired: false},
+			{Glob: "data", IsRequired: false},
+		},
+	}, rule)
+}

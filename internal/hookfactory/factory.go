@@ -9,11 +9,11 @@ import (
 )
 
 type CompilableConfig interface {
-	Compile(engine expression.Engine, global map[string]interface{})
+	Compile(engine expression.Engine, global map[string]interface{}) error
 	GetVariables() map[string]interface{}
 }
 
-type builders = map[string]func() (*handling.HookHandler, error)
+type builders = map[string]func() (handling.Handler, error)
 
 type Factory interface {
 	GetHook(name string) (handling.Handler, error)
@@ -32,10 +32,17 @@ func NewFactory(engine expression.Engine, config configuration.HooksConfig) *Git
 	}
 
 	factory.hooksBuilders = builders{
-		constants.CommitMsgHook:        factory.commitMsg,
-		constants.PreCommitHook:        factory.preCommit,
-		constants.PrePushHook:          factory.prePush,
-		constants.PrepareCommitMsgHook: factory.prepareCommitMsg,
+		constants.ApplyPatchMsgHook:     factory.applyPatchMsg,
+		constants.CommitMsgHook:         factory.commitMsg,
+		constants.FsMonitorWatchmanHook: factory.fsMonitorWatchman,
+		constants.PostUpdateHook:        factory.postUpdate,
+		constants.PreApplyPatchHook:     factory.preApplyPatch,
+		constants.PreCommitHook:         factory.preCommit,
+		constants.PrePushHook:           factory.prePush,
+		constants.PreRebaseHook:         factory.preRebase,
+		constants.PreReceiveHook:        factory.preReceive,
+		constants.PrepareCommitMsgHook:  factory.prepareCommitMsg,
+		constants.UpdateHook:            factory.update,
 	}
 
 	return &factory

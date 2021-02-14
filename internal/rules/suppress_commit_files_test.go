@@ -110,3 +110,25 @@ func TestSuppresCommitFiles_RemoveGlobError(t *testing.T) {
 
 	assert.EqualError(t, err, "test error")
 }
+
+func TestSuppressCommitFiles_Compile(t *testing.T) {
+	rule := rules.SuppressCommitFiles{
+		Globs:           []string{"{{var1}}", "{{var1}}.css", "mocks"},
+		RemoveFromIndex: true,
+		BaseRule: rules.BaseRule{
+			Type:      "{{var1}}",
+			Condition: "{{var1}}",
+		},
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.SuppressCommitFiles{
+		Globs:           []string{"VALUE", "VALUE.css", "mocks"},
+		RemoveFromIndex: true,
+		BaseRule: rules.BaseRule{
+			Type:      "{{var1}}",
+			Condition: "VALUE",
+		},
+	}, rule)
+}

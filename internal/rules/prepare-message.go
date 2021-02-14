@@ -13,12 +13,17 @@ type PrepareMessage struct {
 	Message  string `mapstructure:"message"`
 }
 
-func (config PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
-	if utils.IsEmpty(config.Message) {
+func (rule PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+	if utils.IsEmpty(rule.Message) {
 		return nil
 	}
 
 	args := ctx.Args()
 
-	return ctx.Files().Write(args[0], config.Message)
+	return ctx.Files().Write(args[0], rule.Message)
+}
+
+func (rule *PrepareMessage) Compile(variables map[string]interface{}) {
+	rule.BaseRule.Compile(variables)
+	utils.FillTemplate(&rule.Message, variables)
 }

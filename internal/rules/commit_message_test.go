@@ -143,3 +143,21 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 		})
 	}
 }
+
+func TestCommitMessage_Compile(t *testing.T) {
+	rule := rules.CommitMessage{
+		Prefix:   "Prefix{{var1}}",
+		Suffix:   "Suffix{{var1}}",
+		Regexp:   "Regexp{{var1}}",
+		NotEmpty: true,
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.CommitMessage{
+		Prefix:   "PrefixVALUE",
+		Suffix:   "SuffixVALUE",
+		Regexp:   "RegexpVALUE",
+		NotEmpty: true,
+	}, rule)
+}

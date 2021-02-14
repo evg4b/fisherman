@@ -10,6 +10,13 @@ type PrepareCommitMsgHookConfig struct {
 	Message          string `yaml:"message,omitempty"`
 }
 
-func (config *PrepareCommitMsgHookConfig) Compile(engine expression.Engine, global map[string]interface{}) {
-	config.Message = utils.FillTemplate(config.Message, global)
+func (config *PrepareCommitMsgHookConfig) Compile(engine expression.Engine, global map[string]interface{}) error {
+	err := config.VariablesSection.Compile(engine, global)
+	if err != nil {
+		return err
+	}
+
+	utils.FillTemplate(&config.Message, config.VariablesSection.GetVariables())
+
+	return nil
 }

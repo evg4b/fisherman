@@ -9,10 +9,7 @@ import (
 )
 
 func TestExpressionEngine_Eval(t *testing.T) {
-	engine := expression.NewExpressionEngine(map[string]interface{}{
-		"X":          "this is x value",
-		"EmptyValue": "",
-	})
+	engine := expression.NewExpressionEngine()
 
 	tests := []struct {
 		name        string
@@ -45,7 +42,10 @@ func TestExpressionEngine_Eval(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := engine.Eval(tt.expression)
+			actual, err := engine.Eval(tt.expression, map[string]interface{}{
+				"X":          "this is x value",
+				"EmptyValue": "",
+			})
 
 			assert.Equal(t, tt.expected, actual)
 			testutils.CheckError(t, tt.expectedErr, err)
@@ -54,12 +54,7 @@ func TestExpressionEngine_Eval(t *testing.T) {
 }
 
 func TestGovaluateEngine_EvalMap(t *testing.T) {
-	engine := expression.NewExpressionEngine(map[string]interface{}{
-		"X":          "this is x value",
-		"EmptyValue": "",
-		"variable1":  "refs/heads/master",
-		"variable2":  "this is overwrites values",
-	})
+	engine := expression.NewExpressionEngine()
 
 	tests := []struct {
 		name        string
@@ -110,7 +105,10 @@ func TestGovaluateEngine_EvalMap(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			actual, err := engine.EvalMap(tt.expression, map[string]interface{}{
-				"variable2": "refs/heads/master",
+				"X":          "this is x value",
+				"EmptyValue": "",
+				"variable1":  "refs/heads/master",
+				"variable2":  "refs/heads/master",
 			})
 
 			assert.Equal(t, tt.expected, actual)

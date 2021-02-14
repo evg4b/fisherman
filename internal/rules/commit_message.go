@@ -19,31 +19,38 @@ type CommitMessage struct {
 	NotEmpty bool   `mapstructure:"not-empty"`
 }
 
-func (config CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	message := ctx.Message()
 
-	if config.NotEmpty && utils.IsEmpty(message) {
+	if rule.NotEmpty && utils.IsEmpty(message) {
 		return fmt.Errorf("commit message should not be empty")
 	}
 
-	if !utils.IsEmpty(config.Prefix) && !strings.HasPrefix(ctx.Message(), config.Prefix) {
-		return fmt.Errorf("commit message should have prefix '%s'", config.Prefix)
+	if !utils.IsEmpty(rule.Prefix) && !strings.HasPrefix(ctx.Message(), rule.Prefix) {
+		return fmt.Errorf("commit message should have prefix '%s'", rule.Prefix)
 	}
 
-	if !utils.IsEmpty(config.Suffix) && !strings.HasSuffix(ctx.Message(), config.Suffix) {
-		return fmt.Errorf("commit message should have suffix '%s'", config.Suffix)
+	if !utils.IsEmpty(rule.Suffix) && !strings.HasSuffix(ctx.Message(), rule.Suffix) {
+		return fmt.Errorf("commit message should have suffix '%s'", rule.Suffix)
 	}
 
-	if !utils.IsEmpty(config.Regexp) {
-		matched, err := regexp.MatchString(config.Regexp, ctx.Message())
+	if !utils.IsEmpty(rule.Regexp) {
+		matched, err := regexp.MatchString(rule.Regexp, ctx.Message())
 		if err != nil {
 			return err
 		}
 
 		if !matched {
-			return fmt.Errorf("commit message should be matched regular expression '%s'", config.Regexp)
+			return fmt.Errorf("commit message should be matched regular expression '%s'", rule.Regexp)
 		}
 	}
 
 	return nil
+}
+
+func (rule *CommitMessage) Compile(variables map[string]interface{}) {
+	rule.BaseRule.Compile(variables)
+	utils.FillTemplate(&rule.Prefix, variables)
+	utils.FillTemplate(&rule.Suffix, variables)
+	utils.FillTemplate(&rule.Regexp, variables)
 }

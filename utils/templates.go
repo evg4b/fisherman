@@ -3,7 +3,6 @@ package utils
 import (
 	"io"
 
-	"github.com/imdario/mergo"
 	"github.com/valyala/fasttemplate"
 )
 
@@ -16,14 +15,18 @@ func PrintGraphics(wr io.Writer, content string, data map[string]interface{}) {
 	HandleCriticalError(err)
 }
 
-func FillTemplate(src string, data ...map[string]interface{}) string {
-	dest := map[string]interface{}{}
-	for _, src := range data {
-		err := mergo.MergeWithOverwrite(&dest, src)
-		if err != nil {
-			panic(err)
-		}
-	}
+func FillTemplate(src *string, data map[string]interface{}) {
+	(*src) = fasttemplate.New(*src, startTag, endTag).ExecuteString(data)
+}
 
-	return fasttemplate.New(src, startTag, endTag).ExecuteString(dest)
+func FillTemplatesArray(src []string, data map[string]interface{}) {
+	for index, srcItem := range src {
+		src[index] = fasttemplate.New(srcItem, startTag, endTag).ExecuteString(data)
+	}
+}
+
+func FillTemplatesMap(src map[string]string, data map[string]interface{}) {
+	for key, srcItem := range src {
+		src[key] = fasttemplate.New(srcItem, startTag, endTag).ExecuteString(data)
+	}
 }

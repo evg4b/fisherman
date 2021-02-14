@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fisherman/commands/remove"
 	"fisherman/configuration"
+	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
@@ -21,7 +22,10 @@ func init() {
 
 func TestCommand_Run(t *testing.T) {
 	command := remove.NewCommand(
-		makeFakeFS(t).DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil),
+		makeFakeFS(t).
+			DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil).
+			ExistMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(true).
+			ExistMock.When(filepath.Join("usr", "home", ".fisherman.yaml")).Then(true),
 		&internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
@@ -80,14 +84,13 @@ func TestCommand_Description(t *testing.T) {
 }
 
 func makeFakeFS(t *testing.T) *mocks.FileSystemMock {
-	return mocks.NewFileSystemMock(t).
+	mock := mocks.NewFileSystemMock(t)
+	for _, name := range constants.HooksNames {
+		mock.ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", name)).Then(false)
+	}
+
+	return mock.
 		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Then(true).
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "prepare-commit-msg")).Then(false).
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-commit")).Then(false).
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "pre-push")).Then(false).
-		ExistMock.When(filepath.Join("usr", "home", ".git", ".fisherman.yml")).Then(false).
 		ExistMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(true).
 		DeleteMock.Expect(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(nil)
 }

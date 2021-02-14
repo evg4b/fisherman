@@ -6,18 +6,16 @@ import (
 )
 
 type Engine interface {
-	Eval(expression string) (bool, error)
+	Eval(expression string, vars map[string]interface{}) (bool, error)
 	EvalMap(expression string, variables map[string]interface{}) (map[string]interface{}, error)
 }
 
 type GovaluateEngine struct {
 	globalFunctions map[string]govaluate.ExpressionFunction
-	globalVariables map[string]interface{}
 }
 
-func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
+func NewExpressionEngine() *GovaluateEngine {
 	return &GovaluateEngine{
-		globalVariables: variables,
 		// TODO: Add functions:
 		// - filesChanged(...glob) bool
 		// - filesExist(...glob) bool
@@ -29,14 +27,14 @@ func NewExpressionEngine(variables map[string]interface{}) *GovaluateEngine {
 	}
 }
 
-func (engine *GovaluateEngine) Eval(expressionString string) (bool, error) {
+func (engine *GovaluateEngine) Eval(expressionString string, vars map[string]interface{}) (bool, error) {
 	// TODO: add global and local function. This case need to configure unique functions for each hook
 	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.globalFunctions)
 	if err != nil {
 		return false, err
 	}
 
-	result, err := expression.Evaluate(engine.globalVariables)
+	result, err := expression.Evaluate(vars)
 	if err != nil {
 		return false, err
 	}
@@ -60,18 +58,7 @@ func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{})
 		return nil, err
 	}
 
-	combinedVars := map[string]interface{}{}
-	err = mergo.MergeWithOverwrite(&combinedVars, engine.globalVariables)
-	if err != nil {
-		return nil, err
-	}
-
-	err = mergo.MergeWithOverwrite(&combinedVars, vars)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := expression.Evaluate(combinedVars)
+	result, err := expression.Evaluate(vars)
 	if err != nil {
 		return nil, err
 	}
