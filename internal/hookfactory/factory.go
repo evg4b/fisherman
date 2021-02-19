@@ -8,9 +8,9 @@ import (
 	"fisherman/internal/handling"
 )
 
+type Variables = map[string]interface{}
 type CompilableConfig interface {
-	Compile(engine expression.Engine, global map[string]interface{}) error
-	GetVariables() map[string]interface{}
+	Compile(engine expression.Engine, global Variables) (Variables, error)
 }
 
 type builders = map[string]func() (handling.Handler, error)

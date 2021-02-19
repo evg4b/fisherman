@@ -8,21 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVariablesSection_GetVariables_Panic(t *testing.T) {
-	section := VariablesSection{}
-
-	assert.Panics(t, func() {
-		_ = section.GetVariables()
-	})
-}
-
 func TestVariablesSection_Compile_Empty(t *testing.T) {
 	section := VariablesSection{}
 
 	assert.NotPanics(t, func() {
-		err := section.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
-
-		variables := section.GetVariables()
+		variables, err := section.Compile(mocks.NewEngineMock(t), map[string]interface{}{})
 
 		assert.Empty(t, variables)
 		assert.NoError(t, err)
@@ -44,7 +34,7 @@ func TestVariables_Compile(t *testing.T) {
 		},
 	}
 
-	err := section.Compile(engine, map[string]interface{}{
+	_, err := section.Compile(engine, map[string]interface{}{
 		"var1": "localValue1",
 		"var2": "localValue2",
 	})
@@ -72,12 +62,10 @@ func TestVariablesSection_CompileAndReturnVariables(t *testing.T) {
 	}, nil)
 
 	assert.NotPanics(t, func() {
-		err := section.Compile(engine, map[string]interface{}{
+		variables, err := section.Compile(engine, map[string]interface{}{
 			"var1": "value",
 			"var2": "value2",
 		})
-
-		variables := section.GetVariables()
 
 		assert.Equal(t, map[string]interface{}{
 			"var1": "new value",

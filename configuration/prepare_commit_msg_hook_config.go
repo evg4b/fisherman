@@ -11,12 +11,12 @@ type PrepareCommitMsgHookConfig struct {
 }
 
 func (config *PrepareCommitMsgHookConfig) Compile(engine expression.Engine, global map[string]interface{}) error {
-	err := config.VariablesSection.Compile(engine, global)
+	variables, err := config.VariablesSection.Compile(engine, global)
 	if err != nil {
 		return err
 	}
 
-	utils.FillTemplate(&config.Message, config.VariablesSection.GetVariables())
+	utils.FillTemplate(&config.Message, variables)
 
 	return nil
 }

@@ -10,12 +10,12 @@ type CommonConfig struct {
 }
 
 func (config *CommonConfig) Compile(engine expression.Engine, global map[string]interface{}) error {
-	err := config.VariablesSection.Compile(engine, global)
+	variables, err := config.VariablesSection.Compile(engine, global)
 	if err != nil {
 		return err
 	}
 
-	config.RulesSection.Compile(config.VariablesSection.GetVariables())
+	config.RulesSection.Compile(variables)
 
 	return nil
 }

@@ -12,49 +12,40 @@ type Variables = map[string]interface{}
 type VariablesSection struct {
 	StaticVariables  map[string]string `yaml:"variables,omitempty"`
 	ExtractVariables []string          `yaml:"extract-variables,omitempty"`
-	compiled         map[string]interface{}
 }
 
-func (config *VariablesSection) Compile(engine expression.Engine, globalVariables map[string]interface{}) error {
-	config.compiled = map[string]interface{}{}
-	err := mergo.MergeWithOverwrite(&config.compiled, globalVariables)
+func (config *VariablesSection) Compile(engine expression.Engine, globalVariables Variables) (Variables, error) {
+	variables := map[string]interface{}{}
+	err := mergo.MergeWithOverwrite(&variables, globalVariables)
 	if err != nil {
-		return err
+		return variables, err
 	}
 
 	if config.StaticVariables != nil {
-		utils.FillTemplatesMap(config.StaticVariables, config.compiled)
+		utils.FillTemplatesMap(config.StaticVariables, variables)
 
 		interfaceMap := utils.StringMapToInterfaceMap(config.StaticVariables)
-		err = mergo.MergeWithOverwrite(&config.compiled, interfaceMap)
+		err = mergo.MergeWithOverwrite(&variables, interfaceMap)
 		if err != nil {
-			return err
+			return variables, err
 		}
 	}
 
 	if config.ExtractVariables != nil {
-		utils.FillTemplatesArray(config.ExtractVariables, config.compiled)
+		utils.FillTemplatesArray(config.ExtractVariables, variables)
 
 		for _, value := range config.ExtractVariables {
-			extractedVariables, err := engine.EvalMap(value, config.compiled)
+			extractedVariables, err := engine.EvalMap(value, variables)
 			if err != nil {
-				return err
+				return variables, err
 			}
 
-			err = mergo.MergeWithOverwrite(&config.compiled, extractedVariables)
+			err = mergo.MergeWithOverwrite(&variables, extractedVariables)
 			if err != nil {
-				return err
+				return variables, err
 			}
 		}
 	}
 
-	return nil
-}
-
-func (config *VariablesSection) GetVariables() map[string]interface{} {
-	if config.compiled == nil {
-		panic("config id not compiled")
-	}
-
-	return config.compiled
+	return variables, nil
 }
