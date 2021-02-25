@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"fisherman/infrastructure/log"
+	"fisherman/internal/rules"
 )
 
 type FishermanConfig struct {
@@ -12,7 +13,19 @@ type FishermanConfig struct {
 }
 
 var DefaultConfig = FishermanConfig{
-	Hooks: HooksConfig{},
+	Hooks: HooksConfig{
+		PreCommitHook: &PreCommitHookConfig{
+			CommonConfig{
+				RulesSection: RulesSection{
+					Rules: []Rule{
+						&rules.CommitMessage{
+							Prefix: "[fisherman]",
+						},
+					},
+				},
+			},
+		},
+	},
 }
 
 var (

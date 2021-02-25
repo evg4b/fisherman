@@ -85,12 +85,14 @@ func (command *Command) Run() error {
 		if err != nil {
 			return err
 		}
+
 		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
 		var fileMode os.FileMode = os.ModePerm
 		err = command.files.Chmod(hookPath, fileMode)
 		if err != nil {
 			return err
 		}
+
 		log.Debugf("Hook file mode changed to %s", fileMode.String())
 
 		err = command.files.Chown(hookPath, command.user)
