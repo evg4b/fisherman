@@ -1,4 +1,4 @@
-package hookfactory
+package handling
 
 import (
 	"fisherman/configuration"

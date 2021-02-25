@@ -3,7 +3,7 @@ package handle
 import (
 	"fisherman/configuration"
 	"fisherman/internal"
-	"fisherman/internal/hookfactory"
+	"fisherman/internal/handling"
 	"flag"
 )
 
@@ -11,14 +11,14 @@ type Command struct {
 	ctxFactory  internal.CtxFactory
 	flagSet     *flag.FlagSet
 	hook        string
-	hookFactory hookfactory.Factory
+	hookFactory handling.Factory
 	usage       string
 	config      *configuration.HooksConfig
 	app         *internal.AppInfo
 }
 
 func NewCommand(
-	hookFactory hookfactory.Factory,
+	hookFactory handling.Factory,
 	ctxFactory internal.CtxFactory,
 	config *configuration.HooksConfig,
 	app *internal.AppInfo,

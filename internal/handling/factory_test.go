@@ -1,10 +1,10 @@
-package hookfactory_test
+package handling_test
 
 import (
 	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
-	"fisherman/internal/hookfactory"
+	"fisherman/internal/handling"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -12,7 +12,7 @@ import (
 )
 
 func TestFactory_GetHook(t *testing.T) {
-	factory := hookfactory.NewFactory(
+	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMock.Return(false, nil),
 		configuration.HooksConfig{
 			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{},
@@ -43,7 +43,7 @@ func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
 	variablesSection := configuration.VariablesSection{ExtractVariables: []string{"stub"}}
 	commonConfig := configuration.CommonConfig{VariablesSection: variablesSection}
 
-	factory := hookfactory.NewFactory(
+	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMapMock.Return(nil, errors.New("test error")),
 		configuration.HooksConfig{
 			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{CommonConfig: commonConfig},
@@ -71,7 +71,7 @@ func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
 }
 
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
-	factory := hookfactory.NewFactory(
+	factory := handling.NewFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
@@ -81,13 +81,13 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 			hook, err := factory.GetHook(tt)
 
 			assert.Nil(t, hook)
-			assert.Equal(t, hookfactory.ErrNotPresented, err)
+			assert.Equal(t, handling.ErrNotPresented, err)
 		})
 	}
 }
 
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
-	factory := hookfactory.NewFactory(
+	factory := handling.NewFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)

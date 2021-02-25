@@ -4,7 +4,7 @@ import (
 	"fisherman/commands/handle"
 	"fisherman/configuration"
 	"fisherman/internal"
-	"fisherman/internal/hookfactory"
+	"fisherman/internal/handling"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -13,7 +13,7 @@ import (
 
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
-		&hookfactory.GitHookFactory{},
+		&handling.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},
@@ -24,7 +24,7 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
-		&hookfactory.GitHookFactory{},
+		&handling.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
 		&internal.AppInfo{},

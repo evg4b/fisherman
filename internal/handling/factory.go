@@ -1,11 +1,10 @@
-package hookfactory
+package handling
 
 import (
 	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/internal/expression"
-	"fisherman/internal/handling"
 )
 
 type Variables = map[string]interface{}
@@ -13,10 +12,10 @@ type CompilableConfig interface {
 	Compile(engine expression.Engine, global Variables) (Variables, error)
 }
 
-type builders = map[string]func() (handling.Handler, error)
+type builders = map[string]func() (Handler, error)
 
 type Factory interface {
-	GetHook(name string) (handling.Handler, error)
+	GetHook(name string) (Handler, error)
 }
 
 type GitHookFactory struct {
@@ -48,7 +47,7 @@ func NewFactory(engine expression.Engine, config configuration.HooksConfig) *Git
 	return &factory
 }
 
-func (factory *GitHookFactory) GetHook(name string) (handling.Handler, error) {
+func (factory *GitHookFactory) GetHook(name string) (Handler, error) {
 	if builder, ok := factory.hooksBuilders[name]; ok {
 		return builder()
 	}

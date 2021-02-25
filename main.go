@@ -14,7 +14,7 @@ import (
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
 	"fisherman/internal/expression"
-	"fisherman/internal/hookfactory"
+	"fisherman/internal/handling"
 	"fisherman/internal/runner"
 	"fisherman/utils"
 	"os"
@@ -53,7 +53,7 @@ func main() {
 	engine := expression.NewExpressionEngine()
 
 	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
-	hookFactory := hookfactory.NewFactory(engine, config.Hooks)
+	hookFactory := handling.NewFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,
