@@ -11,11 +11,8 @@ builds:
 
 archives:
   - replacements:
-      linux: Linux
-      windows: Windows
       386: x86
       amd64: amd64
-      darwin: MacOS
     format: zip
 
 source:
