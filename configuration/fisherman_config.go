@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"fisherman/infrastructure/log"
-	"fisherman/internal/rules"
 )
 
 type FishermanConfig struct {
@@ -12,19 +11,13 @@ type FishermanConfig struct {
 	DefaultShell    string           `yaml:"default-shell,omitempty"`
 }
 
-var DefaultConfig = FishermanConfig{
-	Hooks: HooksConfig{
-		PreCommitHook: &HookConfig{
-			RulesSection: RulesSection{
-				Rules: []Rule{
-					&rules.CommitMessage{
-						Prefix: "[fisherman]",
-					},
-				},
-			},
-		},
-	},
-}
+var DefaultConfig = `
+hooks:
+  commit-msg:
+    rules:
+      - type: commit-message
+        prefix: '[fisherman]'
+`
 
 var (
 	GlobalMode = "global"

@@ -14,7 +14,6 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
-	"gopkg.in/yaml.v3"
 )
 
 type Command struct {
@@ -118,12 +117,7 @@ func (command *Command) writeConfig() error {
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 
 	if !command.files.Exist(configPath) {
-		content, err := yaml.Marshal(configuration.DefaultConfig)
-		if err != nil {
-			return err
-		}
-
-		err = command.files.Write(configPath, string(content))
+		err := command.files.Write(configPath, configuration.DefaultConfig)
 		if err != nil {
 			return err
 		}
