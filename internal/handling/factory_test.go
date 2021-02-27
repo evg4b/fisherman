@@ -5,7 +5,6 @@ import (
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/internal/handling"
-	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -26,9 +25,7 @@ func TestFactory_GetHook(t *testing.T) {
 			PreReceiveHook:        &configuration.HookConfig{},
 			UpdateHook:            &configuration.HookConfig{},
 			CommitMsgHook:         &configuration.HookConfig{},
-			PrepareCommitMsgHook: &configuration.HookConfig{RulesSection: configuration.RulesSection{
-				Rules: []configuration.Rule{getRule(t, rules.PreScripts)},
-			}},
+			PrepareCommitMsgHook:  &configuration.HookConfig{},
 		},
 	)
 
