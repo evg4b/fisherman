@@ -1,15 +1,15 @@
 package configuration
 
 type HooksConfig struct {
-	ApplyPatchMsgHook     *ApplyPatchMsgHookConfig     `yaml:"applypatch-msg,omitempty"`
-	FsMonitorWatchmanHook *FsMonitorWatchmanHookConfig `yaml:"fsmonitor-watchman,omitempty"`
-	PostUpdateHook        *PostUpdateHookConfig        `yaml:"post-update,omitempty"`
-	PreApplyPatchHook     *PreApplyPatchHookConfig     `yaml:"pre-applypatch,omitempty"`
-	PreCommitHook         *PreCommitHookConfig         `yaml:"pre-commit,omitempty"`
-	PrePushHook           *PrePushHookConfig           `yaml:"pre-push,omitempty"`
-	PreRebaseHook         *PreRebaseHookConfig         `yaml:"pre-rebase,omitempty"`
-	PreReceiveHook        *PreReceiveHookConfig        `yaml:"pre-receive,omitempty"`
-	UpdateHook            *UpdateHookConfig            `yaml:"update,omitempty"`
-	CommitMsgHook         *CommitMsgHookConfig         `yaml:"commit-msg,omitempty"`
-	PrepareCommitMsgHook  *PrepareCommitMsgHookConfig  `yaml:"prepare-commit-msg,omitempty"`
+	ApplyPatchMsgHook     *HookConfig `yaml:"applypatch-msg,omitempty"`
+	FsMonitorWatchmanHook *HookConfig `yaml:"fsmonitor-watchman,omitempty"`
+	PostUpdateHook        *HookConfig `yaml:"post-update,omitempty"`
+	PreApplyPatchHook     *HookConfig `yaml:"pre-applypatch,omitempty"`
+	PreCommitHook         *HookConfig `yaml:"pre-commit,omitempty"`
+	PrePushHook           *HookConfig `yaml:"pre-push,omitempty"`
+	PreRebaseHook         *HookConfig `yaml:"pre-rebase,omitempty"`
+	PreReceiveHook        *HookConfig `yaml:"pre-receive,omitempty"`
+	UpdateHook            *HookConfig `yaml:"update,omitempty"`
+	CommitMsgHook         *HookConfig `yaml:"commit-msg,omitempty"`
+	PrepareCommitMsgHook  *HookConfig `yaml:"prepare-commit-msg,omitempty"`
 }

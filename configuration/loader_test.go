@@ -207,19 +207,17 @@ hooks:
 					"name": "value",
 				},
 				Hooks: configuration.HooksConfig{
-					PrePushHook: &configuration.PrePushHookConfig{
-						HookConfig: configuration.HookConfig{
-							RulesSection: configuration.RulesSection{
-								Rules: []configuration.Rule{
-									&rules.ShellScript{
-										BaseRule: rules.BaseRule{
-											Type: "shell-script",
-										},
-										Name: "Demo",
-										Commands: []string{
-											"echo '1213123' >> log.txt",
-											"exit 1",
-										},
+					PrePushHook: &configuration.HookConfig{
+						RulesSection: configuration.RulesSection{
+							Rules: []configuration.Rule{
+								&rules.ShellScript{
+									BaseRule: rules.BaseRule{
+										Type: "shell-script",
+									},
+									Name: "Demo",
+									Commands: []string{
+										"echo '1213123' >> log.txt",
+										"exit 1",
 									},
 								},
 							},

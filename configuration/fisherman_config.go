@@ -14,13 +14,11 @@ type FishermanConfig struct {
 
 var DefaultConfig = FishermanConfig{
 	Hooks: HooksConfig{
-		PreCommitHook: &PreCommitHookConfig{
-			HookConfig{
-				RulesSection: RulesSection{
-					Rules: []Rule{
-						&rules.CommitMessage{
-							Prefix: "[fisherman]",
-						},
+		PreCommitHook: &HookConfig{
+			RulesSection: RulesSection{
+				Rules: []Rule{
+					&rules.CommitMessage{
+						Prefix: "[fisherman]",
 					},
 				},
 			},

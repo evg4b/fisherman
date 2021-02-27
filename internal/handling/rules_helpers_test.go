@@ -44,11 +44,9 @@ func Test_getPreScripts(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
-				PreCommitHook: &configuration.PreCommitHookConfig{
-					HookConfig: configuration.HookConfig{
-						RulesSection: configuration.RulesSection{
-							Rules: tt.ruleCollection,
-						},
+				PreCommitHook: &configuration.HookConfig{
+					RulesSection: configuration.RulesSection{
+						Rules: tt.ruleCollection,
 					},
 				},
 			})
@@ -95,11 +93,9 @@ func Test_getPostScriptRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
-				PreCommitHook: &configuration.PreCommitHookConfig{
-					HookConfig: configuration.HookConfig{
-						RulesSection: configuration.RulesSection{
-							Rules: tt.ruleCollection,
-						},
+				PreCommitHook: &configuration.HookConfig{
+					RulesSection: configuration.RulesSection{
+						Rules: tt.ruleCollection,
 					},
 				},
 			})
@@ -146,11 +142,9 @@ func Test_getScriptRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
-				PreCommitHook: &configuration.PreCommitHookConfig{
-					HookConfig: configuration.HookConfig{
-						RulesSection: configuration.RulesSection{
-							Rules: tt.ruleCollection,
-						},
+				PreCommitHook: &configuration.HookConfig{
+					RulesSection: configuration.RulesSection{
+						Rules: tt.ruleCollection,
 					},
 				},
 			})

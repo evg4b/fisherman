@@ -5,6 +5,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/internal/handling"
+	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -15,17 +16,19 @@ func TestFactory_GetHook(t *testing.T) {
 	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMock.Return(false, nil),
 		configuration.HooksConfig{
-			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{},
-			FsMonitorWatchmanHook: &configuration.FsMonitorWatchmanHookConfig{},
-			PostUpdateHook:        &configuration.PostUpdateHookConfig{},
-			PreApplyPatchHook:     &configuration.PreApplyPatchHookConfig{},
-			PreCommitHook:         &configuration.PreCommitHookConfig{},
-			PrePushHook:           &configuration.PrePushHookConfig{},
-			PreRebaseHook:         &configuration.PreRebaseHookConfig{},
-			PreReceiveHook:        &configuration.PreReceiveHookConfig{},
-			UpdateHook:            &configuration.UpdateHookConfig{},
-			CommitMsgHook:         &configuration.CommitMsgHookConfig{},
-			PrepareCommitMsgHook:  &configuration.PrepareCommitMsgHookConfig{Message: "test"},
+			ApplyPatchMsgHook:     &configuration.HookConfig{},
+			FsMonitorWatchmanHook: &configuration.HookConfig{},
+			PostUpdateHook:        &configuration.HookConfig{},
+			PreApplyPatchHook:     &configuration.HookConfig{},
+			PreCommitHook:         &configuration.HookConfig{},
+			PrePushHook:           &configuration.HookConfig{},
+			PreRebaseHook:         &configuration.HookConfig{},
+			PreReceiveHook:        &configuration.HookConfig{},
+			UpdateHook:            &configuration.HookConfig{},
+			CommitMsgHook:         &configuration.HookConfig{},
+			PrepareCommitMsgHook: &configuration.HookConfig{RulesSection: configuration.RulesSection{
+				Rules: []configuration.Rule{getRule(t, rules.PreScripts)},
+			}},
 		},
 	)
 
@@ -46,17 +49,17 @@ func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
 	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMapMock.Return(nil, errors.New("test error")),
 		configuration.HooksConfig{
-			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{HookConfig: commonConfig},
-			FsMonitorWatchmanHook: &configuration.FsMonitorWatchmanHookConfig{HookConfig: commonConfig},
-			PostUpdateHook:        &configuration.PostUpdateHookConfig{HookConfig: commonConfig},
-			PreApplyPatchHook:     &configuration.PreApplyPatchHookConfig{HookConfig: commonConfig},
-			PreCommitHook:         &configuration.PreCommitHookConfig{HookConfig: commonConfig},
-			PrePushHook:           &configuration.PrePushHookConfig{HookConfig: commonConfig},
-			PreRebaseHook:         &configuration.PreRebaseHookConfig{HookConfig: commonConfig},
-			PreReceiveHook:        &configuration.PreReceiveHookConfig{HookConfig: commonConfig},
-			UpdateHook:            &configuration.UpdateHookConfig{HookConfig: commonConfig},
-			CommitMsgHook:         &configuration.CommitMsgHookConfig{HookConfig: commonConfig},
-			PrepareCommitMsgHook:  &configuration.PrepareCommitMsgHookConfig{VariablesSection: variablesSection},
+			ApplyPatchMsgHook:     &commonConfig,
+			FsMonitorWatchmanHook: &commonConfig,
+			PostUpdateHook:        &commonConfig,
+			PreApplyPatchHook:     &commonConfig,
+			PreCommitHook:         &commonConfig,
+			PrePushHook:           &commonConfig,
+			PreRebaseHook:         &commonConfig,
+			PreReceiveHook:        &commonConfig,
+			UpdateHook:            &commonConfig,
+			CommitMsgHook:         &commonConfig,
+			PrepareCommitMsgHook:  &commonConfig,
 		},
 	)
 

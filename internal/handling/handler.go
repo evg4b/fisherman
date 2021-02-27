@@ -31,10 +31,5 @@ func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string)
 		return err
 	}
 
-	err = handler.runRules(ctx, handler.PostScriptRules)
-	if err != nil {
-		return err
-	}
-
-	return err
+	return handler.runRules(ctx, handler.PostScriptRules)
 }
