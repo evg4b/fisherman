@@ -1,7 +1,7 @@
 run:
   skip-dirs:
-    - mocks
-    - assets
+    - testing
+    - website
   allow-parallel-runners: true
   timeout: 5m
 linters:
