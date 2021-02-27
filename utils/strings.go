@@ -21,3 +21,13 @@ func GetOrDefault(value string, defaultValue string) string {
 
 	return defaultValue
 }
+
+func Contains(collection []string, value string) bool {
+	for _, item := range collection {
+		if strings.EqualFold(item, value) {
+			return true
+		}
+	}
+
+	return false
+}

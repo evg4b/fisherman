@@ -41,21 +41,21 @@ func TestFactory_GetHook(t *testing.T) {
 
 func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
 	variablesSection := configuration.VariablesSection{ExtractVariables: []string{"stub"}}
-	commonConfig := configuration.CommonConfig{VariablesSection: variablesSection}
+	commonConfig := configuration.HookConfig{VariablesSection: variablesSection}
 
 	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMapMock.Return(nil, errors.New("test error")),
 		configuration.HooksConfig{
-			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{CommonConfig: commonConfig},
-			FsMonitorWatchmanHook: &configuration.FsMonitorWatchmanHookConfig{CommonConfig: commonConfig},
-			PostUpdateHook:        &configuration.PostUpdateHookConfig{CommonConfig: commonConfig},
-			PreApplyPatchHook:     &configuration.PreApplyPatchHookConfig{CommonConfig: commonConfig},
-			PreCommitHook:         &configuration.PreCommitHookConfig{CommonConfig: commonConfig},
-			PrePushHook:           &configuration.PrePushHookConfig{CommonConfig: commonConfig},
-			PreRebaseHook:         &configuration.PreRebaseHookConfig{CommonConfig: commonConfig},
-			PreReceiveHook:        &configuration.PreReceiveHookConfig{CommonConfig: commonConfig},
-			UpdateHook:            &configuration.UpdateHookConfig{CommonConfig: commonConfig},
-			CommitMsgHook:         &configuration.CommitMsgHookConfig{CommonConfig: commonConfig},
+			ApplyPatchMsgHook:     &configuration.ApplyPatchMsgHookConfig{HookConfig: commonConfig},
+			FsMonitorWatchmanHook: &configuration.FsMonitorWatchmanHookConfig{HookConfig: commonConfig},
+			PostUpdateHook:        &configuration.PostUpdateHookConfig{HookConfig: commonConfig},
+			PreApplyPatchHook:     &configuration.PreApplyPatchHookConfig{HookConfig: commonConfig},
+			PreCommitHook:         &configuration.PreCommitHookConfig{HookConfig: commonConfig},
+			PrePushHook:           &configuration.PrePushHookConfig{HookConfig: commonConfig},
+			PreRebaseHook:         &configuration.PreRebaseHookConfig{HookConfig: commonConfig},
+			PreReceiveHook:        &configuration.PreReceiveHookConfig{HookConfig: commonConfig},
+			UpdateHook:            &configuration.UpdateHookConfig{HookConfig: commonConfig},
+			CommitMsgHook:         &configuration.CommitMsgHookConfig{HookConfig: commonConfig},
 			PrepareCommitMsgHook:  &configuration.PrepareCommitMsgHookConfig{VariablesSection: variablesSection},
 		},
 	)

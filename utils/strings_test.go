@@ -81,3 +81,43 @@ func TestGetOrDefault(t *testing.T) {
 		})
 	}
 }
+
+func TestContains(t *testing.T) {
+	tests := []struct {
+		name       string
+		collection []string
+		value      string
+		expected   bool
+	}{
+		{
+			name:       "empty slice",
+			collection: []string{},
+			value:      "demo",
+			expected:   false,
+		},
+		{
+			name:       "single value slice",
+			collection: []string{"demo"},
+			value:      "demo",
+			expected:   true,
+		},
+		{
+			name:       "slice with target value",
+			collection: []string{"value1", "value2", "value3", "value4"},
+			value:      "value3",
+			expected:   true,
+		},
+		{
+			name:       "slice withot target value",
+			collection: []string{"value1", "value2", "value3", "value4"},
+			value:      "value0",
+			expected:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := utils.Contains(tt.collection, tt.value)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}

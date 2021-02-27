@@ -15,7 +15,7 @@ type FishermanConfig struct {
 var DefaultConfig = FishermanConfig{
 	Hooks: HooksConfig{
 		PreCommitHook: &PreCommitHookConfig{
-			CommonConfig{
+			HookConfig{
 				RulesSection: RulesSection{
 					Rules: []Rule{
 						&rules.CommitMessage{

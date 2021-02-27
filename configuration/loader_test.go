@@ -208,7 +208,7 @@ hooks:
 				},
 				Hooks: configuration.HooksConfig{
 					PrePushHook: &configuration.PrePushHookConfig{
-						CommonConfig: configuration.CommonConfig{
+						HookConfig: configuration.HookConfig{
 							RulesSection: configuration.RulesSection{
 								Rules: []configuration.Rule{
 									&rules.ShellScript{

@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal/handling.Factory -o ./testing/mocks/factory_mock.go
 
 import (
-	"fisherman/internal/handling"
+	mm_handling "fisherman/internal/handling"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -17,7 +17,7 @@ import (
 type FactoryMock struct {
 	t minimock.Tester
 
-	funcGetHook          func(name string) (h1 handling.Handler, err error)
+	funcGetHook          func(name string) (h1 mm_handling.Handler, err error)
 	inspectFuncGetHook   func(name string)
 	afterGetHookCounter  uint64
 	beforeGetHookCounter uint64
@@ -61,7 +61,7 @@ type FactoryMockGetHookParams struct {
 
 // FactoryMockGetHookResults contains results of the Factory.GetHook
 type FactoryMockGetHookResults struct {
-	h1  handling.Handler
+	h1  mm_handling.Handler
 	err error
 }
 
@@ -97,7 +97,7 @@ func (mmGetHook *mFactoryMockGetHook) Inspect(f func(name string)) *mFactoryMock
 }
 
 // Return sets up results that will be returned by Factory.GetHook
-func (mmGetHook *mFactoryMockGetHook) Return(h1 handling.Handler, err error) *FactoryMock {
+func (mmGetHook *mFactoryMockGetHook) Return(h1 mm_handling.Handler, err error) *FactoryMock {
 	if mmGetHook.mock.funcGetHook != nil {
 		mmGetHook.mock.t.Fatalf("FactoryMock.GetHook mock is already set by Set")
 	}
@@ -110,7 +110,7 @@ func (mmGetHook *mFactoryMockGetHook) Return(h1 handling.Handler, err error) *Fa
 }
 
 //Set uses given function f to mock the Factory.GetHook method
-func (mmGetHook *mFactoryMockGetHook) Set(f func(name string) (h1 handling.Handler, err error)) *FactoryMock {
+func (mmGetHook *mFactoryMockGetHook) Set(f func(name string) (h1 mm_handling.Handler, err error)) *FactoryMock {
 	if mmGetHook.defaultExpectation != nil {
 		mmGetHook.mock.t.Fatalf("Default expectation is already set for the Factory.GetHook method")
 	}
@@ -139,13 +139,13 @@ func (mmGetHook *mFactoryMockGetHook) When(name string) *FactoryMockGetHookExpec
 }
 
 // Then sets up Factory.GetHook return parameters for the expectation previously defined by the When method
-func (e *FactoryMockGetHookExpectation) Then(h1 handling.Handler, err error) *FactoryMock {
+func (e *FactoryMockGetHookExpectation) Then(h1 mm_handling.Handler, err error) *FactoryMock {
 	e.results = &FactoryMockGetHookResults{h1, err}
 	return e.mock
 }
 
 // GetHook implements handling.Factory
-func (mmGetHook *FactoryMock) GetHook(name string) (h1 handling.Handler, err error) {
+func (mmGetHook *FactoryMock) GetHook(name string) (h1 mm_handling.Handler, err error) {
 	mm_atomic.AddUint64(&mmGetHook.beforeGetHookCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetHook.afterGetHookCounter, 1)
 

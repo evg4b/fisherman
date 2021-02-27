@@ -3,6 +3,11 @@ package handling
 import (
 	"errors"
 	"fisherman/configuration"
+	"fisherman/internal/rules"
+	"fisherman/utils"
+	"fmt"
+
+	"github.com/hashicorp/go-multierror"
 )
 
 var ErrNotPresented = errors.New("configuration for hook is not presented")
@@ -16,17 +21,15 @@ func (factory *GitHookFactory) commitMsg() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("commit-msg hook: %v", err)
 	}
 
-	return &HookHandler{
-		Rules:           getPreScriptRules(configuration.Rules),
-		Scripts:         getScriptRules(configuration.Rules),
-		PostScriptRules: getPostScriptRules(configuration.Rules),
-		WorkersCount:    workersCount,
-	}, nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) preCommit() (Handler, error) {
@@ -35,17 +38,17 @@ func (factory *GitHookFactory) preCommit() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.AddToIndexType,
+		rules.CommitMessageType,
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pre-commit hook: %v", err)
 	}
 
-	return &HookHandler{
-		Rules:           getPreScriptRules(configuration.Rules),
-		Scripts:         getScriptRules(configuration.Rules),
-		PostScriptRules: getPostScriptRules(configuration.Rules),
-		WorkersCount:    workersCount,
-	}, nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) prePush() (Handler, error) {
@@ -54,12 +57,15 @@ func (factory *GitHookFactory) prePush() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pre-push hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) prepareCommitMsg() (Handler, error) {
@@ -84,12 +90,15 @@ func (factory *GitHookFactory) applyPatchMsg() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("apply-patch-msg hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) fsMonitorWatchman() (Handler, error) {
@@ -98,12 +107,15 @@ func (factory *GitHookFactory) fsMonitorWatchman() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fs-monitor-watchman hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) postUpdate() (Handler, error) {
@@ -112,12 +124,15 @@ func (factory *GitHookFactory) postUpdate() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("post-update hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) preApplyPatch() (Handler, error) {
@@ -126,12 +141,17 @@ func (factory *GitHookFactory) preApplyPatch() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.AddToIndexType,
+		rules.CommitMessageType,
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pre-apply-patch hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) preRebase() (Handler, error) {
@@ -140,12 +160,15 @@ func (factory *GitHookFactory) preRebase() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pre-rebase hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) preReceive() (Handler, error) {
@@ -154,12 +177,15 @@ func (factory *GitHookFactory) preReceive() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pre-receive hook: %v", err)
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
+	return handler, nil
 }
 
 func (factory *GitHookFactory) update() (Handler, error) {
@@ -168,19 +194,37 @@ func (factory *GitHookFactory) update() (Handler, error) {
 		return nil, ErrNotPresented
 	}
 
-	err := configuration.Compile(factory.engine, map[string]interface{}{})
+	handler, err := factory.configureCommon(&configuration.HookConfig, []string{
+		rules.ShellScriptType,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("update hook: %v", err)
+	}
+
+	return handler, nil
+}
+
+func (factory *GitHookFactory) configureCommon(
+	config *configuration.HookConfig,
+	allowed []string,
+) (*HookHandler, error) {
+	err := config.Compile(factory.engine, map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
 
-	return factory.configureCommon(&configuration.CommonConfig), nil
-}
+	var multiError *multierror.Error
+	for _, rule := range config.Rules {
+		if !utils.Contains(allowed, rule.GetType()) {
+			multiError = multierror.Append(multiError, fmt.Errorf("rule %s is not allowed", rule.GetType()))
+		}
+	}
 
-func (factory *GitHookFactory) configureCommon(config *configuration.CommonConfig) *HookHandler {
 	return &HookHandler{
 		Rules:           getPreScriptRules(config.Rules),
 		Scripts:         getScriptRules(config.Rules),
 		PostScriptRules: getPostScriptRules(config.Rules),
 		WorkersCount:    workersCount,
-	}
+	}, multiError.ErrorOrNil()
 }

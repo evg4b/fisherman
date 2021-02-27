@@ -9,25 +9,25 @@ import (
 	"testing"
 )
 
-func TestCommonConfig_Compile(t *testing.T) {
+func TestHookConfig_Compile(t *testing.T) {
 	baseEngine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{
 		"VAR1": "THIS IS 2 VAR",
 	}, nil)
 
 	tests := []struct {
 		name          string
-		config        *configuration.CommonConfig
+		config        *configuration.HookConfig
 		expectedError string
 		engine        expression.Engine
 	}{
 		{
 			name:   "empty rule",
-			config: &configuration.CommonConfig{},
+			config: &configuration.HookConfig{},
 			engine: baseEngine,
 		},
 		{
 			name: "",
-			config: &configuration.CommonConfig{
+			config: &configuration.HookConfig{
 				VariablesSection: configuration.VariablesSection{
 					StaticVariables: map[string]string{
 						"VAR1": "%{{VAR1}}%",
@@ -47,7 +47,7 @@ func TestCommonConfig_Compile(t *testing.T) {
 		},
 		{
 			name: "",
-			config: &configuration.CommonConfig{
+			config: &configuration.HookConfig{
 				VariablesSection: configuration.VariablesSection{
 					StaticVariables: map[string]string{
 						"VAR1": "%{{VAR1}}%",
