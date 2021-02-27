@@ -20,22 +20,25 @@ type CommitMessage struct {
 }
 
 func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
-	message := ctx.Message()
+	message, err := ctx.Message()
+	if err != nil {
+		return err
+	}
 
 	if rule.NotEmpty && utils.IsEmpty(message) {
 		return fmt.Errorf("commit message should not be empty")
 	}
 
-	if !utils.IsEmpty(rule.Prefix) && !strings.HasPrefix(ctx.Message(), rule.Prefix) {
+	if !utils.IsEmpty(rule.Prefix) && !strings.HasPrefix(message, rule.Prefix) {
 		return fmt.Errorf("commit message should have prefix '%s'", rule.Prefix)
 	}
 
-	if !utils.IsEmpty(rule.Suffix) && !strings.HasSuffix(ctx.Message(), rule.Suffix) {
+	if !utils.IsEmpty(rule.Suffix) && !strings.HasSuffix(message, rule.Suffix) {
 		return fmt.Errorf("commit message should have suffix '%s'", rule.Suffix)
 	}
 
 	if !utils.IsEmpty(rule.Regexp) {
-		matched, err := regexp.MatchString(rule.Regexp, ctx.Message())
+		matched, err := regexp.MatchString(rule.Regexp, message)
 		if err != nil {
 			return err
 		}

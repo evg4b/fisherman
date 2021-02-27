@@ -26,7 +26,7 @@ func TestCommitMessage_NotEmpty(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
 				NotEmpty: tt.notEmpty,
@@ -60,7 +60,7 @@ func TestCommitMessage_HasPrefix(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
 				Prefix: tt.prefix,
@@ -94,7 +94,7 @@ func TestCommitMessage_HasSuffix(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
 				Suffix: tt.suffix,
@@ -127,7 +127,7 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message)
+			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
 				Regexp: tt.expression,

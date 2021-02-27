@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"io/ioutil"
 	"testing"
 
@@ -93,22 +95,54 @@ func TestContext_Output(t *testing.T) {
 }
 
 func TestContext_Message(t *testing.T) {
-	expectedMessage := "MESSAGE"
-	fs := mocks.NewFileSystemMock(t).
-		ReadMock.When("filepath").Then(expectedMessage, nil)
+	tests := []struct {
+		name        string
+		fs          infrastructure.FileSystem
+		expected    string
+		expectedErr string
+		args        []string
+	}{
+		{
+			name: "return message from file",
+			fs: mocks.NewFileSystemMock(t).
+				ReadMock.When("filepath").Then("expectedMessage", nil),
+			expected:    "expectedMessage",
+			expectedErr: "",
+			args:        []string{"filepath"},
+		},
+		{
+			name:        "return message from file2",
+			fs:          mocks.NewFileSystemMock(t),
+			expected:    "",
+			expectedErr: "argument at index 0 is not provided",
+			args:        []string{},
+		},
+		{
+			name: "return message from file",
+			fs: mocks.NewFileSystemMock(t).
+				ReadMock.When("filepath").Then("", errors.New("test error")),
+			expected:    "",
+			expectedErr: "test error",
+			args:        []string{"filepath"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := internal.NewInternalContext(
+				context.TODO(),
+				tt.fs,
+				mocks.NewShellMock(t),
+				mocks.NewRepositoryMock(t),
+				tt.args,
+				ioutil.Discard,
+			)
 
-	ctx := internal.NewInternalContext(
-		context.TODO(),
-		fs,
-		mocks.NewShellMock(t),
-		mocks.NewRepositoryMock(t),
-		[]string{"filepath"},
-		ioutil.Discard,
-	)
+			actual, err := ctx.Message()
 
-	actual := ctx.Message()
-
-	assert.Equal(t, expectedMessage, actual)
+			assert.Equal(t, tt.expected, actual)
+			testutils.CheckError(t, tt.expectedErr, err)
+		})
+	}
 }
 
 func TestContext_Message_Multiple(t *testing.T) {
@@ -126,28 +160,13 @@ func TestContext_Message_Multiple(t *testing.T) {
 	)
 
 	for i := 0; i < 3; i++ {
-		actual := ctx.Message()
+		actual, err := ctx.Message()
 
+		assert.NoError(t, err)
 		assert.Equal(t, expectedMessage, actual)
 	}
 
 	assert.Equal(t, 1, len(fs.ReadMock.Calls()))
-}
-
-func TestContext_Message_ErrorReading(t *testing.T) {
-	ctx := internal.NewInternalContext(
-		context.TODO(),
-		mocks.NewFileSystemMock(t).
-			ReadMock.Expect("filepath").Return("", errors.New("test")),
-		mocks.NewShellMock(t),
-		mocks.NewRepositoryMock(t),
-		[]string{"filepath"},
-		ioutil.Discard,
-	)
-
-	assert.Panics(t, func() {
-		ctx.Message()
-	})
 }
 
 func TestContext_Stop(t *testing.T) {

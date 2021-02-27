@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fisherman/infrastructure"
+	"fmt"
 	"io"
 	"time"
 )
@@ -80,16 +81,29 @@ func (ctx *Context) Value(key interface{}) interface{} {
 	return ctx.baseContext.Value(key)
 }
 
-func (ctx *Context) Message() string {
+func (ctx *Context) Message() (string, error) {
 	if !ctx.commitmessageLoaded {
-		message, err := ctx.fileSystem.Read(ctx.args[0])
+		messageFilePath, err := ctx.arg(0)
 		if err != nil {
-			panic(err)
+			return "", err
+		}
+
+		message, err := ctx.fileSystem.Read(messageFilePath)
+		if err != nil {
+			return "", err
 		}
 
 		ctx.commitMessage = message
 		ctx.commitmessageLoaded = true
 	}
 
-	return ctx.commitMessage
+	return ctx.commitMessage, nil
+}
+
+func (ctx *Context) arg(index int) (string, error) {
+	if ctx.args == nil || len(ctx.args) <= index {
+		return "", fmt.Errorf("argument at index %b is not provided", index)
+	}
+
+	return ctx.args[index], nil
 }

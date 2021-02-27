@@ -50,7 +50,7 @@ type ExecutionContextMock struct {
 	beforeFilesCounter uint64
 	FilesMock          mExecutionContextMockFiles
 
-	funcMessage          func() (s1 string)
+	funcMessage          func() (s1 string, err error)
 	inspectFuncMessage   func()
 	afterMessageCounter  uint64
 	beforeMessageCounter uint64
@@ -856,7 +856,8 @@ type ExecutionContextMockMessageExpectation struct {
 
 // ExecutionContextMockMessageResults contains results of the ExecutionContext.Message
 type ExecutionContextMockMessageResults struct {
-	s1 string
+	s1  string
+	err error
 }
 
 // Expect sets up expected params for ExecutionContext.Message
@@ -884,7 +885,7 @@ func (mmMessage *mExecutionContextMockMessage) Inspect(f func()) *mExecutionCont
 }
 
 // Return sets up results that will be returned by ExecutionContext.Message
-func (mmMessage *mExecutionContextMockMessage) Return(s1 string) *ExecutionContextMock {
+func (mmMessage *mExecutionContextMockMessage) Return(s1 string, err error) *ExecutionContextMock {
 	if mmMessage.mock.funcMessage != nil {
 		mmMessage.mock.t.Fatalf("ExecutionContextMock.Message mock is already set by Set")
 	}
@@ -892,12 +893,12 @@ func (mmMessage *mExecutionContextMockMessage) Return(s1 string) *ExecutionConte
 	if mmMessage.defaultExpectation == nil {
 		mmMessage.defaultExpectation = &ExecutionContextMockMessageExpectation{mock: mmMessage.mock}
 	}
-	mmMessage.defaultExpectation.results = &ExecutionContextMockMessageResults{s1}
+	mmMessage.defaultExpectation.results = &ExecutionContextMockMessageResults{s1, err}
 	return mmMessage.mock
 }
 
 //Set uses given function f to mock the ExecutionContext.Message method
-func (mmMessage *mExecutionContextMockMessage) Set(f func() (s1 string)) *ExecutionContextMock {
+func (mmMessage *mExecutionContextMockMessage) Set(f func() (s1 string, err error)) *ExecutionContextMock {
 	if mmMessage.defaultExpectation != nil {
 		mmMessage.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Message method")
 	}
@@ -911,7 +912,7 @@ func (mmMessage *mExecutionContextMockMessage) Set(f func() (s1 string)) *Execut
 }
 
 // Message implements internal.ExecutionContext
-func (mmMessage *ExecutionContextMock) Message() (s1 string) {
+func (mmMessage *ExecutionContextMock) Message() (s1 string, err error) {
 	mm_atomic.AddUint64(&mmMessage.beforeMessageCounter, 1)
 	defer mm_atomic.AddUint64(&mmMessage.afterMessageCounter, 1)
 
@@ -926,7 +927,7 @@ func (mmMessage *ExecutionContextMock) Message() (s1 string) {
 		if mm_results == nil {
 			mmMessage.t.Fatal("No results are set for the ExecutionContextMock.Message")
 		}
-		return (*mm_results).s1
+		return (*mm_results).s1, (*mm_results).err
 	}
 	if mmMessage.funcMessage != nil {
 		return mmMessage.funcMessage()

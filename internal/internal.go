@@ -15,7 +15,7 @@ type ExecutionContext interface {
 	Repository() infrastructure.Repository
 	Args() []string
 	Output() io.Writer
-	Message() string
+	Message() (string, error)
 	Stop()
 }
 
