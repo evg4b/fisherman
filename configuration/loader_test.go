@@ -33,20 +33,6 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name: "no config files",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(false).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(false).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(false).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(false).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
-			expectedErr: errors.New("no configuration found"),
-		},
-		{
 			name: "mere then one config file",
 			loader: configuration.NewLoader(
 				&usr,

@@ -1,7 +1,6 @@
 package configuration
 
 import (
-	"errors"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
@@ -49,10 +48,6 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 		if len(files) == 1 {
 			configs[mode] = files[0]
 		}
-	}
-
-	if len(configs) == 0 {
-		return configs, errors.New("no configuration found")
 	}
 
 	return configs, nil
