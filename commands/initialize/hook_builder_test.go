@@ -12,6 +12,7 @@ func TestBuildHook(t *testing.T) {
 	testData := []struct {
 		hookName     string
 		binaryPath   string
+		absolute     bool
 		expectedHook string
 	}{
 		{
@@ -22,6 +23,7 @@ func TestBuildHook(t *testing.T) {
 				"# This is fisherman hook handler. Please DO NOT touch this file.",
 				"fisherman handle --hook applypatch-msg $@",
 			}, LineBreak),
+			absolute: false,
 		},
 		{
 			hookName:   "pre-commit",
@@ -29,8 +31,9 @@ func TestBuildHook(t *testing.T) {
 			expectedHook: strings.Join([]string{
 				"#!/bin/sh",
 				"# This is fisherman hook handler. Please DO NOT touch this file.",
-				"/bin/usr/fisherman handle --hook pre-commit $@",
+				"'/bin/usr/fisherman' handle --hook pre-commit $@",
 			}, LineBreak),
+			absolute: true,
 		},
 		{
 			hookName:   "pre-push",
@@ -38,14 +41,15 @@ func TestBuildHook(t *testing.T) {
 			expectedHook: strings.Join([]string{
 				"#!/bin/sh",
 				"# This is fisherman hook handler. Please DO NOT touch this file.",
-				"C:\\\\bin\\\\usr\\\\fisherman.exe handle --hook pre-push $@",
+				"'C:\\\\bin\\\\usr\\\\fisherman.exe' handle --hook pre-push $@",
 			}, LineBreak),
+			absolute: true,
 		},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Build %s hook", tt.hookName), func(t *testing.T) {
-			result := buildHook(tt.binaryPath, tt.hookName)
+			result := buildHook(tt.hookName, tt.binaryPath, tt.absolute)
 			assert.Equal(t, result, tt.expectedHook)
 		})
 	}

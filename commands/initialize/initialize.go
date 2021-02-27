@@ -75,12 +75,12 @@ func (command *Command) Run() error {
 
 	bin := command.app.Executable
 	if !command.absolute {
-		bin = utils.NormalizePath(bin)
+		bin, command.absolute = utils.NormalizePath(bin)
 	}
 
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
-		err := command.files.Write(hookPath, buildHook(bin, hookName))
+		err := command.files.Write(hookPath, buildHook(hookName, bin, command.absolute))
 		if err != nil {
 			return err
 		}

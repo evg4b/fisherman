@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-func NormalizePath(binary string) string {
+func NormalizePath(binary string) (string, bool) {
 	base := filepath.Base(binary)
 	path, err := exec.LookPath(base)
 	if err != nil || IsEmpty(path) {
-		return binary
+		return binary, true
 	}
 
-	return base
+	return base, false
 }
 
 func ExecWithTime(runFunction func() error) (time.Duration, error) {
