@@ -75,6 +75,7 @@ func NewFactory(engine expression.Engine, config configuration.HooksConfig) *Git
 			[]string{
 				rules.ShellScriptType,
 				rules.AddToIndexType,
+				rules.CommitMessageType,
 			},
 		),
 		constants.PrePushHook: factory.configureHook(
