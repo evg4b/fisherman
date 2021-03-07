@@ -5,6 +5,7 @@ title: pre-push
 The `pre-push` hook runs during git push, after the remote refs have been updated but before any objects have been transferred. It receives the name and location of the remote as parameters, and a list of to-be-updated refs through stdin. You can use it to validate a set of ref updates before a push occurs.
 
 ## Structure of configuration section
+
 ```yaml
 pre-push:
   variables:
@@ -18,11 +19,12 @@ pre-push:
       - command4
 ```
 
-## Configurations rules:
+## Configurations rules
 
-### variables:
+### variables
+
 This section is common variables section without additional params. See more information [here](./../variables.md).
 
-### shell:
+### shell
 
 Section with [shell scripts](../shell-script.md) for validation. When script finished with non zero code then push will be rejected and other scrips canceled.

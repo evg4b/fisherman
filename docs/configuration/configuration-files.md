@@ -5,8 +5,8 @@ title: Configuration files
 
 Fisherman supports very flexible configuration. All its configuration is contained in `.fisherman.yml` file.
 
+## Complete configuration file structure
 
-## Complete configuration file structure:
 ```yaml
 variables:
   name: value
@@ -29,7 +29,9 @@ output:
   level: enum
   colors: boolean
 ```
+
 ## Configuration file inheritance
+
 Fisherman supports inheritance of configuration files with different visibility levels.
 At the moment, there are 3 places where fisherman is looking for configuration files.
 
@@ -47,6 +49,7 @@ At the moment, there are 3 places where fisherman is looking for configuration f
   file or without configuring files in the repository.
 
 The loaded configuration files and the path to them you can find in the header of hook handler.
+
 ```
            .d8d.  |
           d88888b | Hook: commit-msg-hook

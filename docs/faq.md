@@ -4,7 +4,8 @@ title: FAQ
 slug: /faq
 ---
 
-## I want check commit prefix based on current brach name:
+## I want check commit prefix based on current brach name
+
 Can be used to check that message starts with issue number.
 
 ```yaml

@@ -33,5 +33,3 @@ This command print fisherman version on screen. Is has no params
 ```bash
 fisherman version
 ```
-
-

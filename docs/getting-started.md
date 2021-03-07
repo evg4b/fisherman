@@ -4,13 +4,16 @@ title: Getting started
 slug: /getting-started
 ---
 ## Install
+
 Fisherman currently offers only two installation methods. Check out the available methods below.
 
 ### Get the binary
+
 You can download the binary from [the releases page on GitHub](https://github.com/evg4b/fisherman/releases)
 and add to your $PATH. The fisherman_checksums.txt file contains the SHA-256 checksum for each file.
 
 ### Build from source
+
 First, make sure you have Go properly installed and setup. Fisherman requires Go Modules.
 Installing in another directory:
 
@@ -29,6 +32,7 @@ go build -v -ldflags="-s -w -X fisherman/constants.Version=<version>"
 ```
 
 ## Initialize fisherman
+
 Go to your repository's directory and run `init` command
 
 ```bash
@@ -45,6 +49,7 @@ fisherman init --force
 ```
 
 ## Create configuration
+
 Fisherman created a file called `.fisherman.yml` in the root of your repository.
 The hooks selection should contain the configuration of hooks actions.
 The example below checks that the commit message starts with `[fisherman]`.
@@ -63,6 +68,7 @@ The config file must be named `.fisherman.yml` (NOT `.fisherman.yaml`).
 :::
 
 ## Commit changes
+
 Make your first commit under the supervision of a fisherman.
 
 ```bash

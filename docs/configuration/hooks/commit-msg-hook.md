@@ -20,10 +20,12 @@ commit-msg:
 
 ## Configurations rules
 
-### variables:
+### variables
+
 This section is common variables section without additional params. See more information [here](./../variables.md).
 
-### static-message:
+### static-message
+
 This is template. Users commit message will be replaced by a compilation result of this field.
 
 :::caution
@@ -34,17 +36,21 @@ When this parament is set other validation rules will be skipped.
 When you commit with the `--no-verify` flag this action will not work.
 :::
 
-## Validation rules:
+## Validation rules
 
-### commit-regexp:
+### commit-regexp
+
 The regular expression to validation commit messuage.
 
-### commit-prefix:
+### commit-prefix
+
 The template with which the message should start.
 
-### commit-suffix:
+### commit-suffix
+
 The template with which the message should end.
 
-### not-empty:
+### not-empty
+
 This boolean value indicates whether a commit with an empty message is not allowed.
 Can be used to prevent commit with `--allow-empty-message` flag.

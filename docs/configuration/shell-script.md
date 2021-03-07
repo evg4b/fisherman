@@ -19,6 +19,7 @@ script-name:
     VAR2: VALUE2
   output: true
 ```
+
 You can create as many scripts to validation. Scripts will be executed on the [shell for your system](#shell-for-system).
 
 ### commands
