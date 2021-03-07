@@ -35,9 +35,7 @@ func TestCommand_Run(t *testing.T) {
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
 		},
-		&user.User{
-			HomeDir: filepath.Join("usr", "home"),
-		},
+		&testutils.TestUser,
 	)
 	err := command.Init([]string{})
 	assert.NoError(t, err)
@@ -94,7 +92,7 @@ func TestCommand_Name(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
 		&internal.AppInfo{},
-		&user.User{},
+		&testutils.TestUser,
 	)
 
 	assert.Equal(t, "remove", command.Name())
@@ -104,7 +102,7 @@ func TestCommand_Description(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
 		&internal.AppInfo{},
-		&user.User{},
+		&testutils.TestUser,
 	)
 
 	assert.NotEmpty(t, command.Description())
