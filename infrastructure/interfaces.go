@@ -5,7 +5,9 @@ import (
 	"fisherman/infrastructure/shell"
 	"io"
 	"os"
-	"os/user"
+	"time"
+
+	"github.com/spf13/afero"
 )
 
 type User struct {
@@ -23,13 +25,19 @@ type Repository interface {
 }
 
 type FileSystem interface {
-	Write(path, content string) error
-	Read(path string) (string, error)
-	Reader(path string) (io.ReadCloser, error)
-	Exist(path string) bool
-	Delete(path string) error
-	Chmod(path string, mode os.FileMode) error
-	Chown(name string, user *user.User) error
+	Chmod(name string, mode os.FileMode) error
+	Chown(name string, uid, gid int) error
+	Chtimes(name string, atime time.Time, mtime time.Time) error
+	Create(name string) (afero.File, error)
+	Mkdir(name string, perm os.FileMode) error
+	MkdirAll(path string, perm os.FileMode) error
+	Name() string
+	Open(name string) (afero.File, error)
+	OpenFile(name string, flag int, perm os.FileMode) (afero.File, error)
+	Remove(name string) error
+	RemoveAll(path string) error
+	Rename(oldname, newname string) error
+	Stat(name string) (os.FileInfo, error)
 }
 
 type Shell interface {

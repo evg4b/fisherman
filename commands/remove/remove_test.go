@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fisherman/commands/remove"
 	"fisherman/configuration"
-	"fisherman/constants"
+	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"io/ioutil"
 	"os/user"
 	"path/filepath"
@@ -21,11 +22,15 @@ func init() {
 }
 
 func TestCommand_Run(t *testing.T) {
+	fs := testutils.FsFromMap(t, map[string]string{
+		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
+		filepath.Join("usr", "home", ".fisherman.yaml"):             "content",
+		filepath.Join("usr", "home", ".git", "hooks", "commit-msg"): "content",
+		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
+	})
+
 	command := remove.NewCommand(
-		makeFakeFS(t).
-			DeleteMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(nil).
-			ExistMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(true).
-			ExistMock.When(filepath.Join("usr", "home", ".fisherman.yaml")).Then(true),
+		fs,
 		&internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
@@ -42,25 +47,47 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Run_WithError(t *testing.T) {
-	expectedError := errors.New("Test error")
-	c := remove.NewCommand(
-		makeFakeFS(t).DeleteMock.Expect(filepath.Join("usr", "home", ".fisherman.yml")).Return(expectedError),
-		&internal.AppInfo{
-			Cwd:        filepath.Join("usr", "home"),
-			Executable: filepath.Join("bin", "fisherman.exe"),
-			Configs: map[string]string{
-				configuration.GlobalMode: filepath.Join("usr", "home", ".fisherman.yml"),
-			},
+	appInfo := internal.AppInfo{
+		Cwd:        filepath.Join("usr", "home"),
+		Executable: filepath.Join("bin", "fisherman.exe"),
+		Configs: map[string]string{
+			configuration.GlobalMode: filepath.Join("usr", "home", ".fisherman.yml"),
 		},
-		&user.User{
-			HomeDir: filepath.Join("usr", "home"),
-		},
-	)
-	err := c.Init([]string{})
-	assert.NoError(t, err)
+	}
 
-	err = c.Run()
-	assert.Equal(t, err, expectedError)
+	tests := []struct {
+		name          string
+		files         infrastructure.FileSystem
+		expectedError string
+	}{
+		{
+			name:          "exist errors",
+			files:         mocks.NewFileSystemMock(t).StatMock.Return(nil, errors.New("Test error")),
+			expectedError: "Test error",
+		},
+		{
+			name: "delete error",
+			files: mocks.NewFileSystemMock(t).
+				StatMock.Return(nil, nil).
+				RemoveMock.Return(errors.New("delete error")),
+			expectedError: "delete error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := remove.NewCommand(tt.files, &appInfo, &user.User{
+				HomeDir: filepath.Join("usr", "home"),
+			})
+
+			err := c.Init([]string{})
+			assert.NoError(t, err)
+
+			err = c.Run()
+
+			testutils.CheckError(t, tt.expectedError, err)
+		})
+	}
 }
 
 func TestCommand_Name(t *testing.T) {
@@ -81,16 +108,4 @@ func TestCommand_Description(t *testing.T) {
 	)
 
 	assert.NotEmpty(t, command.Description())
-}
-
-func makeFakeFS(t *testing.T) *mocks.FileSystemMock {
-	mock := mocks.NewFileSystemMock(t)
-	for _, name := range constants.HooksNames {
-		mock.ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", name)).Then(false)
-	}
-
-	return mock.
-		ExistMock.When(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Then(true).
-		ExistMock.When(filepath.Join("usr", "home", ".fisherman.yml")).Then(true).
-		DeleteMock.Expect(filepath.Join("usr", "home", ".git", "hooks", "commit-msg")).Return(nil)
 }

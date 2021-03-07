@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/spf13/afero"
 )
 
 type Command struct {
@@ -61,7 +62,12 @@ func (command *Command) Run() error {
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
 			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
-			if command.files.Exist(hookPath) {
+			exist, err := afero.Exists(command.files, hookPath)
+			if err != nil {
+				return err
+			}
+
+			if exist {
 				log.Debugf("Hook '%s' already exist", hookName)
 				result = multierror.Append(result, fmt.Errorf("file %s already exists", hookPath))
 			}
@@ -80,7 +86,8 @@ func (command *Command) Run() error {
 
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
-		err := command.files.Write(hookPath, buildHook(hookName, bin, command.absolute))
+
+		err := afero.WriteFile(command.files, hookPath, buildHook(hookName, bin, command.absolute), os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -94,7 +101,7 @@ func (command *Command) Run() error {
 
 		log.Debugf("Hook file mode changed to %s", fileMode.String())
 
-		err = command.files.Chown(hookPath, command.user)
+		err = command.chown(hookPath, command.user)
 		if err != nil {
 			return err
 		}
@@ -116,8 +123,13 @@ func (command *Command) writeConfig() error {
 	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 
-	if !command.files.Exist(configPath) {
-		err := command.files.Write(configPath, configuration.DefaultConfig)
+	exist, err := afero.Exists(command.files, configPath)
+	if err != nil {
+		return err
+	}
+
+	if !exist {
+		err := afero.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
 		if err != nil {
 			return err
 		}

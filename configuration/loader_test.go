@@ -1,21 +1,18 @@
 package configuration_test
 
 import (
-	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"fmt"
-	"io/ioutil"
 	"os/user"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v3"
 )
 
 func TestConfigLoader_FindConfigFiles(t *testing.T) {
@@ -28,36 +25,27 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		loader      *configuration.ConfigLoader
+		files       []string
 		expected    map[string]string
 		expectedErr error
 	}{
 		{
 			name: "mere then one config file",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(true).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
+			files: []string{
+				filepath.Join(localConfig, constants.AppConfigNames[0]),
+				filepath.Join(localConfig, constants.AppConfigNames[1]),
+				filepath.Join(repoConfig, constants.AppConfigNames[0]),
+				filepath.Join(globalConfig, constants.AppConfigNames[0]),
+			},
 			expectedErr: fmt.Errorf("more then one config file specifies in folder '%s'", localConfig),
 		},
 		{
 			name: "correct files loading",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(localConfig, constants.AppConfigNames[1])).Then(false).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(repoConfig, constants.AppConfigNames[1])).Then(false).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[0])).Then(true).
-					ExistMock.When(filepath.Join(globalConfig, constants.AppConfigNames[1])).Then(false)),
+			files: []string{
+				filepath.Join(localConfig, constants.AppConfigNames[0]),
+				filepath.Join(repoConfig, constants.AppConfigNames[0]),
+				filepath.Join(globalConfig, constants.AppConfigNames[0]),
+			},
 			expected: map[string]string{
 				configuration.LocalMode:  filepath.Join(localConfig, constants.AppConfigNames[0]),
 				configuration.RepoMode:   filepath.Join(repoConfig, constants.AppConfigNames[0]),
@@ -67,7 +55,10 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := tt.loader.FindConfigFiles()
+			var fs = testutils.FsFromSlice(t, tt.files)
+			loaded := configuration.NewLoader(&usr, cwd, fs)
+
+			actual, err := loaded.FindConfigFiles()
 
 			assert.Equal(t, tt.expectedErr, err)
 			if tt.expectedErr == nil {
@@ -150,14 +141,17 @@ hooks:
          - echo '1213123' >> log.txt
          - exit 1`
 
-	reader := ioutil.NopCloser(strings.NewReader(config))
+	fs := testutils.FsFromMap(t, map[string]string{
+		"GlobalConfig":      config,
+		"GlobalConfigError": "asd['",
+	})
 
 	tests := []struct {
 		name        string
 		loader      *configuration.ConfigLoader
 		files       map[string]string
 		expected    *configuration.FishermanConfig
-		expectedErr error
+		expectedErr string
 	}{
 		{
 			name:   "",
@@ -168,22 +162,16 @@ hooks:
 			},
 		},
 		{
-			name: "file reader error",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).ReaderMock.When("GlobalConfig").Then(reader, errors.New("error"))),
+			name:   "file reader error",
+			loader: configuration.NewLoader(&usr, cwd, fs),
 			files: map[string]string{
-				configuration.GlobalMode: "GlobalConfig",
+				configuration.GlobalMode: "GlobalConfig3",
 			},
-			expectedErr: errors.New("error"),
+			expectedErr: "open GlobalConfig3: file does not exist",
 		},
 		{
-			name: "correct decoding",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).ReaderMock.When("GlobalConfig").Then(reader, nil)),
+			name:   "correct decoding",
+			loader: configuration.NewLoader(&usr, cwd, fs),
 			files: map[string]string{
 				configuration.GlobalMode: "GlobalConfig",
 			},
@@ -213,17 +201,12 @@ hooks:
 			},
 		},
 		{
-			name: "decoding error",
-			loader: configuration.NewLoader(
-				&usr,
-				cwd,
-				mocks.NewFileSystemMock(t).ReaderMock.When("GlobalConfig").Then(ioutil.NopCloser(strings.NewReader("asd['")), nil)),
+			name:   "decoding error",
+			loader: configuration.NewLoader(&usr, cwd, fs),
 			files: map[string]string{
-				configuration.GlobalMode: "GlobalConfig",
+				configuration.GlobalMode: "GlobalConfigError",
 			},
-			expectedErr: &yaml.TypeError{
-				Errors: []string{"line 1: cannot unmarshal !!str `asd['` into configuration.FishermanConfig"},
-			},
+			expectedErr: "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `asd['` into configuration.FishermanConfig",
 		},
 	}
 
@@ -231,8 +214,8 @@ hooks:
 		t.Run(tt.name, func(t *testing.T) {
 			actual, err := tt.loader.Load(tt.files)
 
-			assert.Equal(t, tt.expectedErr, err)
-			if tt.expectedErr == nil {
+			testutils.CheckError(t, tt.expectedErr, err)
+			if tt.expectedErr == "" {
 				assert.Equal(t, tt.expected, actual)
 			}
 		})
@@ -243,22 +226,22 @@ func TestConfigLoader_Load_Correct_Merging(t *testing.T) {
 	usr := user.User{HomeDir: filepath.Join("/", "usr", "home")}
 	cwd := filepath.Join("/", "usr", "home", "documents", "repo")
 
-	fs := mocks.NewFileSystemMock(t)
-	fs.ReaderMock.When("global.yaml").Then(ioutil.NopCloser(strings.NewReader(`
+	fs := testutils.FsFromMap(t, map[string]string{
+		"global.yaml": `
 variables:
   var1: global
   var2: global
   var3: global
-  var4: global`)), nil)
-	fs.ReaderMock.When("repo.yaml").Then(ioutil.NopCloser(strings.NewReader(`
+  var4: global`,
+		"repo.yaml": `
 variables:
   var1: repo
-  var2: repo`)), nil)
-	fs.ReaderMock.When("local.yaml").Then(ioutil.NopCloser(strings.NewReader(`
+  var2: repo`,
+		"local.yaml": `
 variables:
   var1: local
-  var3: local
-  `)), nil)
+  var3: local`,
+	})
 
 	loader := configuration.NewLoader(&usr, cwd, fs)
 

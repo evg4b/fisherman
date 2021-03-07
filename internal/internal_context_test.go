@@ -3,8 +3,6 @@ package internal_test
 import (
 	"bytes"
 	"context"
-	"errors"
-	"fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
@@ -97,32 +95,30 @@ func TestContext_Output(t *testing.T) {
 func TestContext_Message(t *testing.T) {
 	tests := []struct {
 		name        string
-		fs          infrastructure.FileSystem
+		files       map[string]string
 		expected    string
 		expectedErr string
 		args        []string
 	}{
 		{
-			name: "return message from file",
-			fs: mocks.NewFileSystemMock(t).
-				ReadMock.When("filepath").Then("expectedMessage", nil),
+			name:        "return message from file",
+			files:       map[string]string{"filepath": "expectedMessage"},
 			expected:    "expectedMessage",
 			expectedErr: "",
 			args:        []string{"filepath"},
 		},
 		{
 			name:        "return message from file2",
-			fs:          mocks.NewFileSystemMock(t),
+			files:       map[string]string{},
 			expected:    "",
 			expectedErr: "argument at index 0 is not provided",
 			args:        []string{},
 		},
 		{
-			name: "return message from file",
-			fs: mocks.NewFileSystemMock(t).
-				ReadMock.When("filepath").Then("", errors.New("test error")),
+			name:        "return message from file",
+			files:       map[string]string{},
 			expected:    "",
-			expectedErr: "test error",
+			expectedErr: "open filepath: file does not exist",
 			args:        []string{"filepath"},
 		},
 	}
@@ -130,7 +126,7 @@ func TestContext_Message(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := internal.NewInternalContext(
 				context.TODO(),
-				tt.fs,
+				testutils.FsFromMap(t, tt.files),
 				mocks.NewShellMock(t),
 				mocks.NewRepositoryMock(t),
 				tt.args,
@@ -143,30 +139,6 @@ func TestContext_Message(t *testing.T) {
 			testutils.CheckError(t, tt.expectedErr, err)
 		})
 	}
-}
-
-func TestContext_Message_Multiple(t *testing.T) {
-	expectedMessage := "MESSAGE"
-	fs := mocks.NewFileSystemMock(t).
-		ReadMock.Expect("filepath").Return(expectedMessage, nil)
-
-	ctx := internal.NewInternalContext(
-		context.TODO(),
-		fs,
-		mocks.NewShellMock(t),
-		mocks.NewRepositoryMock(t),
-		[]string{"filepath"},
-		ioutil.Discard,
-	)
-
-	for i := 0; i < 3; i++ {
-		actual, err := ctx.Message()
-
-		assert.NoError(t, err)
-		assert.Equal(t, expectedMessage, actual)
-	}
-
-	assert.Equal(t, 1, len(fs.ReadMock.Calls()))
 }
 
 func TestContext_Stop(t *testing.T) {

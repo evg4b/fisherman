@@ -11,6 +11,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/imdario/mergo v0.3.11
 	github.com/mitchellh/mapstructure v1.4.0
+	github.com/spf13/afero v1.5.1
 	github.com/stretchr/testify v1.6.1
 	github.com/valyala/fasttemplate v1.2.1
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect

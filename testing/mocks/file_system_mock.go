@@ -5,61 +5,97 @@ package mocks
 //go:generate minimock -i fisherman/infrastructure.FileSystem -o ./testing/mocks/file_system_mock.go
 
 import (
-	"io"
 	"os"
-	"os/user"
 	"sync"
 	mm_atomic "sync/atomic"
+	"time"
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
+	"github.com/spf13/afero"
 )
 
 // FileSystemMock implements infrastructure.FileSystem
 type FileSystemMock struct {
 	t minimock.Tester
 
-	funcChmod          func(path string, mode os.FileMode) (err error)
-	inspectFuncChmod   func(path string, mode os.FileMode)
+	funcChmod          func(name string, mode os.FileMode) (err error)
+	inspectFuncChmod   func(name string, mode os.FileMode)
 	afterChmodCounter  uint64
 	beforeChmodCounter uint64
 	ChmodMock          mFileSystemMockChmod
 
-	funcChown          func(name string, user *user.User) (err error)
-	inspectFuncChown   func(name string, user *user.User)
+	funcChown          func(name string, uid int, gid int) (err error)
+	inspectFuncChown   func(name string, uid int, gid int)
 	afterChownCounter  uint64
 	beforeChownCounter uint64
 	ChownMock          mFileSystemMockChown
 
-	funcDelete          func(path string) (err error)
-	inspectFuncDelete   func(path string)
-	afterDeleteCounter  uint64
-	beforeDeleteCounter uint64
-	DeleteMock          mFileSystemMockDelete
+	funcChtimes          func(name string, atime time.Time, mtime time.Time) (err error)
+	inspectFuncChtimes   func(name string, atime time.Time, mtime time.Time)
+	afterChtimesCounter  uint64
+	beforeChtimesCounter uint64
+	ChtimesMock          mFileSystemMockChtimes
 
-	funcExist          func(path string) (b1 bool)
-	inspectFuncExist   func(path string)
-	afterExistCounter  uint64
-	beforeExistCounter uint64
-	ExistMock          mFileSystemMockExist
+	funcCreate          func(name string) (f1 afero.File, err error)
+	inspectFuncCreate   func(name string)
+	afterCreateCounter  uint64
+	beforeCreateCounter uint64
+	CreateMock          mFileSystemMockCreate
 
-	funcRead          func(path string) (s1 string, err error)
-	inspectFuncRead   func(path string)
-	afterReadCounter  uint64
-	beforeReadCounter uint64
-	ReadMock          mFileSystemMockRead
+	funcMkdir          func(name string, perm os.FileMode) (err error)
+	inspectFuncMkdir   func(name string, perm os.FileMode)
+	afterMkdirCounter  uint64
+	beforeMkdirCounter uint64
+	MkdirMock          mFileSystemMockMkdir
 
-	funcReader          func(path string) (r1 io.ReadCloser, err error)
-	inspectFuncReader   func(path string)
-	afterReaderCounter  uint64
-	beforeReaderCounter uint64
-	ReaderMock          mFileSystemMockReader
+	funcMkdirAll          func(path string, perm os.FileMode) (err error)
+	inspectFuncMkdirAll   func(path string, perm os.FileMode)
+	afterMkdirAllCounter  uint64
+	beforeMkdirAllCounter uint64
+	MkdirAllMock          mFileSystemMockMkdirAll
 
-	funcWrite          func(path string, content string) (err error)
-	inspectFuncWrite   func(path string, content string)
-	afterWriteCounter  uint64
-	beforeWriteCounter uint64
-	WriteMock          mFileSystemMockWrite
+	funcName          func() (s1 string)
+	inspectFuncName   func()
+	afterNameCounter  uint64
+	beforeNameCounter uint64
+	NameMock          mFileSystemMockName
+
+	funcOpen          func(name string) (f1 afero.File, err error)
+	inspectFuncOpen   func(name string)
+	afterOpenCounter  uint64
+	beforeOpenCounter uint64
+	OpenMock          mFileSystemMockOpen
+
+	funcOpenFile          func(name string, flag int, perm os.FileMode) (f1 afero.File, err error)
+	inspectFuncOpenFile   func(name string, flag int, perm os.FileMode)
+	afterOpenFileCounter  uint64
+	beforeOpenFileCounter uint64
+	OpenFileMock          mFileSystemMockOpenFile
+
+	funcRemove          func(name string) (err error)
+	inspectFuncRemove   func(name string)
+	afterRemoveCounter  uint64
+	beforeRemoveCounter uint64
+	RemoveMock          mFileSystemMockRemove
+
+	funcRemoveAll          func(path string) (err error)
+	inspectFuncRemoveAll   func(path string)
+	afterRemoveAllCounter  uint64
+	beforeRemoveAllCounter uint64
+	RemoveAllMock          mFileSystemMockRemoveAll
+
+	funcRename          func(oldname string, newname string) (err error)
+	inspectFuncRename   func(oldname string, newname string)
+	afterRenameCounter  uint64
+	beforeRenameCounter uint64
+	RenameMock          mFileSystemMockRename
+
+	funcStat          func(name string) (f1 os.FileInfo, err error)
+	inspectFuncStat   func(name string)
+	afterStatCounter  uint64
+	beforeStatCounter uint64
+	StatMock          mFileSystemMockStat
 }
 
 // NewFileSystemMock returns a mock for infrastructure.FileSystem
@@ -75,20 +111,37 @@ func NewFileSystemMock(t minimock.Tester) *FileSystemMock {
 	m.ChownMock = mFileSystemMockChown{mock: m}
 	m.ChownMock.callArgs = []*FileSystemMockChownParams{}
 
-	m.DeleteMock = mFileSystemMockDelete{mock: m}
-	m.DeleteMock.callArgs = []*FileSystemMockDeleteParams{}
+	m.ChtimesMock = mFileSystemMockChtimes{mock: m}
+	m.ChtimesMock.callArgs = []*FileSystemMockChtimesParams{}
 
-	m.ExistMock = mFileSystemMockExist{mock: m}
-	m.ExistMock.callArgs = []*FileSystemMockExistParams{}
+	m.CreateMock = mFileSystemMockCreate{mock: m}
+	m.CreateMock.callArgs = []*FileSystemMockCreateParams{}
 
-	m.ReadMock = mFileSystemMockRead{mock: m}
-	m.ReadMock.callArgs = []*FileSystemMockReadParams{}
+	m.MkdirMock = mFileSystemMockMkdir{mock: m}
+	m.MkdirMock.callArgs = []*FileSystemMockMkdirParams{}
 
-	m.ReaderMock = mFileSystemMockReader{mock: m}
-	m.ReaderMock.callArgs = []*FileSystemMockReaderParams{}
+	m.MkdirAllMock = mFileSystemMockMkdirAll{mock: m}
+	m.MkdirAllMock.callArgs = []*FileSystemMockMkdirAllParams{}
 
-	m.WriteMock = mFileSystemMockWrite{mock: m}
-	m.WriteMock.callArgs = []*FileSystemMockWriteParams{}
+	m.NameMock = mFileSystemMockName{mock: m}
+
+	m.OpenMock = mFileSystemMockOpen{mock: m}
+	m.OpenMock.callArgs = []*FileSystemMockOpenParams{}
+
+	m.OpenFileMock = mFileSystemMockOpenFile{mock: m}
+	m.OpenFileMock.callArgs = []*FileSystemMockOpenFileParams{}
+
+	m.RemoveMock = mFileSystemMockRemove{mock: m}
+	m.RemoveMock.callArgs = []*FileSystemMockRemoveParams{}
+
+	m.RemoveAllMock = mFileSystemMockRemoveAll{mock: m}
+	m.RemoveAllMock.callArgs = []*FileSystemMockRemoveAllParams{}
+
+	m.RenameMock = mFileSystemMockRename{mock: m}
+	m.RenameMock.callArgs = []*FileSystemMockRenameParams{}
+
+	m.StatMock = mFileSystemMockStat{mock: m}
+	m.StatMock.callArgs = []*FileSystemMockStatParams{}
 
 	return m
 }
@@ -112,7 +165,7 @@ type FileSystemMockChmodExpectation struct {
 
 // FileSystemMockChmodParams contains parameters of the FileSystem.Chmod
 type FileSystemMockChmodParams struct {
-	path string
+	name string
 	mode os.FileMode
 }
 
@@ -122,7 +175,7 @@ type FileSystemMockChmodResults struct {
 }
 
 // Expect sets up expected params for FileSystem.Chmod
-func (mmChmod *mFileSystemMockChmod) Expect(path string, mode os.FileMode) *mFileSystemMockChmod {
+func (mmChmod *mFileSystemMockChmod) Expect(name string, mode os.FileMode) *mFileSystemMockChmod {
 	if mmChmod.mock.funcChmod != nil {
 		mmChmod.mock.t.Fatalf("FileSystemMock.Chmod mock is already set by Set")
 	}
@@ -131,7 +184,7 @@ func (mmChmod *mFileSystemMockChmod) Expect(path string, mode os.FileMode) *mFil
 		mmChmod.defaultExpectation = &FileSystemMockChmodExpectation{}
 	}
 
-	mmChmod.defaultExpectation.params = &FileSystemMockChmodParams{path, mode}
+	mmChmod.defaultExpectation.params = &FileSystemMockChmodParams{name, mode}
 	for _, e := range mmChmod.expectations {
 		if minimock.Equal(e.params, mmChmod.defaultExpectation.params) {
 			mmChmod.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmChmod.defaultExpectation.params)
@@ -142,7 +195,7 @@ func (mmChmod *mFileSystemMockChmod) Expect(path string, mode os.FileMode) *mFil
 }
 
 // Inspect accepts an inspector function that has same arguments as the FileSystem.Chmod
-func (mmChmod *mFileSystemMockChmod) Inspect(f func(path string, mode os.FileMode)) *mFileSystemMockChmod {
+func (mmChmod *mFileSystemMockChmod) Inspect(f func(name string, mode os.FileMode)) *mFileSystemMockChmod {
 	if mmChmod.mock.inspectFuncChmod != nil {
 		mmChmod.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Chmod")
 	}
@@ -166,7 +219,7 @@ func (mmChmod *mFileSystemMockChmod) Return(err error) *FileSystemMock {
 }
 
 //Set uses given function f to mock the FileSystem.Chmod method
-func (mmChmod *mFileSystemMockChmod) Set(f func(path string, mode os.FileMode) (err error)) *FileSystemMock {
+func (mmChmod *mFileSystemMockChmod) Set(f func(name string, mode os.FileMode) (err error)) *FileSystemMock {
 	if mmChmod.defaultExpectation != nil {
 		mmChmod.mock.t.Fatalf("Default expectation is already set for the FileSystem.Chmod method")
 	}
@@ -181,14 +234,14 @@ func (mmChmod *mFileSystemMockChmod) Set(f func(path string, mode os.FileMode) (
 
 // When sets expectation for the FileSystem.Chmod which will trigger the result defined by the following
 // Then helper
-func (mmChmod *mFileSystemMockChmod) When(path string, mode os.FileMode) *FileSystemMockChmodExpectation {
+func (mmChmod *mFileSystemMockChmod) When(name string, mode os.FileMode) *FileSystemMockChmodExpectation {
 	if mmChmod.mock.funcChmod != nil {
 		mmChmod.mock.t.Fatalf("FileSystemMock.Chmod mock is already set by Set")
 	}
 
 	expectation := &FileSystemMockChmodExpectation{
 		mock:   mmChmod.mock,
-		params: &FileSystemMockChmodParams{path, mode},
+		params: &FileSystemMockChmodParams{name, mode},
 	}
 	mmChmod.expectations = append(mmChmod.expectations, expectation)
 	return expectation
@@ -201,15 +254,15 @@ func (e *FileSystemMockChmodExpectation) Then(err error) *FileSystemMock {
 }
 
 // Chmod implements infrastructure.FileSystem
-func (mmChmod *FileSystemMock) Chmod(path string, mode os.FileMode) (err error) {
+func (mmChmod *FileSystemMock) Chmod(name string, mode os.FileMode) (err error) {
 	mm_atomic.AddUint64(&mmChmod.beforeChmodCounter, 1)
 	defer mm_atomic.AddUint64(&mmChmod.afterChmodCounter, 1)
 
 	if mmChmod.inspectFuncChmod != nil {
-		mmChmod.inspectFuncChmod(path, mode)
+		mmChmod.inspectFuncChmod(name, mode)
 	}
 
-	mm_params := &FileSystemMockChmodParams{path, mode}
+	mm_params := &FileSystemMockChmodParams{name, mode}
 
 	// Record call args
 	mmChmod.ChmodMock.mutex.Lock()
@@ -226,7 +279,7 @@ func (mmChmod *FileSystemMock) Chmod(path string, mode os.FileMode) (err error) 
 	if mmChmod.ChmodMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmChmod.ChmodMock.defaultExpectation.Counter, 1)
 		mm_want := mmChmod.ChmodMock.defaultExpectation.params
-		mm_got := FileSystemMockChmodParams{path, mode}
+		mm_got := FileSystemMockChmodParams{name, mode}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmChmod.t.Errorf("FileSystemMock.Chmod got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -238,9 +291,9 @@ func (mmChmod *FileSystemMock) Chmod(path string, mode os.FileMode) (err error) 
 		return (*mm_results).err
 	}
 	if mmChmod.funcChmod != nil {
-		return mmChmod.funcChmod(path, mode)
+		return mmChmod.funcChmod(name, mode)
 	}
-	mmChmod.t.Fatalf("Unexpected call to FileSystemMock.Chmod. %v %v", path, mode)
+	mmChmod.t.Fatalf("Unexpected call to FileSystemMock.Chmod. %v %v", name, mode)
 	return
 }
 
@@ -329,7 +382,8 @@ type FileSystemMockChownExpectation struct {
 // FileSystemMockChownParams contains parameters of the FileSystem.Chown
 type FileSystemMockChownParams struct {
 	name string
-	user *user.User
+	uid  int
+	gid  int
 }
 
 // FileSystemMockChownResults contains results of the FileSystem.Chown
@@ -338,7 +392,7 @@ type FileSystemMockChownResults struct {
 }
 
 // Expect sets up expected params for FileSystem.Chown
-func (mmChown *mFileSystemMockChown) Expect(name string, user *user.User) *mFileSystemMockChown {
+func (mmChown *mFileSystemMockChown) Expect(name string, uid int, gid int) *mFileSystemMockChown {
 	if mmChown.mock.funcChown != nil {
 		mmChown.mock.t.Fatalf("FileSystemMock.Chown mock is already set by Set")
 	}
@@ -347,7 +401,7 @@ func (mmChown *mFileSystemMockChown) Expect(name string, user *user.User) *mFile
 		mmChown.defaultExpectation = &FileSystemMockChownExpectation{}
 	}
 
-	mmChown.defaultExpectation.params = &FileSystemMockChownParams{name, user}
+	mmChown.defaultExpectation.params = &FileSystemMockChownParams{name, uid, gid}
 	for _, e := range mmChown.expectations {
 		if minimock.Equal(e.params, mmChown.defaultExpectation.params) {
 			mmChown.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmChown.defaultExpectation.params)
@@ -358,7 +412,7 @@ func (mmChown *mFileSystemMockChown) Expect(name string, user *user.User) *mFile
 }
 
 // Inspect accepts an inspector function that has same arguments as the FileSystem.Chown
-func (mmChown *mFileSystemMockChown) Inspect(f func(name string, user *user.User)) *mFileSystemMockChown {
+func (mmChown *mFileSystemMockChown) Inspect(f func(name string, uid int, gid int)) *mFileSystemMockChown {
 	if mmChown.mock.inspectFuncChown != nil {
 		mmChown.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Chown")
 	}
@@ -382,7 +436,7 @@ func (mmChown *mFileSystemMockChown) Return(err error) *FileSystemMock {
 }
 
 //Set uses given function f to mock the FileSystem.Chown method
-func (mmChown *mFileSystemMockChown) Set(f func(name string, user *user.User) (err error)) *FileSystemMock {
+func (mmChown *mFileSystemMockChown) Set(f func(name string, uid int, gid int) (err error)) *FileSystemMock {
 	if mmChown.defaultExpectation != nil {
 		mmChown.mock.t.Fatalf("Default expectation is already set for the FileSystem.Chown method")
 	}
@@ -397,14 +451,14 @@ func (mmChown *mFileSystemMockChown) Set(f func(name string, user *user.User) (e
 
 // When sets expectation for the FileSystem.Chown which will trigger the result defined by the following
 // Then helper
-func (mmChown *mFileSystemMockChown) When(name string, user *user.User) *FileSystemMockChownExpectation {
+func (mmChown *mFileSystemMockChown) When(name string, uid int, gid int) *FileSystemMockChownExpectation {
 	if mmChown.mock.funcChown != nil {
 		mmChown.mock.t.Fatalf("FileSystemMock.Chown mock is already set by Set")
 	}
 
 	expectation := &FileSystemMockChownExpectation{
 		mock:   mmChown.mock,
-		params: &FileSystemMockChownParams{name, user},
+		params: &FileSystemMockChownParams{name, uid, gid},
 	}
 	mmChown.expectations = append(mmChown.expectations, expectation)
 	return expectation
@@ -417,15 +471,15 @@ func (e *FileSystemMockChownExpectation) Then(err error) *FileSystemMock {
 }
 
 // Chown implements infrastructure.FileSystem
-func (mmChown *FileSystemMock) Chown(name string, user *user.User) (err error) {
+func (mmChown *FileSystemMock) Chown(name string, uid int, gid int) (err error) {
 	mm_atomic.AddUint64(&mmChown.beforeChownCounter, 1)
 	defer mm_atomic.AddUint64(&mmChown.afterChownCounter, 1)
 
 	if mmChown.inspectFuncChown != nil {
-		mmChown.inspectFuncChown(name, user)
+		mmChown.inspectFuncChown(name, uid, gid)
 	}
 
-	mm_params := &FileSystemMockChownParams{name, user}
+	mm_params := &FileSystemMockChownParams{name, uid, gid}
 
 	// Record call args
 	mmChown.ChownMock.mutex.Lock()
@@ -442,7 +496,7 @@ func (mmChown *FileSystemMock) Chown(name string, user *user.User) (err error) {
 	if mmChown.ChownMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmChown.ChownMock.defaultExpectation.Counter, 1)
 		mm_want := mmChown.ChownMock.defaultExpectation.params
-		mm_got := FileSystemMockChownParams{name, user}
+		mm_got := FileSystemMockChownParams{name, uid, gid}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmChown.t.Errorf("FileSystemMock.Chown got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -454,9 +508,9 @@ func (mmChown *FileSystemMock) Chown(name string, user *user.User) (err error) {
 		return (*mm_results).err
 	}
 	if mmChown.funcChown != nil {
-		return mmChown.funcChown(name, user)
+		return mmChown.funcChown(name, uid, gid)
 	}
-	mmChown.t.Fatalf("Unexpected call to FileSystemMock.Chown. %v %v", name, user)
+	mmChown.t.Fatalf("Unexpected call to FileSystemMock.Chown. %v %v %v", name, uid, gid)
 	return
 }
 
@@ -525,1081 +579,2307 @@ func (m *FileSystemMock) MinimockChownInspect() {
 	}
 }
 
-type mFileSystemMockDelete struct {
+type mFileSystemMockChtimes struct {
 	mock               *FileSystemMock
-	defaultExpectation *FileSystemMockDeleteExpectation
-	expectations       []*FileSystemMockDeleteExpectation
+	defaultExpectation *FileSystemMockChtimesExpectation
+	expectations       []*FileSystemMockChtimesExpectation
 
-	callArgs []*FileSystemMockDeleteParams
+	callArgs []*FileSystemMockChtimesParams
 	mutex    sync.RWMutex
 }
 
-// FileSystemMockDeleteExpectation specifies expectation struct of the FileSystem.Delete
-type FileSystemMockDeleteExpectation struct {
+// FileSystemMockChtimesExpectation specifies expectation struct of the FileSystem.Chtimes
+type FileSystemMockChtimesExpectation struct {
 	mock    *FileSystemMock
-	params  *FileSystemMockDeleteParams
-	results *FileSystemMockDeleteResults
+	params  *FileSystemMockChtimesParams
+	results *FileSystemMockChtimesResults
 	Counter uint64
 }
 
-// FileSystemMockDeleteParams contains parameters of the FileSystem.Delete
-type FileSystemMockDeleteParams struct {
-	path string
+// FileSystemMockChtimesParams contains parameters of the FileSystem.Chtimes
+type FileSystemMockChtimesParams struct {
+	name  string
+	atime time.Time
+	mtime time.Time
 }
 
-// FileSystemMockDeleteResults contains results of the FileSystem.Delete
-type FileSystemMockDeleteResults struct {
+// FileSystemMockChtimesResults contains results of the FileSystem.Chtimes
+type FileSystemMockChtimesResults struct {
 	err error
 }
 
-// Expect sets up expected params for FileSystem.Delete
-func (mmDelete *mFileSystemMockDelete) Expect(path string) *mFileSystemMockDelete {
-	if mmDelete.mock.funcDelete != nil {
-		mmDelete.mock.t.Fatalf("FileSystemMock.Delete mock is already set by Set")
+// Expect sets up expected params for FileSystem.Chtimes
+func (mmChtimes *mFileSystemMockChtimes) Expect(name string, atime time.Time, mtime time.Time) *mFileSystemMockChtimes {
+	if mmChtimes.mock.funcChtimes != nil {
+		mmChtimes.mock.t.Fatalf("FileSystemMock.Chtimes mock is already set by Set")
 	}
 
-	if mmDelete.defaultExpectation == nil {
-		mmDelete.defaultExpectation = &FileSystemMockDeleteExpectation{}
+	if mmChtimes.defaultExpectation == nil {
+		mmChtimes.defaultExpectation = &FileSystemMockChtimesExpectation{}
 	}
 
-	mmDelete.defaultExpectation.params = &FileSystemMockDeleteParams{path}
-	for _, e := range mmDelete.expectations {
-		if minimock.Equal(e.params, mmDelete.defaultExpectation.params) {
-			mmDelete.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDelete.defaultExpectation.params)
+	mmChtimes.defaultExpectation.params = &FileSystemMockChtimesParams{name, atime, mtime}
+	for _, e := range mmChtimes.expectations {
+		if minimock.Equal(e.params, mmChtimes.defaultExpectation.params) {
+			mmChtimes.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmChtimes.defaultExpectation.params)
 		}
 	}
 
-	return mmDelete
+	return mmChtimes
 }
 
-// Inspect accepts an inspector function that has same arguments as the FileSystem.Delete
-func (mmDelete *mFileSystemMockDelete) Inspect(f func(path string)) *mFileSystemMockDelete {
-	if mmDelete.mock.inspectFuncDelete != nil {
-		mmDelete.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Delete")
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Chtimes
+func (mmChtimes *mFileSystemMockChtimes) Inspect(f func(name string, atime time.Time, mtime time.Time)) *mFileSystemMockChtimes {
+	if mmChtimes.mock.inspectFuncChtimes != nil {
+		mmChtimes.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Chtimes")
 	}
 
-	mmDelete.mock.inspectFuncDelete = f
+	mmChtimes.mock.inspectFuncChtimes = f
 
-	return mmDelete
+	return mmChtimes
 }
 
-// Return sets up results that will be returned by FileSystem.Delete
-func (mmDelete *mFileSystemMockDelete) Return(err error) *FileSystemMock {
-	if mmDelete.mock.funcDelete != nil {
-		mmDelete.mock.t.Fatalf("FileSystemMock.Delete mock is already set by Set")
+// Return sets up results that will be returned by FileSystem.Chtimes
+func (mmChtimes *mFileSystemMockChtimes) Return(err error) *FileSystemMock {
+	if mmChtimes.mock.funcChtimes != nil {
+		mmChtimes.mock.t.Fatalf("FileSystemMock.Chtimes mock is already set by Set")
 	}
 
-	if mmDelete.defaultExpectation == nil {
-		mmDelete.defaultExpectation = &FileSystemMockDeleteExpectation{mock: mmDelete.mock}
+	if mmChtimes.defaultExpectation == nil {
+		mmChtimes.defaultExpectation = &FileSystemMockChtimesExpectation{mock: mmChtimes.mock}
 	}
-	mmDelete.defaultExpectation.results = &FileSystemMockDeleteResults{err}
-	return mmDelete.mock
+	mmChtimes.defaultExpectation.results = &FileSystemMockChtimesResults{err}
+	return mmChtimes.mock
 }
 
-//Set uses given function f to mock the FileSystem.Delete method
-func (mmDelete *mFileSystemMockDelete) Set(f func(path string) (err error)) *FileSystemMock {
-	if mmDelete.defaultExpectation != nil {
-		mmDelete.mock.t.Fatalf("Default expectation is already set for the FileSystem.Delete method")
+//Set uses given function f to mock the FileSystem.Chtimes method
+func (mmChtimes *mFileSystemMockChtimes) Set(f func(name string, atime time.Time, mtime time.Time) (err error)) *FileSystemMock {
+	if mmChtimes.defaultExpectation != nil {
+		mmChtimes.mock.t.Fatalf("Default expectation is already set for the FileSystem.Chtimes method")
 	}
 
-	if len(mmDelete.expectations) > 0 {
-		mmDelete.mock.t.Fatalf("Some expectations are already set for the FileSystem.Delete method")
+	if len(mmChtimes.expectations) > 0 {
+		mmChtimes.mock.t.Fatalf("Some expectations are already set for the FileSystem.Chtimes method")
 	}
 
-	mmDelete.mock.funcDelete = f
-	return mmDelete.mock
+	mmChtimes.mock.funcChtimes = f
+	return mmChtimes.mock
 }
 
-// When sets expectation for the FileSystem.Delete which will trigger the result defined by the following
+// When sets expectation for the FileSystem.Chtimes which will trigger the result defined by the following
 // Then helper
-func (mmDelete *mFileSystemMockDelete) When(path string) *FileSystemMockDeleteExpectation {
-	if mmDelete.mock.funcDelete != nil {
-		mmDelete.mock.t.Fatalf("FileSystemMock.Delete mock is already set by Set")
+func (mmChtimes *mFileSystemMockChtimes) When(name string, atime time.Time, mtime time.Time) *FileSystemMockChtimesExpectation {
+	if mmChtimes.mock.funcChtimes != nil {
+		mmChtimes.mock.t.Fatalf("FileSystemMock.Chtimes mock is already set by Set")
 	}
 
-	expectation := &FileSystemMockDeleteExpectation{
-		mock:   mmDelete.mock,
-		params: &FileSystemMockDeleteParams{path},
+	expectation := &FileSystemMockChtimesExpectation{
+		mock:   mmChtimes.mock,
+		params: &FileSystemMockChtimesParams{name, atime, mtime},
 	}
-	mmDelete.expectations = append(mmDelete.expectations, expectation)
+	mmChtimes.expectations = append(mmChtimes.expectations, expectation)
 	return expectation
 }
 
-// Then sets up FileSystem.Delete return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockDeleteExpectation) Then(err error) *FileSystemMock {
-	e.results = &FileSystemMockDeleteResults{err}
+// Then sets up FileSystem.Chtimes return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockChtimesExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockChtimesResults{err}
 	return e.mock
 }
 
-// Delete implements infrastructure.FileSystem
-func (mmDelete *FileSystemMock) Delete(path string) (err error) {
-	mm_atomic.AddUint64(&mmDelete.beforeDeleteCounter, 1)
-	defer mm_atomic.AddUint64(&mmDelete.afterDeleteCounter, 1)
+// Chtimes implements infrastructure.FileSystem
+func (mmChtimes *FileSystemMock) Chtimes(name string, atime time.Time, mtime time.Time) (err error) {
+	mm_atomic.AddUint64(&mmChtimes.beforeChtimesCounter, 1)
+	defer mm_atomic.AddUint64(&mmChtimes.afterChtimesCounter, 1)
 
-	if mmDelete.inspectFuncDelete != nil {
-		mmDelete.inspectFuncDelete(path)
+	if mmChtimes.inspectFuncChtimes != nil {
+		mmChtimes.inspectFuncChtimes(name, atime, mtime)
 	}
 
-	mm_params := &FileSystemMockDeleteParams{path}
+	mm_params := &FileSystemMockChtimesParams{name, atime, mtime}
 
 	// Record call args
-	mmDelete.DeleteMock.mutex.Lock()
-	mmDelete.DeleteMock.callArgs = append(mmDelete.DeleteMock.callArgs, mm_params)
-	mmDelete.DeleteMock.mutex.Unlock()
+	mmChtimes.ChtimesMock.mutex.Lock()
+	mmChtimes.ChtimesMock.callArgs = append(mmChtimes.ChtimesMock.callArgs, mm_params)
+	mmChtimes.ChtimesMock.mutex.Unlock()
 
-	for _, e := range mmDelete.DeleteMock.expectations {
+	for _, e := range mmChtimes.ChtimesMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
 	}
 
-	if mmDelete.DeleteMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmDelete.DeleteMock.defaultExpectation.Counter, 1)
-		mm_want := mmDelete.DeleteMock.defaultExpectation.params
-		mm_got := FileSystemMockDeleteParams{path}
+	if mmChtimes.ChtimesMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmChtimes.ChtimesMock.defaultExpectation.Counter, 1)
+		mm_want := mmChtimes.ChtimesMock.defaultExpectation.params
+		mm_got := FileSystemMockChtimesParams{name, atime, mtime}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmDelete.t.Errorf("FileSystemMock.Delete got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+			mmChtimes.t.Errorf("FileSystemMock.Chtimes got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		mm_results := mmDelete.DeleteMock.defaultExpectation.results
+		mm_results := mmChtimes.ChtimesMock.defaultExpectation.results
 		if mm_results == nil {
-			mmDelete.t.Fatal("No results are set for the FileSystemMock.Delete")
+			mmChtimes.t.Fatal("No results are set for the FileSystemMock.Chtimes")
 		}
 		return (*mm_results).err
 	}
-	if mmDelete.funcDelete != nil {
-		return mmDelete.funcDelete(path)
+	if mmChtimes.funcChtimes != nil {
+		return mmChtimes.funcChtimes(name, atime, mtime)
 	}
-	mmDelete.t.Fatalf("Unexpected call to FileSystemMock.Delete. %v", path)
+	mmChtimes.t.Fatalf("Unexpected call to FileSystemMock.Chtimes. %v %v %v", name, atime, mtime)
 	return
 }
 
-// DeleteAfterCounter returns a count of finished FileSystemMock.Delete invocations
-func (mmDelete *FileSystemMock) DeleteAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmDelete.afterDeleteCounter)
+// ChtimesAfterCounter returns a count of finished FileSystemMock.Chtimes invocations
+func (mmChtimes *FileSystemMock) ChtimesAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmChtimes.afterChtimesCounter)
 }
 
-// DeleteBeforeCounter returns a count of FileSystemMock.Delete invocations
-func (mmDelete *FileSystemMock) DeleteBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmDelete.beforeDeleteCounter)
+// ChtimesBeforeCounter returns a count of FileSystemMock.Chtimes invocations
+func (mmChtimes *FileSystemMock) ChtimesBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmChtimes.beforeChtimesCounter)
 }
 
-// Calls returns a list of arguments used in each call to FileSystemMock.Delete.
+// Calls returns a list of arguments used in each call to FileSystemMock.Chtimes.
 // The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmDelete *mFileSystemMockDelete) Calls() []*FileSystemMockDeleteParams {
-	mmDelete.mutex.RLock()
+func (mmChtimes *mFileSystemMockChtimes) Calls() []*FileSystemMockChtimesParams {
+	mmChtimes.mutex.RLock()
 
-	argCopy := make([]*FileSystemMockDeleteParams, len(mmDelete.callArgs))
-	copy(argCopy, mmDelete.callArgs)
+	argCopy := make([]*FileSystemMockChtimesParams, len(mmChtimes.callArgs))
+	copy(argCopy, mmChtimes.callArgs)
 
-	mmDelete.mutex.RUnlock()
+	mmChtimes.mutex.RUnlock()
 
 	return argCopy
 }
 
-// MinimockDeleteDone returns true if the count of the Delete invocations corresponds
+// MinimockChtimesDone returns true if the count of the Chtimes invocations corresponds
 // the number of defined expectations
-func (m *FileSystemMock) MinimockDeleteDone() bool {
-	for _, e := range m.DeleteMock.expectations {
+func (m *FileSystemMock) MinimockChtimesDone() bool {
+	for _, e := range m.ChtimesMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
 			return false
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.DeleteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
+	if m.ChtimesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterChtimesCounter) < 1 {
 		return false
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcDelete != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockDeleteInspect logs each unmet expectation
-func (m *FileSystemMock) MinimockDeleteInspect() {
-	for _, e := range m.DeleteMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to FileSystemMock.Delete with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.DeleteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
-		if m.DeleteMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FileSystemMock.Delete")
-		} else {
-			m.t.Errorf("Expected call to FileSystemMock.Delete with params: %#v", *m.DeleteMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcDelete != nil && mm_atomic.LoadUint64(&m.afterDeleteCounter) < 1 {
-		m.t.Error("Expected call to FileSystemMock.Delete")
-	}
-}
-
-type mFileSystemMockExist struct {
-	mock               *FileSystemMock
-	defaultExpectation *FileSystemMockExistExpectation
-	expectations       []*FileSystemMockExistExpectation
-
-	callArgs []*FileSystemMockExistParams
-	mutex    sync.RWMutex
-}
-
-// FileSystemMockExistExpectation specifies expectation struct of the FileSystem.Exist
-type FileSystemMockExistExpectation struct {
-	mock    *FileSystemMock
-	params  *FileSystemMockExistParams
-	results *FileSystemMockExistResults
-	Counter uint64
-}
-
-// FileSystemMockExistParams contains parameters of the FileSystem.Exist
-type FileSystemMockExistParams struct {
-	path string
-}
-
-// FileSystemMockExistResults contains results of the FileSystem.Exist
-type FileSystemMockExistResults struct {
-	b1 bool
-}
-
-// Expect sets up expected params for FileSystem.Exist
-func (mmExist *mFileSystemMockExist) Expect(path string) *mFileSystemMockExist {
-	if mmExist.mock.funcExist != nil {
-		mmExist.mock.t.Fatalf("FileSystemMock.Exist mock is already set by Set")
-	}
-
-	if mmExist.defaultExpectation == nil {
-		mmExist.defaultExpectation = &FileSystemMockExistExpectation{}
-	}
-
-	mmExist.defaultExpectation.params = &FileSystemMockExistParams{path}
-	for _, e := range mmExist.expectations {
-		if minimock.Equal(e.params, mmExist.defaultExpectation.params) {
-			mmExist.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmExist.defaultExpectation.params)
-		}
-	}
-
-	return mmExist
-}
-
-// Inspect accepts an inspector function that has same arguments as the FileSystem.Exist
-func (mmExist *mFileSystemMockExist) Inspect(f func(path string)) *mFileSystemMockExist {
-	if mmExist.mock.inspectFuncExist != nil {
-		mmExist.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Exist")
-	}
-
-	mmExist.mock.inspectFuncExist = f
-
-	return mmExist
-}
-
-// Return sets up results that will be returned by FileSystem.Exist
-func (mmExist *mFileSystemMockExist) Return(b1 bool) *FileSystemMock {
-	if mmExist.mock.funcExist != nil {
-		mmExist.mock.t.Fatalf("FileSystemMock.Exist mock is already set by Set")
-	}
-
-	if mmExist.defaultExpectation == nil {
-		mmExist.defaultExpectation = &FileSystemMockExistExpectation{mock: mmExist.mock}
-	}
-	mmExist.defaultExpectation.results = &FileSystemMockExistResults{b1}
-	return mmExist.mock
-}
-
-//Set uses given function f to mock the FileSystem.Exist method
-func (mmExist *mFileSystemMockExist) Set(f func(path string) (b1 bool)) *FileSystemMock {
-	if mmExist.defaultExpectation != nil {
-		mmExist.mock.t.Fatalf("Default expectation is already set for the FileSystem.Exist method")
-	}
-
-	if len(mmExist.expectations) > 0 {
-		mmExist.mock.t.Fatalf("Some expectations are already set for the FileSystem.Exist method")
-	}
-
-	mmExist.mock.funcExist = f
-	return mmExist.mock
-}
-
-// When sets expectation for the FileSystem.Exist which will trigger the result defined by the following
-// Then helper
-func (mmExist *mFileSystemMockExist) When(path string) *FileSystemMockExistExpectation {
-	if mmExist.mock.funcExist != nil {
-		mmExist.mock.t.Fatalf("FileSystemMock.Exist mock is already set by Set")
-	}
-
-	expectation := &FileSystemMockExistExpectation{
-		mock:   mmExist.mock,
-		params: &FileSystemMockExistParams{path},
-	}
-	mmExist.expectations = append(mmExist.expectations, expectation)
-	return expectation
-}
-
-// Then sets up FileSystem.Exist return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockExistExpectation) Then(b1 bool) *FileSystemMock {
-	e.results = &FileSystemMockExistResults{b1}
-	return e.mock
-}
-
-// Exist implements infrastructure.FileSystem
-func (mmExist *FileSystemMock) Exist(path string) (b1 bool) {
-	mm_atomic.AddUint64(&mmExist.beforeExistCounter, 1)
-	defer mm_atomic.AddUint64(&mmExist.afterExistCounter, 1)
-
-	if mmExist.inspectFuncExist != nil {
-		mmExist.inspectFuncExist(path)
-	}
-
-	mm_params := &FileSystemMockExistParams{path}
-
-	// Record call args
-	mmExist.ExistMock.mutex.Lock()
-	mmExist.ExistMock.callArgs = append(mmExist.ExistMock.callArgs, mm_params)
-	mmExist.ExistMock.mutex.Unlock()
-
-	for _, e := range mmExist.ExistMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.b1
-		}
-	}
-
-	if mmExist.ExistMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmExist.ExistMock.defaultExpectation.Counter, 1)
-		mm_want := mmExist.ExistMock.defaultExpectation.params
-		mm_got := FileSystemMockExistParams{path}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmExist.t.Errorf("FileSystemMock.Exist got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		mm_results := mmExist.ExistMock.defaultExpectation.results
-		if mm_results == nil {
-			mmExist.t.Fatal("No results are set for the FileSystemMock.Exist")
-		}
-		return (*mm_results).b1
-	}
-	if mmExist.funcExist != nil {
-		return mmExist.funcExist(path)
-	}
-	mmExist.t.Fatalf("Unexpected call to FileSystemMock.Exist. %v", path)
-	return
-}
-
-// ExistAfterCounter returns a count of finished FileSystemMock.Exist invocations
-func (mmExist *FileSystemMock) ExistAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmExist.afterExistCounter)
-}
-
-// ExistBeforeCounter returns a count of FileSystemMock.Exist invocations
-func (mmExist *FileSystemMock) ExistBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmExist.beforeExistCounter)
-}
-
-// Calls returns a list of arguments used in each call to FileSystemMock.Exist.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmExist *mFileSystemMockExist) Calls() []*FileSystemMockExistParams {
-	mmExist.mutex.RLock()
-
-	argCopy := make([]*FileSystemMockExistParams, len(mmExist.callArgs))
-	copy(argCopy, mmExist.callArgs)
-
-	mmExist.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockExistDone returns true if the count of the Exist invocations corresponds
-// the number of defined expectations
-func (m *FileSystemMock) MinimockExistDone() bool {
-	for _, e := range m.ExistMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ExistMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterExistCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcExist != nil && mm_atomic.LoadUint64(&m.afterExistCounter) < 1 {
+	if m.funcChtimes != nil && mm_atomic.LoadUint64(&m.afterChtimesCounter) < 1 {
 		return false
 	}
 	return true
 }
 
-// MinimockExistInspect logs each unmet expectation
-func (m *FileSystemMock) MinimockExistInspect() {
-	for _, e := range m.ExistMock.expectations {
+// MinimockChtimesInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockChtimesInspect() {
+	for _, e := range m.ChtimesMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to FileSystemMock.Exist with params: %#v", *e.params)
+			m.t.Errorf("Expected call to FileSystemMock.Chtimes with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.ExistMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterExistCounter) < 1 {
-		if m.ExistMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FileSystemMock.Exist")
+	if m.ChtimesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterChtimesCounter) < 1 {
+		if m.ChtimesMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Chtimes")
 		} else {
-			m.t.Errorf("Expected call to FileSystemMock.Exist with params: %#v", *m.ExistMock.defaultExpectation.params)
+			m.t.Errorf("Expected call to FileSystemMock.Chtimes with params: %#v", *m.ChtimesMock.defaultExpectation.params)
 		}
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcExist != nil && mm_atomic.LoadUint64(&m.afterExistCounter) < 1 {
-		m.t.Error("Expected call to FileSystemMock.Exist")
+	if m.funcChtimes != nil && mm_atomic.LoadUint64(&m.afterChtimesCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Chtimes")
 	}
 }
 
-type mFileSystemMockRead struct {
+type mFileSystemMockCreate struct {
 	mock               *FileSystemMock
-	defaultExpectation *FileSystemMockReadExpectation
-	expectations       []*FileSystemMockReadExpectation
+	defaultExpectation *FileSystemMockCreateExpectation
+	expectations       []*FileSystemMockCreateExpectation
 
-	callArgs []*FileSystemMockReadParams
+	callArgs []*FileSystemMockCreateParams
 	mutex    sync.RWMutex
 }
 
-// FileSystemMockReadExpectation specifies expectation struct of the FileSystem.Read
-type FileSystemMockReadExpectation struct {
+// FileSystemMockCreateExpectation specifies expectation struct of the FileSystem.Create
+type FileSystemMockCreateExpectation struct {
 	mock    *FileSystemMock
-	params  *FileSystemMockReadParams
-	results *FileSystemMockReadResults
+	params  *FileSystemMockCreateParams
+	results *FileSystemMockCreateResults
 	Counter uint64
 }
 
-// FileSystemMockReadParams contains parameters of the FileSystem.Read
-type FileSystemMockReadParams struct {
-	path string
+// FileSystemMockCreateParams contains parameters of the FileSystem.Create
+type FileSystemMockCreateParams struct {
+	name string
 }
 
-// FileSystemMockReadResults contains results of the FileSystem.Read
-type FileSystemMockReadResults struct {
-	s1  string
+// FileSystemMockCreateResults contains results of the FileSystem.Create
+type FileSystemMockCreateResults struct {
+	f1  afero.File
 	err error
 }
 
-// Expect sets up expected params for FileSystem.Read
-func (mmRead *mFileSystemMockRead) Expect(path string) *mFileSystemMockRead {
-	if mmRead.mock.funcRead != nil {
-		mmRead.mock.t.Fatalf("FileSystemMock.Read mock is already set by Set")
+// Expect sets up expected params for FileSystem.Create
+func (mmCreate *mFileSystemMockCreate) Expect(name string) *mFileSystemMockCreate {
+	if mmCreate.mock.funcCreate != nil {
+		mmCreate.mock.t.Fatalf("FileSystemMock.Create mock is already set by Set")
 	}
 
-	if mmRead.defaultExpectation == nil {
-		mmRead.defaultExpectation = &FileSystemMockReadExpectation{}
+	if mmCreate.defaultExpectation == nil {
+		mmCreate.defaultExpectation = &FileSystemMockCreateExpectation{}
 	}
 
-	mmRead.defaultExpectation.params = &FileSystemMockReadParams{path}
-	for _, e := range mmRead.expectations {
-		if minimock.Equal(e.params, mmRead.defaultExpectation.params) {
-			mmRead.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRead.defaultExpectation.params)
+	mmCreate.defaultExpectation.params = &FileSystemMockCreateParams{name}
+	for _, e := range mmCreate.expectations {
+		if minimock.Equal(e.params, mmCreate.defaultExpectation.params) {
+			mmCreate.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreate.defaultExpectation.params)
 		}
 	}
 
-	return mmRead
+	return mmCreate
 }
 
-// Inspect accepts an inspector function that has same arguments as the FileSystem.Read
-func (mmRead *mFileSystemMockRead) Inspect(f func(path string)) *mFileSystemMockRead {
-	if mmRead.mock.inspectFuncRead != nil {
-		mmRead.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Read")
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Create
+func (mmCreate *mFileSystemMockCreate) Inspect(f func(name string)) *mFileSystemMockCreate {
+	if mmCreate.mock.inspectFuncCreate != nil {
+		mmCreate.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Create")
 	}
 
-	mmRead.mock.inspectFuncRead = f
+	mmCreate.mock.inspectFuncCreate = f
 
-	return mmRead
+	return mmCreate
 }
 
-// Return sets up results that will be returned by FileSystem.Read
-func (mmRead *mFileSystemMockRead) Return(s1 string, err error) *FileSystemMock {
-	if mmRead.mock.funcRead != nil {
-		mmRead.mock.t.Fatalf("FileSystemMock.Read mock is already set by Set")
+// Return sets up results that will be returned by FileSystem.Create
+func (mmCreate *mFileSystemMockCreate) Return(f1 afero.File, err error) *FileSystemMock {
+	if mmCreate.mock.funcCreate != nil {
+		mmCreate.mock.t.Fatalf("FileSystemMock.Create mock is already set by Set")
 	}
 
-	if mmRead.defaultExpectation == nil {
-		mmRead.defaultExpectation = &FileSystemMockReadExpectation{mock: mmRead.mock}
+	if mmCreate.defaultExpectation == nil {
+		mmCreate.defaultExpectation = &FileSystemMockCreateExpectation{mock: mmCreate.mock}
 	}
-	mmRead.defaultExpectation.results = &FileSystemMockReadResults{s1, err}
-	return mmRead.mock
+	mmCreate.defaultExpectation.results = &FileSystemMockCreateResults{f1, err}
+	return mmCreate.mock
 }
 
-//Set uses given function f to mock the FileSystem.Read method
-func (mmRead *mFileSystemMockRead) Set(f func(path string) (s1 string, err error)) *FileSystemMock {
-	if mmRead.defaultExpectation != nil {
-		mmRead.mock.t.Fatalf("Default expectation is already set for the FileSystem.Read method")
+//Set uses given function f to mock the FileSystem.Create method
+func (mmCreate *mFileSystemMockCreate) Set(f func(name string) (f1 afero.File, err error)) *FileSystemMock {
+	if mmCreate.defaultExpectation != nil {
+		mmCreate.mock.t.Fatalf("Default expectation is already set for the FileSystem.Create method")
 	}
 
-	if len(mmRead.expectations) > 0 {
-		mmRead.mock.t.Fatalf("Some expectations are already set for the FileSystem.Read method")
+	if len(mmCreate.expectations) > 0 {
+		mmCreate.mock.t.Fatalf("Some expectations are already set for the FileSystem.Create method")
 	}
 
-	mmRead.mock.funcRead = f
-	return mmRead.mock
+	mmCreate.mock.funcCreate = f
+	return mmCreate.mock
 }
 
-// When sets expectation for the FileSystem.Read which will trigger the result defined by the following
+// When sets expectation for the FileSystem.Create which will trigger the result defined by the following
 // Then helper
-func (mmRead *mFileSystemMockRead) When(path string) *FileSystemMockReadExpectation {
-	if mmRead.mock.funcRead != nil {
-		mmRead.mock.t.Fatalf("FileSystemMock.Read mock is already set by Set")
+func (mmCreate *mFileSystemMockCreate) When(name string) *FileSystemMockCreateExpectation {
+	if mmCreate.mock.funcCreate != nil {
+		mmCreate.mock.t.Fatalf("FileSystemMock.Create mock is already set by Set")
 	}
 
-	expectation := &FileSystemMockReadExpectation{
-		mock:   mmRead.mock,
-		params: &FileSystemMockReadParams{path},
+	expectation := &FileSystemMockCreateExpectation{
+		mock:   mmCreate.mock,
+		params: &FileSystemMockCreateParams{name},
 	}
-	mmRead.expectations = append(mmRead.expectations, expectation)
+	mmCreate.expectations = append(mmCreate.expectations, expectation)
 	return expectation
 }
 
-// Then sets up FileSystem.Read return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockReadExpectation) Then(s1 string, err error) *FileSystemMock {
-	e.results = &FileSystemMockReadResults{s1, err}
+// Then sets up FileSystem.Create return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockCreateExpectation) Then(f1 afero.File, err error) *FileSystemMock {
+	e.results = &FileSystemMockCreateResults{f1, err}
 	return e.mock
 }
 
-// Read implements infrastructure.FileSystem
-func (mmRead *FileSystemMock) Read(path string) (s1 string, err error) {
-	mm_atomic.AddUint64(&mmRead.beforeReadCounter, 1)
-	defer mm_atomic.AddUint64(&mmRead.afterReadCounter, 1)
+// Create implements infrastructure.FileSystem
+func (mmCreate *FileSystemMock) Create(name string) (f1 afero.File, err error) {
+	mm_atomic.AddUint64(&mmCreate.beforeCreateCounter, 1)
+	defer mm_atomic.AddUint64(&mmCreate.afterCreateCounter, 1)
 
-	if mmRead.inspectFuncRead != nil {
-		mmRead.inspectFuncRead(path)
+	if mmCreate.inspectFuncCreate != nil {
+		mmCreate.inspectFuncCreate(name)
 	}
 
-	mm_params := &FileSystemMockReadParams{path}
+	mm_params := &FileSystemMockCreateParams{name}
 
 	// Record call args
-	mmRead.ReadMock.mutex.Lock()
-	mmRead.ReadMock.callArgs = append(mmRead.ReadMock.callArgs, mm_params)
-	mmRead.ReadMock.mutex.Unlock()
+	mmCreate.CreateMock.mutex.Lock()
+	mmCreate.CreateMock.callArgs = append(mmCreate.CreateMock.callArgs, mm_params)
+	mmCreate.CreateMock.mutex.Unlock()
 
-	for _, e := range mmRead.ReadMock.expectations {
+	for _, e := range mmCreate.CreateMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.s1, e.results.err
+			return e.results.f1, e.results.err
 		}
 	}
 
-	if mmRead.ReadMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmRead.ReadMock.defaultExpectation.Counter, 1)
-		mm_want := mmRead.ReadMock.defaultExpectation.params
-		mm_got := FileSystemMockReadParams{path}
+	if mmCreate.CreateMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmCreate.CreateMock.defaultExpectation.Counter, 1)
+		mm_want := mmCreate.CreateMock.defaultExpectation.params
+		mm_got := FileSystemMockCreateParams{name}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmRead.t.Errorf("FileSystemMock.Read got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+			mmCreate.t.Errorf("FileSystemMock.Create got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		mm_results := mmRead.ReadMock.defaultExpectation.results
+		mm_results := mmCreate.CreateMock.defaultExpectation.results
 		if mm_results == nil {
-			mmRead.t.Fatal("No results are set for the FileSystemMock.Read")
+			mmCreate.t.Fatal("No results are set for the FileSystemMock.Create")
 		}
-		return (*mm_results).s1, (*mm_results).err
+		return (*mm_results).f1, (*mm_results).err
 	}
-	if mmRead.funcRead != nil {
-		return mmRead.funcRead(path)
+	if mmCreate.funcCreate != nil {
+		return mmCreate.funcCreate(name)
 	}
-	mmRead.t.Fatalf("Unexpected call to FileSystemMock.Read. %v", path)
+	mmCreate.t.Fatalf("Unexpected call to FileSystemMock.Create. %v", name)
 	return
 }
 
-// ReadAfterCounter returns a count of finished FileSystemMock.Read invocations
-func (mmRead *FileSystemMock) ReadAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmRead.afterReadCounter)
+// CreateAfterCounter returns a count of finished FileSystemMock.Create invocations
+func (mmCreate *FileSystemMock) CreateAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreate.afterCreateCounter)
 }
 
-// ReadBeforeCounter returns a count of FileSystemMock.Read invocations
-func (mmRead *FileSystemMock) ReadBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmRead.beforeReadCounter)
+// CreateBeforeCounter returns a count of FileSystemMock.Create invocations
+func (mmCreate *FileSystemMock) CreateBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCreate.beforeCreateCounter)
 }
 
-// Calls returns a list of arguments used in each call to FileSystemMock.Read.
+// Calls returns a list of arguments used in each call to FileSystemMock.Create.
 // The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmRead *mFileSystemMockRead) Calls() []*FileSystemMockReadParams {
-	mmRead.mutex.RLock()
+func (mmCreate *mFileSystemMockCreate) Calls() []*FileSystemMockCreateParams {
+	mmCreate.mutex.RLock()
 
-	argCopy := make([]*FileSystemMockReadParams, len(mmRead.callArgs))
-	copy(argCopy, mmRead.callArgs)
+	argCopy := make([]*FileSystemMockCreateParams, len(mmCreate.callArgs))
+	copy(argCopy, mmCreate.callArgs)
 
-	mmRead.mutex.RUnlock()
+	mmCreate.mutex.RUnlock()
 
 	return argCopy
 }
 
-// MinimockReadDone returns true if the count of the Read invocations corresponds
+// MinimockCreateDone returns true if the count of the Create invocations corresponds
 // the number of defined expectations
-func (m *FileSystemMock) MinimockReadDone() bool {
-	for _, e := range m.ReadMock.expectations {
+func (m *FileSystemMock) MinimockCreateDone() bool {
+	for _, e := range m.CreateMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
 			return false
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.ReadMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterReadCounter) < 1 {
+	if m.CreateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCreateCounter) < 1 {
 		return false
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcRead != nil && mm_atomic.LoadUint64(&m.afterReadCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockReadInspect logs each unmet expectation
-func (m *FileSystemMock) MinimockReadInspect() {
-	for _, e := range m.ReadMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to FileSystemMock.Read with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ReadMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterReadCounter) < 1 {
-		if m.ReadMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FileSystemMock.Read")
-		} else {
-			m.t.Errorf("Expected call to FileSystemMock.Read with params: %#v", *m.ReadMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcRead != nil && mm_atomic.LoadUint64(&m.afterReadCounter) < 1 {
-		m.t.Error("Expected call to FileSystemMock.Read")
-	}
-}
-
-type mFileSystemMockReader struct {
-	mock               *FileSystemMock
-	defaultExpectation *FileSystemMockReaderExpectation
-	expectations       []*FileSystemMockReaderExpectation
-
-	callArgs []*FileSystemMockReaderParams
-	mutex    sync.RWMutex
-}
-
-// FileSystemMockReaderExpectation specifies expectation struct of the FileSystem.Reader
-type FileSystemMockReaderExpectation struct {
-	mock    *FileSystemMock
-	params  *FileSystemMockReaderParams
-	results *FileSystemMockReaderResults
-	Counter uint64
-}
-
-// FileSystemMockReaderParams contains parameters of the FileSystem.Reader
-type FileSystemMockReaderParams struct {
-	path string
-}
-
-// FileSystemMockReaderResults contains results of the FileSystem.Reader
-type FileSystemMockReaderResults struct {
-	r1  io.ReadCloser
-	err error
-}
-
-// Expect sets up expected params for FileSystem.Reader
-func (mmReader *mFileSystemMockReader) Expect(path string) *mFileSystemMockReader {
-	if mmReader.mock.funcReader != nil {
-		mmReader.mock.t.Fatalf("FileSystemMock.Reader mock is already set by Set")
-	}
-
-	if mmReader.defaultExpectation == nil {
-		mmReader.defaultExpectation = &FileSystemMockReaderExpectation{}
-	}
-
-	mmReader.defaultExpectation.params = &FileSystemMockReaderParams{path}
-	for _, e := range mmReader.expectations {
-		if minimock.Equal(e.params, mmReader.defaultExpectation.params) {
-			mmReader.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmReader.defaultExpectation.params)
-		}
-	}
-
-	return mmReader
-}
-
-// Inspect accepts an inspector function that has same arguments as the FileSystem.Reader
-func (mmReader *mFileSystemMockReader) Inspect(f func(path string)) *mFileSystemMockReader {
-	if mmReader.mock.inspectFuncReader != nil {
-		mmReader.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Reader")
-	}
-
-	mmReader.mock.inspectFuncReader = f
-
-	return mmReader
-}
-
-// Return sets up results that will be returned by FileSystem.Reader
-func (mmReader *mFileSystemMockReader) Return(r1 io.ReadCloser, err error) *FileSystemMock {
-	if mmReader.mock.funcReader != nil {
-		mmReader.mock.t.Fatalf("FileSystemMock.Reader mock is already set by Set")
-	}
-
-	if mmReader.defaultExpectation == nil {
-		mmReader.defaultExpectation = &FileSystemMockReaderExpectation{mock: mmReader.mock}
-	}
-	mmReader.defaultExpectation.results = &FileSystemMockReaderResults{r1, err}
-	return mmReader.mock
-}
-
-//Set uses given function f to mock the FileSystem.Reader method
-func (mmReader *mFileSystemMockReader) Set(f func(path string) (r1 io.ReadCloser, err error)) *FileSystemMock {
-	if mmReader.defaultExpectation != nil {
-		mmReader.mock.t.Fatalf("Default expectation is already set for the FileSystem.Reader method")
-	}
-
-	if len(mmReader.expectations) > 0 {
-		mmReader.mock.t.Fatalf("Some expectations are already set for the FileSystem.Reader method")
-	}
-
-	mmReader.mock.funcReader = f
-	return mmReader.mock
-}
-
-// When sets expectation for the FileSystem.Reader which will trigger the result defined by the following
-// Then helper
-func (mmReader *mFileSystemMockReader) When(path string) *FileSystemMockReaderExpectation {
-	if mmReader.mock.funcReader != nil {
-		mmReader.mock.t.Fatalf("FileSystemMock.Reader mock is already set by Set")
-	}
-
-	expectation := &FileSystemMockReaderExpectation{
-		mock:   mmReader.mock,
-		params: &FileSystemMockReaderParams{path},
-	}
-	mmReader.expectations = append(mmReader.expectations, expectation)
-	return expectation
-}
-
-// Then sets up FileSystem.Reader return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockReaderExpectation) Then(r1 io.ReadCloser, err error) *FileSystemMock {
-	e.results = &FileSystemMockReaderResults{r1, err}
-	return e.mock
-}
-
-// Reader implements infrastructure.FileSystem
-func (mmReader *FileSystemMock) Reader(path string) (r1 io.ReadCloser, err error) {
-	mm_atomic.AddUint64(&mmReader.beforeReaderCounter, 1)
-	defer mm_atomic.AddUint64(&mmReader.afterReaderCounter, 1)
-
-	if mmReader.inspectFuncReader != nil {
-		mmReader.inspectFuncReader(path)
-	}
-
-	mm_params := &FileSystemMockReaderParams{path}
-
-	// Record call args
-	mmReader.ReaderMock.mutex.Lock()
-	mmReader.ReaderMock.callArgs = append(mmReader.ReaderMock.callArgs, mm_params)
-	mmReader.ReaderMock.mutex.Unlock()
-
-	for _, e := range mmReader.ReaderMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.r1, e.results.err
-		}
-	}
-
-	if mmReader.ReaderMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmReader.ReaderMock.defaultExpectation.Counter, 1)
-		mm_want := mmReader.ReaderMock.defaultExpectation.params
-		mm_got := FileSystemMockReaderParams{path}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmReader.t.Errorf("FileSystemMock.Reader got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		mm_results := mmReader.ReaderMock.defaultExpectation.results
-		if mm_results == nil {
-			mmReader.t.Fatal("No results are set for the FileSystemMock.Reader")
-		}
-		return (*mm_results).r1, (*mm_results).err
-	}
-	if mmReader.funcReader != nil {
-		return mmReader.funcReader(path)
-	}
-	mmReader.t.Fatalf("Unexpected call to FileSystemMock.Reader. %v", path)
-	return
-}
-
-// ReaderAfterCounter returns a count of finished FileSystemMock.Reader invocations
-func (mmReader *FileSystemMock) ReaderAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmReader.afterReaderCounter)
-}
-
-// ReaderBeforeCounter returns a count of FileSystemMock.Reader invocations
-func (mmReader *FileSystemMock) ReaderBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmReader.beforeReaderCounter)
-}
-
-// Calls returns a list of arguments used in each call to FileSystemMock.Reader.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmReader *mFileSystemMockReader) Calls() []*FileSystemMockReaderParams {
-	mmReader.mutex.RLock()
-
-	argCopy := make([]*FileSystemMockReaderParams, len(mmReader.callArgs))
-	copy(argCopy, mmReader.callArgs)
-
-	mmReader.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockReaderDone returns true if the count of the Reader invocations corresponds
-// the number of defined expectations
-func (m *FileSystemMock) MinimockReaderDone() bool {
-	for _, e := range m.ReaderMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ReaderMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterReaderCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcReader != nil && mm_atomic.LoadUint64(&m.afterReaderCounter) < 1 {
+	if m.funcCreate != nil && mm_atomic.LoadUint64(&m.afterCreateCounter) < 1 {
 		return false
 	}
 	return true
 }
 
-// MinimockReaderInspect logs each unmet expectation
-func (m *FileSystemMock) MinimockReaderInspect() {
-	for _, e := range m.ReaderMock.expectations {
+// MinimockCreateInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockCreateInspect() {
+	for _, e := range m.CreateMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to FileSystemMock.Reader with params: %#v", *e.params)
+			m.t.Errorf("Expected call to FileSystemMock.Create with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.ReaderMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterReaderCounter) < 1 {
-		if m.ReaderMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FileSystemMock.Reader")
+	if m.CreateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCreateCounter) < 1 {
+		if m.CreateMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Create")
 		} else {
-			m.t.Errorf("Expected call to FileSystemMock.Reader with params: %#v", *m.ReaderMock.defaultExpectation.params)
+			m.t.Errorf("Expected call to FileSystemMock.Create with params: %#v", *m.CreateMock.defaultExpectation.params)
 		}
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcReader != nil && mm_atomic.LoadUint64(&m.afterReaderCounter) < 1 {
-		m.t.Error("Expected call to FileSystemMock.Reader")
+	if m.funcCreate != nil && mm_atomic.LoadUint64(&m.afterCreateCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Create")
 	}
 }
 
-type mFileSystemMockWrite struct {
+type mFileSystemMockMkdir struct {
 	mock               *FileSystemMock
-	defaultExpectation *FileSystemMockWriteExpectation
-	expectations       []*FileSystemMockWriteExpectation
+	defaultExpectation *FileSystemMockMkdirExpectation
+	expectations       []*FileSystemMockMkdirExpectation
 
-	callArgs []*FileSystemMockWriteParams
+	callArgs []*FileSystemMockMkdirParams
 	mutex    sync.RWMutex
 }
 
-// FileSystemMockWriteExpectation specifies expectation struct of the FileSystem.Write
-type FileSystemMockWriteExpectation struct {
+// FileSystemMockMkdirExpectation specifies expectation struct of the FileSystem.Mkdir
+type FileSystemMockMkdirExpectation struct {
 	mock    *FileSystemMock
-	params  *FileSystemMockWriteParams
-	results *FileSystemMockWriteResults
+	params  *FileSystemMockMkdirParams
+	results *FileSystemMockMkdirResults
 	Counter uint64
 }
 
-// FileSystemMockWriteParams contains parameters of the FileSystem.Write
-type FileSystemMockWriteParams struct {
-	path    string
-	content string
+// FileSystemMockMkdirParams contains parameters of the FileSystem.Mkdir
+type FileSystemMockMkdirParams struct {
+	name string
+	perm os.FileMode
 }
 
-// FileSystemMockWriteResults contains results of the FileSystem.Write
-type FileSystemMockWriteResults struct {
+// FileSystemMockMkdirResults contains results of the FileSystem.Mkdir
+type FileSystemMockMkdirResults struct {
 	err error
 }
 
-// Expect sets up expected params for FileSystem.Write
-func (mmWrite *mFileSystemMockWrite) Expect(path string, content string) *mFileSystemMockWrite {
-	if mmWrite.mock.funcWrite != nil {
-		mmWrite.mock.t.Fatalf("FileSystemMock.Write mock is already set by Set")
+// Expect sets up expected params for FileSystem.Mkdir
+func (mmMkdir *mFileSystemMockMkdir) Expect(name string, perm os.FileMode) *mFileSystemMockMkdir {
+	if mmMkdir.mock.funcMkdir != nil {
+		mmMkdir.mock.t.Fatalf("FileSystemMock.Mkdir mock is already set by Set")
 	}
 
-	if mmWrite.defaultExpectation == nil {
-		mmWrite.defaultExpectation = &FileSystemMockWriteExpectation{}
+	if mmMkdir.defaultExpectation == nil {
+		mmMkdir.defaultExpectation = &FileSystemMockMkdirExpectation{}
 	}
 
-	mmWrite.defaultExpectation.params = &FileSystemMockWriteParams{path, content}
-	for _, e := range mmWrite.expectations {
-		if minimock.Equal(e.params, mmWrite.defaultExpectation.params) {
-			mmWrite.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmWrite.defaultExpectation.params)
+	mmMkdir.defaultExpectation.params = &FileSystemMockMkdirParams{name, perm}
+	for _, e := range mmMkdir.expectations {
+		if minimock.Equal(e.params, mmMkdir.defaultExpectation.params) {
+			mmMkdir.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmMkdir.defaultExpectation.params)
 		}
 	}
 
-	return mmWrite
+	return mmMkdir
 }
 
-// Inspect accepts an inspector function that has same arguments as the FileSystem.Write
-func (mmWrite *mFileSystemMockWrite) Inspect(f func(path string, content string)) *mFileSystemMockWrite {
-	if mmWrite.mock.inspectFuncWrite != nil {
-		mmWrite.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Write")
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Mkdir
+func (mmMkdir *mFileSystemMockMkdir) Inspect(f func(name string, perm os.FileMode)) *mFileSystemMockMkdir {
+	if mmMkdir.mock.inspectFuncMkdir != nil {
+		mmMkdir.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Mkdir")
 	}
 
-	mmWrite.mock.inspectFuncWrite = f
+	mmMkdir.mock.inspectFuncMkdir = f
 
-	return mmWrite
+	return mmMkdir
 }
 
-// Return sets up results that will be returned by FileSystem.Write
-func (mmWrite *mFileSystemMockWrite) Return(err error) *FileSystemMock {
-	if mmWrite.mock.funcWrite != nil {
-		mmWrite.mock.t.Fatalf("FileSystemMock.Write mock is already set by Set")
+// Return sets up results that will be returned by FileSystem.Mkdir
+func (mmMkdir *mFileSystemMockMkdir) Return(err error) *FileSystemMock {
+	if mmMkdir.mock.funcMkdir != nil {
+		mmMkdir.mock.t.Fatalf("FileSystemMock.Mkdir mock is already set by Set")
 	}
 
-	if mmWrite.defaultExpectation == nil {
-		mmWrite.defaultExpectation = &FileSystemMockWriteExpectation{mock: mmWrite.mock}
+	if mmMkdir.defaultExpectation == nil {
+		mmMkdir.defaultExpectation = &FileSystemMockMkdirExpectation{mock: mmMkdir.mock}
 	}
-	mmWrite.defaultExpectation.results = &FileSystemMockWriteResults{err}
-	return mmWrite.mock
+	mmMkdir.defaultExpectation.results = &FileSystemMockMkdirResults{err}
+	return mmMkdir.mock
 }
 
-//Set uses given function f to mock the FileSystem.Write method
-func (mmWrite *mFileSystemMockWrite) Set(f func(path string, content string) (err error)) *FileSystemMock {
-	if mmWrite.defaultExpectation != nil {
-		mmWrite.mock.t.Fatalf("Default expectation is already set for the FileSystem.Write method")
+//Set uses given function f to mock the FileSystem.Mkdir method
+func (mmMkdir *mFileSystemMockMkdir) Set(f func(name string, perm os.FileMode) (err error)) *FileSystemMock {
+	if mmMkdir.defaultExpectation != nil {
+		mmMkdir.mock.t.Fatalf("Default expectation is already set for the FileSystem.Mkdir method")
 	}
 
-	if len(mmWrite.expectations) > 0 {
-		mmWrite.mock.t.Fatalf("Some expectations are already set for the FileSystem.Write method")
+	if len(mmMkdir.expectations) > 0 {
+		mmMkdir.mock.t.Fatalf("Some expectations are already set for the FileSystem.Mkdir method")
 	}
 
-	mmWrite.mock.funcWrite = f
-	return mmWrite.mock
+	mmMkdir.mock.funcMkdir = f
+	return mmMkdir.mock
 }
 
-// When sets expectation for the FileSystem.Write which will trigger the result defined by the following
+// When sets expectation for the FileSystem.Mkdir which will trigger the result defined by the following
 // Then helper
-func (mmWrite *mFileSystemMockWrite) When(path string, content string) *FileSystemMockWriteExpectation {
-	if mmWrite.mock.funcWrite != nil {
-		mmWrite.mock.t.Fatalf("FileSystemMock.Write mock is already set by Set")
+func (mmMkdir *mFileSystemMockMkdir) When(name string, perm os.FileMode) *FileSystemMockMkdirExpectation {
+	if mmMkdir.mock.funcMkdir != nil {
+		mmMkdir.mock.t.Fatalf("FileSystemMock.Mkdir mock is already set by Set")
 	}
 
-	expectation := &FileSystemMockWriteExpectation{
-		mock:   mmWrite.mock,
-		params: &FileSystemMockWriteParams{path, content},
+	expectation := &FileSystemMockMkdirExpectation{
+		mock:   mmMkdir.mock,
+		params: &FileSystemMockMkdirParams{name, perm},
 	}
-	mmWrite.expectations = append(mmWrite.expectations, expectation)
+	mmMkdir.expectations = append(mmMkdir.expectations, expectation)
 	return expectation
 }
 
-// Then sets up FileSystem.Write return parameters for the expectation previously defined by the When method
-func (e *FileSystemMockWriteExpectation) Then(err error) *FileSystemMock {
-	e.results = &FileSystemMockWriteResults{err}
+// Then sets up FileSystem.Mkdir return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockMkdirExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockMkdirResults{err}
 	return e.mock
 }
 
-// Write implements infrastructure.FileSystem
-func (mmWrite *FileSystemMock) Write(path string, content string) (err error) {
-	mm_atomic.AddUint64(&mmWrite.beforeWriteCounter, 1)
-	defer mm_atomic.AddUint64(&mmWrite.afterWriteCounter, 1)
+// Mkdir implements infrastructure.FileSystem
+func (mmMkdir *FileSystemMock) Mkdir(name string, perm os.FileMode) (err error) {
+	mm_atomic.AddUint64(&mmMkdir.beforeMkdirCounter, 1)
+	defer mm_atomic.AddUint64(&mmMkdir.afterMkdirCounter, 1)
 
-	if mmWrite.inspectFuncWrite != nil {
-		mmWrite.inspectFuncWrite(path, content)
+	if mmMkdir.inspectFuncMkdir != nil {
+		mmMkdir.inspectFuncMkdir(name, perm)
 	}
 
-	mm_params := &FileSystemMockWriteParams{path, content}
+	mm_params := &FileSystemMockMkdirParams{name, perm}
 
 	// Record call args
-	mmWrite.WriteMock.mutex.Lock()
-	mmWrite.WriteMock.callArgs = append(mmWrite.WriteMock.callArgs, mm_params)
-	mmWrite.WriteMock.mutex.Unlock()
+	mmMkdir.MkdirMock.mutex.Lock()
+	mmMkdir.MkdirMock.callArgs = append(mmMkdir.MkdirMock.callArgs, mm_params)
+	mmMkdir.MkdirMock.mutex.Unlock()
 
-	for _, e := range mmWrite.WriteMock.expectations {
+	for _, e := range mmMkdir.MkdirMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
 	}
 
-	if mmWrite.WriteMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmWrite.WriteMock.defaultExpectation.Counter, 1)
-		mm_want := mmWrite.WriteMock.defaultExpectation.params
-		mm_got := FileSystemMockWriteParams{path, content}
+	if mmMkdir.MkdirMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmMkdir.MkdirMock.defaultExpectation.Counter, 1)
+		mm_want := mmMkdir.MkdirMock.defaultExpectation.params
+		mm_got := FileSystemMockMkdirParams{name, perm}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmWrite.t.Errorf("FileSystemMock.Write got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+			mmMkdir.t.Errorf("FileSystemMock.Mkdir got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		mm_results := mmWrite.WriteMock.defaultExpectation.results
+		mm_results := mmMkdir.MkdirMock.defaultExpectation.results
 		if mm_results == nil {
-			mmWrite.t.Fatal("No results are set for the FileSystemMock.Write")
+			mmMkdir.t.Fatal("No results are set for the FileSystemMock.Mkdir")
 		}
 		return (*mm_results).err
 	}
-	if mmWrite.funcWrite != nil {
-		return mmWrite.funcWrite(path, content)
+	if mmMkdir.funcMkdir != nil {
+		return mmMkdir.funcMkdir(name, perm)
 	}
-	mmWrite.t.Fatalf("Unexpected call to FileSystemMock.Write. %v %v", path, content)
+	mmMkdir.t.Fatalf("Unexpected call to FileSystemMock.Mkdir. %v %v", name, perm)
 	return
 }
 
-// WriteAfterCounter returns a count of finished FileSystemMock.Write invocations
-func (mmWrite *FileSystemMock) WriteAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmWrite.afterWriteCounter)
+// MkdirAfterCounter returns a count of finished FileSystemMock.Mkdir invocations
+func (mmMkdir *FileSystemMock) MkdirAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmMkdir.afterMkdirCounter)
 }
 
-// WriteBeforeCounter returns a count of FileSystemMock.Write invocations
-func (mmWrite *FileSystemMock) WriteBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmWrite.beforeWriteCounter)
+// MkdirBeforeCounter returns a count of FileSystemMock.Mkdir invocations
+func (mmMkdir *FileSystemMock) MkdirBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmMkdir.beforeMkdirCounter)
 }
 
-// Calls returns a list of arguments used in each call to FileSystemMock.Write.
+// Calls returns a list of arguments used in each call to FileSystemMock.Mkdir.
 // The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmWrite *mFileSystemMockWrite) Calls() []*FileSystemMockWriteParams {
-	mmWrite.mutex.RLock()
+func (mmMkdir *mFileSystemMockMkdir) Calls() []*FileSystemMockMkdirParams {
+	mmMkdir.mutex.RLock()
 
-	argCopy := make([]*FileSystemMockWriteParams, len(mmWrite.callArgs))
-	copy(argCopy, mmWrite.callArgs)
+	argCopy := make([]*FileSystemMockMkdirParams, len(mmMkdir.callArgs))
+	copy(argCopy, mmMkdir.callArgs)
 
-	mmWrite.mutex.RUnlock()
+	mmMkdir.mutex.RUnlock()
 
 	return argCopy
 }
 
-// MinimockWriteDone returns true if the count of the Write invocations corresponds
+// MinimockMkdirDone returns true if the count of the Mkdir invocations corresponds
 // the number of defined expectations
-func (m *FileSystemMock) MinimockWriteDone() bool {
-	for _, e := range m.WriteMock.expectations {
+func (m *FileSystemMock) MinimockMkdirDone() bool {
+	for _, e := range m.MkdirMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
 			return false
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.WriteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterWriteCounter) < 1 {
+	if m.MkdirMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterMkdirCounter) < 1 {
 		return false
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcWrite != nil && mm_atomic.LoadUint64(&m.afterWriteCounter) < 1 {
+	if m.funcMkdir != nil && mm_atomic.LoadUint64(&m.afterMkdirCounter) < 1 {
 		return false
 	}
 	return true
 }
 
-// MinimockWriteInspect logs each unmet expectation
-func (m *FileSystemMock) MinimockWriteInspect() {
-	for _, e := range m.WriteMock.expectations {
+// MinimockMkdirInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockMkdirInspect() {
+	for _, e := range m.MkdirMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to FileSystemMock.Write with params: %#v", *e.params)
+			m.t.Errorf("Expected call to FileSystemMock.Mkdir with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
-	if m.WriteMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterWriteCounter) < 1 {
-		if m.WriteMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FileSystemMock.Write")
+	if m.MkdirMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterMkdirCounter) < 1 {
+		if m.MkdirMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Mkdir")
 		} else {
-			m.t.Errorf("Expected call to FileSystemMock.Write with params: %#v", *m.WriteMock.defaultExpectation.params)
+			m.t.Errorf("Expected call to FileSystemMock.Mkdir with params: %#v", *m.MkdirMock.defaultExpectation.params)
 		}
 	}
 	// if func was set then invocations count should be greater than zero
-	if m.funcWrite != nil && mm_atomic.LoadUint64(&m.afterWriteCounter) < 1 {
-		m.t.Error("Expected call to FileSystemMock.Write")
+	if m.funcMkdir != nil && mm_atomic.LoadUint64(&m.afterMkdirCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Mkdir")
+	}
+}
+
+type mFileSystemMockMkdirAll struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockMkdirAllExpectation
+	expectations       []*FileSystemMockMkdirAllExpectation
+
+	callArgs []*FileSystemMockMkdirAllParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockMkdirAllExpectation specifies expectation struct of the FileSystem.MkdirAll
+type FileSystemMockMkdirAllExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockMkdirAllParams
+	results *FileSystemMockMkdirAllResults
+	Counter uint64
+}
+
+// FileSystemMockMkdirAllParams contains parameters of the FileSystem.MkdirAll
+type FileSystemMockMkdirAllParams struct {
+	path string
+	perm os.FileMode
+}
+
+// FileSystemMockMkdirAllResults contains results of the FileSystem.MkdirAll
+type FileSystemMockMkdirAllResults struct {
+	err error
+}
+
+// Expect sets up expected params for FileSystem.MkdirAll
+func (mmMkdirAll *mFileSystemMockMkdirAll) Expect(path string, perm os.FileMode) *mFileSystemMockMkdirAll {
+	if mmMkdirAll.mock.funcMkdirAll != nil {
+		mmMkdirAll.mock.t.Fatalf("FileSystemMock.MkdirAll mock is already set by Set")
+	}
+
+	if mmMkdirAll.defaultExpectation == nil {
+		mmMkdirAll.defaultExpectation = &FileSystemMockMkdirAllExpectation{}
+	}
+
+	mmMkdirAll.defaultExpectation.params = &FileSystemMockMkdirAllParams{path, perm}
+	for _, e := range mmMkdirAll.expectations {
+		if minimock.Equal(e.params, mmMkdirAll.defaultExpectation.params) {
+			mmMkdirAll.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmMkdirAll.defaultExpectation.params)
+		}
+	}
+
+	return mmMkdirAll
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.MkdirAll
+func (mmMkdirAll *mFileSystemMockMkdirAll) Inspect(f func(path string, perm os.FileMode)) *mFileSystemMockMkdirAll {
+	if mmMkdirAll.mock.inspectFuncMkdirAll != nil {
+		mmMkdirAll.mock.t.Fatalf("Inspect function is already set for FileSystemMock.MkdirAll")
+	}
+
+	mmMkdirAll.mock.inspectFuncMkdirAll = f
+
+	return mmMkdirAll
+}
+
+// Return sets up results that will be returned by FileSystem.MkdirAll
+func (mmMkdirAll *mFileSystemMockMkdirAll) Return(err error) *FileSystemMock {
+	if mmMkdirAll.mock.funcMkdirAll != nil {
+		mmMkdirAll.mock.t.Fatalf("FileSystemMock.MkdirAll mock is already set by Set")
+	}
+
+	if mmMkdirAll.defaultExpectation == nil {
+		mmMkdirAll.defaultExpectation = &FileSystemMockMkdirAllExpectation{mock: mmMkdirAll.mock}
+	}
+	mmMkdirAll.defaultExpectation.results = &FileSystemMockMkdirAllResults{err}
+	return mmMkdirAll.mock
+}
+
+//Set uses given function f to mock the FileSystem.MkdirAll method
+func (mmMkdirAll *mFileSystemMockMkdirAll) Set(f func(path string, perm os.FileMode) (err error)) *FileSystemMock {
+	if mmMkdirAll.defaultExpectation != nil {
+		mmMkdirAll.mock.t.Fatalf("Default expectation is already set for the FileSystem.MkdirAll method")
+	}
+
+	if len(mmMkdirAll.expectations) > 0 {
+		mmMkdirAll.mock.t.Fatalf("Some expectations are already set for the FileSystem.MkdirAll method")
+	}
+
+	mmMkdirAll.mock.funcMkdirAll = f
+	return mmMkdirAll.mock
+}
+
+// When sets expectation for the FileSystem.MkdirAll which will trigger the result defined by the following
+// Then helper
+func (mmMkdirAll *mFileSystemMockMkdirAll) When(path string, perm os.FileMode) *FileSystemMockMkdirAllExpectation {
+	if mmMkdirAll.mock.funcMkdirAll != nil {
+		mmMkdirAll.mock.t.Fatalf("FileSystemMock.MkdirAll mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockMkdirAllExpectation{
+		mock:   mmMkdirAll.mock,
+		params: &FileSystemMockMkdirAllParams{path, perm},
+	}
+	mmMkdirAll.expectations = append(mmMkdirAll.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.MkdirAll return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockMkdirAllExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockMkdirAllResults{err}
+	return e.mock
+}
+
+// MkdirAll implements infrastructure.FileSystem
+func (mmMkdirAll *FileSystemMock) MkdirAll(path string, perm os.FileMode) (err error) {
+	mm_atomic.AddUint64(&mmMkdirAll.beforeMkdirAllCounter, 1)
+	defer mm_atomic.AddUint64(&mmMkdirAll.afterMkdirAllCounter, 1)
+
+	if mmMkdirAll.inspectFuncMkdirAll != nil {
+		mmMkdirAll.inspectFuncMkdirAll(path, perm)
+	}
+
+	mm_params := &FileSystemMockMkdirAllParams{path, perm}
+
+	// Record call args
+	mmMkdirAll.MkdirAllMock.mutex.Lock()
+	mmMkdirAll.MkdirAllMock.callArgs = append(mmMkdirAll.MkdirAllMock.callArgs, mm_params)
+	mmMkdirAll.MkdirAllMock.mutex.Unlock()
+
+	for _, e := range mmMkdirAll.MkdirAllMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmMkdirAll.MkdirAllMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmMkdirAll.MkdirAllMock.defaultExpectation.Counter, 1)
+		mm_want := mmMkdirAll.MkdirAllMock.defaultExpectation.params
+		mm_got := FileSystemMockMkdirAllParams{path, perm}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmMkdirAll.t.Errorf("FileSystemMock.MkdirAll got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmMkdirAll.MkdirAllMock.defaultExpectation.results
+		if mm_results == nil {
+			mmMkdirAll.t.Fatal("No results are set for the FileSystemMock.MkdirAll")
+		}
+		return (*mm_results).err
+	}
+	if mmMkdirAll.funcMkdirAll != nil {
+		return mmMkdirAll.funcMkdirAll(path, perm)
+	}
+	mmMkdirAll.t.Fatalf("Unexpected call to FileSystemMock.MkdirAll. %v %v", path, perm)
+	return
+}
+
+// MkdirAllAfterCounter returns a count of finished FileSystemMock.MkdirAll invocations
+func (mmMkdirAll *FileSystemMock) MkdirAllAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmMkdirAll.afterMkdirAllCounter)
+}
+
+// MkdirAllBeforeCounter returns a count of FileSystemMock.MkdirAll invocations
+func (mmMkdirAll *FileSystemMock) MkdirAllBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmMkdirAll.beforeMkdirAllCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.MkdirAll.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmMkdirAll *mFileSystemMockMkdirAll) Calls() []*FileSystemMockMkdirAllParams {
+	mmMkdirAll.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockMkdirAllParams, len(mmMkdirAll.callArgs))
+	copy(argCopy, mmMkdirAll.callArgs)
+
+	mmMkdirAll.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockMkdirAllDone returns true if the count of the MkdirAll invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockMkdirAllDone() bool {
+	for _, e := range m.MkdirAllMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.MkdirAllMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterMkdirAllCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcMkdirAll != nil && mm_atomic.LoadUint64(&m.afterMkdirAllCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockMkdirAllInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockMkdirAllInspect() {
+	for _, e := range m.MkdirAllMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.MkdirAll with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.MkdirAllMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterMkdirAllCounter) < 1 {
+		if m.MkdirAllMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.MkdirAll")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.MkdirAll with params: %#v", *m.MkdirAllMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcMkdirAll != nil && mm_atomic.LoadUint64(&m.afterMkdirAllCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.MkdirAll")
+	}
+}
+
+type mFileSystemMockName struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockNameExpectation
+	expectations       []*FileSystemMockNameExpectation
+}
+
+// FileSystemMockNameExpectation specifies expectation struct of the FileSystem.Name
+type FileSystemMockNameExpectation struct {
+	mock *FileSystemMock
+
+	results *FileSystemMockNameResults
+	Counter uint64
+}
+
+// FileSystemMockNameResults contains results of the FileSystem.Name
+type FileSystemMockNameResults struct {
+	s1 string
+}
+
+// Expect sets up expected params for FileSystem.Name
+func (mmName *mFileSystemMockName) Expect() *mFileSystemMockName {
+	if mmName.mock.funcName != nil {
+		mmName.mock.t.Fatalf("FileSystemMock.Name mock is already set by Set")
+	}
+
+	if mmName.defaultExpectation == nil {
+		mmName.defaultExpectation = &FileSystemMockNameExpectation{}
+	}
+
+	return mmName
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Name
+func (mmName *mFileSystemMockName) Inspect(f func()) *mFileSystemMockName {
+	if mmName.mock.inspectFuncName != nil {
+		mmName.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Name")
+	}
+
+	mmName.mock.inspectFuncName = f
+
+	return mmName
+}
+
+// Return sets up results that will be returned by FileSystem.Name
+func (mmName *mFileSystemMockName) Return(s1 string) *FileSystemMock {
+	if mmName.mock.funcName != nil {
+		mmName.mock.t.Fatalf("FileSystemMock.Name mock is already set by Set")
+	}
+
+	if mmName.defaultExpectation == nil {
+		mmName.defaultExpectation = &FileSystemMockNameExpectation{mock: mmName.mock}
+	}
+	mmName.defaultExpectation.results = &FileSystemMockNameResults{s1}
+	return mmName.mock
+}
+
+//Set uses given function f to mock the FileSystem.Name method
+func (mmName *mFileSystemMockName) Set(f func() (s1 string)) *FileSystemMock {
+	if mmName.defaultExpectation != nil {
+		mmName.mock.t.Fatalf("Default expectation is already set for the FileSystem.Name method")
+	}
+
+	if len(mmName.expectations) > 0 {
+		mmName.mock.t.Fatalf("Some expectations are already set for the FileSystem.Name method")
+	}
+
+	mmName.mock.funcName = f
+	return mmName.mock
+}
+
+// Name implements infrastructure.FileSystem
+func (mmName *FileSystemMock) Name() (s1 string) {
+	mm_atomic.AddUint64(&mmName.beforeNameCounter, 1)
+	defer mm_atomic.AddUint64(&mmName.afterNameCounter, 1)
+
+	if mmName.inspectFuncName != nil {
+		mmName.inspectFuncName()
+	}
+
+	if mmName.NameMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmName.NameMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmName.NameMock.defaultExpectation.results
+		if mm_results == nil {
+			mmName.t.Fatal("No results are set for the FileSystemMock.Name")
+		}
+		return (*mm_results).s1
+	}
+	if mmName.funcName != nil {
+		return mmName.funcName()
+	}
+	mmName.t.Fatalf("Unexpected call to FileSystemMock.Name.")
+	return
+}
+
+// NameAfterCounter returns a count of finished FileSystemMock.Name invocations
+func (mmName *FileSystemMock) NameAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmName.afterNameCounter)
+}
+
+// NameBeforeCounter returns a count of FileSystemMock.Name invocations
+func (mmName *FileSystemMock) NameBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmName.beforeNameCounter)
+}
+
+// MinimockNameDone returns true if the count of the Name invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockNameDone() bool {
+	for _, e := range m.NameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.NameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterNameCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcName != nil && mm_atomic.LoadUint64(&m.afterNameCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockNameInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockNameInspect() {
+	for _, e := range m.NameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to FileSystemMock.Name")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.NameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterNameCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Name")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcName != nil && mm_atomic.LoadUint64(&m.afterNameCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Name")
+	}
+}
+
+type mFileSystemMockOpen struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockOpenExpectation
+	expectations       []*FileSystemMockOpenExpectation
+
+	callArgs []*FileSystemMockOpenParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockOpenExpectation specifies expectation struct of the FileSystem.Open
+type FileSystemMockOpenExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockOpenParams
+	results *FileSystemMockOpenResults
+	Counter uint64
+}
+
+// FileSystemMockOpenParams contains parameters of the FileSystem.Open
+type FileSystemMockOpenParams struct {
+	name string
+}
+
+// FileSystemMockOpenResults contains results of the FileSystem.Open
+type FileSystemMockOpenResults struct {
+	f1  afero.File
+	err error
+}
+
+// Expect sets up expected params for FileSystem.Open
+func (mmOpen *mFileSystemMockOpen) Expect(name string) *mFileSystemMockOpen {
+	if mmOpen.mock.funcOpen != nil {
+		mmOpen.mock.t.Fatalf("FileSystemMock.Open mock is already set by Set")
+	}
+
+	if mmOpen.defaultExpectation == nil {
+		mmOpen.defaultExpectation = &FileSystemMockOpenExpectation{}
+	}
+
+	mmOpen.defaultExpectation.params = &FileSystemMockOpenParams{name}
+	for _, e := range mmOpen.expectations {
+		if minimock.Equal(e.params, mmOpen.defaultExpectation.params) {
+			mmOpen.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmOpen.defaultExpectation.params)
+		}
+	}
+
+	return mmOpen
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Open
+func (mmOpen *mFileSystemMockOpen) Inspect(f func(name string)) *mFileSystemMockOpen {
+	if mmOpen.mock.inspectFuncOpen != nil {
+		mmOpen.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Open")
+	}
+
+	mmOpen.mock.inspectFuncOpen = f
+
+	return mmOpen
+}
+
+// Return sets up results that will be returned by FileSystem.Open
+func (mmOpen *mFileSystemMockOpen) Return(f1 afero.File, err error) *FileSystemMock {
+	if mmOpen.mock.funcOpen != nil {
+		mmOpen.mock.t.Fatalf("FileSystemMock.Open mock is already set by Set")
+	}
+
+	if mmOpen.defaultExpectation == nil {
+		mmOpen.defaultExpectation = &FileSystemMockOpenExpectation{mock: mmOpen.mock}
+	}
+	mmOpen.defaultExpectation.results = &FileSystemMockOpenResults{f1, err}
+	return mmOpen.mock
+}
+
+//Set uses given function f to mock the FileSystem.Open method
+func (mmOpen *mFileSystemMockOpen) Set(f func(name string) (f1 afero.File, err error)) *FileSystemMock {
+	if mmOpen.defaultExpectation != nil {
+		mmOpen.mock.t.Fatalf("Default expectation is already set for the FileSystem.Open method")
+	}
+
+	if len(mmOpen.expectations) > 0 {
+		mmOpen.mock.t.Fatalf("Some expectations are already set for the FileSystem.Open method")
+	}
+
+	mmOpen.mock.funcOpen = f
+	return mmOpen.mock
+}
+
+// When sets expectation for the FileSystem.Open which will trigger the result defined by the following
+// Then helper
+func (mmOpen *mFileSystemMockOpen) When(name string) *FileSystemMockOpenExpectation {
+	if mmOpen.mock.funcOpen != nil {
+		mmOpen.mock.t.Fatalf("FileSystemMock.Open mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockOpenExpectation{
+		mock:   mmOpen.mock,
+		params: &FileSystemMockOpenParams{name},
+	}
+	mmOpen.expectations = append(mmOpen.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.Open return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockOpenExpectation) Then(f1 afero.File, err error) *FileSystemMock {
+	e.results = &FileSystemMockOpenResults{f1, err}
+	return e.mock
+}
+
+// Open implements infrastructure.FileSystem
+func (mmOpen *FileSystemMock) Open(name string) (f1 afero.File, err error) {
+	mm_atomic.AddUint64(&mmOpen.beforeOpenCounter, 1)
+	defer mm_atomic.AddUint64(&mmOpen.afterOpenCounter, 1)
+
+	if mmOpen.inspectFuncOpen != nil {
+		mmOpen.inspectFuncOpen(name)
+	}
+
+	mm_params := &FileSystemMockOpenParams{name}
+
+	// Record call args
+	mmOpen.OpenMock.mutex.Lock()
+	mmOpen.OpenMock.callArgs = append(mmOpen.OpenMock.callArgs, mm_params)
+	mmOpen.OpenMock.mutex.Unlock()
+
+	for _, e := range mmOpen.OpenMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.f1, e.results.err
+		}
+	}
+
+	if mmOpen.OpenMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmOpen.OpenMock.defaultExpectation.Counter, 1)
+		mm_want := mmOpen.OpenMock.defaultExpectation.params
+		mm_got := FileSystemMockOpenParams{name}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmOpen.t.Errorf("FileSystemMock.Open got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmOpen.OpenMock.defaultExpectation.results
+		if mm_results == nil {
+			mmOpen.t.Fatal("No results are set for the FileSystemMock.Open")
+		}
+		return (*mm_results).f1, (*mm_results).err
+	}
+	if mmOpen.funcOpen != nil {
+		return mmOpen.funcOpen(name)
+	}
+	mmOpen.t.Fatalf("Unexpected call to FileSystemMock.Open. %v", name)
+	return
+}
+
+// OpenAfterCounter returns a count of finished FileSystemMock.Open invocations
+func (mmOpen *FileSystemMock) OpenAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmOpen.afterOpenCounter)
+}
+
+// OpenBeforeCounter returns a count of FileSystemMock.Open invocations
+func (mmOpen *FileSystemMock) OpenBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmOpen.beforeOpenCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.Open.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmOpen *mFileSystemMockOpen) Calls() []*FileSystemMockOpenParams {
+	mmOpen.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockOpenParams, len(mmOpen.callArgs))
+	copy(argCopy, mmOpen.callArgs)
+
+	mmOpen.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockOpenDone returns true if the count of the Open invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockOpenDone() bool {
+	for _, e := range m.OpenMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.OpenMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterOpenCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcOpen != nil && mm_atomic.LoadUint64(&m.afterOpenCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockOpenInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockOpenInspect() {
+	for _, e := range m.OpenMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.Open with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.OpenMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterOpenCounter) < 1 {
+		if m.OpenMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Open")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.Open with params: %#v", *m.OpenMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcOpen != nil && mm_atomic.LoadUint64(&m.afterOpenCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Open")
+	}
+}
+
+type mFileSystemMockOpenFile struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockOpenFileExpectation
+	expectations       []*FileSystemMockOpenFileExpectation
+
+	callArgs []*FileSystemMockOpenFileParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockOpenFileExpectation specifies expectation struct of the FileSystem.OpenFile
+type FileSystemMockOpenFileExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockOpenFileParams
+	results *FileSystemMockOpenFileResults
+	Counter uint64
+}
+
+// FileSystemMockOpenFileParams contains parameters of the FileSystem.OpenFile
+type FileSystemMockOpenFileParams struct {
+	name string
+	flag int
+	perm os.FileMode
+}
+
+// FileSystemMockOpenFileResults contains results of the FileSystem.OpenFile
+type FileSystemMockOpenFileResults struct {
+	f1  afero.File
+	err error
+}
+
+// Expect sets up expected params for FileSystem.OpenFile
+func (mmOpenFile *mFileSystemMockOpenFile) Expect(name string, flag int, perm os.FileMode) *mFileSystemMockOpenFile {
+	if mmOpenFile.mock.funcOpenFile != nil {
+		mmOpenFile.mock.t.Fatalf("FileSystemMock.OpenFile mock is already set by Set")
+	}
+
+	if mmOpenFile.defaultExpectation == nil {
+		mmOpenFile.defaultExpectation = &FileSystemMockOpenFileExpectation{}
+	}
+
+	mmOpenFile.defaultExpectation.params = &FileSystemMockOpenFileParams{name, flag, perm}
+	for _, e := range mmOpenFile.expectations {
+		if minimock.Equal(e.params, mmOpenFile.defaultExpectation.params) {
+			mmOpenFile.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmOpenFile.defaultExpectation.params)
+		}
+	}
+
+	return mmOpenFile
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.OpenFile
+func (mmOpenFile *mFileSystemMockOpenFile) Inspect(f func(name string, flag int, perm os.FileMode)) *mFileSystemMockOpenFile {
+	if mmOpenFile.mock.inspectFuncOpenFile != nil {
+		mmOpenFile.mock.t.Fatalf("Inspect function is already set for FileSystemMock.OpenFile")
+	}
+
+	mmOpenFile.mock.inspectFuncOpenFile = f
+
+	return mmOpenFile
+}
+
+// Return sets up results that will be returned by FileSystem.OpenFile
+func (mmOpenFile *mFileSystemMockOpenFile) Return(f1 afero.File, err error) *FileSystemMock {
+	if mmOpenFile.mock.funcOpenFile != nil {
+		mmOpenFile.mock.t.Fatalf("FileSystemMock.OpenFile mock is already set by Set")
+	}
+
+	if mmOpenFile.defaultExpectation == nil {
+		mmOpenFile.defaultExpectation = &FileSystemMockOpenFileExpectation{mock: mmOpenFile.mock}
+	}
+	mmOpenFile.defaultExpectation.results = &FileSystemMockOpenFileResults{f1, err}
+	return mmOpenFile.mock
+}
+
+//Set uses given function f to mock the FileSystem.OpenFile method
+func (mmOpenFile *mFileSystemMockOpenFile) Set(f func(name string, flag int, perm os.FileMode) (f1 afero.File, err error)) *FileSystemMock {
+	if mmOpenFile.defaultExpectation != nil {
+		mmOpenFile.mock.t.Fatalf("Default expectation is already set for the FileSystem.OpenFile method")
+	}
+
+	if len(mmOpenFile.expectations) > 0 {
+		mmOpenFile.mock.t.Fatalf("Some expectations are already set for the FileSystem.OpenFile method")
+	}
+
+	mmOpenFile.mock.funcOpenFile = f
+	return mmOpenFile.mock
+}
+
+// When sets expectation for the FileSystem.OpenFile which will trigger the result defined by the following
+// Then helper
+func (mmOpenFile *mFileSystemMockOpenFile) When(name string, flag int, perm os.FileMode) *FileSystemMockOpenFileExpectation {
+	if mmOpenFile.mock.funcOpenFile != nil {
+		mmOpenFile.mock.t.Fatalf("FileSystemMock.OpenFile mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockOpenFileExpectation{
+		mock:   mmOpenFile.mock,
+		params: &FileSystemMockOpenFileParams{name, flag, perm},
+	}
+	mmOpenFile.expectations = append(mmOpenFile.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.OpenFile return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockOpenFileExpectation) Then(f1 afero.File, err error) *FileSystemMock {
+	e.results = &FileSystemMockOpenFileResults{f1, err}
+	return e.mock
+}
+
+// OpenFile implements infrastructure.FileSystem
+func (mmOpenFile *FileSystemMock) OpenFile(name string, flag int, perm os.FileMode) (f1 afero.File, err error) {
+	mm_atomic.AddUint64(&mmOpenFile.beforeOpenFileCounter, 1)
+	defer mm_atomic.AddUint64(&mmOpenFile.afterOpenFileCounter, 1)
+
+	if mmOpenFile.inspectFuncOpenFile != nil {
+		mmOpenFile.inspectFuncOpenFile(name, flag, perm)
+	}
+
+	mm_params := &FileSystemMockOpenFileParams{name, flag, perm}
+
+	// Record call args
+	mmOpenFile.OpenFileMock.mutex.Lock()
+	mmOpenFile.OpenFileMock.callArgs = append(mmOpenFile.OpenFileMock.callArgs, mm_params)
+	mmOpenFile.OpenFileMock.mutex.Unlock()
+
+	for _, e := range mmOpenFile.OpenFileMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.f1, e.results.err
+		}
+	}
+
+	if mmOpenFile.OpenFileMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmOpenFile.OpenFileMock.defaultExpectation.Counter, 1)
+		mm_want := mmOpenFile.OpenFileMock.defaultExpectation.params
+		mm_got := FileSystemMockOpenFileParams{name, flag, perm}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmOpenFile.t.Errorf("FileSystemMock.OpenFile got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmOpenFile.OpenFileMock.defaultExpectation.results
+		if mm_results == nil {
+			mmOpenFile.t.Fatal("No results are set for the FileSystemMock.OpenFile")
+		}
+		return (*mm_results).f1, (*mm_results).err
+	}
+	if mmOpenFile.funcOpenFile != nil {
+		return mmOpenFile.funcOpenFile(name, flag, perm)
+	}
+	mmOpenFile.t.Fatalf("Unexpected call to FileSystemMock.OpenFile. %v %v %v", name, flag, perm)
+	return
+}
+
+// OpenFileAfterCounter returns a count of finished FileSystemMock.OpenFile invocations
+func (mmOpenFile *FileSystemMock) OpenFileAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmOpenFile.afterOpenFileCounter)
+}
+
+// OpenFileBeforeCounter returns a count of FileSystemMock.OpenFile invocations
+func (mmOpenFile *FileSystemMock) OpenFileBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmOpenFile.beforeOpenFileCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.OpenFile.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmOpenFile *mFileSystemMockOpenFile) Calls() []*FileSystemMockOpenFileParams {
+	mmOpenFile.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockOpenFileParams, len(mmOpenFile.callArgs))
+	copy(argCopy, mmOpenFile.callArgs)
+
+	mmOpenFile.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockOpenFileDone returns true if the count of the OpenFile invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockOpenFileDone() bool {
+	for _, e := range m.OpenFileMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.OpenFileMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterOpenFileCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcOpenFile != nil && mm_atomic.LoadUint64(&m.afterOpenFileCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockOpenFileInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockOpenFileInspect() {
+	for _, e := range m.OpenFileMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.OpenFile with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.OpenFileMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterOpenFileCounter) < 1 {
+		if m.OpenFileMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.OpenFile")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.OpenFile with params: %#v", *m.OpenFileMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcOpenFile != nil && mm_atomic.LoadUint64(&m.afterOpenFileCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.OpenFile")
+	}
+}
+
+type mFileSystemMockRemove struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockRemoveExpectation
+	expectations       []*FileSystemMockRemoveExpectation
+
+	callArgs []*FileSystemMockRemoveParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockRemoveExpectation specifies expectation struct of the FileSystem.Remove
+type FileSystemMockRemoveExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockRemoveParams
+	results *FileSystemMockRemoveResults
+	Counter uint64
+}
+
+// FileSystemMockRemoveParams contains parameters of the FileSystem.Remove
+type FileSystemMockRemoveParams struct {
+	name string
+}
+
+// FileSystemMockRemoveResults contains results of the FileSystem.Remove
+type FileSystemMockRemoveResults struct {
+	err error
+}
+
+// Expect sets up expected params for FileSystem.Remove
+func (mmRemove *mFileSystemMockRemove) Expect(name string) *mFileSystemMockRemove {
+	if mmRemove.mock.funcRemove != nil {
+		mmRemove.mock.t.Fatalf("FileSystemMock.Remove mock is already set by Set")
+	}
+
+	if mmRemove.defaultExpectation == nil {
+		mmRemove.defaultExpectation = &FileSystemMockRemoveExpectation{}
+	}
+
+	mmRemove.defaultExpectation.params = &FileSystemMockRemoveParams{name}
+	for _, e := range mmRemove.expectations {
+		if minimock.Equal(e.params, mmRemove.defaultExpectation.params) {
+			mmRemove.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRemove.defaultExpectation.params)
+		}
+	}
+
+	return mmRemove
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Remove
+func (mmRemove *mFileSystemMockRemove) Inspect(f func(name string)) *mFileSystemMockRemove {
+	if mmRemove.mock.inspectFuncRemove != nil {
+		mmRemove.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Remove")
+	}
+
+	mmRemove.mock.inspectFuncRemove = f
+
+	return mmRemove
+}
+
+// Return sets up results that will be returned by FileSystem.Remove
+func (mmRemove *mFileSystemMockRemove) Return(err error) *FileSystemMock {
+	if mmRemove.mock.funcRemove != nil {
+		mmRemove.mock.t.Fatalf("FileSystemMock.Remove mock is already set by Set")
+	}
+
+	if mmRemove.defaultExpectation == nil {
+		mmRemove.defaultExpectation = &FileSystemMockRemoveExpectation{mock: mmRemove.mock}
+	}
+	mmRemove.defaultExpectation.results = &FileSystemMockRemoveResults{err}
+	return mmRemove.mock
+}
+
+//Set uses given function f to mock the FileSystem.Remove method
+func (mmRemove *mFileSystemMockRemove) Set(f func(name string) (err error)) *FileSystemMock {
+	if mmRemove.defaultExpectation != nil {
+		mmRemove.mock.t.Fatalf("Default expectation is already set for the FileSystem.Remove method")
+	}
+
+	if len(mmRemove.expectations) > 0 {
+		mmRemove.mock.t.Fatalf("Some expectations are already set for the FileSystem.Remove method")
+	}
+
+	mmRemove.mock.funcRemove = f
+	return mmRemove.mock
+}
+
+// When sets expectation for the FileSystem.Remove which will trigger the result defined by the following
+// Then helper
+func (mmRemove *mFileSystemMockRemove) When(name string) *FileSystemMockRemoveExpectation {
+	if mmRemove.mock.funcRemove != nil {
+		mmRemove.mock.t.Fatalf("FileSystemMock.Remove mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockRemoveExpectation{
+		mock:   mmRemove.mock,
+		params: &FileSystemMockRemoveParams{name},
+	}
+	mmRemove.expectations = append(mmRemove.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.Remove return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockRemoveExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockRemoveResults{err}
+	return e.mock
+}
+
+// Remove implements infrastructure.FileSystem
+func (mmRemove *FileSystemMock) Remove(name string) (err error) {
+	mm_atomic.AddUint64(&mmRemove.beforeRemoveCounter, 1)
+	defer mm_atomic.AddUint64(&mmRemove.afterRemoveCounter, 1)
+
+	if mmRemove.inspectFuncRemove != nil {
+		mmRemove.inspectFuncRemove(name)
+	}
+
+	mm_params := &FileSystemMockRemoveParams{name}
+
+	// Record call args
+	mmRemove.RemoveMock.mutex.Lock()
+	mmRemove.RemoveMock.callArgs = append(mmRemove.RemoveMock.callArgs, mm_params)
+	mmRemove.RemoveMock.mutex.Unlock()
+
+	for _, e := range mmRemove.RemoveMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmRemove.RemoveMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmRemove.RemoveMock.defaultExpectation.Counter, 1)
+		mm_want := mmRemove.RemoveMock.defaultExpectation.params
+		mm_got := FileSystemMockRemoveParams{name}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRemove.t.Errorf("FileSystemMock.Remove got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmRemove.RemoveMock.defaultExpectation.results
+		if mm_results == nil {
+			mmRemove.t.Fatal("No results are set for the FileSystemMock.Remove")
+		}
+		return (*mm_results).err
+	}
+	if mmRemove.funcRemove != nil {
+		return mmRemove.funcRemove(name)
+	}
+	mmRemove.t.Fatalf("Unexpected call to FileSystemMock.Remove. %v", name)
+	return
+}
+
+// RemoveAfterCounter returns a count of finished FileSystemMock.Remove invocations
+func (mmRemove *FileSystemMock) RemoveAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemove.afterRemoveCounter)
+}
+
+// RemoveBeforeCounter returns a count of FileSystemMock.Remove invocations
+func (mmRemove *FileSystemMock) RemoveBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemove.beforeRemoveCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.Remove.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmRemove *mFileSystemMockRemove) Calls() []*FileSystemMockRemoveParams {
+	mmRemove.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockRemoveParams, len(mmRemove.callArgs))
+	copy(argCopy, mmRemove.callArgs)
+
+	mmRemove.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockRemoveDone returns true if the count of the Remove invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockRemoveDone() bool {
+	for _, e := range m.RemoveMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemove != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockRemoveInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockRemoveInspect() {
+	for _, e := range m.RemoveMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.Remove with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
+		if m.RemoveMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Remove")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.Remove with params: %#v", *m.RemoveMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemove != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Remove")
+	}
+}
+
+type mFileSystemMockRemoveAll struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockRemoveAllExpectation
+	expectations       []*FileSystemMockRemoveAllExpectation
+
+	callArgs []*FileSystemMockRemoveAllParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockRemoveAllExpectation specifies expectation struct of the FileSystem.RemoveAll
+type FileSystemMockRemoveAllExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockRemoveAllParams
+	results *FileSystemMockRemoveAllResults
+	Counter uint64
+}
+
+// FileSystemMockRemoveAllParams contains parameters of the FileSystem.RemoveAll
+type FileSystemMockRemoveAllParams struct {
+	path string
+}
+
+// FileSystemMockRemoveAllResults contains results of the FileSystem.RemoveAll
+type FileSystemMockRemoveAllResults struct {
+	err error
+}
+
+// Expect sets up expected params for FileSystem.RemoveAll
+func (mmRemoveAll *mFileSystemMockRemoveAll) Expect(path string) *mFileSystemMockRemoveAll {
+	if mmRemoveAll.mock.funcRemoveAll != nil {
+		mmRemoveAll.mock.t.Fatalf("FileSystemMock.RemoveAll mock is already set by Set")
+	}
+
+	if mmRemoveAll.defaultExpectation == nil {
+		mmRemoveAll.defaultExpectation = &FileSystemMockRemoveAllExpectation{}
+	}
+
+	mmRemoveAll.defaultExpectation.params = &FileSystemMockRemoveAllParams{path}
+	for _, e := range mmRemoveAll.expectations {
+		if minimock.Equal(e.params, mmRemoveAll.defaultExpectation.params) {
+			mmRemoveAll.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRemoveAll.defaultExpectation.params)
+		}
+	}
+
+	return mmRemoveAll
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.RemoveAll
+func (mmRemoveAll *mFileSystemMockRemoveAll) Inspect(f func(path string)) *mFileSystemMockRemoveAll {
+	if mmRemoveAll.mock.inspectFuncRemoveAll != nil {
+		mmRemoveAll.mock.t.Fatalf("Inspect function is already set for FileSystemMock.RemoveAll")
+	}
+
+	mmRemoveAll.mock.inspectFuncRemoveAll = f
+
+	return mmRemoveAll
+}
+
+// Return sets up results that will be returned by FileSystem.RemoveAll
+func (mmRemoveAll *mFileSystemMockRemoveAll) Return(err error) *FileSystemMock {
+	if mmRemoveAll.mock.funcRemoveAll != nil {
+		mmRemoveAll.mock.t.Fatalf("FileSystemMock.RemoveAll mock is already set by Set")
+	}
+
+	if mmRemoveAll.defaultExpectation == nil {
+		mmRemoveAll.defaultExpectation = &FileSystemMockRemoveAllExpectation{mock: mmRemoveAll.mock}
+	}
+	mmRemoveAll.defaultExpectation.results = &FileSystemMockRemoveAllResults{err}
+	return mmRemoveAll.mock
+}
+
+//Set uses given function f to mock the FileSystem.RemoveAll method
+func (mmRemoveAll *mFileSystemMockRemoveAll) Set(f func(path string) (err error)) *FileSystemMock {
+	if mmRemoveAll.defaultExpectation != nil {
+		mmRemoveAll.mock.t.Fatalf("Default expectation is already set for the FileSystem.RemoveAll method")
+	}
+
+	if len(mmRemoveAll.expectations) > 0 {
+		mmRemoveAll.mock.t.Fatalf("Some expectations are already set for the FileSystem.RemoveAll method")
+	}
+
+	mmRemoveAll.mock.funcRemoveAll = f
+	return mmRemoveAll.mock
+}
+
+// When sets expectation for the FileSystem.RemoveAll which will trigger the result defined by the following
+// Then helper
+func (mmRemoveAll *mFileSystemMockRemoveAll) When(path string) *FileSystemMockRemoveAllExpectation {
+	if mmRemoveAll.mock.funcRemoveAll != nil {
+		mmRemoveAll.mock.t.Fatalf("FileSystemMock.RemoveAll mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockRemoveAllExpectation{
+		mock:   mmRemoveAll.mock,
+		params: &FileSystemMockRemoveAllParams{path},
+	}
+	mmRemoveAll.expectations = append(mmRemoveAll.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.RemoveAll return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockRemoveAllExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockRemoveAllResults{err}
+	return e.mock
+}
+
+// RemoveAll implements infrastructure.FileSystem
+func (mmRemoveAll *FileSystemMock) RemoveAll(path string) (err error) {
+	mm_atomic.AddUint64(&mmRemoveAll.beforeRemoveAllCounter, 1)
+	defer mm_atomic.AddUint64(&mmRemoveAll.afterRemoveAllCounter, 1)
+
+	if mmRemoveAll.inspectFuncRemoveAll != nil {
+		mmRemoveAll.inspectFuncRemoveAll(path)
+	}
+
+	mm_params := &FileSystemMockRemoveAllParams{path}
+
+	// Record call args
+	mmRemoveAll.RemoveAllMock.mutex.Lock()
+	mmRemoveAll.RemoveAllMock.callArgs = append(mmRemoveAll.RemoveAllMock.callArgs, mm_params)
+	mmRemoveAll.RemoveAllMock.mutex.Unlock()
+
+	for _, e := range mmRemoveAll.RemoveAllMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmRemoveAll.RemoveAllMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmRemoveAll.RemoveAllMock.defaultExpectation.Counter, 1)
+		mm_want := mmRemoveAll.RemoveAllMock.defaultExpectation.params
+		mm_got := FileSystemMockRemoveAllParams{path}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRemoveAll.t.Errorf("FileSystemMock.RemoveAll got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmRemoveAll.RemoveAllMock.defaultExpectation.results
+		if mm_results == nil {
+			mmRemoveAll.t.Fatal("No results are set for the FileSystemMock.RemoveAll")
+		}
+		return (*mm_results).err
+	}
+	if mmRemoveAll.funcRemoveAll != nil {
+		return mmRemoveAll.funcRemoveAll(path)
+	}
+	mmRemoveAll.t.Fatalf("Unexpected call to FileSystemMock.RemoveAll. %v", path)
+	return
+}
+
+// RemoveAllAfterCounter returns a count of finished FileSystemMock.RemoveAll invocations
+func (mmRemoveAll *FileSystemMock) RemoveAllAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemoveAll.afterRemoveAllCounter)
+}
+
+// RemoveAllBeforeCounter returns a count of FileSystemMock.RemoveAll invocations
+func (mmRemoveAll *FileSystemMock) RemoveAllBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRemoveAll.beforeRemoveAllCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.RemoveAll.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmRemoveAll *mFileSystemMockRemoveAll) Calls() []*FileSystemMockRemoveAllParams {
+	mmRemoveAll.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockRemoveAllParams, len(mmRemoveAll.callArgs))
+	copy(argCopy, mmRemoveAll.callArgs)
+
+	mmRemoveAll.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockRemoveAllDone returns true if the count of the RemoveAll invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockRemoveAllDone() bool {
+	for _, e := range m.RemoveAllMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveAllMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveAllCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemoveAll != nil && mm_atomic.LoadUint64(&m.afterRemoveAllCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockRemoveAllInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockRemoveAllInspect() {
+	for _, e := range m.RemoveAllMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.RemoveAll with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RemoveAllMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveAllCounter) < 1 {
+		if m.RemoveAllMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.RemoveAll")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.RemoveAll with params: %#v", *m.RemoveAllMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRemoveAll != nil && mm_atomic.LoadUint64(&m.afterRemoveAllCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.RemoveAll")
+	}
+}
+
+type mFileSystemMockRename struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockRenameExpectation
+	expectations       []*FileSystemMockRenameExpectation
+
+	callArgs []*FileSystemMockRenameParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockRenameExpectation specifies expectation struct of the FileSystem.Rename
+type FileSystemMockRenameExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockRenameParams
+	results *FileSystemMockRenameResults
+	Counter uint64
+}
+
+// FileSystemMockRenameParams contains parameters of the FileSystem.Rename
+type FileSystemMockRenameParams struct {
+	oldname string
+	newname string
+}
+
+// FileSystemMockRenameResults contains results of the FileSystem.Rename
+type FileSystemMockRenameResults struct {
+	err error
+}
+
+// Expect sets up expected params for FileSystem.Rename
+func (mmRename *mFileSystemMockRename) Expect(oldname string, newname string) *mFileSystemMockRename {
+	if mmRename.mock.funcRename != nil {
+		mmRename.mock.t.Fatalf("FileSystemMock.Rename mock is already set by Set")
+	}
+
+	if mmRename.defaultExpectation == nil {
+		mmRename.defaultExpectation = &FileSystemMockRenameExpectation{}
+	}
+
+	mmRename.defaultExpectation.params = &FileSystemMockRenameParams{oldname, newname}
+	for _, e := range mmRename.expectations {
+		if minimock.Equal(e.params, mmRename.defaultExpectation.params) {
+			mmRename.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRename.defaultExpectation.params)
+		}
+	}
+
+	return mmRename
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Rename
+func (mmRename *mFileSystemMockRename) Inspect(f func(oldname string, newname string)) *mFileSystemMockRename {
+	if mmRename.mock.inspectFuncRename != nil {
+		mmRename.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Rename")
+	}
+
+	mmRename.mock.inspectFuncRename = f
+
+	return mmRename
+}
+
+// Return sets up results that will be returned by FileSystem.Rename
+func (mmRename *mFileSystemMockRename) Return(err error) *FileSystemMock {
+	if mmRename.mock.funcRename != nil {
+		mmRename.mock.t.Fatalf("FileSystemMock.Rename mock is already set by Set")
+	}
+
+	if mmRename.defaultExpectation == nil {
+		mmRename.defaultExpectation = &FileSystemMockRenameExpectation{mock: mmRename.mock}
+	}
+	mmRename.defaultExpectation.results = &FileSystemMockRenameResults{err}
+	return mmRename.mock
+}
+
+//Set uses given function f to mock the FileSystem.Rename method
+func (mmRename *mFileSystemMockRename) Set(f func(oldname string, newname string) (err error)) *FileSystemMock {
+	if mmRename.defaultExpectation != nil {
+		mmRename.mock.t.Fatalf("Default expectation is already set for the FileSystem.Rename method")
+	}
+
+	if len(mmRename.expectations) > 0 {
+		mmRename.mock.t.Fatalf("Some expectations are already set for the FileSystem.Rename method")
+	}
+
+	mmRename.mock.funcRename = f
+	return mmRename.mock
+}
+
+// When sets expectation for the FileSystem.Rename which will trigger the result defined by the following
+// Then helper
+func (mmRename *mFileSystemMockRename) When(oldname string, newname string) *FileSystemMockRenameExpectation {
+	if mmRename.mock.funcRename != nil {
+		mmRename.mock.t.Fatalf("FileSystemMock.Rename mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockRenameExpectation{
+		mock:   mmRename.mock,
+		params: &FileSystemMockRenameParams{oldname, newname},
+	}
+	mmRename.expectations = append(mmRename.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.Rename return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockRenameExpectation) Then(err error) *FileSystemMock {
+	e.results = &FileSystemMockRenameResults{err}
+	return e.mock
+}
+
+// Rename implements infrastructure.FileSystem
+func (mmRename *FileSystemMock) Rename(oldname string, newname string) (err error) {
+	mm_atomic.AddUint64(&mmRename.beforeRenameCounter, 1)
+	defer mm_atomic.AddUint64(&mmRename.afterRenameCounter, 1)
+
+	if mmRename.inspectFuncRename != nil {
+		mmRename.inspectFuncRename(oldname, newname)
+	}
+
+	mm_params := &FileSystemMockRenameParams{oldname, newname}
+
+	// Record call args
+	mmRename.RenameMock.mutex.Lock()
+	mmRename.RenameMock.callArgs = append(mmRename.RenameMock.callArgs, mm_params)
+	mmRename.RenameMock.mutex.Unlock()
+
+	for _, e := range mmRename.RenameMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmRename.RenameMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmRename.RenameMock.defaultExpectation.Counter, 1)
+		mm_want := mmRename.RenameMock.defaultExpectation.params
+		mm_got := FileSystemMockRenameParams{oldname, newname}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRename.t.Errorf("FileSystemMock.Rename got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmRename.RenameMock.defaultExpectation.results
+		if mm_results == nil {
+			mmRename.t.Fatal("No results are set for the FileSystemMock.Rename")
+		}
+		return (*mm_results).err
+	}
+	if mmRename.funcRename != nil {
+		return mmRename.funcRename(oldname, newname)
+	}
+	mmRename.t.Fatalf("Unexpected call to FileSystemMock.Rename. %v %v", oldname, newname)
+	return
+}
+
+// RenameAfterCounter returns a count of finished FileSystemMock.Rename invocations
+func (mmRename *FileSystemMock) RenameAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRename.afterRenameCounter)
+}
+
+// RenameBeforeCounter returns a count of FileSystemMock.Rename invocations
+func (mmRename *FileSystemMock) RenameBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmRename.beforeRenameCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.Rename.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmRename *mFileSystemMockRename) Calls() []*FileSystemMockRenameParams {
+	mmRename.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockRenameParams, len(mmRename.callArgs))
+	copy(argCopy, mmRename.callArgs)
+
+	mmRename.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockRenameDone returns true if the count of the Rename invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockRenameDone() bool {
+	for _, e := range m.RenameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RenameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRenameCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRename != nil && mm_atomic.LoadUint64(&m.afterRenameCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockRenameInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockRenameInspect() {
+	for _, e := range m.RenameMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.Rename with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.RenameMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRenameCounter) < 1 {
+		if m.RenameMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Rename")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.Rename with params: %#v", *m.RenameMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcRename != nil && mm_atomic.LoadUint64(&m.afterRenameCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Rename")
+	}
+}
+
+type mFileSystemMockStat struct {
+	mock               *FileSystemMock
+	defaultExpectation *FileSystemMockStatExpectation
+	expectations       []*FileSystemMockStatExpectation
+
+	callArgs []*FileSystemMockStatParams
+	mutex    sync.RWMutex
+}
+
+// FileSystemMockStatExpectation specifies expectation struct of the FileSystem.Stat
+type FileSystemMockStatExpectation struct {
+	mock    *FileSystemMock
+	params  *FileSystemMockStatParams
+	results *FileSystemMockStatResults
+	Counter uint64
+}
+
+// FileSystemMockStatParams contains parameters of the FileSystem.Stat
+type FileSystemMockStatParams struct {
+	name string
+}
+
+// FileSystemMockStatResults contains results of the FileSystem.Stat
+type FileSystemMockStatResults struct {
+	f1  os.FileInfo
+	err error
+}
+
+// Expect sets up expected params for FileSystem.Stat
+func (mmStat *mFileSystemMockStat) Expect(name string) *mFileSystemMockStat {
+	if mmStat.mock.funcStat != nil {
+		mmStat.mock.t.Fatalf("FileSystemMock.Stat mock is already set by Set")
+	}
+
+	if mmStat.defaultExpectation == nil {
+		mmStat.defaultExpectation = &FileSystemMockStatExpectation{}
+	}
+
+	mmStat.defaultExpectation.params = &FileSystemMockStatParams{name}
+	for _, e := range mmStat.expectations {
+		if minimock.Equal(e.params, mmStat.defaultExpectation.params) {
+			mmStat.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmStat.defaultExpectation.params)
+		}
+	}
+
+	return mmStat
+}
+
+// Inspect accepts an inspector function that has same arguments as the FileSystem.Stat
+func (mmStat *mFileSystemMockStat) Inspect(f func(name string)) *mFileSystemMockStat {
+	if mmStat.mock.inspectFuncStat != nil {
+		mmStat.mock.t.Fatalf("Inspect function is already set for FileSystemMock.Stat")
+	}
+
+	mmStat.mock.inspectFuncStat = f
+
+	return mmStat
+}
+
+// Return sets up results that will be returned by FileSystem.Stat
+func (mmStat *mFileSystemMockStat) Return(f1 os.FileInfo, err error) *FileSystemMock {
+	if mmStat.mock.funcStat != nil {
+		mmStat.mock.t.Fatalf("FileSystemMock.Stat mock is already set by Set")
+	}
+
+	if mmStat.defaultExpectation == nil {
+		mmStat.defaultExpectation = &FileSystemMockStatExpectation{mock: mmStat.mock}
+	}
+	mmStat.defaultExpectation.results = &FileSystemMockStatResults{f1, err}
+	return mmStat.mock
+}
+
+//Set uses given function f to mock the FileSystem.Stat method
+func (mmStat *mFileSystemMockStat) Set(f func(name string) (f1 os.FileInfo, err error)) *FileSystemMock {
+	if mmStat.defaultExpectation != nil {
+		mmStat.mock.t.Fatalf("Default expectation is already set for the FileSystem.Stat method")
+	}
+
+	if len(mmStat.expectations) > 0 {
+		mmStat.mock.t.Fatalf("Some expectations are already set for the FileSystem.Stat method")
+	}
+
+	mmStat.mock.funcStat = f
+	return mmStat.mock
+}
+
+// When sets expectation for the FileSystem.Stat which will trigger the result defined by the following
+// Then helper
+func (mmStat *mFileSystemMockStat) When(name string) *FileSystemMockStatExpectation {
+	if mmStat.mock.funcStat != nil {
+		mmStat.mock.t.Fatalf("FileSystemMock.Stat mock is already set by Set")
+	}
+
+	expectation := &FileSystemMockStatExpectation{
+		mock:   mmStat.mock,
+		params: &FileSystemMockStatParams{name},
+	}
+	mmStat.expectations = append(mmStat.expectations, expectation)
+	return expectation
+}
+
+// Then sets up FileSystem.Stat return parameters for the expectation previously defined by the When method
+func (e *FileSystemMockStatExpectation) Then(f1 os.FileInfo, err error) *FileSystemMock {
+	e.results = &FileSystemMockStatResults{f1, err}
+	return e.mock
+}
+
+// Stat implements infrastructure.FileSystem
+func (mmStat *FileSystemMock) Stat(name string) (f1 os.FileInfo, err error) {
+	mm_atomic.AddUint64(&mmStat.beforeStatCounter, 1)
+	defer mm_atomic.AddUint64(&mmStat.afterStatCounter, 1)
+
+	if mmStat.inspectFuncStat != nil {
+		mmStat.inspectFuncStat(name)
+	}
+
+	mm_params := &FileSystemMockStatParams{name}
+
+	// Record call args
+	mmStat.StatMock.mutex.Lock()
+	mmStat.StatMock.callArgs = append(mmStat.StatMock.callArgs, mm_params)
+	mmStat.StatMock.mutex.Unlock()
+
+	for _, e := range mmStat.StatMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.f1, e.results.err
+		}
+	}
+
+	if mmStat.StatMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmStat.StatMock.defaultExpectation.Counter, 1)
+		mm_want := mmStat.StatMock.defaultExpectation.params
+		mm_got := FileSystemMockStatParams{name}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmStat.t.Errorf("FileSystemMock.Stat got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmStat.StatMock.defaultExpectation.results
+		if mm_results == nil {
+			mmStat.t.Fatal("No results are set for the FileSystemMock.Stat")
+		}
+		return (*mm_results).f1, (*mm_results).err
+	}
+	if mmStat.funcStat != nil {
+		return mmStat.funcStat(name)
+	}
+	mmStat.t.Fatalf("Unexpected call to FileSystemMock.Stat. %v", name)
+	return
+}
+
+// StatAfterCounter returns a count of finished FileSystemMock.Stat invocations
+func (mmStat *FileSystemMock) StatAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmStat.afterStatCounter)
+}
+
+// StatBeforeCounter returns a count of FileSystemMock.Stat invocations
+func (mmStat *FileSystemMock) StatBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmStat.beforeStatCounter)
+}
+
+// Calls returns a list of arguments used in each call to FileSystemMock.Stat.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmStat *mFileSystemMockStat) Calls() []*FileSystemMockStatParams {
+	mmStat.mutex.RLock()
+
+	argCopy := make([]*FileSystemMockStatParams, len(mmStat.callArgs))
+	copy(argCopy, mmStat.callArgs)
+
+	mmStat.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockStatDone returns true if the count of the Stat invocations corresponds
+// the number of defined expectations
+func (m *FileSystemMock) MinimockStatDone() bool {
+	for _, e := range m.StatMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.StatMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterStatCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcStat != nil && mm_atomic.LoadUint64(&m.afterStatCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockStatInspect logs each unmet expectation
+func (m *FileSystemMock) MinimockStatInspect() {
+	for _, e := range m.StatMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to FileSystemMock.Stat with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.StatMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterStatCounter) < 1 {
+		if m.StatMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to FileSystemMock.Stat")
+		} else {
+			m.t.Errorf("Expected call to FileSystemMock.Stat with params: %#v", *m.StatMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcStat != nil && mm_atomic.LoadUint64(&m.afterStatCounter) < 1 {
+		m.t.Error("Expected call to FileSystemMock.Stat")
 	}
 }
 
@@ -1610,15 +2890,27 @@ func (m *FileSystemMock) MinimockFinish() {
 
 		m.MinimockChownInspect()
 
-		m.MinimockDeleteInspect()
+		m.MinimockChtimesInspect()
 
-		m.MinimockExistInspect()
+		m.MinimockCreateInspect()
 
-		m.MinimockReadInspect()
+		m.MinimockMkdirInspect()
 
-		m.MinimockReaderInspect()
+		m.MinimockMkdirAllInspect()
 
-		m.MinimockWriteInspect()
+		m.MinimockNameInspect()
+
+		m.MinimockOpenInspect()
+
+		m.MinimockOpenFileInspect()
+
+		m.MinimockRemoveInspect()
+
+		m.MinimockRemoveAllInspect()
+
+		m.MinimockRenameInspect()
+
+		m.MinimockStatInspect()
 		m.t.FailNow()
 	}
 }
@@ -1644,9 +2936,15 @@ func (m *FileSystemMock) minimockDone() bool {
 	return done &&
 		m.MinimockChmodDone() &&
 		m.MinimockChownDone() &&
-		m.MinimockDeleteDone() &&
-		m.MinimockExistDone() &&
-		m.MinimockReadDone() &&
-		m.MinimockReaderDone() &&
-		m.MinimockWriteDone()
+		m.MinimockChtimesDone() &&
+		m.MinimockCreateDone() &&
+		m.MinimockMkdirDone() &&
+		m.MinimockMkdirAllDone() &&
+		m.MinimockNameDone() &&
+		m.MinimockOpenDone() &&
+		m.MinimockOpenFileDone() &&
+		m.MinimockRemoveDone() &&
+		m.MinimockRemoveAllDone() &&
+		m.MinimockRenameDone() &&
+		m.MinimockStatDone()
 }

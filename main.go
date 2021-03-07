@@ -8,7 +8,6 @@ import (
 	"fisherman/commands/remove"
 	"fisherman/commands/version"
 	"fisherman/configuration"
-	"fisherman/infrastructure/filesystem"
 	"fisherman/infrastructure/log"
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
@@ -19,6 +18,8 @@ import (
 	"fisherman/utils"
 	"os"
 	"os/user"
+
+	"github.com/spf13/afero"
 )
 
 const fatalExitCode = 1
@@ -35,7 +36,7 @@ func main() {
 	executable, err := os.Executable()
 	utils.HandleCriticalError(err)
 
-	fileSystem := filesystem.NewLocalFileSystem()
+	fileSystem := afero.NewOsFs()
 
 	configLoader := configuration.NewLoader(usr, cwd, fileSystem)
 	configFiles, err := configLoader.FindConfigFiles()

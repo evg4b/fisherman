@@ -5,6 +5,7 @@ import (
 	"fisherman/constants"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"os/user"
 	"path/filepath"
 	"testing"
@@ -20,15 +21,11 @@ func TestNewCommand(t *testing.T) {
 func TestCommand_Run_Force_Mode(t *testing.T) {
 	cwd := "/demo/"
 
-	command := initialize.NewCommand(
-		mocks.NewFileSystemMock(t).
-			WriteMock.Return(nil).
-			ExistMock.When(filepath.Join(cwd, constants.AppConfigNames[0])).Then(true).
-			ChmodMock.Return(nil).
-			ChownMock.Return(nil),
-		&internal.AppInfo{Cwd: cwd},
-		&user.User{},
-	)
+	fs := testutils.FsFromMap(t, map[string]string{
+		filepath.Join(cwd, constants.AppConfigNames[0]): "content",
+	})
+
+	command := initialize.NewCommand(fs, &internal.AppInfo{Cwd: cwd}, &user.User{})
 
 	err := command.Init([]string{"--force"})
 	assert.NoError(t, err)

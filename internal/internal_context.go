@@ -3,21 +3,20 @@ package internal
 import (
 	"context"
 	"fisherman/infrastructure"
+	"fisherman/utils"
 	"fmt"
 	"io"
 	"time"
 )
 
 type Context struct {
-	fileSystem          infrastructure.FileSystem
-	shell               infrastructure.Shell
-	repository          infrastructure.Repository
-	args                []string
-	output              io.Writer
-	baseContext         context.Context
-	cancelBaseContext   context.CancelFunc
-	commitmessageLoaded bool
-	commitMessage       string
+	fileSystem        infrastructure.FileSystem
+	shell             infrastructure.Shell
+	repository        infrastructure.Repository
+	args              []string
+	output            io.Writer
+	baseContext       context.Context
+	cancelBaseContext context.CancelFunc
 }
 
 func NewInternalContext(
@@ -82,22 +81,17 @@ func (ctx *Context) Value(key interface{}) interface{} {
 }
 
 func (ctx *Context) Message() (string, error) {
-	if !ctx.commitmessageLoaded {
-		messageFilePath, err := ctx.arg(0)
-		if err != nil {
-			return "", err
-		}
-
-		message, err := ctx.fileSystem.Read(messageFilePath)
-		if err != nil {
-			return "", err
-		}
-
-		ctx.commitMessage = message
-		ctx.commitmessageLoaded = true
+	messageFilePath, err := ctx.arg(0)
+	if err != nil {
+		return "", err
 	}
 
-	return ctx.commitMessage, nil
+	message, err := utils.ReadFileAsString(ctx.fileSystem, messageFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	return message, nil
 }
 
 func (ctx *Context) arg(index int) (string, error) {

@@ -50,7 +50,7 @@ func TestBuildHook(t *testing.T) {
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Build %s hook", tt.hookName), func(t *testing.T) {
 			result := buildHook(tt.hookName, tt.binaryPath, tt.absolute)
-			assert.Equal(t, result, tt.expectedHook)
+			assert.Equal(t, result, []byte(tt.expectedHook))
 		})
 	}
 }

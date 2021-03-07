@@ -1,12 +1,11 @@
-package filesystem
+package initialize
 
 import (
-	"os"
 	"os/user"
 	"strconv"
 )
 
-func (f *LocalFileSystem) Chown(path string, user *user.User) error {
+func (command *Command) chown(path string, user *user.User) error {
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
 		return err
@@ -17,5 +16,5 @@ func (f *LocalFileSystem) Chown(path string, user *user.User) error {
 		return err
 	}
 
-	return os.Chown(path, uid, gid)
+	return command.files.Chown(path, uid, gid)
 }

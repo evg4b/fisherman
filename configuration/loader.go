@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/imdario/mergo"
+	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
 
@@ -36,7 +37,13 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
-			if loader.files.Exist(configPath) {
+
+			exist, err := afero.Exists(loader.files, configPath)
+			if err != nil {
+				return configs, err
+			}
+
+			if exist {
 				files = append(files, configPath)
 			}
 		}
@@ -91,13 +98,14 @@ func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, err
 
 func (loader *ConfigLoader) unmarshlFile(path string) (*FishermanConfig, error) {
 	var config FishermanConfig
-	reader, err := loader.files.Reader(path)
+
+	file, err := loader.files.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	defer reader.Close()
+	defer file.Close()
 
-	decoder := yaml.NewDecoder(reader)
+	decoder := yaml.NewDecoder(file)
 	decoder.KnownFields(true)
 	err = decoder.Decode(&config)
 	if err != nil {

@@ -3,6 +3,7 @@ package rules_test
 import (
 	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"io/ioutil"
 	"testing"
 
@@ -13,8 +14,9 @@ func TestPrepareMessage_Check(t *testing.T) {
 	messageFilePath := "./hooks/MESSAGE"
 	message := "custom message"
 
-	fs := mocks.NewFileSystemMock(t).
-		WriteMock.Expect(messageFilePath, message).Return(nil)
+	fs := testutils.FsFromMap(t, map[string]string{
+		messageFilePath: message,
+	})
 
 	ctx := mocks.NewExecutionContextMock(t).
 		ArgsMock.Return([]string{messageFilePath}).

@@ -8,6 +8,8 @@ import (
 	"flag"
 	"os/user"
 	"path/filepath"
+
+	"github.com/spf13/afero"
 )
 
 type Command struct {
@@ -40,13 +42,18 @@ func (command *Command) Run() error {
 
 	for _, hookName := range constants.HooksNames {
 		path := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
-		if command.files.Exist(path) {
+		exist, err := afero.Exists(command.files, path)
+		if err != nil {
+			return err
+		}
+
+		if exist {
 			filesToDelete = append(filesToDelete, path)
 		}
 	}
 
 	for _, hookPath := range filesToDelete {
-		err := command.files.Delete(hookPath)
+		err := command.files.Remove(hookPath)
 		if err != nil {
 			return err
 		}

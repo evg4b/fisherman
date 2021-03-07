@@ -8,15 +8,17 @@ import (
 
 const LineBreak = "\n"
 
-func buildHook(hookName, binaryPath string, absolute bool) string {
+func buildHook(hookName, binaryPath string, absolute bool) []byte {
 	template := "%s handle --hook %s $@"
 	if absolute {
 		template = "'%s' handle --hook %s $@"
 	}
 
-	return strings.Join([]string{
+	data := strings.Join([]string{
 		"#!/bin/sh",
 		fmt.Sprintf("# This is %s hook handler. Please DO NOT touch this file.", constants.AppName),
 		fmt.Sprintf(template, strings.ReplaceAll(binaryPath, "\\", "\\\\"), hookName),
 	}, LineBreak)
+
+	return []byte(data)
 }
