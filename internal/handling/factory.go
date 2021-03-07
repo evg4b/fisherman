@@ -51,7 +51,6 @@ func NewFactory(engine expression.Engine, config configuration.HooksConfig) *Git
 			[]string{
 				rules.ShellScriptType,
 				rules.CommitMessageType,
-				rules.SuppressCommitFilesType,
 			},
 		),
 		constants.FsMonitorWatchmanHook: factory.configureHook(
@@ -75,7 +74,7 @@ func NewFactory(engine expression.Engine, config configuration.HooksConfig) *Git
 			[]string{
 				rules.ShellScriptType,
 				rules.AddToIndexType,
-				rules.CommitMessageType,
+				rules.SuppressCommitFilesType,
 			},
 		),
 		constants.PrePushHook: factory.configureHook(
