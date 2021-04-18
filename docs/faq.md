@@ -11,7 +11,16 @@ Can be used to check that message starts with issue number.
 ```yaml
 hooks:
   commit-msg:
-    variables:
-      from-branch: '^refs/heads/(?P<IssueNumber>PROJ\d+)-.*$'
-    commit-prefix: '[{{IssueNumber}}]'
+    extract-variables:
+      - 'Extract(BranchName, "^refs/heads/(?P<IssueNumber>PROJ\d+)-.*$")'
+    rules:
+      - type: commit-message
+        condition: Defined("IssueNumber")
+        prefix: '[{{IssueNumber}}]'
 ```
+
+related links:
+
+- [extract-variables](/)
+- [commit-message](/)
+- ['Defined' function](/)

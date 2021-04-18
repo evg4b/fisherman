@@ -21,6 +21,7 @@ func NewExpressionEngine() *GovaluateEngine {
 		// - filesExist(...glob) bool
 		// - env(name string) string
 		// - filesChangedRelativeTo(...glob, branch) bool
+		// TODO: [Next realise] provide Defined function
 		globalFunctions: map[string]govaluate.ExpressionFunction{
 			"IsEmpty": isEmpty,
 		},
