@@ -50,7 +50,7 @@ At the moment, there are 3 places where fisherman is looking for configuration f
 
 The loaded configuration files and the path to them you can find in the header of hook handler.
 
-```
+``` text
            .d8d.  |
           d88888b | Hook: commit-msg-hook
           "Y888Y" |

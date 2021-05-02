@@ -7,7 +7,7 @@ title: Hooks configuration
 
 ### variables
 
-This section is common variables section without additional params. See more information [here](./../variables.md).
+This section is common variables section without additional params. See more information [here](./variables.md).
 
 ## applypatch-msg
 
