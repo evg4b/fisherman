@@ -27,8 +27,7 @@ func TestPrefixWriter_Write(t *testing.T) {
 	for _, dd := range testData {
 		t.Run(dd.name, func(t *testing.T) {
 			var buf bytes.Buffer
-			prefixwriter := prefixwriter.New(&buf, prefix)
-			fmt.Fprintf(prefixwriter, dd.input)
+			fmt.Fprintf(prefixwriter.New(&buf, prefix), dd.input)
 
 			assert.Equal(t, dd.expected, buf.String())
 		})

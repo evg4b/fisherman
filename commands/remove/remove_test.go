@@ -31,7 +31,7 @@ func TestCommand_Run(t *testing.T) {
 
 	command := remove.NewCommand(
 		fs,
-		&internal.AppInfo{
+		internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
 			Executable: filepath.Join("bin", "fisherman.exe"),
 		},
@@ -74,7 +74,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := remove.NewCommand(tt.files, &appInfo, &user.User{
+			c := remove.NewCommand(tt.files, appInfo, &user.User{
 				HomeDir: filepath.Join("usr", "home"),
 			})
 
@@ -91,7 +91,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 func TestCommand_Name(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
-		&internal.AppInfo{},
+		internal.AppInfo{},
 		&testutils.TestUser,
 	)
 
@@ -101,7 +101,7 @@ func TestCommand_Name(t *testing.T) {
 func TestCommand_Description(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
-		&internal.AppInfo{},
+		internal.AppInfo{},
 		&testutils.TestUser,
 	)
 

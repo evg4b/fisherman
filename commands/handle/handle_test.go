@@ -16,7 +16,7 @@ func TestCommand_Name(t *testing.T) {
 		&handling.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
-		&internal.AppInfo{},
+		internal.AppInfo{},
 	)
 
 	assert.Equal(t, "handle", command.Name())
@@ -27,7 +27,7 @@ func TestCommand_Description(t *testing.T) {
 		&handling.GitHookFactory{},
 		mocks.NewCtxFactoryMock(t),
 		&configuration.HooksConfig{},
-		&internal.AppInfo{},
+		internal.AppInfo{},
 	)
 
 	assert.NotEmpty(t, command.Description())

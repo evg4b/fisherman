@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"fisherman/infrastructure"
+	infra "fisherman/infrastructure"
 	"io"
 )
 
@@ -10,9 +10,9 @@ type CtxFactory = func(args []string, output io.Writer) *Context
 
 type ExecutionContext interface {
 	context.Context
-	Files() infrastructure.FileSystem
-	Shell() infrastructure.Shell
-	Repository() infrastructure.Repository
+	Files() infra.FileSystem
+	Shell() infra.Shell
+	Repository() infra.Repository
 	Args() []string
 	Output() io.Writer
 	Message() (string, error)
@@ -25,12 +25,7 @@ type AppInfo struct {
 	Configs    map[string]string
 }
 
-func NewCtxFactory(
-	ctx context.Context,
-	fileSystem infrastructure.FileSystem,
-	sysShell infrastructure.Shell,
-	repository infrastructure.Repository,
-) CtxFactory {
+func NewCtxFactory(ctx context.Context, fileSystem infra.FileSystem, sysShell infra.Shell, repository infra.Repository) CtxFactory {
 	return func(args []string, output io.Writer) *Context {
 		return NewInternalContext(ctx, fileSystem, sysShell, repository, args, output)
 	}

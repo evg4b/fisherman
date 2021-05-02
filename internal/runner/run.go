@@ -22,12 +22,12 @@ func (r *Runner) Run(args []string) error {
 		if strings.EqualFold(command.Name(), commandName) {
 			err := command.Init(args[1:])
 			utils.HandleCriticalError(err)
+
 			log.Debugf("Command '%s' was initialized", commandName)
+			if err := command.Run(); err != nil {
+				log.Debugf("Command '%s' finished with error, %v", commandName, err)
 
-			if commandError := command.Run(); commandError != nil {
-				log.Debugf("Command '%s' finished with error", commandName)
-
-				return commandError
+				return err
 			}
 
 			log.Debugf("Command '%s' finished witout error", commandName)

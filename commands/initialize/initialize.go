@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"fisherman/configuration"
+	cnfg "fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
@@ -24,11 +24,11 @@ type Command struct {
 	absolute bool
 	usage    string
 	files    infrastructure.FileSystem
-	app      *internal.AppInfo
+	app      internal.AppInfo
 	user     *user.User
 }
 
-func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *user.User) *Command {
+func NewCommand(files infrastructure.FileSystem, app internal.AppInfo, user *user.User) *Command {
 	command := &Command{
 		flagSet: flag.NewFlagSet("init", flag.ExitOnError),
 		usage:   "initializes fisherman in git repository",
@@ -39,12 +39,12 @@ func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *us
 
 	modeMessage := fmt.Sprintf(
 		"config location: %s, %s (default), %s. read more here %s",
-		configuration.LocalMode,
-		configuration.RepoMode,
-		configuration.GlobalMode,
+		cnfg.LocalMode,
+		cnfg.RepoMode,
+		cnfg.GlobalMode,
 		constants.ConfigurationInheritanceURL)
 
-	command.flagSet.StringVar(&command.mode, "mode", configuration.RepoMode, modeMessage)
+	command.flagSet.StringVar(&command.mode, "mode", cnfg.RepoMode, modeMessage)
 	command.flagSet.BoolVar(&command.force, "force", false, "forces overwrites existing hooks")
 	command.flagSet.BoolVar(&command.absolute, "absolute", false, "used absolute path to binary in hook")
 
@@ -120,7 +120,7 @@ func (command *Command) Description() string {
 }
 
 func (command *Command) writeConfig() error {
-	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
+	configFolder := cnfg.GetConfigFolder(command.user, command.app.Cwd, command.mode)
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 
 	exist, err := afero.Exists(command.files, configPath)
@@ -129,7 +129,7 @@ func (command *Command) writeConfig() error {
 	}
 
 	if !exist {
-		err := afero.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
+		err := afero.WriteFile(command.files, configPath, []byte(cnfg.DefaultConfig), os.ModePerm)
 		if err != nil {
 			return err
 		}

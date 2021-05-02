@@ -1,7 +1,7 @@
 package handle
 
 import (
-	"fisherman/configuration"
+	cnfg "fisherman/configuration"
 	"fisherman/internal"
 	"fisherman/internal/handling"
 	"flag"
@@ -13,16 +13,11 @@ type Command struct {
 	hook        string
 	hookFactory handling.Factory
 	usage       string
-	config      *configuration.HooksConfig
-	app         *internal.AppInfo
+	config      *cnfg.HooksConfig
+	app         internal.AppInfo
 }
 
-func NewCommand(
-	hookFactory handling.Factory,
-	ctxFactory internal.CtxFactory,
-	config *configuration.HooksConfig,
-	app *internal.AppInfo,
-) *Command {
+func NewCommand(hookFactory handling.Factory, ctxFactory internal.CtxFactory, config *cnfg.HooksConfig, app internal.AppInfo) *Command {
 	command := &Command{
 		flagSet:     flag.NewFlagSet("handle", flag.ExitOnError),
 		hookFactory: hookFactory,

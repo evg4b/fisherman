@@ -38,11 +38,11 @@ func main() {
 
 	fileSystem := afero.NewOsFs()
 
-	configLoader := configuration.NewLoader(usr, cwd, fileSystem)
-	configFiles, err := configLoader.FindConfigFiles()
+	loaded := configuration.NewLoader(usr, cwd, fileSystem)
+	configFiles, err := loaded.FindConfigFiles()
 	utils.HandleCriticalError(err)
 
-	config, err := configLoader.Load(configFiles)
+	config, err := loaded.Load(configFiles)
 	utils.HandleCriticalError(err)
 
 	log.Configure(config.Output)
@@ -61,15 +61,12 @@ func main() {
 		Cwd:        cwd,
 		Configs:    configFiles,
 	}
-
-	commands := []commands.CliCommand{
-		initialize.NewCommand(fileSystem, &appInfo, usr),
-		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, &appInfo),
-		remove.NewCommand(fileSystem, &appInfo, usr),
+	instance := runner.NewRunner([]commands.CliCommand{
+		initialize.NewCommand(fileSystem, appInfo, usr),
+		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, appInfo),
+		remove.NewCommand(fileSystem, appInfo, usr),
 		version.NewCommand(),
-	}
-
-	instance := runner.NewRunner(commands)
+	})
 	if err = instance.Run(os.Args[1:]); err != nil {
 		panic(err)
 	}

@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"fisherman/infrastructure"
+	infra "fisherman/infrastructure"
 	"fisherman/utils"
 	"fmt"
 	"io"
@@ -10,9 +10,9 @@ import (
 )
 
 type Context struct {
-	fileSystem        infrastructure.FileSystem
-	shell             infrastructure.Shell
-	repository        infrastructure.Repository
+	fileSystem        infra.FileSystem
+	shell             infra.Shell
+	repository        infra.Repository
 	args              []string
 	output            io.Writer
 	baseContext       context.Context
@@ -21,9 +21,9 @@ type Context struct {
 
 func NewInternalContext(
 	ctx context.Context,
-	fileSystem infrastructure.FileSystem,
-	sysShell infrastructure.Shell,
-	repository infrastructure.Repository,
+	fileSystem infra.FileSystem,
+	sysShell infra.Shell,
+	repository infra.Repository,
 	args []string,
 	output io.Writer,
 ) *Context {
@@ -40,15 +40,15 @@ func NewInternalContext(
 	}
 }
 
-func (ctx *Context) Files() infrastructure.FileSystem {
+func (ctx *Context) Files() infra.FileSystem {
 	return ctx.fileSystem
 }
 
-func (ctx *Context) Shell() infrastructure.Shell {
+func (ctx *Context) Shell() infra.Shell {
 	return ctx.shell
 }
 
-func (ctx *Context) Repository() infrastructure.Repository {
+func (ctx *Context) Repository() infra.Repository {
 	return ctx.repository
 }
 

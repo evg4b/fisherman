@@ -27,6 +27,8 @@ linters:
     - vet
 
 linters-settings:
+  lll:
+    line-length: 140
   depguard:
     list-type: blacklist
     include-go-root: false

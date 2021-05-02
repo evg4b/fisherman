@@ -13,7 +13,7 @@ import (
 )
 
 func TestNewCommand(t *testing.T) {
-	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &testutils.TestUser)
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), internal.AppInfo{}, &testutils.TestUser)
 	assert.NotNil(t, command)
 }
 
@@ -24,7 +24,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 		filepath.Join(cwd, constants.AppConfigNames[0]): "content",
 	})
 
-	command := initialize.NewCommand(fs, &internal.AppInfo{Cwd: cwd}, &testutils.TestUser)
+	command := initialize.NewCommand(fs, internal.AppInfo{Cwd: cwd}, &testutils.TestUser)
 
 	err := command.Init([]string{"--force"})
 	assert.NoError(t, err)
@@ -33,13 +33,13 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &testutils.TestUser)
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), internal.AppInfo{}, &testutils.TestUser)
 
 	assert.Equal(t, command.Name(), "init")
 }
 
 func TestCommand_Description(t *testing.T) {
-	command := initialize.NewCommand(mocks.NewFileSystemMock(t), &internal.AppInfo{}, &testutils.TestUser)
+	command := initialize.NewCommand(mocks.NewFileSystemMock(t), internal.AppInfo{}, &testutils.TestUser)
 
 	assert.NotEmpty(t, command.Description())
 }

@@ -16,11 +16,11 @@ type Command struct {
 	flagSet *flag.FlagSet
 	usage   string
 	files   infrastructure.FileSystem
-	app     *internal.AppInfo
+	app     internal.AppInfo
 	user    *user.User
 }
 
-func NewCommand(files infrastructure.FileSystem, app *internal.AppInfo, user *user.User) *Command {
+func NewCommand(files infrastructure.FileSystem, app internal.AppInfo, user *user.User) *Command {
 	return &Command{
 		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:   "removes fisherman from git repository",
