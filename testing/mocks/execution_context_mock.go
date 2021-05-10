@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
 
 import (
-	"fisherman/infrastructure"
+	infra "fisherman/infrastructure"
 	"io"
 	"sync"
 	mm_atomic "sync/atomic"
@@ -44,11 +44,17 @@ type ExecutionContextMock struct {
 	beforeErrCounter uint64
 	ErrMock          mExecutionContextMockErr
 
-	funcFiles          func() (f1 infrastructure.FileSystem)
+	funcFiles          func() (f1 infra.FileSystem)
 	inspectFuncFiles   func()
 	afterFilesCounter  uint64
 	beforeFilesCounter uint64
 	FilesMock          mExecutionContextMockFiles
+
+	funcGlobalVariables          func() (m1 map[string]interface{}, err error)
+	inspectFuncGlobalVariables   func()
+	afterGlobalVariablesCounter  uint64
+	beforeGlobalVariablesCounter uint64
+	GlobalVariablesMock          mExecutionContextMockGlobalVariables
 
 	funcMessage          func() (s1 string, err error)
 	inspectFuncMessage   func()
@@ -62,13 +68,13 @@ type ExecutionContextMock struct {
 	beforeOutputCounter uint64
 	OutputMock          mExecutionContextMockOutput
 
-	funcRepository          func() (r1 infrastructure.Repository)
+	funcRepository          func() (r1 infra.Repository)
 	inspectFuncRepository   func()
 	afterRepositoryCounter  uint64
 	beforeRepositoryCounter uint64
 	RepositoryMock          mExecutionContextMockRepository
 
-	funcShell          func() (s1 infrastructure.Shell)
+	funcShell          func() (s1 infra.Shell)
 	inspectFuncShell   func()
 	afterShellCounter  uint64
 	beforeShellCounter uint64
@@ -103,6 +109,8 @@ func NewExecutionContextMock(t minimock.Tester) *ExecutionContextMock {
 	m.ErrMock = mExecutionContextMockErr{mock: m}
 
 	m.FilesMock = mExecutionContextMockFiles{mock: m}
+
+	m.GlobalVariablesMock = mExecutionContextMockGlobalVariables{mock: m}
 
 	m.MessageMock = mExecutionContextMockMessage{mock: m}
 
@@ -713,7 +721,7 @@ type ExecutionContextMockFilesExpectation struct {
 
 // ExecutionContextMockFilesResults contains results of the ExecutionContext.Files
 type ExecutionContextMockFilesResults struct {
-	f1 infrastructure.FileSystem
+	f1 infra.FileSystem
 }
 
 // Expect sets up expected params for ExecutionContext.Files
@@ -741,7 +749,7 @@ func (mmFiles *mExecutionContextMockFiles) Inspect(f func()) *mExecutionContextM
 }
 
 // Return sets up results that will be returned by ExecutionContext.Files
-func (mmFiles *mExecutionContextMockFiles) Return(f1 infrastructure.FileSystem) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Return(f1 infra.FileSystem) *ExecutionContextMock {
 	if mmFiles.mock.funcFiles != nil {
 		mmFiles.mock.t.Fatalf("ExecutionContextMock.Files mock is already set by Set")
 	}
@@ -754,7 +762,7 @@ func (mmFiles *mExecutionContextMockFiles) Return(f1 infrastructure.FileSystem) 
 }
 
 //Set uses given function f to mock the ExecutionContext.Files method
-func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 infrastructure.FileSystem)) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 infra.FileSystem)) *ExecutionContextMock {
 	if mmFiles.defaultExpectation != nil {
 		mmFiles.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Files method")
 	}
@@ -768,7 +776,7 @@ func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 infrastructure.FileS
 }
 
 // Files implements internal.ExecutionContext
-func (mmFiles *ExecutionContextMock) Files() (f1 infrastructure.FileSystem) {
+func (mmFiles *ExecutionContextMock) Files() (f1 infra.FileSystem) {
 	mm_atomic.AddUint64(&mmFiles.beforeFilesCounter, 1)
 	defer mm_atomic.AddUint64(&mmFiles.afterFilesCounter, 1)
 
@@ -837,6 +845,150 @@ func (m *ExecutionContextMock) MinimockFilesInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcFiles != nil && mm_atomic.LoadUint64(&m.afterFilesCounter) < 1 {
 		m.t.Error("Expected call to ExecutionContextMock.Files")
+	}
+}
+
+type mExecutionContextMockGlobalVariables struct {
+	mock               *ExecutionContextMock
+	defaultExpectation *ExecutionContextMockGlobalVariablesExpectation
+	expectations       []*ExecutionContextMockGlobalVariablesExpectation
+}
+
+// ExecutionContextMockGlobalVariablesExpectation specifies expectation struct of the ExecutionContext.GlobalVariables
+type ExecutionContextMockGlobalVariablesExpectation struct {
+	mock *ExecutionContextMock
+
+	results *ExecutionContextMockGlobalVariablesResults
+	Counter uint64
+}
+
+// ExecutionContextMockGlobalVariablesResults contains results of the ExecutionContext.GlobalVariables
+type ExecutionContextMockGlobalVariablesResults struct {
+	m1  map[string]interface{}
+	err error
+}
+
+// Expect sets up expected params for ExecutionContext.GlobalVariables
+func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Expect() *mExecutionContextMockGlobalVariables {
+	if mmGlobalVariables.mock.funcGlobalVariables != nil {
+		mmGlobalVariables.mock.t.Fatalf("ExecutionContextMock.GlobalVariables mock is already set by Set")
+	}
+
+	if mmGlobalVariables.defaultExpectation == nil {
+		mmGlobalVariables.defaultExpectation = &ExecutionContextMockGlobalVariablesExpectation{}
+	}
+
+	return mmGlobalVariables
+}
+
+// Inspect accepts an inspector function that has same arguments as the ExecutionContext.GlobalVariables
+func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Inspect(f func()) *mExecutionContextMockGlobalVariables {
+	if mmGlobalVariables.mock.inspectFuncGlobalVariables != nil {
+		mmGlobalVariables.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.GlobalVariables")
+	}
+
+	mmGlobalVariables.mock.inspectFuncGlobalVariables = f
+
+	return mmGlobalVariables
+}
+
+// Return sets up results that will be returned by ExecutionContext.GlobalVariables
+func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Return(m1 map[string]interface{}, err error) *ExecutionContextMock {
+	if mmGlobalVariables.mock.funcGlobalVariables != nil {
+		mmGlobalVariables.mock.t.Fatalf("ExecutionContextMock.GlobalVariables mock is already set by Set")
+	}
+
+	if mmGlobalVariables.defaultExpectation == nil {
+		mmGlobalVariables.defaultExpectation = &ExecutionContextMockGlobalVariablesExpectation{mock: mmGlobalVariables.mock}
+	}
+	mmGlobalVariables.defaultExpectation.results = &ExecutionContextMockGlobalVariablesResults{m1, err}
+	return mmGlobalVariables.mock
+}
+
+//Set uses given function f to mock the ExecutionContext.GlobalVariables method
+func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Set(f func() (m1 map[string]interface{}, err error)) *ExecutionContextMock {
+	if mmGlobalVariables.defaultExpectation != nil {
+		mmGlobalVariables.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.GlobalVariables method")
+	}
+
+	if len(mmGlobalVariables.expectations) > 0 {
+		mmGlobalVariables.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.GlobalVariables method")
+	}
+
+	mmGlobalVariables.mock.funcGlobalVariables = f
+	return mmGlobalVariables.mock
+}
+
+// GlobalVariables implements internal.ExecutionContext
+func (mmGlobalVariables *ExecutionContextMock) GlobalVariables() (m1 map[string]interface{}, err error) {
+	mm_atomic.AddUint64(&mmGlobalVariables.beforeGlobalVariablesCounter, 1)
+	defer mm_atomic.AddUint64(&mmGlobalVariables.afterGlobalVariablesCounter, 1)
+
+	if mmGlobalVariables.inspectFuncGlobalVariables != nil {
+		mmGlobalVariables.inspectFuncGlobalVariables()
+	}
+
+	if mmGlobalVariables.GlobalVariablesMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGlobalVariables.GlobalVariablesMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmGlobalVariables.GlobalVariablesMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGlobalVariables.t.Fatal("No results are set for the ExecutionContextMock.GlobalVariables")
+		}
+		return (*mm_results).m1, (*mm_results).err
+	}
+	if mmGlobalVariables.funcGlobalVariables != nil {
+		return mmGlobalVariables.funcGlobalVariables()
+	}
+	mmGlobalVariables.t.Fatalf("Unexpected call to ExecutionContextMock.GlobalVariables.")
+	return
+}
+
+// GlobalVariablesAfterCounter returns a count of finished ExecutionContextMock.GlobalVariables invocations
+func (mmGlobalVariables *ExecutionContextMock) GlobalVariablesAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGlobalVariables.afterGlobalVariablesCounter)
+}
+
+// GlobalVariablesBeforeCounter returns a count of ExecutionContextMock.GlobalVariables invocations
+func (mmGlobalVariables *ExecutionContextMock) GlobalVariablesBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGlobalVariables.beforeGlobalVariablesCounter)
+}
+
+// MinimockGlobalVariablesDone returns true if the count of the GlobalVariables invocations corresponds
+// the number of defined expectations
+func (m *ExecutionContextMock) MinimockGlobalVariablesDone() bool {
+	for _, e := range m.GlobalVariablesMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GlobalVariablesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGlobalVariablesCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGlobalVariables != nil && mm_atomic.LoadUint64(&m.afterGlobalVariablesCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGlobalVariablesInspect logs each unmet expectation
+func (m *ExecutionContextMock) MinimockGlobalVariablesInspect() {
+	for _, e := range m.GlobalVariablesMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to ExecutionContextMock.GlobalVariables")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GlobalVariablesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGlobalVariablesCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.GlobalVariables")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGlobalVariables != nil && mm_atomic.LoadUint64(&m.afterGlobalVariablesCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.GlobalVariables")
 	}
 }
 
@@ -1143,7 +1295,7 @@ type ExecutionContextMockRepositoryExpectation struct {
 
 // ExecutionContextMockRepositoryResults contains results of the ExecutionContext.Repository
 type ExecutionContextMockRepositoryResults struct {
-	r1 infrastructure.Repository
+	r1 infra.Repository
 }
 
 // Expect sets up expected params for ExecutionContext.Repository
@@ -1171,7 +1323,7 @@ func (mmRepository *mExecutionContextMockRepository) Inspect(f func()) *mExecuti
 }
 
 // Return sets up results that will be returned by ExecutionContext.Repository
-func (mmRepository *mExecutionContextMockRepository) Return(r1 infrastructure.Repository) *ExecutionContextMock {
+func (mmRepository *mExecutionContextMockRepository) Return(r1 infra.Repository) *ExecutionContextMock {
 	if mmRepository.mock.funcRepository != nil {
 		mmRepository.mock.t.Fatalf("ExecutionContextMock.Repository mock is already set by Set")
 	}
@@ -1184,7 +1336,7 @@ func (mmRepository *mExecutionContextMockRepository) Return(r1 infrastructure.Re
 }
 
 //Set uses given function f to mock the ExecutionContext.Repository method
-func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 infrastructure.Repository)) *ExecutionContextMock {
+func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 infra.Repository)) *ExecutionContextMock {
 	if mmRepository.defaultExpectation != nil {
 		mmRepository.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Repository method")
 	}
@@ -1198,7 +1350,7 @@ func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 infrastruc
 }
 
 // Repository implements internal.ExecutionContext
-func (mmRepository *ExecutionContextMock) Repository() (r1 infrastructure.Repository) {
+func (mmRepository *ExecutionContextMock) Repository() (r1 infra.Repository) {
 	mm_atomic.AddUint64(&mmRepository.beforeRepositoryCounter, 1)
 	defer mm_atomic.AddUint64(&mmRepository.afterRepositoryCounter, 1)
 
@@ -1286,7 +1438,7 @@ type ExecutionContextMockShellExpectation struct {
 
 // ExecutionContextMockShellResults contains results of the ExecutionContext.Shell
 type ExecutionContextMockShellResults struct {
-	s1 infrastructure.Shell
+	s1 infra.Shell
 }
 
 // Expect sets up expected params for ExecutionContext.Shell
@@ -1314,7 +1466,7 @@ func (mmShell *mExecutionContextMockShell) Inspect(f func()) *mExecutionContextM
 }
 
 // Return sets up results that will be returned by ExecutionContext.Shell
-func (mmShell *mExecutionContextMockShell) Return(s1 infrastructure.Shell) *ExecutionContextMock {
+func (mmShell *mExecutionContextMockShell) Return(s1 infra.Shell) *ExecutionContextMock {
 	if mmShell.mock.funcShell != nil {
 		mmShell.mock.t.Fatalf("ExecutionContextMock.Shell mock is already set by Set")
 	}
@@ -1327,7 +1479,7 @@ func (mmShell *mExecutionContextMockShell) Return(s1 infrastructure.Shell) *Exec
 }
 
 //Set uses given function f to mock the ExecutionContext.Shell method
-func (mmShell *mExecutionContextMockShell) Set(f func() (s1 infrastructure.Shell)) *ExecutionContextMock {
+func (mmShell *mExecutionContextMockShell) Set(f func() (s1 infra.Shell)) *ExecutionContextMock {
 	if mmShell.defaultExpectation != nil {
 		mmShell.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Shell method")
 	}
@@ -1341,7 +1493,7 @@ func (mmShell *mExecutionContextMockShell) Set(f func() (s1 infrastructure.Shell
 }
 
 // Shell implements internal.ExecutionContext
-func (mmShell *ExecutionContextMock) Shell() (s1 infrastructure.Shell) {
+func (mmShell *ExecutionContextMock) Shell() (s1 infra.Shell) {
 	mm_atomic.AddUint64(&mmShell.beforeShellCounter, 1)
 	defer mm_atomic.AddUint64(&mmShell.afterShellCounter, 1)
 
@@ -1776,6 +1928,8 @@ func (m *ExecutionContextMock) MinimockFinish() {
 
 		m.MinimockFilesInspect()
 
+		m.MinimockGlobalVariablesInspect()
+
 		m.MinimockMessageInspect()
 
 		m.MinimockOutputInspect()
@@ -1815,6 +1969,7 @@ func (m *ExecutionContextMock) minimockDone() bool {
 		m.MinimockDoneDone() &&
 		m.MinimockErrDone() &&
 		m.MinimockFilesDone() &&
+		m.MinimockGlobalVariablesDone() &&
 		m.MinimockMessageDone() &&
 		m.MinimockOutputDone() &&
 		m.MinimockRepositoryDone() &&

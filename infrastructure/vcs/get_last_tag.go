@@ -9,7 +9,12 @@ import (
 )
 
 func (r *GitRepository) GetLastTag() (string, error) {
-	tagRef, err := r.repo().Tags()
+	repo, err := r.repo()
+	if err != nil {
+		return "", err
+	}
+
+	tagRef, err := repo.Tags()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -33,12 +38,12 @@ func (r *GitRepository) GetLastTag() (string, error) {
 		}
 
 		revision := plumbing.Revision(tagRef.Name().String())
-		tagCommitHash, err := r.repo().ResolveRevision(revision)
+		tagCommitHash, err := repo.ResolveRevision(revision)
 		if err != nil {
 			return "", err
 		}
 
-		commit, err := r.repo().CommitObject(*tagCommitHash)
+		commit, err := repo.CommitObject(*tagCommitHash)
 		if err != nil {
 			return "", err
 		}

@@ -91,7 +91,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 func TestCommand_Name(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
-		internal.AppInfo{},
+		mocks.AppInfoStub,
 		&testutils.TestUser,
 	)
 
@@ -101,7 +101,7 @@ func TestCommand_Name(t *testing.T) {
 func TestCommand_Description(t *testing.T) {
 	command := remove.NewCommand(
 		mocks.NewFileSystemMock(t),
-		internal.AppInfo{},
+		mocks.AppInfoStub,
 		&testutils.TestUser,
 	)
 

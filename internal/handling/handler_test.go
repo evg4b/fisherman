@@ -11,7 +11,8 @@ import (
 
 // nolint: dupl
 func TestHookHandler_Handle_Rules(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t)
+	ctx := mocks.NewExecutionContextMock(t).
+		GlobalVariablesMock.Return(map[string]interface{}{}, nil)
 
 	tests := []struct {
 		name        string
@@ -110,7 +111,8 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 
 // nolint: dupl
 func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t)
+	ctx := mocks.NewExecutionContextMock(t).
+		GlobalVariablesMock.Return(map[string]interface{}{}, nil)
 
 	tests := []struct {
 		name        string

@@ -31,13 +31,11 @@ func NewLoader(usr *user.User, cwd string, files infrastructure.FileSystem) *Con
 
 func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 	configs := map[string]string{}
-
 	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
 		folder := GetConfigFolder(loader.usr, loader.cwd, mode)
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
-
 			exist, err := afero.Exists(loader.files, configPath)
 			if err != nil {
 				return configs, err

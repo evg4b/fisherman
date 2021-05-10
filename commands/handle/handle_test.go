@@ -2,9 +2,6 @@ package handle_test
 
 import (
 	"fisherman/commands/handle"
-	"fisherman/configuration"
-	"fisherman/internal"
-	"fisherman/internal/handling"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -13,10 +10,10 @@ import (
 
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
-		&handling.GitHookFactory{},
+		mocks.NewFactoryMock(t),
 		mocks.NewCtxFactoryMock(t),
-		&configuration.HooksConfig{},
-		internal.AppInfo{},
+		&mocks.HooksConfigStub,
+		mocks.AppInfoStub,
 	)
 
 	assert.Equal(t, "handle", command.Name())
@@ -24,10 +21,10 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
-		&handling.GitHookFactory{},
+		mocks.NewFactoryMock(t),
 		mocks.NewCtxFactoryMock(t),
-		&configuration.HooksConfig{},
-		internal.AppInfo{},
+		&mocks.HooksConfigStub,
+		mocks.AppInfoStub,
 	)
 
 	assert.NotEmpty(t, command.Description())

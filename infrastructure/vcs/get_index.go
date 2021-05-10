@@ -5,7 +5,12 @@ import (
 )
 
 func (r *GitRepository) GetFilesInIndex() ([]string, error) {
-	worktree, err := r.repo().Worktree()
+	repo, err := r.repo()
+	if err != nil {
+		return nil, err
+	}
+
+	worktree, err := repo.Worktree()
 	if err != nil {
 		return nil, err
 	}

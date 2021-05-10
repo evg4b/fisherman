@@ -10,6 +10,7 @@ type CtxFactory = func(args []string, output io.Writer) *Context
 
 type ExecutionContext interface {
 	context.Context
+	GlobalVariables() (map[string]interface{}, error)
 	Files() infra.FileSystem
 	Shell() infra.Shell
 	Repository() infra.Repository

@@ -3,7 +3,7 @@ package vcs
 import (
 	"errors"
 	"fisherman/infrastructure"
-	"fisherman/utils"
+	"sync"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -13,6 +13,7 @@ import (
 type GitRepository struct {
 	path         string
 	internalRepo *git.Repository
+	repoOnce     sync.Once
 }
 
 func NewGitRepository(path string) *GitRepository {
@@ -20,7 +21,12 @@ func NewGitRepository(path string) *GitRepository {
 }
 
 func (r *GitRepository) GetCurrentBranch() (string, error) {
-	headRef, err := r.repo().Head()
+	repo, err := r.repo()
+	if err != nil {
+		return "", err
+	}
+
+	headRef, err := repo.Head()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -33,7 +39,12 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 }
 
 func (r *GitRepository) GetUser() (infrastructure.User, error) {
-	gitConfig, err := r.repo().ConfigScoped(config.SystemScope)
+	repo, err := r.repo()
+	if err != nil {
+		return infrastructure.User{}, err
+	}
+
+	gitConfig, err := repo.ConfigScoped(config.SystemScope)
 	if err != nil {
 		return infrastructure.User{}, err
 	}
@@ -44,18 +55,23 @@ func (r *GitRepository) GetUser() (infrastructure.User, error) {
 	}, err
 }
 
-func (r *GitRepository) repo() *git.Repository {
-	if r.internalRepo == nil {
-		repo, err := git.PlainOpen(r.path)
-		utils.HandleCriticalError(err)
-		r.internalRepo = repo
-	}
+func (r *GitRepository) repo() (*git.Repository, error) {
+	var err error
 
-	return r.internalRepo
+	r.repoOnce.Do(func() {
+		r.internalRepo, err = git.PlainOpen(r.path)
+	})
+
+	return r.internalRepo, err
 }
 
 func (r *GitRepository) AddGlob(glob string) error {
-	wt, err := r.repo().Worktree()
+	repo, err := r.repo()
+	if err != nil {
+		return err
+	}
+
+	wt, err := repo.Worktree()
 	if err != nil {
 		return err
 	}
@@ -64,7 +80,12 @@ func (r *GitRepository) AddGlob(glob string) error {
 }
 
 func (r *GitRepository) RemoveGlob(glob string) error {
-	wt, err := r.repo().Worktree()
+	repo, err := r.repo()
+	if err != nil {
+		return err
+	}
+
+	wt, err := repo.Worktree()
 	if err != nil {
 		return err
 	}

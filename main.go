@@ -36,24 +36,24 @@ func main() {
 	executable, err := os.Executable()
 	utils.HandleCriticalError(err)
 
-	fileSystem := afero.NewOsFs()
+	fs := afero.NewOsFs()
 
-	loaded := configuration.NewLoader(usr, cwd, fileSystem)
-	configFiles, err := loaded.FindConfigFiles()
+	loader := configuration.NewLoader(usr, cwd, fs)
+	configFiles, err := loader.FindConfigFiles()
 	utils.HandleCriticalError(err)
 
-	config, err := loaded.Load(configFiles)
+	config, err := loader.Load(configFiles)
 	utils.HandleCriticalError(err)
 
 	log.Configure(config.Output)
 
 	ctx := context.Background()
 	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
-	repository := vcs.NewGitRepository(cwd)
+	repo := vcs.NewGitRepository(cwd)
 
 	engine := expression.NewExpressionEngine()
 
-	ctxFactory := internal.NewCtxFactory(ctx, fileSystem, sysShell, repository)
+	ctxFactory := internal.NewCtxFactory(ctx, fs, sysShell, repo)
 	hookFactory := handling.NewFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
@@ -62,9 +62,9 @@ func main() {
 		Configs:    configFiles,
 	}
 	instance := runner.NewRunner([]commands.CliCommand{
-		initialize.NewCommand(fileSystem, appInfo, usr),
+		initialize.NewCommand(fs, appInfo, usr),
 		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, appInfo),
-		remove.NewCommand(fileSystem, appInfo, usr),
+		remove.NewCommand(fs, appInfo, usr),
 		version.NewCommand(),
 	})
 	if err = instance.Run(os.Args[1:]); err != nil {

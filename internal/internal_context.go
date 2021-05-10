@@ -101,3 +101,9 @@ func (ctx *Context) arg(index int) (string, error) {
 
 	return ctx.args[index], nil
 }
+
+func (ctx *Context) GlobalVariables() (map[string]interface{}, error) {
+	return map[string]interface{}{
+		"BranchName": "TEST",
+	}, nil
+}
