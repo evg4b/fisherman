@@ -47,3 +47,17 @@ func extract(arguments ...interface{}) (interface{}, error) {
 
 	return variables, nil
 }
+
+func defined(arguments ...interface{}) (interface{}, error) {
+	if len(arguments) == 0 {
+		return false, errors.New("incorrect arguments for Defined")
+	}
+
+	for _, arg := range arguments {
+		if arg == nil {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}

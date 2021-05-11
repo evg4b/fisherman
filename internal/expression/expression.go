@@ -2,7 +2,6 @@ package expression
 
 import (
 	"github.com/Knetic/govaluate"
-	"github.com/imdario/mergo"
 )
 
 type Engine interface {
@@ -11,7 +10,7 @@ type Engine interface {
 }
 
 type GovaluateEngine struct {
-	globalFunctions map[string]govaluate.ExpressionFunction
+	functions map[string]govaluate.ExpressionFunction
 }
 
 func NewExpressionEngine() *GovaluateEngine {
@@ -21,16 +20,17 @@ func NewExpressionEngine() *GovaluateEngine {
 		// - filesExist(...glob) bool
 		// - env(name string) string
 		// - filesChangedRelativeTo(...glob, branch) bool
-		// TODO: [Next realise] provide Defined function
-		globalFunctions: map[string]govaluate.ExpressionFunction{
+		functions: map[string]govaluate.ExpressionFunction{
 			"IsEmpty": isEmpty,
+			"Extract": extract,
+			"Defined": defined,
 		},
 	}
 }
 
 func (engine *GovaluateEngine) Eval(expressionString string, vars map[string]interface{}) (bool, error) {
 	// TODO: add global and local function. This case need to configure unique functions for each hook
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.globalFunctions)
+	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.functions)
 	if err != nil {
 		return false, err
 	}
@@ -45,16 +45,7 @@ func (engine *GovaluateEngine) Eval(expressionString string, vars map[string]int
 }
 
 func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{}) (map[string]interface{}, error) {
-	functions := map[string]govaluate.ExpressionFunction{
-		"Extract": extract,
-	}
-
-	err := mergo.Merge(&functions, engine.globalFunctions)
-	if err != nil {
-		return nil, err
-	}
-
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expr, functions)
+	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expr, engine.functions)
 	if err != nil {
 		return nil, err
 	}
