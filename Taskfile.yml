@@ -10,7 +10,7 @@ tasks:
   build:
     desc: Build the go binary in developer mode.
     cmds:
-      - go build -v
+      - go build -v -ldflags="-X fisherman/constants.Version=dev-{{ .GIT_COMMIT | upper }}"
 
   build:ci:
     desc: '[For CI] Build the go binary in production mode (NOT REALISE)'
