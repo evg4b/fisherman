@@ -42,7 +42,7 @@ func Test_getPreScripts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
+			factory := handling.NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},
@@ -88,7 +88,7 @@ func Test_getPostScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
+			factory := handling.NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},
@@ -134,7 +134,7 @@ func Test_getScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
+			factory := handling.NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},

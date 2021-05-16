@@ -54,7 +54,7 @@ func main() {
 	engine := expression.NewGoExpressionEngine()
 
 	ctxFactory := internal.NewCtxFactory(ctx, fs, sysShell, repo)
-	hookFactory := handling.NewFactory(engine, config.Hooks)
+	hookFactory := handling.NewHookHandlerFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,

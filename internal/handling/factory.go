@@ -2,10 +2,9 @@ package handling
 
 import (
 	"errors"
-	cnfg "fisherman/configuration"
-	"fisherman/constants"
+	"fisherman/configuration"
+	c "fisherman/constants"
 	"fisherman/internal/expression"
-	"fisherman/internal/rules"
 	"fisherman/utils"
 	"fmt"
 
@@ -29,93 +28,42 @@ type Variables = map[string]interface{}
 type hookBuilder = func() (Handler, error)
 type builders = map[string]hookBuilder
 
-type GitHookFactory struct {
+type HookHandlerFactory struct {
 	engine        expression.Engine
 	hooksBuilders builders
 }
 
-func NewFactory(engine expression.Engine, config cnfg.HooksConfig) *GitHookFactory {
-	factory := GitHookFactory{
+func NewHookHandlerFactory(engine expression.Engine, config configuration.HooksConfig) *HookHandlerFactory {
+	f := HookHandlerFactory{
 		engine: engine,
 	}
 
-	factory.hooksBuilders = builders{
-		constants.ApplyPatchMsgHook: factory.configure(
-			constants.ApplyPatchMsgHook,
-			config.ApplyPatchMsgHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.CommitMsgHook: factory.configure(
-			constants.CommitMsgHook,
-			config.CommitMsgHook,
-			[]string{
-				rules.ShellScriptType,
-				rules.CommitMessageType,
-			},
-		),
-		constants.FsMonitorWatchmanHook: factory.configure(
-			constants.FsMonitorWatchmanHook,
-			config.FsMonitorWatchmanHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PostUpdateHook: factory.configure(
-			constants.PostUpdateHook,
-			config.PostUpdateHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PreApplyPatchHook: factory.configure(
-			constants.PreApplyPatchHook,
-			config.PreApplyPatchHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PreCommitHook: factory.configure(
-			constants.PreCommitHook,
-			config.PreCommitHook,
-			[]string{
-				rules.ShellScriptType,
-				rules.AddToIndexType,
-				rules.SuppressCommitFilesType,
-			},
-		),
-		constants.PrePushHook: factory.configure(
-			constants.PrePushHook,
-			config.PrePushHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PreRebaseHook: factory.configure(
-			constants.PreRebaseHook,
-			config.PreRebaseHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PreReceiveHook: factory.configure(
-			constants.PreReceiveHook,
-			config.PreReceiveHook,
-			[]string{rules.ShellScriptType},
-		),
-		constants.PrepareCommitMsgHook: factory.configure(
-			constants.PrepareCommitMsgHook,
-			config.PrepareCommitMsgHook,
-			[]string{rules.PrepareMessageType},
-		),
-		constants.UpdateHook: factory.configure(
-			constants.UpdateHook,
-			config.UpdateHook,
-			[]string{rules.ShellScriptType},
-		),
+	f.hooksBuilders = builders{
+		c.ApplyPatchMsgHook:     f.configure(c.ApplyPatchMsgHook, config.ApplyPatchMsgHook),
+		c.CommitMsgHook:         f.configure(c.CommitMsgHook, config.CommitMsgHook),
+		c.FsMonitorWatchmanHook: f.configure(c.FsMonitorWatchmanHook, config.FsMonitorWatchmanHook),
+		c.PostUpdateHook:        f.configure(c.PostUpdateHook, config.PostUpdateHook),
+		c.PreApplyPatchHook:     f.configure(c.PreApplyPatchHook, config.PreApplyPatchHook),
+		c.PreCommitHook:         f.configure(c.PreCommitHook, config.PreCommitHook),
+		c.PrePushHook:           f.configure(c.PrePushHook, config.PrePushHook),
+		c.PreRebaseHook:         f.configure(c.PreRebaseHook, config.PreRebaseHook),
+		c.PreReceiveHook:        f.configure(c.PreReceiveHook, config.PreReceiveHook),
+		c.PrepareCommitMsgHook:  f.configure(c.PrepareCommitMsgHook, config.PrepareCommitMsgHook),
+		c.UpdateHook:            f.configure(c.UpdateHook, config.UpdateHook),
 	}
 
-	return &factory
+	return &f
 }
 
-func (factory *GitHookFactory) GetHook(name string) (Handler, error) {
-	if builder, ok := factory.hooksBuilders[name]; ok {
+func (f *HookHandlerFactory) GetHook(name string) (Handler, error) {
+	if builder, ok := f.hooksBuilders[name]; ok {
 		return builder()
 	}
 
 	return nil, errors.New("unknown hook")
 }
 
-func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, allowed []string) hookBuilder {
+func (f *HookHandlerFactory) configure(name string, config *configuration.HookConfig) hookBuilder {
 	return func() (Handler, error) {
 		if config == nil {
 			return nil, ErrNotPresented
@@ -129,7 +77,7 @@ func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, a
 
 		var multiError *multierror.Error
 		for _, rule := range config.Rules {
-			if !utils.Contains(allowed, rule.GetType()) {
+			if !utils.Contains(allowedHooks[name], rule.GetType()) {
 				multiError = multierror.Append(multiError, fmt.Errorf("rule %s is not allowed", rule.GetType()))
 			}
 		}
@@ -140,7 +88,7 @@ func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, a
 		}
 
 		return &HookHandler{
-			Engine:          factory.engine,
+			Engine:          f.engine,
 			Rules:           getPreScriptRules(config.Rules),
 			Scripts:         getScriptRules(config.Rules),
 			PostScriptRules: getPostScriptRules(config.Rules),

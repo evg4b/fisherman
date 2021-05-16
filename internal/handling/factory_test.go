@@ -11,7 +11,7 @@ import (
 )
 
 func TestFactory_GetHook(t *testing.T) {
-	factory := handling.NewFactory(
+	factory := handling.NewHookHandlerFactory(
 		mocks.NewEngineMock(t).EvalMock.Return(false, nil),
 		configuration.HooksConfig{
 			ApplyPatchMsgHook:     &configuration.HookConfig{},
@@ -39,7 +39,7 @@ func TestFactory_GetHook(t *testing.T) {
 }
 
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
-	factory := handling.NewFactory(
+	factory := handling.NewHookHandlerFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
@@ -55,7 +55,7 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 }
 
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
-	factory := handling.NewFactory(
+	factory := handling.NewHookHandlerFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
