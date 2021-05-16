@@ -24,7 +24,7 @@ func (command *Command) Init(args []string) error {
 }
 
 func (command *Command) Run() error {
-	_, err := fmt.Fprintln(log.Stdout(), constants.Version)
+	_, err := fmt.Fprintf(log.Stdout(), "%s@%s", constants.AppName, constants.Version)
 
 	return err
 }

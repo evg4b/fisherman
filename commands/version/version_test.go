@@ -3,9 +3,7 @@ package version_test
 import (
 	"bytes"
 	"fisherman/commands/version"
-	"fisherman/constants"
 	"fisherman/infrastructure/log"
-	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -28,7 +26,7 @@ func TestCommand_Run(t *testing.T) {
 	err = command.Run()
 
 	assert.NoError(t, err)
-	assert.Equal(t, fmt.Sprintln(constants.Version), output.String())
+	assert.Equal(t, "fisherman@x.x.x", output.String())
 }
 
 func TestCommand_Description(t *testing.T) {
