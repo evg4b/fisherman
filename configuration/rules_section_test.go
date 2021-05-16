@@ -150,7 +150,7 @@ func TestRulesSection_UnmarshalYAML_Error(t *testing.T) {
 rules:
   type: unknown
 `,
-			expectedError: "unknown rules markup",
+			expectedError: "yaml: unmarshal errors:\n  line 3: cannot unmarshal !!map into []configuration.ruleDef",
 		},
 		{
 			name: "no type section",
@@ -158,7 +158,7 @@ rules:
 rules:
   - condition: 1 == 1
 `,
-			expectedError: "error for rule at index 0: required property 'type' not defined",
+			expectedError: "required property 'type' not defined",
 		},
 		{
 			name: "no type section",
@@ -166,52 +166,7 @@ rules:
 rules:
   - type: unknown-type
 `,
-			expectedError: "error for rule at index 0: unknown rule type",
-		},
-		{
-			name: "incorrect suppress-commit-files",
-			source: `
-rules:
-  - type: suppress-commit-files
-    unknown: unknown value
-`,
-			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
-		},
-		{
-			name: "incorrect commit-message",
-			source: `
-rules:
-  - type: commit-message
-    unknown: unknown value
-`,
-			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
-		},
-		{
-			name: "incorrect prepare-message",
-			source: `
-rules:
-  - type: prepare-message
-    unknown: unknown value
-`,
-			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
-		},
-		{
-			name: "incorrect shell-scrpit",
-			source: `
-rules:
-  - type: shell-script
-    unknown: unknown value
-`,
-			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
-		},
-		{
-			name: "incorrect add-to-index",
-			source: `
-rules:
-  - type: add-to-index
-    unknown: unknown value
-`,
-			expectedError: "error for rule at index 0: 1 error(s) decoding:\n\n* '' has invalid keys: unknown",
+			expectedError: "type unknown-type is not supported",
 		},
 	}
 

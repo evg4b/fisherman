@@ -13,7 +13,6 @@ type Handler interface {
 type Action = func(internal.ExecutionContext) (bool, error)
 
 type HookHandler struct {
-	GlobalVariables Variables
 	Engine          expression.Engine
 	Rules           []configuration.Rule
 	Scripts         []configuration.Rule

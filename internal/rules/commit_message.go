@@ -12,11 +12,11 @@ import (
 const CommitMessageType = "commit-message"
 
 type CommitMessage struct {
-	BaseRule `mapstructure:",squash"`
-	Prefix   string `mapstructure:"prefix"`
-	Suffix   string `mapstructure:"suffix"`
-	Regexp   string `mapstructure:"regexp"`
-	NotEmpty bool   `mapstructure:"not-empty"`
+	BaseRule `yaml:",inline"`
+	Prefix   string `yaml:"prefix"`
+	Suffix   string `yaml:"suffix"`
+	Regexp   string `yaml:"regexp"`
+	NotEmpty bool   `yaml:"not-empty"`
 }
 
 func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {

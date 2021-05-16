@@ -10,7 +10,6 @@ require (
 	github.com/google/go-cmp v0.5.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/imdario/mergo v0.3.11
-	github.com/mitchellh/mapstructure v1.4.0
 	github.com/spf13/afero v1.5.1
 	github.com/stretchr/testify v1.6.1
 	github.com/valyala/fasttemplate v1.2.1

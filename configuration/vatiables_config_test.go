@@ -3,9 +3,12 @@ package configuration_test
 import (
 	. "fisherman/configuration"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 )
 
 func TestVariablesSection_Compile_Empty(t *testing.T) {
@@ -73,4 +76,47 @@ func TestVariablesSection_CompileAndReturnVariables(t *testing.T) {
 		}, variables)
 		assert.NoError(t, err)
 	})
+}
+
+func TestVariablesSection_UnmarshalYAML(t *testing.T) {
+	tests := []struct {
+		name          string
+		source        string
+		expected      VariablesSection
+		expectedError string
+	}{
+		{
+			name: "test1",
+			source: `
+variables:
+  demo: Test
+  demo2: Test2
+extract-variables:
+  - Extract("", "")
+`,
+			expected: VariablesSection{
+				StaticVariables: map[string]string{
+					"demo":  "Test",
+					"demo2": "Test2",
+				},
+				ExtractVariables: []string{
+					"Extract(\"\", \"\")",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			reader := strings.NewReader(tt.source)
+			decoder := yaml.NewDecoder(reader)
+			decoder.KnownFields(true)
+
+			var section VariablesSection
+
+			err := decoder.Decode(&section)
+
+			assert.ObjectsAreEqual(tt.expected, section)
+			testutils.CheckError(t, tt.expectedError, err)
+		})
+	}
 }

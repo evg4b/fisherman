@@ -5,8 +5,8 @@ import (
 )
 
 type HookConfig struct {
-	VariablesSection `yaml:"-,inline"`
-	RulesSection     `yaml:"-,inline"`
+	VariablesSection `yaml:",inline"`
+	RulesSection     `yaml:",inline"`
 }
 
 func (config *HookConfig) Compile(engine expression.Engine, global map[string]interface{}) error {

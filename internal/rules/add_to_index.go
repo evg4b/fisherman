@@ -12,13 +12,13 @@ import (
 const AddToIndexType = "add-to-index"
 
 type Glob struct {
-	Glob       string `mapstructure:"glob"`
-	IsRequired bool   `mapstructure:"required"`
+	Glob       string `yaml:"glob"`
+	IsRequired bool   `yaml:"required"`
 }
 
 type AddToIndex struct {
-	BaseRule `mapstructure:",squash"`
-	Globs    []Glob `mapstructure:"globs"`
+	BaseRule `yaml:",inline"`
+	Globs    []Glob `yaml:"globs"`
 }
 
 func (rule *AddToIndex) GetPosition() byte {

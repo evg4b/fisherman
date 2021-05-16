@@ -15,9 +15,9 @@ import (
 const SuppressCommitFilesType = "suppress-commit-files"
 
 type SuppressCommitFiles struct {
-	BaseRule        `mapstructure:",squash"`
-	Globs           []string `mapstructure:"globs"`
-	RemoveFromIndex bool     `mapstructure:"remove-from-index"`
+	BaseRule        `yaml:",inline"`
+	Globs           []string `yaml:"globs"`
+	RemoveFromIndex bool     `yaml:"remove-from-index"`
 }
 
 func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Writer) error {

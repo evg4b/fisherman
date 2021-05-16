@@ -3,6 +3,8 @@ package log
 import (
 	"errors"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 type OutputConfig struct {
@@ -22,7 +24,7 @@ var levelMatching = map[string]Level{
 	"none":  NoneLevel,
 }
 
-func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (c *OutputConfig) UnmarshalYAML(value *yaml.Node) error {
 	(*c) = DefaultOutputConfig
 
 	var config struct {
@@ -30,7 +32,7 @@ func (c *OutputConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Colors   bool   `yaml:"colors"`
 	}
 
-	if err := unmarshal(&config); err != nil {
+	if err := value.Decode(&config); err != nil {
 		return err
 	}
 

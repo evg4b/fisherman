@@ -13,13 +13,13 @@ import (
 const ShellScriptType = "shell-script"
 
 type ShellScript struct {
-	BaseRule `mapstructure:",squash"`
-	Name     string            `mapstructure:"name"`
-	Shell    string            `mapstructure:"shell"`
-	Commands []string          `mapstructure:"commands"`
-	Env      map[string]string `mapstructure:"env"`
-	Output   bool              `mapstructure:"output"`
-	Dir      string            `mapstructure:"dir"`
+	BaseRule `yaml:",inline"`
+	Name     string            `yaml:"name"`
+	Shell    string            `yaml:"shell"`
+	Commands []string          `yaml:"commands"`
+	Env      map[string]string `yaml:"env"`
+	Output   bool              `yaml:"output"`
+	Dir      string            `yaml:"dir"`
 }
 
 func (rule *ShellScript) GetPosition() byte {

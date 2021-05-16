@@ -12,8 +12,8 @@ import (
 const PrepareMessageType = "prepare-message"
 
 type PrepareMessage struct {
-	BaseRule `mapstructure:",squash"`
-	Message  string `mapstructure:"message"`
+	BaseRule `yaml:",inline"`
+	Message  string `yaml:"message"`
 }
 
 func (rule PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
