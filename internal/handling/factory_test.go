@@ -1,7 +1,6 @@
 package handling_test
 
 import (
-	"errors"
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/internal/handling"
@@ -35,36 +34,6 @@ func TestFactory_GetHook(t *testing.T) {
 
 			assert.NotNil(t, hook)
 			assert.NoError(t, err)
-		})
-	}
-}
-
-func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
-	commonConfig := configuration.HookConfig{ExtractVariables: []string{"stub"}}
-
-	factory := handling.NewFactory(
-		mocks.NewEngineMock(t).EvalMapMock.Return(nil, errors.New("test error")),
-		configuration.HooksConfig{
-			ApplyPatchMsgHook:     &commonConfig,
-			FsMonitorWatchmanHook: &commonConfig,
-			PostUpdateHook:        &commonConfig,
-			PreApplyPatchHook:     &commonConfig,
-			PreCommitHook:         &commonConfig,
-			PrePushHook:           &commonConfig,
-			PreRebaseHook:         &commonConfig,
-			PreReceiveHook:        &commonConfig,
-			UpdateHook:            &commonConfig,
-			CommitMsgHook:         &commonConfig,
-			PrepareCommitMsgHook:  &commonConfig,
-		},
-	)
-
-	for _, tt := range constants.HooksNames {
-		t.Run(tt, func(t *testing.T) {
-			hook, err := factory.GetHook(tt)
-
-			assert.Nil(t, hook)
-			assert.Error(t, err, "test error")
 		})
 	}
 }

@@ -121,7 +121,8 @@ func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, a
 			return nil, ErrNotPresented
 		}
 
-		_, err := config.Compile(factory.engine, map[string]interface{}{})
+		// TODO: provide global variables
+		_, err := config.Compile(map[string]interface{}{})
 		if err != nil {
 			return nil, err
 		}

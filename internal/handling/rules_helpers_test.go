@@ -42,8 +42,7 @@ func Test_getPreScripts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
-			factory := handling.NewFactory(engine, configuration.HooksConfig{
+			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},
@@ -89,8 +88,7 @@ func Test_getPostScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
-			factory := handling.NewFactory(engine, configuration.HooksConfig{
+			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},
@@ -136,8 +134,7 @@ func Test_getScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
-			factory := handling.NewFactory(engine, configuration.HooksConfig{
+			factory := handling.NewFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: tt.ruleCollection,
 				},
