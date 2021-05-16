@@ -1,7 +1,7 @@
 package configuration_test
 
 import (
-	"fisherman/configuration"
+	. "fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/internal/rules"
@@ -19,9 +19,9 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 	usr := user.User{HomeDir: filepath.Join("/", "usr", "home")}
 	cwd := filepath.Join("/", "usr", "home", "documents", "repo")
 
-	localConfig := configuration.GetConfigFolder(&usr, cwd, configuration.LocalMode)
-	repoConfig := configuration.GetConfigFolder(&usr, cwd, configuration.RepoMode)
-	globalConfig := configuration.GetConfigFolder(&usr, cwd, configuration.GlobalMode)
+	localConfig := GetConfigFolder(&usr, cwd, LocalMode)
+	repoConfig := GetConfigFolder(&usr, cwd, RepoMode)
+	globalConfig := GetConfigFolder(&usr, cwd, GlobalMode)
 
 	tests := []struct {
 		name        string
@@ -47,16 +47,16 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 				filepath.Join(globalConfig, constants.AppConfigNames[0]),
 			},
 			expected: map[string]string{
-				configuration.LocalMode:  filepath.Join(localConfig, constants.AppConfigNames[0]),
-				configuration.RepoMode:   filepath.Join(repoConfig, constants.AppConfigNames[0]),
-				configuration.GlobalMode: filepath.Join(globalConfig, constants.AppConfigNames[0]),
+				LocalMode:  filepath.Join(localConfig, constants.AppConfigNames[0]),
+				RepoMode:   filepath.Join(repoConfig, constants.AppConfigNames[0]),
+				GlobalMode: filepath.Join(globalConfig, constants.AppConfigNames[0]),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var fs = testutils.FsFromSlice(t, tt.files)
-			loaded := configuration.NewLoader(&usr, cwd, fs)
+			loaded := NewLoader(&usr, cwd, fs)
 
 			actual, err := loaded.FindConfigFiles()
 
@@ -84,21 +84,21 @@ func TestGetConfigFolder(t *testing.T) {
 			name:     "local mode",
 			usr:      &usr,
 			cwd:      cwd,
-			mode:     configuration.LocalMode,
+			mode:     LocalMode,
 			expected: filepath.Join(cwd, ".git"),
 		},
 		{
 			name:     "global mode",
 			usr:      &usr,
 			cwd:      cwd,
-			mode:     configuration.GlobalMode,
+			mode:     GlobalMode,
 			expected: usr.HomeDir,
 		},
 		{
 			name:     "repository mode",
 			usr:      &usr,
 			cwd:      cwd,
-			mode:     configuration.RepoMode,
+			mode:     RepoMode,
 			expected: cwd,
 		},
 		{
@@ -113,10 +113,10 @@ func TestGetConfigFolder(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.shouldPanic {
 				assert.Panics(t, func() {
-					_ = configuration.GetConfigFolder(tt.usr, tt.cwd, tt.mode)
+					_ = GetConfigFolder(tt.usr, tt.cwd, tt.mode)
 				})
 			} else {
-				actual := configuration.GetConfigFolder(tt.usr, tt.cwd, tt.mode)
+				actual := GetConfigFolder(tt.usr, tt.cwd, tt.mode)
 
 				assert.Equal(t, tt.expected, actual)
 			}
@@ -148,51 +148,49 @@ hooks:
 
 	tests := []struct {
 		name        string
-		loader      *configuration.ConfigLoader
+		loader      *ConfigLoader
 		files       map[string]string
-		expected    *configuration.FishermanConfig
+		expected    *FishermanConfig
 		expectedErr string
 	}{
 		{
 			name:   "",
-			loader: configuration.NewLoader(&usr, cwd, mocks.NewFileSystemMock(t)),
+			loader: NewLoader(&usr, cwd, mocks.NewFileSystemMock(t)),
 			files:  map[string]string{},
-			expected: &configuration.FishermanConfig{
+			expected: &FishermanConfig{
 				Output: log.DefaultOutputConfig,
 			},
 		},
 		{
 			name:   "file reader error",
-			loader: configuration.NewLoader(&usr, cwd, fs),
+			loader: NewLoader(&usr, cwd, fs),
 			files: map[string]string{
-				configuration.GlobalMode: "GlobalConfig3",
+				GlobalMode: "GlobalConfig3",
 			},
 			expectedErr: "open GlobalConfig3: file does not exist",
 		},
 		{
 			name:   "correct decoding",
-			loader: configuration.NewLoader(&usr, cwd, fs),
+			loader: NewLoader(&usr, cwd, fs),
 			files: map[string]string{
-				configuration.GlobalMode: "GlobalConfig",
+				GlobalMode: "GlobalConfig",
 			},
-			expected: &configuration.FishermanConfig{
+			expected: &FishermanConfig{
 				Output: log.DefaultOutputConfig,
 				GlobalVariables: map[string]interface{}{
 					"name": "value",
 				},
-				Hooks: configuration.HooksConfig{
-					PrePushHook: &configuration.HookConfig{
-						RulesSection: configuration.RulesSection{
-							Rules: []configuration.Rule{
-								&rules.ShellScript{
-									BaseRule: rules.BaseRule{
-										Type: "shell-script",
-									},
-									Name: "Demo",
-									Commands: []string{
-										"echo '1213123' >> log.txt",
-										"exit 1",
-									},
+				Hooks: HooksConfig{
+					PrePushHook: &HookConfig{
+						Rules: []Rule{
+							&rules.ShellScript{
+								BaseRule: rules.BaseRule{
+									Type: "shell-script",
+								},
+								Name: "Demo",
+								Commands: []string{
+									"echo '1213123' >> log.txt",
+									"exit 1",
 								},
 							},
 						},
@@ -202,9 +200,9 @@ hooks:
 		},
 		{
 			name:   "decoding error",
-			loader: configuration.NewLoader(&usr, cwd, fs),
+			loader: NewLoader(&usr, cwd, fs),
 			files: map[string]string{
-				configuration.GlobalMode: "GlobalConfigError",
+				GlobalMode: "GlobalConfigError",
 			},
 			expectedErr: "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `asd['` into configuration.FishermanConfig",
 		},
@@ -243,18 +241,18 @@ variables:
   var3: local`,
 	})
 
-	loader := configuration.NewLoader(&usr, cwd, fs)
+	loader := NewLoader(&usr, cwd, fs)
 
 	files := map[string]string{
-		configuration.GlobalMode: "global.yaml",
-		configuration.LocalMode:  "local.yaml",
-		configuration.RepoMode:   "repo.yaml",
+		GlobalMode: "global.yaml",
+		LocalMode:  "local.yaml",
+		RepoMode:   "repo.yaml",
 	}
 
 	actual, err := loader.Load(files)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &configuration.FishermanConfig{
+	assert.Equal(t, &FishermanConfig{
 		Output: log.DefaultOutputConfig,
 		GlobalVariables: map[string]interface{}{
 			"var1": "local",

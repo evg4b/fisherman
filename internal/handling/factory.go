@@ -121,7 +121,7 @@ func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, a
 			return nil, ErrNotPresented
 		}
 
-		err := config.Compile(factory.engine, map[string]interface{}{})
+		_, err := config.Compile(factory.engine, map[string]interface{}{})
 		if err != nil {
 			return nil, err
 		}

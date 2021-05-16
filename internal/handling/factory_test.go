@@ -40,8 +40,7 @@ func TestFactory_GetHook(t *testing.T) {
 }
 
 func TestFactory_GetHook_ReturnInternalError(t *testing.T) {
-	variablesSection := configuration.VariablesSection{ExtractVariables: []string{"stub"}}
-	commonConfig := configuration.HookConfig{VariablesSection: variablesSection}
+	commonConfig := configuration.HookConfig{ExtractVariables: []string{"stub"}}
 
 	factory := handling.NewFactory(
 		mocks.NewEngineMock(t).EvalMapMock.Return(nil, errors.New("test error")),

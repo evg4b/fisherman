@@ -45,9 +45,7 @@ func Test_getPreScripts(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
-					RulesSection: configuration.RulesSection{
-						Rules: tt.ruleCollection,
-					},
+					Rules: tt.ruleCollection,
 				},
 			})
 
@@ -94,9 +92,7 @@ func Test_getPostScriptRules(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
-					RulesSection: configuration.RulesSection{
-						Rules: tt.ruleCollection,
-					},
+					Rules: tt.ruleCollection,
 				},
 			})
 
@@ -143,9 +139,7 @@ func Test_getScriptRules(t *testing.T) {
 			engine := mocks.NewEngineMock(t).EvalMapMock.Return(map[string]interface{}{}, nil)
 			factory := handling.NewFactory(engine, configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
-					RulesSection: configuration.RulesSection{
-						Rules: tt.ruleCollection,
-					},
+					Rules: tt.ruleCollection,
 				},
 			})
 
