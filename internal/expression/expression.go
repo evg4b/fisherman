@@ -1,10 +1,10 @@
 package expression
 
 import (
-	"fmt"
-	"reflect"
+	"fisherman/utils"
 
-	"github.com/Knetic/govaluate"
+	"github.com/antonmedv/expr"
+	"github.com/imdario/mergo"
 )
 
 type Engine interface {
@@ -12,82 +12,76 @@ type Engine interface {
 	EvalMap(expression string, variables map[string]interface{}) (map[string]interface{}, error)
 }
 
-type GovaluateEngine struct {
-	functions map[string]govaluate.ExpressionFunction
+type GoExpressionEngine struct {
+	functions map[string]interface{}
 }
 
-func NewExpressionEngine() *GovaluateEngine {
-	return &GovaluateEngine{
+func NewGoExpressionEngine() *GoExpressionEngine {
+	return &GoExpressionEngine{
 		// TODO: Add functions:
 		// - filesChanged(...glob) bool
 		// - filesExist(...glob) bool
 		// - env(name string) string
 		// - filesChangedRelativeTo(...glob, branch) bool
-		functions: map[string]govaluate.ExpressionFunction{
-			"IsEmpty": isEmpty,
+		functions: map[string]interface{}{
+			"IsEmpty": utils.IsEmpty,
 			"Extract": extract,
-			"Defined": defined,
 		},
 	}
 }
 
-func (engine *GovaluateEngine) Eval(expressionString string, vars map[string]interface{}) (bool, error) {
-	// TODO: add global and local function. This case need to configure unique functions for each hook
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expressionString, engine.functions)
+func (engine *GoExpressionEngine) Eval(expressionString string, vars map[string]interface{}) (bool, error) {
+	env := map[string]interface{}{}
+	err := mergo.Merge(&env, engine.functions)
 	if err != nil {
 		return false, err
 	}
 
-	result, err := expression.Evaluate(vars)
+	err = mergo.Merge(&env, vars)
 	if err != nil {
 		return false, err
 	}
 
-	result = indirect(result)
+	program, err := expr.Compile(
+		expressionString,
+		expr.Env(env),
+		expr.AllowUndefinedVariables(),
+		expr.AsBool())
 
-	switch b := result.(type) {
-	case bool:
-		return b, nil
-	case nil:
-		return false, nil
-	case float32:
-		return b != 0, nil
-	case int:
-		return b != 0, nil
-	case string:
-		return len(b) > 0, nil
-	default:
-		return false, fmt.Errorf("unable to cast %#v of type %T to bool", b, b)
+	if err != nil {
+		return false, err
 	}
+
+	output, err := expr.Run(program, env)
+	if err != nil {
+		return false, err
+	}
+
+	return output.(bool), nil
 }
 
-func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{}) (map[string]interface{}, error) {
-	expression, err := govaluate.NewEvaluableExpressionWithFunctions(expr, engine.functions)
+func (engine *GoExpressionEngine) EvalMap(expressionString string, vars map[string]interface{}) (map[string]interface{}, error) {
+	env := map[string]interface{}{}
+	err := mergo.Merge(&env, engine.functions)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := expression.Evaluate(vars)
+	err = mergo.Merge(&env, vars)
 	if err != nil {
 		return nil, err
 	}
 
-	return result.(map[string]interface{}), nil
-}
+	program, err := expr.Compile(expressionString, expr.Env(env), expr.AllowUndefinedVariables())
 
-func indirect(a interface{}) interface{} {
-	if a == nil {
-		return nil
+	if err != nil {
+		return nil, err
 	}
 
-	if t := reflect.TypeOf(a); t.Kind() != reflect.Ptr {
-		return a
+	output, err := expr.Run(program, env)
+	if err != nil {
+		return nil, err
 	}
 
-	v := reflect.ValueOf(a)
-	for v.Kind() == reflect.Ptr && !v.IsNil() {
-		v = v.Elem()
-	}
-
-	return v.Interface()
+	return output.(map[string]interface{}), nil
 }

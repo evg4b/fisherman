@@ -3,7 +3,7 @@ module fisherman
 go 1.16
 
 require (
-	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/antonmedv/expr v1.8.9
 	github.com/fatih/color v1.10.0
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/gojuno/minimock/v3 v3.0.8

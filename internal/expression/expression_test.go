@@ -3,13 +3,14 @@ package expression_test
 import (
 	"fisherman/internal/expression"
 	"fisherman/testing/testutils"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExpressionEngine_Eval(t *testing.T) {
-	engine := expression.NewExpressionEngine()
+	engine := expression.NewGoExpressionEngine()
 
 	tests := []struct {
 		name        string
@@ -36,7 +37,7 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			name:        "IsEmpty with not empty value",
 			expression:  "IsEmpty()",
 			expected:    false,
-			expectedErr: "incorrect arguments for IsEmpty",
+			expectedErr: "expected bool, but got interface {}",
 		},
 	}
 
@@ -54,13 +55,13 @@ func TestExpressionEngine_Eval(t *testing.T) {
 }
 
 func TestGovaluateEngine_EvalMap(t *testing.T) {
-	engine := expression.NewExpressionEngine()
+	engine := expression.NewGoExpressionEngine()
 
 	tests := []struct {
 		name        string
 		expression  string
 		expected    map[string]interface{}
-		expectedErr string
+		expectedErr []string
 	}{
 		{
 			name:       "static expression",
@@ -70,35 +71,49 @@ func TestGovaluateEngine_EvalMap(t *testing.T) {
 			},
 		},
 		{
-			name:        "incurrect expression",
-			expression:  "Extract(\"refs/heads/master\", \"refs/heads/(?P<CurrentBranch>.*))",
-			expected:    nil,
-			expectedErr: "Unclosed string literal",
+			name:       "incurrect expression",
+			expression: "Extract(\"refs/heads/master\", \"refs/heads/(?P<CurrentBranch>.*))",
+			expected:   nil,
+			expectedErr: []string{
+				"literal not terminated (1:64)",
+				" | Extract(\"refs/heads/master\", \"refs/heads/(?P<CurrentBranch>.*))",
+				" | ...............................................................^",
+			},
 		},
 		{
-			name:        "eval error",
-			expression:  "Extract(\"refs/heads/master\")",
-			expected:    nil,
-			expectedErr: "incorrect arguments for Extract",
+			name:       "eval error",
+			expression: "Extract(\"refs/heads/master\")",
+			expected:   nil,
+			expectedErr: []string{
+				"incorrect arguments for Extract (1:1)",
+				" | Extract(\"refs/heads/master\")",
+				" | ^",
+			},
 		},
 		{
-			name:        "eval matching error",
-			expression:  "Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>.*)\")",
-			expected:    nil,
-			expectedErr: "filed match 'demo' to expression 'refs/heads/(?P<CurrentBranch>.*)'",
+			name:       "eval matching error",
+			expression: "Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>.*)\")",
+			expected:   nil,
+			expectedErr: []string{
+				"filed match 'demo' to expression 'refs/heads/(?P<CurrentBranch>.*)' (1:1)",
+				" | Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>.*)\")",
+				" | ^",
+			},
 		},
 		{
-			name:        "eval regexp error",
-			expression:  "Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>\")",
-			expected:    nil,
-			expectedErr: "error parsing regexp: missing closing ): `refs/heads/(?P<CurrentBranch>`",
+			name:       "eval regexp error",
+			expression: "Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>\")",
+			expected:   nil,
+			expectedErr: []string{
+				"error parsing regexp: missing closing ): `refs/heads/(?P<CurrentBranch>` (1:1)",
+				" | Extract(\"demo\", \"refs/heads/(?P<CurrentBranch>\")",
+				" | ^",
+			},
 		},
 		{
 			name:       "static expression",
 			expression: "Extract(variable1, \"refs/heads/(?P<CurrentBranch>.*)\")",
-			expected: map[string]interface{}{
-				"CurrentBranch": "master",
-			},
+			expected:   map[string]interface{}{"CurrentBranch": "master"},
 		},
 	}
 
@@ -112,7 +127,7 @@ func TestGovaluateEngine_EvalMap(t *testing.T) {
 			})
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.CheckError(t, strings.Join(tt.expectedErr, "\n"), err)
 		})
 	}
 }

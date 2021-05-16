@@ -1,26 +1,15 @@
 package expression
 
 import (
-	"errors"
 	"fisherman/utils"
 	"fmt"
 	"regexp"
 )
 
-func isEmpty(arguments ...interface{}) (interface{}, error) {
-	// TODO: find validation mechanism
-	const isEmptyArgumentCount = 1
-	if len(arguments) != isEmptyArgumentCount {
-		return nil, errors.New("incorrect arguments for IsEmpty")
-	}
-
-	return utils.IsEmpty(arguments[0].(string)), nil
-}
-
-func extract(arguments ...interface{}) (interface{}, error) {
+func extract(arguments ...interface{}) map[string]interface{} {
 	const extractArgumentCount = 2
 	if len(arguments) != extractArgumentCount {
-		return nil, errors.New("incorrect arguments for Extract")
+		panic("incorrect arguments for Extract")
 	}
 
 	source := arguments[0].(string)
@@ -30,12 +19,12 @@ func extract(arguments ...interface{}) (interface{}, error) {
 	if !utils.IsEmpty(expression) && !utils.IsEmpty(source) {
 		reg, err := regexp.Compile(expression)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 
 		match := reg.FindStringSubmatch(source)
 		if match == nil {
-			return nil, fmt.Errorf("filed match '%s' to expression '%s'", source, expression)
+			panic(fmt.Errorf("filed match '%s' to expression '%s'", source, expression))
 		}
 
 		for i, name := range reg.SubexpNames() {
@@ -45,19 +34,5 @@ func extract(arguments ...interface{}) (interface{}, error) {
 		}
 	}
 
-	return variables, nil
-}
-
-func defined(arguments ...interface{}) (interface{}, error) {
-	if len(arguments) == 0 {
-		return false, errors.New("incorrect arguments for Defined")
-	}
-
-	for _, arg := range arguments {
-		if arg == nil {
-			return false, nil
-		}
-	}
-
-	return true, nil
+	return variables
 }

@@ -139,6 +139,7 @@ func (factory *GitHookFactory) configure(name string, config *cnfg.HookConfig, a
 		}
 
 		return &HookHandler{
+			Engine:          factory.engine,
 			Rules:           getPreScriptRules(config.Rules),
 			Scripts:         getScriptRules(config.Rules),
 			PostScriptRules: getPostScriptRules(config.Rules),

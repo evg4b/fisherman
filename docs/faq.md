@@ -15,12 +15,12 @@ hooks:
       - 'Extract(BranchName, "^refs/heads/(?P<IssueNumber>PROJ\d+)-.*$")'
     rules:
       - type: commit-message
-        condition: Defined("IssueNumber")
+        condition: IssueNumber != nil
         prefix: '[{{IssueNumber}}]'
 ```
 
 related links:
 
+<!-- TODO: Add correct links -->
 - [extract-variables](/)
 - [commit-message](/)
-- ['Defined' function](/)

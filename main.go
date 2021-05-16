@@ -51,7 +51,7 @@ func main() {
 	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
 	repo := vcs.NewGitRepository(cwd)
 
-	engine := expression.NewExpressionEngine()
+	engine := expression.NewGoExpressionEngine()
 
 	ctxFactory := internal.NewCtxFactory(ctx, fs, sysShell, repo)
 	hookFactory := handling.NewFactory(engine, config.Hooks)
