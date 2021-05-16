@@ -1,6 +1,9 @@
 package expression
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/Knetic/govaluate"
 )
 
@@ -40,8 +43,22 @@ func (engine *GovaluateEngine) Eval(expressionString string, vars map[string]int
 		return false, err
 	}
 
-	// TODO: Add casting to bool (https://github.com/spf13/cast/blob/8d17101741c81653ee960aa20f9febb31f1218aa/caste.go#L74)
-	return result.(bool), nil
+	result = indirect(result)
+
+	switch b := result.(type) {
+	case bool:
+		return b, nil
+	case nil:
+		return false, nil
+	case float32:
+		return b != 0, nil
+	case int:
+		return b != 0, nil
+	case string:
+		return len(b) > 0, nil
+	default:
+		return false, fmt.Errorf("unable to cast %#v of type %T to bool", b, b)
+	}
 }
 
 func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{}) (map[string]interface{}, error) {
@@ -56,4 +73,21 @@ func (engine *GovaluateEngine) EvalMap(expr string, vars map[string]interface{})
 	}
 
 	return result.(map[string]interface{}), nil
+}
+
+func indirect(a interface{}) interface{} {
+	if a == nil {
+		return nil
+	}
+
+	if t := reflect.TypeOf(a); t.Kind() != reflect.Ptr {
+		return a
+	}
+
+	v := reflect.ValueOf(a)
+	for v.Kind() == reflect.Ptr && !v.IsNil() {
+		v = v.Elem()
+	}
+
+	return v.Interface()
 }
