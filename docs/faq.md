@@ -15,7 +15,7 @@ hooks:
       - 'Extract(BranchName, "^refs/heads/(?P<IssueNumber>PROJ\d+)-.*$")'
     rules:
       - type: commit-message
-        condition: IssueNumber != nil
+        when: IssueNumber != nil
         prefix: '[{{IssueNumber}}]'
 ```
 

@@ -9,7 +9,7 @@ The rule is used to automatically add files to the index after user or previous 
 
 ``` yaml
 - type: 'add-to-index'
-  condition: '1 == 1'
+  when: '1 == 1'
   globs:
     - glob: '~/project/*.go'
       required: true
@@ -25,7 +25,7 @@ You can also use a short syntax (required will be false):
 
 ``` yaml
 - type: 'add-to-index'
-  condition: '1 == 1'
+  when: '1 == 1'
   globs: [ 'mocks/**/*', 'go.sum', 'go.mod' ]
 ```
 
@@ -33,7 +33,7 @@ You can also use a short syntax (required will be false):
 
 ``` yaml
 - type: 'commit-message'
-  condition: '1 == 1'
+  when: '1 == 1'
   prefix: 'message-prefix'
   suffix: 'message-suffix'
   regexp: '[a-zA-Z]'
@@ -52,7 +52,7 @@ Can be used to prevent commit with `--allow-empty-message` flag.
 
 ``` yaml
 - type: 'prepare-message'
-  condition: '1 == 1'
+  when: '1 == 1'
   message: 'Message draft'
 ```
 
@@ -70,7 +70,7 @@ Shell script can be configured using the following structure:
 
 ``` yaml
 - type: commit-suffix
-  condition: 1 == 1
+  when: 1 == 1
   suffix: string
 ```
 
@@ -78,7 +78,7 @@ You can create as many scripts to validation. Scripts will be executed on the [s
 
 **commands** - Array of strings with validation script commands. Is also supports tempesting based on hook variables.
 
-**condition** - An expression on C link language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
+**when** - An expression on C link language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
 
 **env** - Sets additional environment variables (system environment variables also will be included)  for the command.
 
@@ -143,7 +143,7 @@ Powershell by default do not return non zero exit code on fail. [See more](https
 
 ``` yaml
 - type: suppress-commit-files
-  condition: 1 == 1
+  when: 1 == 1
   globs: [ 'mocks/**/*', 'go.sum', 'go.mod' ]
   remove-from-index: false
 ```

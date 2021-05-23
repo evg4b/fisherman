@@ -10,16 +10,16 @@ hooks:
 
     rules:
       - type: commit-suffix
-        condition: 1 == 1
+        when: 1 == 1
         suffix: string
 
       - type: commit-prefix
-        condition: 1 == 1
+        when: 1 == 1
         prefix: string
         suffix: string
 
       - type: commit-regexp
-        condition: 1 == 1
+        when: 1 == 1
         prefix: string
 
     not-empty: false
@@ -44,28 +44,28 @@ hooks:
     rules:
 
       - type: suppress-commit-files
-        condition: 1 == 1
+        when: 1 == 1
         globs: [glob1, glob2, glob3]
         remove-from-index: true
 
       - type: commit-suffix
-        condition: 1 == 1
+        when: 1 == 1
         suffix: string
 
       - type: commit-prefix
-        condition: 1 == 1
+        when: 1 == 1
         prefix: string
         suffix: string
 
       - type: commit-regexp
-        condition: 1 == 1
+        when: 1 == 1
         prefix: string
 
     shell:
       windows: command4 arg1 arg2 arg3
       linux:
         script1:
-          condition: 1 == 1
+          when: 1 == 1
           env:
             VAR1: VALUE1
             VAR2: VALUE2

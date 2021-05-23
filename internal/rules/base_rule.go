@@ -11,7 +11,7 @@ var (
 
 type BaseRule struct {
 	Type      string `yaml:"type,omitempty"`
-	Condition string `yaml:"condition,omitempty"`
+	Condition string `yaml:"when,omitempty"`
 }
 
 func (rule *BaseRule) GetType() string {
