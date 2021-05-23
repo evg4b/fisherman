@@ -48,7 +48,7 @@ func Test_getPreScripts(t *testing.T) {
 				},
 			})
 
-			actual, _ := factory.GetHook(constants.PreCommitHook)
+			actual, _ := factory.GetHook(constants.PreCommitHook, globalVars)
 
 			handler := actual.(*handling.HookHandler)
 
@@ -94,7 +94,7 @@ func Test_getPostScriptRules(t *testing.T) {
 				},
 			})
 
-			actual, _ := factory.GetHook(constants.PreCommitHook)
+			actual, _ := factory.GetHook(constants.PreCommitHook, globalVars)
 
 			handler := actual.(*handling.HookHandler)
 
@@ -140,7 +140,7 @@ func Test_getScriptRules(t *testing.T) {
 				},
 			})
 
-			actual, _ := factory.GetHook(constants.PreCommitHook)
+			actual, _ := factory.GetHook(constants.PreCommitHook, globalVars)
 
 			handler := actual.(*handling.HookHandler)
 

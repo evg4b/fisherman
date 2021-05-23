@@ -17,8 +17,8 @@ import (
 type FactoryMock struct {
 	t minimock.Tester
 
-	funcGetHook          func(name string) (h1 mm_handling.Handler, err error)
-	inspectFuncGetHook   func(name string)
+	funcGetHook          func(name string, global map[string]interface{}) (h1 mm_handling.Handler, err error)
+	inspectFuncGetHook   func(name string, global map[string]interface{})
 	afterGetHookCounter  uint64
 	beforeGetHookCounter uint64
 	GetHookMock          mFactoryMockGetHook
@@ -56,7 +56,8 @@ type FactoryMockGetHookExpectation struct {
 
 // FactoryMockGetHookParams contains parameters of the Factory.GetHook
 type FactoryMockGetHookParams struct {
-	name string
+	name   string
+	global map[string]interface{}
 }
 
 // FactoryMockGetHookResults contains results of the Factory.GetHook
@@ -66,7 +67,7 @@ type FactoryMockGetHookResults struct {
 }
 
 // Expect sets up expected params for Factory.GetHook
-func (mmGetHook *mFactoryMockGetHook) Expect(name string) *mFactoryMockGetHook {
+func (mmGetHook *mFactoryMockGetHook) Expect(name string, global map[string]interface{}) *mFactoryMockGetHook {
 	if mmGetHook.mock.funcGetHook != nil {
 		mmGetHook.mock.t.Fatalf("FactoryMock.GetHook mock is already set by Set")
 	}
@@ -75,7 +76,7 @@ func (mmGetHook *mFactoryMockGetHook) Expect(name string) *mFactoryMockGetHook {
 		mmGetHook.defaultExpectation = &FactoryMockGetHookExpectation{}
 	}
 
-	mmGetHook.defaultExpectation.params = &FactoryMockGetHookParams{name}
+	mmGetHook.defaultExpectation.params = &FactoryMockGetHookParams{name, global}
 	for _, e := range mmGetHook.expectations {
 		if minimock.Equal(e.params, mmGetHook.defaultExpectation.params) {
 			mmGetHook.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetHook.defaultExpectation.params)
@@ -86,7 +87,7 @@ func (mmGetHook *mFactoryMockGetHook) Expect(name string) *mFactoryMockGetHook {
 }
 
 // Inspect accepts an inspector function that has same arguments as the Factory.GetHook
-func (mmGetHook *mFactoryMockGetHook) Inspect(f func(name string)) *mFactoryMockGetHook {
+func (mmGetHook *mFactoryMockGetHook) Inspect(f func(name string, global map[string]interface{})) *mFactoryMockGetHook {
 	if mmGetHook.mock.inspectFuncGetHook != nil {
 		mmGetHook.mock.t.Fatalf("Inspect function is already set for FactoryMock.GetHook")
 	}
@@ -110,7 +111,7 @@ func (mmGetHook *mFactoryMockGetHook) Return(h1 mm_handling.Handler, err error) 
 }
 
 //Set uses given function f to mock the Factory.GetHook method
-func (mmGetHook *mFactoryMockGetHook) Set(f func(name string) (h1 mm_handling.Handler, err error)) *FactoryMock {
+func (mmGetHook *mFactoryMockGetHook) Set(f func(name string, global map[string]interface{}) (h1 mm_handling.Handler, err error)) *FactoryMock {
 	if mmGetHook.defaultExpectation != nil {
 		mmGetHook.mock.t.Fatalf("Default expectation is already set for the Factory.GetHook method")
 	}
@@ -125,14 +126,14 @@ func (mmGetHook *mFactoryMockGetHook) Set(f func(name string) (h1 mm_handling.Ha
 
 // When sets expectation for the Factory.GetHook which will trigger the result defined by the following
 // Then helper
-func (mmGetHook *mFactoryMockGetHook) When(name string) *FactoryMockGetHookExpectation {
+func (mmGetHook *mFactoryMockGetHook) When(name string, global map[string]interface{}) *FactoryMockGetHookExpectation {
 	if mmGetHook.mock.funcGetHook != nil {
 		mmGetHook.mock.t.Fatalf("FactoryMock.GetHook mock is already set by Set")
 	}
 
 	expectation := &FactoryMockGetHookExpectation{
 		mock:   mmGetHook.mock,
-		params: &FactoryMockGetHookParams{name},
+		params: &FactoryMockGetHookParams{name, global},
 	}
 	mmGetHook.expectations = append(mmGetHook.expectations, expectation)
 	return expectation
@@ -145,15 +146,15 @@ func (e *FactoryMockGetHookExpectation) Then(h1 mm_handling.Handler, err error) 
 }
 
 // GetHook implements handling.Factory
-func (mmGetHook *FactoryMock) GetHook(name string) (h1 mm_handling.Handler, err error) {
+func (mmGetHook *FactoryMock) GetHook(name string, global map[string]interface{}) (h1 mm_handling.Handler, err error) {
 	mm_atomic.AddUint64(&mmGetHook.beforeGetHookCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetHook.afterGetHookCounter, 1)
 
 	if mmGetHook.inspectFuncGetHook != nil {
-		mmGetHook.inspectFuncGetHook(name)
+		mmGetHook.inspectFuncGetHook(name, global)
 	}
 
-	mm_params := &FactoryMockGetHookParams{name}
+	mm_params := &FactoryMockGetHookParams{name, global}
 
 	// Record call args
 	mmGetHook.GetHookMock.mutex.Lock()
@@ -170,7 +171,7 @@ func (mmGetHook *FactoryMock) GetHook(name string) (h1 mm_handling.Handler, err 
 	if mmGetHook.GetHookMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetHook.GetHookMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetHook.GetHookMock.defaultExpectation.params
-		mm_got := FactoryMockGetHookParams{name}
+		mm_got := FactoryMockGetHookParams{name, global}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetHook.t.Errorf("FactoryMock.GetHook got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -182,9 +183,9 @@ func (mmGetHook *FactoryMock) GetHook(name string) (h1 mm_handling.Handler, err 
 		return (*mm_results).h1, (*mm_results).err
 	}
 	if mmGetHook.funcGetHook != nil {
-		return mmGetHook.funcGetHook(name)
+		return mmGetHook.funcGetHook(name, global)
 	}
-	mmGetHook.t.Fatalf("Unexpected call to FactoryMock.GetHook. %v", name)
+	mmGetHook.t.Fatalf("Unexpected call to FactoryMock.GetHook. %v %v", name, global)
 	return
 }
 

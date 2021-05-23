@@ -3,6 +3,8 @@ package internal_test
 import (
 	"bytes"
 	"context"
+	"errors"
+	infra "fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
@@ -203,4 +205,68 @@ func TestContext_Done(t *testing.T) {
 	chanell := ctx.Done()
 
 	assert.NotNil(t, chanell)
+}
+
+func TestContext_GlobalVariables(t *testing.T) {
+	tests := []struct {
+		name        string
+		expected    map[string]interface{}
+		repository  infra.Repository
+		expectedErr string
+	}{
+		{
+			name: "GetLastTag returns error",
+			repository: mocks.NewRepositoryMock(t).
+				GetLastTagMock.Return("", errors.New("GetLastTag error")),
+			expected:    nil,
+			expectedErr: "GetLastTag error",
+		},
+		{
+			name: "GetCurrentBranch returns error",
+			repository: mocks.NewRepositoryMock(t).
+				GetLastTagMock.Return("1.0.0", nil).
+				GetCurrentBranchMock.Return("", errors.New("GetCurrentBranch error")),
+			expected:    nil,
+			expectedErr: "GetCurrentBranch error",
+		},
+		{
+			name: "GetUser returns error",
+			repository: mocks.NewRepositoryMock(t).
+				GetLastTagMock.Return("1.0.0", nil).
+				GetCurrentBranchMock.Return("refs/head/develop", nil).
+				GetUserMock.Return(infra.User{}, errors.New("GetUser error")),
+			expected:    nil,
+			expectedErr: "GetUser error",
+		},
+		{
+			name: "GetUser returns error",
+			repository: mocks.NewRepositoryMock(t).
+				GetLastTagMock.Return("1.0.0", nil).
+				GetCurrentBranchMock.Return("refs/head/develop", nil).
+				GetUserMock.Return(infra.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+			expected: map[string]interface{}{
+				"Tag":        "1.0.0",
+				"BranchName": "refs/head/develop",
+				"UserName":   "evg4b",
+				"UserEmail":  "evg4b@mail.com",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := internal.NewInternalContext(
+				context.TODO(),
+				mocks.NewFileSystemMock(t),
+				mocks.NewShellMock(t),
+				tt.repository,
+				[]string{},
+				ioutil.Discard,
+			)
+
+			actual, err := ctx.GlobalVariables()
+
+			assert.Equal(t, tt.expected, actual)
+			testutils.CheckError(t, tt.expectedErr, err)
+		})
+	}
 }

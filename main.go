@@ -39,10 +39,10 @@ func main() {
 	fs := afero.NewOsFs()
 
 	loader := configuration.NewLoader(usr, cwd, fs)
-	configFiles, err := loader.FindConfigFiles()
+	configs, err := loader.FindConfigFiles()
 	utils.HandleCriticalError(err)
 
-	config, err := loader.Load(configFiles)
+	config, err := loader.Load(configs)
 	utils.HandleCriticalError(err)
 
 	log.Configure(config.Output)
@@ -52,21 +52,22 @@ func main() {
 	repo := vcs.NewGitRepository(cwd)
 
 	engine := expression.NewGoExpressionEngine()
-
 	ctxFactory := internal.NewCtxFactory(ctx, fs, sysShell, repo)
 	hookFactory := handling.NewHookHandlerFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
 		Executable: executable,
 		Cwd:        cwd,
-		Configs:    configFiles,
+		Configs:    configs,
 	}
+
 	instance := runner.NewRunner([]commands.CliCommand{
 		initialize.NewCommand(fs, appInfo, usr),
 		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, appInfo),
 		remove.NewCommand(fs, appInfo, usr),
 		version.NewCommand(),
 	})
+
 	if err = instance.Run(os.Args[1:]); err != nil {
 		panic(err)
 	}

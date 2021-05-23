@@ -21,11 +21,11 @@ type CompilableConfig interface {
 }
 
 type Factory interface {
-	GetHook(name string) (Handler, error)
+	GetHook(name string, global map[string]interface{}) (Handler, error)
 }
 
 type Variables = map[string]interface{}
-type hookBuilder = func() (Handler, error)
+type hookBuilder = func(globalVars Variables) (Handler, error)
 type builders = map[string]hookBuilder
 
 type HookHandlerFactory struct {
@@ -55,22 +55,21 @@ func NewHookHandlerFactory(engine expression.Engine, config configuration.HooksC
 	return &f
 }
 
-func (f *HookHandlerFactory) GetHook(name string) (Handler, error) {
+func (f *HookHandlerFactory) GetHook(name string, globalVars Variables) (Handler, error) {
 	if builder, ok := f.hooksBuilders[name]; ok {
-		return builder()
+		return builder(globalVars)
 	}
 
 	return nil, errors.New("unknown hook")
 }
 
 func (f *HookHandlerFactory) configure(name string, config *configuration.HookConfig) hookBuilder {
-	return func() (Handler, error) {
+	return func(globalVars Variables) (Handler, error) {
 		if config == nil {
 			return nil, ErrNotPresented
 		}
 
-		// TODO: provide global variables
-		_, err := config.Compile(map[string]interface{}{})
+		compiledVars, err := config.Compile(globalVars)
 		if err != nil {
 			return nil, err
 		}
@@ -93,6 +92,7 @@ func (f *HookHandlerFactory) configure(name string, config *configuration.HookCo
 			Scripts:         getScriptRules(config.Rules),
 			PostScriptRules: getPostScriptRules(config.Rules),
 			WorkersCount:    workersCount,
+			GlobalVariables: compiledVars,
 		}, nil
 	}
 }

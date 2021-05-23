@@ -18,11 +18,11 @@ type in = <-chan configuration.Rule
 type out = chan<- error
 type coxtext = internal.ExecutionContext
 
-func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
+func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	input := make(chan configuration.Rule)
 	output := make(chan error)
 
-	err := startWorkers(ctx, input, output, handler.WorkersCount)
+	err := startWorkers(ctx, input, output, h.WorkersCount)
 	if err != nil {
 		return err
 	}
@@ -33,12 +33,7 @@ func (handler *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) er
 
 		condition := rule.GetContition()
 		if !utils.IsEmpty(condition) {
-			global, err := ctx.GlobalVariables()
-			if err != nil {
-				return err
-			}
-
-			shouldAadd, err = handler.Engine.Eval(condition, global)
+			shouldAadd, err = h.Engine.Eval(condition, h.GlobalVariables)
 			if err != nil {
 				close(input)
 

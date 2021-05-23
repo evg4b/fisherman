@@ -14,7 +14,14 @@ func (command *Command) Init(args []string) error {
 }
 
 func (command *Command) Run() error {
-	handler, err := command.hookFactory.GetHook(command.hook)
+	// TODO: resolve context factory problem
+	ctx := command.ctxFactory(command.flagSet.Args(), log.Stdout())
+	global, err := ctx.GlobalVariables()
+	if err != nil {
+		return err
+	}
+
+	handler, err := command.hookFactory.GetHook(command.hook, global)
 	if err != nil {
 		if errors.Is(err, handling.ErrNotPresented) {
 			log.Debugf("hook %s not presented", command.hook)
@@ -34,8 +41,6 @@ func (command *Command) Run() error {
 		constants.LocalConfigPath:          utils.OriginalOrNA(files[configuration.LocalMode]),
 		constants.FishermanVersionVariable: constants.Version,
 	})
-
-	ctx := command.ctxFactory(command.flagSet.Args(), log.Stdout())
 
 	return handler.Handle(ctx, command.flagSet.Args())
 }

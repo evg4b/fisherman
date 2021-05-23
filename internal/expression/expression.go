@@ -28,8 +28,9 @@ func NewGoExpressionEngine() *GoExpressionEngine {
 	}
 }
 
-func (engine *GoExpressionEngine) Eval(expressionString string, vars map[string]interface{}) (bool, error) {
+func (engine *GoExpressionEngine) Eval(expString string, vars map[string]interface{}) (bool, error) {
 	env := map[string]interface{}{}
+
 	err := mergo.Merge(&env, engine.functions)
 	if err != nil {
 		return false, err
@@ -40,17 +41,12 @@ func (engine *GoExpressionEngine) Eval(expressionString string, vars map[string]
 		return false, err
 	}
 
-	program, err := expr.Compile(
-		expressionString,
-		expr.Env(env),
-		expr.AllowUndefinedVariables(),
-		expr.AsBool())
-
+	expression, err := expr.Compile(expString, expr.Env(env), expr.AllowUndefinedVariables(), expr.AsBool())
 	if err != nil {
 		return false, err
 	}
 
-	output, err := expr.Run(program, env)
+	output, err := expr.Run(expression, env)
 	if err != nil {
 		return false, err
 	}

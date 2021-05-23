@@ -17,19 +17,20 @@ type HookHandler struct {
 	Rules           []configuration.Rule
 	Scripts         []configuration.Rule
 	PostScriptRules []configuration.Rule
+	GlobalVariables Variables
 	WorkersCount    int
 }
 
-func (handler *HookHandler) Handle(ctx internal.ExecutionContext, args []string) error {
-	err := handler.runRules(ctx, handler.Rules)
+func (h *HookHandler) Handle(ctx internal.ExecutionContext, args []string) error {
+	err := h.runRules(ctx, h.Rules)
 	if err != nil {
 		return err
 	}
 
-	err = handler.runRules(ctx, handler.Scripts)
+	err = h.runRules(ctx, h.Scripts)
 	if err != nil {
 		return err
 	}
 
-	return handler.runRules(ctx, handler.PostScriptRules)
+	return h.runRules(ctx, h.PostScriptRules)
 }

@@ -103,7 +103,25 @@ func (ctx *Context) arg(index int) (string, error) {
 }
 
 func (ctx *Context) GlobalVariables() (map[string]interface{}, error) {
+	lastTag, err := ctx.repository.GetLastTag()
+	if err != nil {
+		return nil, err
+	}
+
+	currentBranch, err := ctx.repository.GetCurrentBranch()
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := ctx.repository.GetUser()
+	if err != nil {
+		return nil, err
+	}
+
 	return map[string]interface{}{
-		"BranchName": "TEST",
+		"Tag":        lastTag,
+		"BranchName": currentBranch,
+		"UserEmail":  user.Email,
+		"UserName":   user.UserName,
 	}, nil
 }
