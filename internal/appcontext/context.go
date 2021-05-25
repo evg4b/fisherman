@@ -3,7 +3,7 @@ package appcontext
 import (
 	"context"
 	i "fisherman/infrastructure"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"io"
 	"time"

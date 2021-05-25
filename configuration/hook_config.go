@@ -2,7 +2,7 @@ package configuration
 
 import (
 	"fisherman/internal"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"io"
 	"regexp"

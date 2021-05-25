@@ -2,7 +2,7 @@ package configuration
 
 import (
 	"fisherman/internal/rules"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"reflect"
 

@@ -3,7 +3,7 @@ package rules
 import (
 	"errors"
 	"fisherman/internal"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"io"
 	"path/filepath"

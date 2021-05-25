@@ -2,7 +2,7 @@ package shell
 
 import (
 	"context"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"io"
 	"os"

@@ -1,7 +1,7 @@
 package expression
 
 import (
-	"fisherman/utils"
+	"fisherman/internal/utils"
 
 	"github.com/antonmedv/expr"
 	"github.com/imdario/mergo"

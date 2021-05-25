@@ -1,6 +1,6 @@
 package rules
 
-import "fisherman/utils"
+import "fisherman/internal/utils"
 
 // TODO: Create more flexible approach to create correct execution order
 var (

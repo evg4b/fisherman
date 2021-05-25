@@ -3,7 +3,7 @@ package rules
 import (
 	"errors"
 	"fisherman/internal"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"io"
 
 	"github.com/go-git/go-git/v5"

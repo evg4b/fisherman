@@ -2,7 +2,7 @@ package rules
 
 import (
 	"fisherman/internal"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"io"
 	"io/fs"
 

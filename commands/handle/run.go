@@ -7,7 +7,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 )
 
 func (command *Command) Init(args []string) error {

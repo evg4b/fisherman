@@ -3,7 +3,7 @@ package app
 import (
 	"fisherman/infrastructure/log"
 	"fisherman/internal/constants"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 	"strings"
 )

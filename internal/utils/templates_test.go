@@ -2,7 +2,7 @@ package utils_test
 
 import (
 	"bytes"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

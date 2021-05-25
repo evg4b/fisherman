@@ -15,7 +15,7 @@ import (
 	"fisherman/internal/app"
 	"fisherman/internal/expression"
 	"fisherman/internal/handling"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"os"
 	"os/user"
 

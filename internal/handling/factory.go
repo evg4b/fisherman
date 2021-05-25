@@ -5,7 +5,7 @@ import (
 	"fisherman/configuration"
 	c "fisherman/internal/constants"
 	"fisherman/internal/expression"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"

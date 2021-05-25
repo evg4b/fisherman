@@ -2,7 +2,7 @@ package utils_test
 
 import (
 	"errors"
-	"fisherman/utils"
+	"fisherman/internal/utils"
 	"os/exec"
 	"path/filepath"
 	"testing"

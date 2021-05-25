@@ -3,8 +3,8 @@ package rules
 import (
 	"fisherman/infrastructure/shell"
 	"fisherman/internal"
+	"fisherman/internal/utils"
 	"fisherman/pkg/prefixwriter"
-	"fisherman/utils"
 	"fmt"
 	"io"
 	"io/ioutil"
