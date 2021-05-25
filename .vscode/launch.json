@@ -43,8 +43,7 @@
       "program": "${workspaceFolder}/main.go",
       "args": [
         "version"
-      ],
-      "cwd": "C:\\Users\\evgab\\Desktop"
+      ]
     },
     {
       "name": "Debug handle applypatch-msg",
@@ -68,7 +67,7 @@
         "handle",
         "--hook",
         "commit-msg",
-        "${workspaceFolder}/.vscode/debug-data/message.txt"
+        "${workspaceFolder}/testing/debugdata/message.txt"
       ]
     },
     {
