@@ -3,6 +3,7 @@ builds:
       - linux
       - windows
       - darwin
+    main: ./cmd/fisherman
     flags:
       - -tags=release
       - -v

@@ -21,6 +21,7 @@
 # Vscode
 .vscode\debug-data
 *.log
-coverage.html
-.vscode/debug-data
 __debug_bin
+
+# goreleaser output
+dist
