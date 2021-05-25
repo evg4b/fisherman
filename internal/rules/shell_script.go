@@ -1,10 +1,10 @@
 package rules
 
 import (
-	"fisherman/infrastructure/shell"
 	"fisherman/internal"
 	"fisherman/internal/utils"
 	"fisherman/pkg/prefixwriter"
+	"fisherman/pkg/shell"
 	"fmt"
 	"io"
 	"io/ioutil"

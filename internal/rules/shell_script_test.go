@@ -3,8 +3,8 @@ package rules_test
 import (
 	"bytes"
 	"context"
-	"fisherman/infrastructure/shell"
 	"fisherman/internal/rules"
+	"fisherman/pkg/shell"
 	"fisherman/testing/mocks"
 	"fmt"
 	"io"

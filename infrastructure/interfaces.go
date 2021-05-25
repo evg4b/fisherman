@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"context"
-	"fisherman/infrastructure/shell"
+	"fisherman/pkg/shell"
 	"io"
 	"os"
 	"time"

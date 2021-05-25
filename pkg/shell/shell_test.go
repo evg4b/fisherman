@@ -2,7 +2,7 @@ package shell_test
 
 import (
 	"context"
-	"fisherman/infrastructure/shell"
+	"fisherman/pkg/shell"
 	"io/ioutil"
 	"testing"
 

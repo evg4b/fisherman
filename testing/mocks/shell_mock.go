@@ -6,7 +6,7 @@ package mocks
 
 import (
 	"context"
-	"fisherman/infrastructure/shell"
+	"fisherman/pkg/shell"
 	"io"
 	"sync"
 	mm_atomic "sync/atomic"
