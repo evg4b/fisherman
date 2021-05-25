@@ -4,7 +4,6 @@ import (
 	"context"
 	"fisherman/internal"
 	"fisherman/internal/app"
-	"fisherman/internal/commands"
 	"fisherman/internal/commands/handle"
 	"fisherman/internal/commands/initialize"
 	"fisherman/internal/commands/remove"
@@ -58,7 +57,7 @@ func main() {
 	}
 
 	fishermanApp := app.NewAppBuilder().
-		WithCommands([]commands.CliCommand{
+		WithCommands([]internal.CliCommand{
 			initialize.NewCommand(fs, appInfo, usr),
 			handle.NewCommand(hookFactory, &config.Hooks, appInfo),
 			remove.NewCommand(fs, appInfo, usr),

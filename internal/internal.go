@@ -61,3 +61,10 @@ type FileSystem interface {
 type Shell interface {
 	Exec(context.Context, io.Writer, string, shell.ShScript) error
 }
+
+type CliCommand interface {
+	Init(args []string) error
+	Run(ctx ExecutionContext) error
+	Name() string
+	Description() string
+}

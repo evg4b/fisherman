@@ -2,7 +2,6 @@ package app
 
 import (
 	i "fisherman/internal"
-	c "fisherman/internal/commands"
 	"fisherman/pkg/guards"
 	"io"
 )
@@ -12,7 +11,7 @@ type Builder struct {
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer
-	commands []c.CliCommand
+	commands []i.CliCommand
 }
 
 func NewAppBuilder() *Builder {
@@ -21,7 +20,7 @@ func NewAppBuilder() *Builder {
 	}
 }
 
-func (rb *Builder) WithCommands(commands []c.CliCommand) *Builder {
+func (rb *Builder) WithCommands(commands []i.CliCommand) *Builder {
 	rb.commands = commands
 
 	return rb

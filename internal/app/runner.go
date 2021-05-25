@@ -4,7 +4,6 @@ import (
 	"context"
 	i "fisherman/internal"
 	"fisherman/internal/appcontext"
-	c "fisherman/internal/commands"
 	"fisherman/pkg/log"
 	"fmt"
 	"io"
@@ -16,7 +15,7 @@ type FishermanApp struct {
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer
-	commands []c.CliCommand
+	commands []i.CliCommand
 }
 
 func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {

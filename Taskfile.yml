@@ -6,19 +6,18 @@ vars:
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
   VERSION_PATH: fisherman/internal/constants.Version
+  ENTRY_POINT: cmd/fisherman/main.go
 
 tasks:
   build:
     desc: Build the go binary in developer mode.
-    dir: cmd/fisherman
     cmds:
-      - go build -v -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}"
+      - go build -v -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   build:ci:
     desc: '[For CI] Build the go binary in production mode (NOT REALISE)'
-    dir: cmd/fisherman
     cmds:
-      - go build -v -ldflags="-s -w -X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}"
+      - go build -v -ldflags="-s -w -X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   test:
     desc: Run all tests
@@ -45,7 +44,7 @@ tasks:
   generate:
     desc: Generates mocks
     cmds:
-      - minimock -i fisherman/internal/commands.CliCommand -o ./testing/mocks/cli_command_mock.go
+      - minimock -i fisherman/internal.CliCommand -o ./testing/mocks/cli_command_mock.go
       - minimock -i fisherman/internal/expression.Engine -o ./testing/mocks/engine_mock.go
       - minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
       - minimock -i fisherman/internal/handling.Factory -o ./testing/mocks/factory_mock.go
