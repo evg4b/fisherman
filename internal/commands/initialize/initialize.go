@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"fisherman/internal"
-	cnfg "fisherman/internal/configuration"
+	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
@@ -38,12 +38,12 @@ func NewCommand(files internal.FileSystem, app internal.AppInfo, user *user.User
 
 	modeMessage := fmt.Sprintf(
 		"config location: %s, %s (default), %s. read more here %s",
-		cnfg.LocalMode,
-		cnfg.RepoMode,
-		cnfg.GlobalMode,
+		configuration.LocalMode,
+		configuration.RepoMode,
+		configuration.GlobalMode,
 		constants.ConfigurationInheritanceURL)
 
-	command.flagSet.StringVar(&command.mode, "mode", cnfg.RepoMode, modeMessage)
+	command.flagSet.StringVar(&command.mode, "mode", configuration.RepoMode, modeMessage)
 	command.flagSet.BoolVar(&command.force, "force", false, "forces overwrites existing hooks")
 	command.flagSet.BoolVar(&command.absolute, "absolute", false, "used absolute path to binary in hook")
 
@@ -119,7 +119,7 @@ func (command *Command) Description() string {
 }
 
 func (command *Command) writeConfig() error {
-	configFolder := cnfg.GetConfigFolder(command.user, command.app.Cwd, command.mode)
+	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 
 	exist, err := afero.Exists(command.files, configPath)
@@ -128,7 +128,7 @@ func (command *Command) writeConfig() error {
 	}
 
 	if !exist {
-		err := afero.WriteFile(command.files, configPath, []byte(cnfg.DefaultConfig), os.ModePerm)
+		err := afero.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
 		if err != nil {
 			return err
 		}

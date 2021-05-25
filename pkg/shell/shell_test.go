@@ -33,11 +33,10 @@ func TestSystemShell_Exec(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.ShScript{
-				Commands: tt.commands,
-				Env:      tt.env,
-				Dir:      "/",
-			})
+			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.NewScript().
+				SetCommands(tt.commands).
+				SetEnvironmentVariables(tt.env).
+				SetDirectory("/"))
 
 			if tt.hasError {
 				assert.Error(t, result)

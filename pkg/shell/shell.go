@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-type ShScript struct {
-	Commands []string
-	Env      map[string]string
-	Dir      string
-}
-
 type SystemShell struct {
 	cwd          string
 	defaultShell string
@@ -23,9 +17,9 @@ func NewShell(output io.Writer, cwd, defaultShell string) *SystemShell {
 	return &SystemShell{cwd, utils.GetOrDefault(defaultShell, DefaultShell)}
 }
 
-func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string, script ShScript) error {
+func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string, script *Script) error {
 	envList := os.Environ()
-	for key, value := range script.Env {
+	for key, value := range script.env {
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
 	}
 
@@ -35,7 +29,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 	}
 
 	command.Env = envList
-	command.Dir = utils.GetOrDefault(script.Dir, sh.cwd)
+	command.Dir = utils.GetOrDefault(script.dir, sh.cwd)
 	command.Stdout = output
 	command.Stderr = output
 
@@ -46,7 +40,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	go func() {
 		defer stdin.Close()
-		for _, commandLine := range script.Commands {
+		for _, commandLine := range script.commands {
 			fmt.Fprintln(stdin, commandLine)
 		}
 	}()

@@ -21,7 +21,7 @@ func TestShellScript_Check(t *testing.T) {
 		expectedErr    error
 		shellOutput    string
 		expectedShell  string
-		expectedScript shell.ShScript
+		expectedScript *shell.Script
 	}{
 		{
 			name: "script with output",
@@ -50,14 +50,13 @@ func TestShellScript_Check(t *testing.T) {
 			expectedErr:    nil,
 			shellOutput:    "test",
 			expectedShell:  "",
-			expectedScript: shell.ShScript{
-				Commands: []string{"demo"},
-				Env: map[string]string{
+			expectedScript: shell.NewScript().
+				SetCommands([]string{"demo"}).
+				SetEnvironmentVariables(map[string]string{
 					"demo":  "demo",
 					"demo2": "demo2",
-				},
-				Dir: "~",
-			},
+				}).
+				SetDirectory("~"),
 		},
 		{
 			name: "script with with custom shell",
@@ -79,12 +78,14 @@ func TestShellScript_Check(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t)
 			sh := mocks.NewShellMock(t).
 				ExecMock.
-				Set(func(c1 context.Context, w1 io.Writer, s1 string, s2 shell.ShScript) error {
+				Set(func(c1 context.Context, w1 io.Writer, s1 string, s2 *shell.Script) error {
 					fmt.Fprint(w1, tt.shellOutput)
 
 					assert.Equal(t, tt.expectedShell, s1)
 					assert.Equal(t, ctx, c1)
-					assert.EqualValues(t, tt.expectedScript, s2)
+					if tt.expectedScript != nil {
+						assert.EqualValues(t, *tt.expectedScript, *s2)
+					}
 
 					return tt.expectedErr
 				})

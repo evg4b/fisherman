@@ -3,7 +3,7 @@ package app_test
 import (
 	"context"
 	"errors"
-	"fisherman/internal/commands"
+	"fisherman/internal"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fmt"
@@ -23,13 +23,13 @@ func TestRunner_Run(t *testing.T) {
 	tests := []struct {
 		name          string
 		args          []string
-		commands      []commands.CliCommand
+		commands      []internal.CliCommand
 		expectedError error
 	}{
 		{
 			name: "Should run called commnad and return its error",
 			args: []string{"init"},
-			commands: []commands.CliCommand{
+			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
 				makeCommand(t, "remove"),
 				makeExpectedCommand(t, "init", errors.New("expected error")),
@@ -39,7 +39,7 @@ func TestRunner_Run(t *testing.T) {
 		{
 			name: "Should run called commnad and return nil when command executed witout error",
 			args: []string{"init"},
-			commands: []commands.CliCommand{
+			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
 				makeCommand(t, "remove"),
 				makeExpectedCommand(t, "init", nil),
@@ -49,7 +49,7 @@ func TestRunner_Run(t *testing.T) {
 		{
 			name: "Should return error when command not found",
 			args: []string{"not"},
-			commands: []commands.CliCommand{
+			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
 				makeCommand(t, "remove"),
 				makeCommand(t, "init"),
@@ -59,13 +59,13 @@ func TestRunner_Run(t *testing.T) {
 		{
 			name:          "Should return error when command not registered",
 			args:          []string{"not"},
-			commands:      []commands.CliCommand{},
+			commands:      []internal.CliCommand{},
 			expectedError: errors.New("unknown command: not"),
 		},
 		{
 			name: "Should not return error when commnad not specified",
 			args: []string{},
-			commands: []commands.CliCommand{
+			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
 				makeCommand(t, "remove"),
 				makeCommand(t, "init"),

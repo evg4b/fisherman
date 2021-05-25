@@ -27,12 +27,13 @@ func (rule *ShellScript) GetPosition() byte {
 }
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
+	script := shell.NewScript().
+		SetCommands(rule.Commands).
+		SetEnvironmentVariables(rule.Env).
+		SetDirectory(rule.Dir)
+
 	return ctx.Shell().
-		Exec(ctx, formatOutput(output, rule), rule.Shell, shell.ShScript{
-			Commands: rule.Commands,
-			Env:      rule.Env,
-			Dir:      rule.Dir,
-		})
+		Exec(ctx, formatOutput(output, rule), rule.Shell, script)
 }
 
 func (rule *ShellScript) Compile(variables map[string]interface{}) {

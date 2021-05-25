@@ -59,7 +59,7 @@ type FileSystem interface {
 }
 
 type Shell interface {
-	Exec(context.Context, io.Writer, string, shell.ShScript) error
+	Exec(context.Context, io.Writer, string, *shell.Script) error
 }
 
 type CliCommand interface {
