@@ -40,7 +40,7 @@ func TestCommand_Run(t *testing.T) {
 	err := command.Init([]string{})
 	assert.NoError(t, err)
 
-	err = command.Run()
+	err = command.Run(mocks.NewExecutionContextMock(t))
 	assert.NoError(t, err)
 }
 
@@ -81,7 +81,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 			err := c.Init([]string{})
 			assert.NoError(t, err)
 
-			err = c.Run()
+			err = c.Run(mocks.NewExecutionContextMock(t))
 
 			testutils.CheckError(t, tt.expectedError, err)
 		})

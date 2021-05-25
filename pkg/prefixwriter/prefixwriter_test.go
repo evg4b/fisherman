@@ -2,7 +2,7 @@ package prefixwriter_test
 
 import (
 	"bytes"
-	"fisherman/internal/prefixwriter"
+	"fisherman/pkg/prefixwriter"
 	"fmt"
 	"testing"
 

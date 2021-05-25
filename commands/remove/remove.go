@@ -34,7 +34,7 @@ func (command *Command) Init(args []string) error {
 	return command.flagSet.Parse(args)
 }
 
-func (command *Command) Run() error {
+func (command *Command) Run(ctx internal.ExecutionContext) error {
 	filesToDelete := []string{}
 	for _, config := range command.app.Configs {
 		filesToDelete = append(filesToDelete, config)

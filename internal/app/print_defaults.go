@@ -1,4 +1,4 @@
-package runner
+package app
 
 import (
 	"fisherman/constants"
@@ -11,7 +11,7 @@ import (
 const preffix = "  "
 const baseCommandLen = 8
 
-func (r *Runner) PrintDefaults() {
+func (r *FishermanApp) PrintDefaults() {
 	utils.PrintGraphics(log.InfoOutput, constants.Logo, map[string]interface{}{
 		constants.FishermanVersionVariable: constants.Version,
 	})

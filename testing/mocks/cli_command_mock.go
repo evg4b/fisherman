@@ -5,6 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/commands.CliCommand -o ./testing/mocks/cli_command_mock.go
 
 import (
+	i "fisherman/internal"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -34,8 +35,8 @@ type CliCommandMock struct {
 	beforeNameCounter uint64
 	NameMock          mCliCommandMockName
 
-	funcRun          func() (err error)
-	inspectFuncRun   func()
+	funcRun          func(e1 i.ExecutionContext) (err error)
+	inspectFuncRun   func(e1 i.ExecutionContext)
 	afterRunCounter  uint64
 	beforeRunCounter uint64
 	RunMock          mCliCommandMockRun
@@ -56,6 +57,7 @@ func NewCliCommandMock(t minimock.Tester) *CliCommandMock {
 	m.NameMock = mCliCommandMockName{mock: m}
 
 	m.RunMock = mCliCommandMockRun{mock: m}
+	m.RunMock.callArgs = []*CliCommandMockRunParams{}
 
 	return m
 }
@@ -565,14 +567,22 @@ type mCliCommandMockRun struct {
 	mock               *CliCommandMock
 	defaultExpectation *CliCommandMockRunExpectation
 	expectations       []*CliCommandMockRunExpectation
+
+	callArgs []*CliCommandMockRunParams
+	mutex    sync.RWMutex
 }
 
 // CliCommandMockRunExpectation specifies expectation struct of the CliCommand.Run
 type CliCommandMockRunExpectation struct {
-	mock *CliCommandMock
-
+	mock    *CliCommandMock
+	params  *CliCommandMockRunParams
 	results *CliCommandMockRunResults
 	Counter uint64
+}
+
+// CliCommandMockRunParams contains parameters of the CliCommand.Run
+type CliCommandMockRunParams struct {
+	e1 i.ExecutionContext
 }
 
 // CliCommandMockRunResults contains results of the CliCommand.Run
@@ -581,7 +591,7 @@ type CliCommandMockRunResults struct {
 }
 
 // Expect sets up expected params for CliCommand.Run
-func (mmRun *mCliCommandMockRun) Expect() *mCliCommandMockRun {
+func (mmRun *mCliCommandMockRun) Expect(e1 i.ExecutionContext) *mCliCommandMockRun {
 	if mmRun.mock.funcRun != nil {
 		mmRun.mock.t.Fatalf("CliCommandMock.Run mock is already set by Set")
 	}
@@ -590,11 +600,18 @@ func (mmRun *mCliCommandMockRun) Expect() *mCliCommandMockRun {
 		mmRun.defaultExpectation = &CliCommandMockRunExpectation{}
 	}
 
+	mmRun.defaultExpectation.params = &CliCommandMockRunParams{e1}
+	for _, e := range mmRun.expectations {
+		if minimock.Equal(e.params, mmRun.defaultExpectation.params) {
+			mmRun.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRun.defaultExpectation.params)
+		}
+	}
+
 	return mmRun
 }
 
 // Inspect accepts an inspector function that has same arguments as the CliCommand.Run
-func (mmRun *mCliCommandMockRun) Inspect(f func()) *mCliCommandMockRun {
+func (mmRun *mCliCommandMockRun) Inspect(f func(e1 i.ExecutionContext)) *mCliCommandMockRun {
 	if mmRun.mock.inspectFuncRun != nil {
 		mmRun.mock.t.Fatalf("Inspect function is already set for CliCommandMock.Run")
 	}
@@ -618,7 +635,7 @@ func (mmRun *mCliCommandMockRun) Return(err error) *CliCommandMock {
 }
 
 //Set uses given function f to mock the CliCommand.Run method
-func (mmRun *mCliCommandMockRun) Set(f func() (err error)) *CliCommandMock {
+func (mmRun *mCliCommandMockRun) Set(f func(e1 i.ExecutionContext) (err error)) *CliCommandMock {
 	if mmRun.defaultExpectation != nil {
 		mmRun.mock.t.Fatalf("Default expectation is already set for the CliCommand.Run method")
 	}
@@ -631,17 +648,57 @@ func (mmRun *mCliCommandMockRun) Set(f func() (err error)) *CliCommandMock {
 	return mmRun.mock
 }
 
+// When sets expectation for the CliCommand.Run which will trigger the result defined by the following
+// Then helper
+func (mmRun *mCliCommandMockRun) When(e1 i.ExecutionContext) *CliCommandMockRunExpectation {
+	if mmRun.mock.funcRun != nil {
+		mmRun.mock.t.Fatalf("CliCommandMock.Run mock is already set by Set")
+	}
+
+	expectation := &CliCommandMockRunExpectation{
+		mock:   mmRun.mock,
+		params: &CliCommandMockRunParams{e1},
+	}
+	mmRun.expectations = append(mmRun.expectations, expectation)
+	return expectation
+}
+
+// Then sets up CliCommand.Run return parameters for the expectation previously defined by the When method
+func (e *CliCommandMockRunExpectation) Then(err error) *CliCommandMock {
+	e.results = &CliCommandMockRunResults{err}
+	return e.mock
+}
+
 // Run implements commands.CliCommand
-func (mmRun *CliCommandMock) Run() (err error) {
+func (mmRun *CliCommandMock) Run(e1 i.ExecutionContext) (err error) {
 	mm_atomic.AddUint64(&mmRun.beforeRunCounter, 1)
 	defer mm_atomic.AddUint64(&mmRun.afterRunCounter, 1)
 
 	if mmRun.inspectFuncRun != nil {
-		mmRun.inspectFuncRun()
+		mmRun.inspectFuncRun(e1)
+	}
+
+	mm_params := &CliCommandMockRunParams{e1}
+
+	// Record call args
+	mmRun.RunMock.mutex.Lock()
+	mmRun.RunMock.callArgs = append(mmRun.RunMock.callArgs, mm_params)
+	mmRun.RunMock.mutex.Unlock()
+
+	for _, e := range mmRun.RunMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
 	}
 
 	if mmRun.RunMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmRun.RunMock.defaultExpectation.Counter, 1)
+		mm_want := mmRun.RunMock.defaultExpectation.params
+		mm_got := CliCommandMockRunParams{e1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRun.t.Errorf("CliCommandMock.Run got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
 
 		mm_results := mmRun.RunMock.defaultExpectation.results
 		if mm_results == nil {
@@ -650,9 +707,9 @@ func (mmRun *CliCommandMock) Run() (err error) {
 		return (*mm_results).err
 	}
 	if mmRun.funcRun != nil {
-		return mmRun.funcRun()
+		return mmRun.funcRun(e1)
 	}
-	mmRun.t.Fatalf("Unexpected call to CliCommandMock.Run.")
+	mmRun.t.Fatalf("Unexpected call to CliCommandMock.Run. %v", e1)
 	return
 }
 
@@ -664,6 +721,19 @@ func (mmRun *CliCommandMock) RunAfterCounter() uint64 {
 // RunBeforeCounter returns a count of CliCommandMock.Run invocations
 func (mmRun *CliCommandMock) RunBeforeCounter() uint64 {
 	return mm_atomic.LoadUint64(&mmRun.beforeRunCounter)
+}
+
+// Calls returns a list of arguments used in each call to CliCommandMock.Run.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmRun *mCliCommandMockRun) Calls() []*CliCommandMockRunParams {
+	mmRun.mutex.RLock()
+
+	argCopy := make([]*CliCommandMockRunParams, len(mmRun.callArgs))
+	copy(argCopy, mmRun.callArgs)
+
+	mmRun.mutex.RUnlock()
+
+	return argCopy
 }
 
 // MinimockRunDone returns true if the count of the Run invocations corresponds
@@ -690,13 +760,17 @@ func (m *CliCommandMock) MinimockRunDone() bool {
 func (m *CliCommandMock) MinimockRunInspect() {
 	for _, e := range m.RunMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to CliCommandMock.Run")
+			m.t.Errorf("Expected call to CliCommandMock.Run with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.RunMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRunCounter) < 1 {
-		m.t.Error("Expected call to CliCommandMock.Run")
+		if m.RunMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to CliCommandMock.Run")
+		} else {
+			m.t.Errorf("Expected call to CliCommandMock.Run with params: %#v", *m.RunMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcRun != nil && mm_atomic.LoadUint64(&m.afterRunCounter) < 1 {

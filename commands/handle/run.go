@@ -5,6 +5,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/constants"
 	"fisherman/infrastructure/log"
+	"fisherman/internal"
 	"fisherman/internal/handling"
 	"fisherman/utils"
 )
@@ -13,9 +14,7 @@ func (command *Command) Init(args []string) error {
 	return command.flagSet.Parse(args)
 }
 
-func (command *Command) Run() error {
-	// TODO: resolve context factory problem
-	ctx := command.ctxFactory(command.flagSet.Args(), log.Stdout())
+func (command *Command) Run(ctx internal.ExecutionContext) error {
 	global, err := ctx.GlobalVariables()
 	if err != nil {
 		return err

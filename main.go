@@ -12,9 +12,9 @@ import (
 	"fisherman/infrastructure/shell"
 	"fisherman/infrastructure/vcs"
 	"fisherman/internal"
+	"fisherman/internal/app"
 	"fisherman/internal/expression"
 	"fisherman/internal/handling"
-	"fisherman/internal/runner"
 	"fisherman/utils"
 	"os"
 	"os/user"
@@ -48,11 +48,7 @@ func main() {
 	log.Configure(config.Output)
 
 	ctx := context.Background()
-	sysShell := shell.NewShell(os.Stdout, cwd, config.DefaultShell)
-	repo := vcs.NewGitRepository(cwd)
-
 	engine := expression.NewGoExpressionEngine()
-	ctxFactory := internal.NewCtxFactory(ctx, fs, sysShell, repo)
 	hookFactory := handling.NewHookHandlerFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
@@ -61,14 +57,20 @@ func main() {
 		Configs:    configs,
 	}
 
-	instance := runner.NewRunner([]commands.CliCommand{
-		initialize.NewCommand(fs, appInfo, usr),
-		handle.NewCommand(hookFactory, ctxFactory, &config.Hooks, appInfo),
-		remove.NewCommand(fs, appInfo, usr),
-		version.NewCommand(),
-	})
+	fishermanApp := app.NewAppBuilder().
+		WithCommands([]commands.CliCommand{
+			initialize.NewCommand(fs, appInfo, usr),
+			handle.NewCommand(hookFactory, &config.Hooks, appInfo),
+			remove.NewCommand(fs, appInfo, usr),
+			version.NewCommand(),
+		}).
+		WithFs(fs).
+		WithOutput(os.Stdout).
+		WithRepository(vcs.NewGitRepository(cwd)).
+		WithShell(shell.NewShell(os.Stdout, cwd, config.DefaultShell)).
+		Build()
 
-	if err = instance.Run(os.Args[1:]); err != nil {
+	if err = fishermanApp.Run(ctx, os.Args[1:]); err != nil {
 		panic(err)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"fisherman/configuration"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
-	"fisherman/internal/prefixwriter"
+	"fisherman/pkg/prefixwriter"
 	"fisherman/utils"
 	"fmt"
 	"os"

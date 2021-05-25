@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fisherman/commands/version"
 	"fisherman/infrastructure/log"
+	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
 
@@ -23,7 +24,7 @@ func TestCommand_Run(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	err = command.Run()
+	err = command.Run(mocks.NewExecutionContextMock(t))
 
 	assert.NoError(t, err)
 	assert.Equal(t, "fisherman@x.x.x", output.String())

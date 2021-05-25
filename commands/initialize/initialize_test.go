@@ -28,7 +28,7 @@ func TestCommand_Run_Force_Mode(t *testing.T) {
 
 	err := command.Init([]string{"--force"})
 	assert.NoError(t, err)
-	err = command.Run()
+	err = command.Run(mocks.NewExecutionContextMock(t))
 	assert.NoError(t, err)
 }
 

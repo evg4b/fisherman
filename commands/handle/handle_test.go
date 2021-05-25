@@ -11,7 +11,6 @@ import (
 func TestCommand_Name(t *testing.T) {
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t),
-		mocks.NewCtxFactoryMock(t),
 		&mocks.HooksConfigStub,
 		mocks.AppInfoStub,
 	)
@@ -22,7 +21,6 @@ func TestCommand_Name(t *testing.T) {
 func TestCommand_Description(t *testing.T) {
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t),
-		mocks.NewCtxFactoryMock(t),
 		&mocks.HooksConfigStub,
 		mocks.AppInfoStub,
 	)

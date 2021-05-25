@@ -1,6 +1,7 @@
-package runner_test
+package app_test
 
 import (
+	"context"
 	"errors"
 	"fisherman/commands"
 	"fisherman/infrastructure/log"
@@ -8,7 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"fisherman/internal/runner"
+	"fisherman/internal/app"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -75,10 +76,15 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runnerInstance := runner.NewRunner(tt.commands)
+			appInstance := app.NewAppBuilder().
+				WithCommands(tt.commands).
+				WithFs(mocks.NewFileSystemMock(t)).
+				WithRepository(mocks.NewRepositoryMock(t)).
+				WithShell(mocks.NewShellMock(t)).
+				Build()
 
 			assert.NotPanics(t, func() {
-				err := runnerInstance.Run(tt.args)
+				err := appInstance.Run(context.TODO(), tt.args)
 				assert.Equal(t, tt.expectedError, err)
 			})
 		})

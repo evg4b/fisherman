@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
 
 import (
-	infra "fisherman/infrastructure"
+	i "fisherman/infrastructure"
 	"io"
 	"sync"
 	mm_atomic "sync/atomic"
@@ -44,7 +44,7 @@ type ExecutionContextMock struct {
 	beforeErrCounter uint64
 	ErrMock          mExecutionContextMockErr
 
-	funcFiles          func() (f1 infra.FileSystem)
+	funcFiles          func() (f1 i.FileSystem)
 	inspectFuncFiles   func()
 	afterFilesCounter  uint64
 	beforeFilesCounter uint64
@@ -68,13 +68,13 @@ type ExecutionContextMock struct {
 	beforeOutputCounter uint64
 	OutputMock          mExecutionContextMockOutput
 
-	funcRepository          func() (r1 infra.Repository)
+	funcRepository          func() (r1 i.Repository)
 	inspectFuncRepository   func()
 	afterRepositoryCounter  uint64
 	beforeRepositoryCounter uint64
 	RepositoryMock          mExecutionContextMockRepository
 
-	funcShell          func() (s1 infra.Shell)
+	funcShell          func() (s1 i.Shell)
 	inspectFuncShell   func()
 	afterShellCounter  uint64
 	beforeShellCounter uint64
@@ -721,7 +721,7 @@ type ExecutionContextMockFilesExpectation struct {
 
 // ExecutionContextMockFilesResults contains results of the ExecutionContext.Files
 type ExecutionContextMockFilesResults struct {
-	f1 infra.FileSystem
+	f1 i.FileSystem
 }
 
 // Expect sets up expected params for ExecutionContext.Files
@@ -749,7 +749,7 @@ func (mmFiles *mExecutionContextMockFiles) Inspect(f func()) *mExecutionContextM
 }
 
 // Return sets up results that will be returned by ExecutionContext.Files
-func (mmFiles *mExecutionContextMockFiles) Return(f1 infra.FileSystem) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Return(f1 i.FileSystem) *ExecutionContextMock {
 	if mmFiles.mock.funcFiles != nil {
 		mmFiles.mock.t.Fatalf("ExecutionContextMock.Files mock is already set by Set")
 	}
@@ -762,7 +762,7 @@ func (mmFiles *mExecutionContextMockFiles) Return(f1 infra.FileSystem) *Executio
 }
 
 //Set uses given function f to mock the ExecutionContext.Files method
-func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 infra.FileSystem)) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 i.FileSystem)) *ExecutionContextMock {
 	if mmFiles.defaultExpectation != nil {
 		mmFiles.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Files method")
 	}
@@ -776,7 +776,7 @@ func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 infra.FileSystem)) *
 }
 
 // Files implements internal.ExecutionContext
-func (mmFiles *ExecutionContextMock) Files() (f1 infra.FileSystem) {
+func (mmFiles *ExecutionContextMock) Files() (f1 i.FileSystem) {
 	mm_atomic.AddUint64(&mmFiles.beforeFilesCounter, 1)
 	defer mm_atomic.AddUint64(&mmFiles.afterFilesCounter, 1)
 
@@ -1295,7 +1295,7 @@ type ExecutionContextMockRepositoryExpectation struct {
 
 // ExecutionContextMockRepositoryResults contains results of the ExecutionContext.Repository
 type ExecutionContextMockRepositoryResults struct {
-	r1 infra.Repository
+	r1 i.Repository
 }
 
 // Expect sets up expected params for ExecutionContext.Repository
@@ -1323,7 +1323,7 @@ func (mmRepository *mExecutionContextMockRepository) Inspect(f func()) *mExecuti
 }
 
 // Return sets up results that will be returned by ExecutionContext.Repository
-func (mmRepository *mExecutionContextMockRepository) Return(r1 infra.Repository) *ExecutionContextMock {
+func (mmRepository *mExecutionContextMockRepository) Return(r1 i.Repository) *ExecutionContextMock {
 	if mmRepository.mock.funcRepository != nil {
 		mmRepository.mock.t.Fatalf("ExecutionContextMock.Repository mock is already set by Set")
 	}
@@ -1336,7 +1336,7 @@ func (mmRepository *mExecutionContextMockRepository) Return(r1 infra.Repository)
 }
 
 //Set uses given function f to mock the ExecutionContext.Repository method
-func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 infra.Repository)) *ExecutionContextMock {
+func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 i.Repository)) *ExecutionContextMock {
 	if mmRepository.defaultExpectation != nil {
 		mmRepository.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Repository method")
 	}
@@ -1350,7 +1350,7 @@ func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 infra.Repo
 }
 
 // Repository implements internal.ExecutionContext
-func (mmRepository *ExecutionContextMock) Repository() (r1 infra.Repository) {
+func (mmRepository *ExecutionContextMock) Repository() (r1 i.Repository) {
 	mm_atomic.AddUint64(&mmRepository.beforeRepositoryCounter, 1)
 	defer mm_atomic.AddUint64(&mmRepository.afterRepositoryCounter, 1)
 
@@ -1438,7 +1438,7 @@ type ExecutionContextMockShellExpectation struct {
 
 // ExecutionContextMockShellResults contains results of the ExecutionContext.Shell
 type ExecutionContextMockShellResults struct {
-	s1 infra.Shell
+	s1 i.Shell
 }
 
 // Expect sets up expected params for ExecutionContext.Shell
@@ -1466,7 +1466,7 @@ func (mmShell *mExecutionContextMockShell) Inspect(f func()) *mExecutionContextM
 }
 
 // Return sets up results that will be returned by ExecutionContext.Shell
-func (mmShell *mExecutionContextMockShell) Return(s1 infra.Shell) *ExecutionContextMock {
+func (mmShell *mExecutionContextMockShell) Return(s1 i.Shell) *ExecutionContextMock {
 	if mmShell.mock.funcShell != nil {
 		mmShell.mock.t.Fatalf("ExecutionContextMock.Shell mock is already set by Set")
 	}
@@ -1479,7 +1479,7 @@ func (mmShell *mExecutionContextMockShell) Return(s1 infra.Shell) *ExecutionCont
 }
 
 //Set uses given function f to mock the ExecutionContext.Shell method
-func (mmShell *mExecutionContextMockShell) Set(f func() (s1 infra.Shell)) *ExecutionContextMock {
+func (mmShell *mExecutionContextMockShell) Set(f func() (s1 i.Shell)) *ExecutionContextMock {
 	if mmShell.defaultExpectation != nil {
 		mmShell.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Shell method")
 	}
@@ -1493,7 +1493,7 @@ func (mmShell *mExecutionContextMockShell) Set(f func() (s1 infra.Shell)) *Execu
 }
 
 // Shell implements internal.ExecutionContext
-func (mmShell *ExecutionContextMock) Shell() (s1 infra.Shell) {
+func (mmShell *ExecutionContextMock) Shell() (s1 i.Shell) {
 	mm_atomic.AddUint64(&mmShell.beforeShellCounter, 1)
 	defer mm_atomic.AddUint64(&mmShell.afterShellCounter, 1)
 

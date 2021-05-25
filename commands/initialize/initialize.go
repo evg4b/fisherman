@@ -55,7 +55,7 @@ func (command *Command) Init(args []string) error {
 	return command.flagSet.Parse(args)
 }
 
-func (command *Command) Run() error {
+func (command *Command) Run(ctx internal.ExecutionContext) error {
 	log.Debugf("Statring initialization (force = %t)", command.force)
 	if !command.force {
 		var result *multierror.Error
