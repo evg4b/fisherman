@@ -3,9 +3,9 @@ package handle
 import (
 	"errors"
 	"fisherman/configuration"
-	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
+	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/utils"
 )

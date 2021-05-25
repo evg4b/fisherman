@@ -2,10 +2,10 @@ package initialize
 
 import (
 	cnfg "fisherman/configuration"
-	"fisherman/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
+	"fisherman/internal/constants"
 	"fisherman/utils"
 	"flag"
 	"fmt"

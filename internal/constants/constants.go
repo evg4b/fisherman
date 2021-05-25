@@ -1,5 +1,10 @@
 package constants
 
+const AppName = "fisherman"
+
+var Version = "x.x.x"
+var AppConfigNames = []string{".fisherman.yaml", ".fisherman.yml"}
+
 var (
 	ApplyPatchMsgHook     = "applypatch-msg"
 	CommitMsgHook         = "commit-msg"
@@ -27,3 +32,18 @@ var HooksNames = []string{
 	PrepareCommitMsgHook,
 	UpdateHook,
 }
+
+const (
+	// TODO: [Next realise] Add BranchName variable
+	EmailVariable            = "Email"
+	UserNameVariable         = "UserName"
+	FishermanVersionVariable = "FishermanVersion"
+	CwdVariable              = "CWD"
+)
+
+const (
+	GlobalConfigPath = "GlobalConfigPath"
+	LocalConfigPath  = "LocalConfigPath"
+	RepoConfigPath   = "RepoConfigPath"
+	HookName         = "HookName"
+)

@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"fisherman/constants"
+	"fisherman/internal/constants"
 	"fmt"
 	"strings"
 )

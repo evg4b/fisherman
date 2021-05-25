@@ -5,17 +5,18 @@ version: '3'
 vars:
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
+  VERSION_PATH: 'fisherman/internal/constants.Version'
 
 tasks:
   build:
     desc: Build the go binary in developer mode.
     cmds:
-      - go build -v -ldflags="-X fisherman/constants.Version=dev-{{ .GIT_COMMIT | upper }}"
+      - go build -v -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}"
 
   build:ci:
     desc: '[For CI] Build the go binary in production mode (NOT REALISE)'
     cmds:
-      - go build -v -ldflags="-s -w -X fisherman/constants.Version=dev-{{ .GIT_COMMIT | upper }}"
+      - go build -v -ldflags="-s -w -X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}"
 
   test:
     desc: Run all tests

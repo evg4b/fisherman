@@ -1,7 +1,7 @@
 package handling
 
 import (
-	"fisherman/constants"
+	"fisherman/internal/constants"
 	"fisherman/internal/rules"
 )
 

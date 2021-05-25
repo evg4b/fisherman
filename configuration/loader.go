@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"fisherman/constants"
+	"fisherman/internal/constants"
 	"fisherman/infrastructure"
 	"fisherman/infrastructure/log"
 	"fmt"

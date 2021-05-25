@@ -26,7 +26,7 @@ go install -v .
 
 # Compiling it to another location.
 # Replace <version> to fisherman version
-go build -v -ldflags="-s -w -X fisherman/constants.Version=<version>"
+go build -v -ldflags="-s -w -X fisherman/internal/constants.Version=<version>"
 
 ./fisherman
 ```

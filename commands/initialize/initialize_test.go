@@ -2,8 +2,8 @@ package initialize_test
 
 import (
 	"fisherman/commands/initialize"
-	"fisherman/constants"
 	"fisherman/internal"
+	"fisherman/internal/constants"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"path/filepath"

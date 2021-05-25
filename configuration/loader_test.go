@@ -2,8 +2,8 @@ package configuration_test
 
 import (
 	. "fisherman/configuration"
-	"fisherman/constants"
 	"fisherman/infrastructure/log"
+	"fisherman/internal/constants"
 	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"

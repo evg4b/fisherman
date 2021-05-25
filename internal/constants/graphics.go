@@ -1,7 +1,5 @@
 package constants
 
-var Version = "x.x.x"
-
 var Logo = `
  .d888  d8b          888
  d88P"  Y8P          888                                 Version: {{FishermanVersion}}
@@ -26,7 +24,3 @@ var HookHeader = `
   "Y8988888P"     |
 
 `
-
-const AppName = "fisherman"
-
-var AppConfigNames = []string{".fisherman.yaml", ".fisherman.yml"}

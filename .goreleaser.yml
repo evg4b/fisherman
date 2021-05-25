@@ -7,12 +7,12 @@ builds:
       - -tags=release
       - -v
     ldflags:
-      - -s -w -X fisherman/constants.Version={{.Version}}
+      - -s -w -X fisherman/internal/constants.Version={{.Version}}
 
 archives:
   - replacements:
       386: x86
-      amd64: amd64
+      amd64: x64
     format: zip
 
 source:

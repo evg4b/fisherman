@@ -1,9 +1,9 @@
 package version
 
 import (
-	"fisherman/constants"
 	"fisherman/infrastructure/log"
 	"fisherman/internal"
+	"fisherman/internal/constants"
 	"flag"
 	"fmt"
 )
