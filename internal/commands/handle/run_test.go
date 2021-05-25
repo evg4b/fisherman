@@ -2,9 +2,9 @@ package handle_test
 
 import (
 	"errors"
-	"fisherman/commands/handle"
 	"fisherman/internal"
 	"fisherman/internal/appcontext"
+	"fisherman/internal/commands/handle"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"io/ioutil"

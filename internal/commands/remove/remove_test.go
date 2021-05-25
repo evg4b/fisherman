@@ -2,8 +2,8 @@ package remove_test
 
 import (
 	"errors"
-	"fisherman/commands/remove"
 	"fisherman/internal"
+	"fisherman/internal/commands/remove"
 	"fisherman/internal/configuration"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"

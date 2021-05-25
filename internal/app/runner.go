@@ -2,9 +2,9 @@ package app
 
 import (
 	"context"
-	c "fisherman/commands"
 	i "fisherman/internal"
 	"fisherman/internal/appcontext"
+	c "fisherman/internal/commands"
 	"fisherman/pkg/log"
 	"fmt"
 	"io"

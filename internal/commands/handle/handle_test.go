@@ -1,7 +1,7 @@
 package handle_test
 
 import (
-	"fisherman/commands/handle"
+	"fisherman/internal/commands/handle"
 	"fisherman/testing/mocks"
 	"testing"
 

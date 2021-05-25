@@ -3,7 +3,7 @@ package app_test
 import (
 	"context"
 	"errors"
-	"fisherman/commands"
+	"fisherman/internal/commands"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fmt"

@@ -2,7 +2,7 @@ package version_test
 
 import (
 	"bytes"
-	"fisherman/commands/version"
+	"fisherman/internal/commands/version"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"io/ioutil"

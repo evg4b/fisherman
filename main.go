@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fisherman/commands"
-	"fisherman/commands/handle"
-	"fisherman/commands/initialize"
-	"fisherman/commands/remove"
-	"fisherman/commands/version"
 	"fisherman/internal"
 	"fisherman/internal/app"
+	"fisherman/internal/commands"
+	"fisherman/internal/commands/handle"
+	"fisherman/internal/commands/initialize"
+	"fisherman/internal/commands/remove"
+	"fisherman/internal/commands/version"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
 	"fisherman/internal/handling"

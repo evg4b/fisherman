@@ -1,8 +1,8 @@
 package app
 
 import (
-	c "fisherman/commands"
 	i "fisherman/internal"
+	c "fisherman/internal/commands"
 	"fisherman/pkg/guards"
 	"io"
 )

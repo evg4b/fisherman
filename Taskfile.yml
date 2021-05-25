@@ -43,7 +43,7 @@ tasks:
   generate:
     desc: Generates mocks
     cmds:
-      - minimock -i fisherman/commands.CliCommand -o ./testing/mocks/cli_command_mock.go
+      - minimock -i fisherman/internal/commands.CliCommand -o ./testing/mocks/cli_command_mock.go
       - minimock -i fisherman/internal/expression.Engine -o ./testing/mocks/engine_mock.go
       - minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
       - minimock -i fisherman/internal/handling.Factory -o ./testing/mocks/factory_mock.go
