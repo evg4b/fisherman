@@ -2,7 +2,7 @@ package log_test
 
 import (
 	"bytes"
-	"fisherman/infrastructure/log"
+	"fisherman/pkg/log"
 	"fmt"
 
 	"testing"

@@ -3,9 +3,9 @@ package handling
 import (
 	"errors"
 	"fisherman/configuration"
-	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/utils"
+	"fisherman/pkg/log"
 	"fisherman/pkg/prefixwriter"
 	"fmt"
 	"os"

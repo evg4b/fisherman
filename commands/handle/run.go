@@ -3,11 +3,11 @@ package handle
 import (
 	"errors"
 	"fisherman/configuration"
-	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/internal/utils"
+	"fisherman/pkg/log"
 )
 
 func (command *Command) Init(args []string) error {

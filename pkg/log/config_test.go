@@ -1,7 +1,7 @@
 package log_test
 
 import (
-	"fisherman/infrastructure/log"
+	"fisherman/pkg/log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

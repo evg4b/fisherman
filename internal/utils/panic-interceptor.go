@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"fisherman/infrastructure/log"
+	"fisherman/pkg/log"
 )
 
 func PanicInterceptor(exit func(code int), exitCode int) {

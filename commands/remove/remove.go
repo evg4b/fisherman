@@ -2,9 +2,9 @@ package remove
 
 import (
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/log"
 	"fisherman/internal"
 	"fisherman/internal/constants"
+	"fisherman/pkg/log"
 	"flag"
 	"os/user"
 	"path/filepath"

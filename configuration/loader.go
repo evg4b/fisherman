@@ -1,9 +1,9 @@
 package configuration
 
 import (
-	"fisherman/internal/constants"
 	"fisherman/infrastructure"
-	"fisherman/infrastructure/log"
+	"fisherman/internal/constants"
+	"fisherman/pkg/log"
 	"fmt"
 	"os/user"
 	"path/filepath"

@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"fisherman/infrastructure/log"
+	"fisherman/pkg/log"
 )
 
 type FishermanConfig struct {

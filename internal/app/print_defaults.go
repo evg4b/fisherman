@@ -1,9 +1,9 @@
 package app
 
 import (
-	"fisherman/infrastructure/log"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
+	"fisherman/pkg/log"
 	"fmt"
 	"strings"
 )
