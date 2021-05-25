@@ -2,7 +2,7 @@ package vcs
 
 import (
 	"errors"
-	"fisherman/infrastructure"
+	"fisherman/internal"
 	"sync"
 
 	"github.com/go-git/go-git/v5"
@@ -38,18 +38,18 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 	return headRef.Name().String(), nil
 }
 
-func (r *GitRepository) GetUser() (infrastructure.User, error) {
+func (r *GitRepository) GetUser() (internal.User, error) {
 	repo, err := r.repo()
 	if err != nil {
-		return infrastructure.User{}, err
+		return internal.User{}, err
 	}
 
 	gitConfig, err := repo.ConfigScoped(config.SystemScope)
 	if err != nil {
-		return infrastructure.User{}, err
+		return internal.User{}, err
 	}
 
-	return infrastructure.User{
+	return internal.User{
 		UserName: gitConfig.User.Name,
 		Email:    gitConfig.User.Name,
 	}, err

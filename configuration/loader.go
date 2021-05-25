@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"fisherman/infrastructure"
+	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
 	"fmt"
@@ -18,10 +18,10 @@ const gitDir = ".git"
 type ConfigLoader struct {
 	usr   *user.User
 	cwd   string
-	files infrastructure.FileSystem
+	files internal.FileSystem
 }
 
-func NewLoader(usr *user.User, cwd string, files infrastructure.FileSystem) *ConfigLoader {
+func NewLoader(usr *user.User, cwd string, files internal.FileSystem) *ConfigLoader {
 	return &ConfigLoader{
 		usr:   usr,
 		cwd:   cwd,

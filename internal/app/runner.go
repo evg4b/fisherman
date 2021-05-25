@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	c "fisherman/commands"
-	i "fisherman/infrastructure"
+	i "fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/log"
 	"fmt"

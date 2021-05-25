@@ -2,7 +2,7 @@ package app
 
 import (
 	c "fisherman/commands"
-	i "fisherman/infrastructure"
+	i "fisherman/internal"
 	"fisherman/pkg/guards"
 	"io"
 )

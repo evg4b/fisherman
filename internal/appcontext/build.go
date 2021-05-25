@@ -2,7 +2,7 @@ package appcontext
 
 import (
 	"context"
-	i "fisherman/infrastructure"
+	i "fisherman/internal"
 	"fisherman/pkg/guards"
 	"io"
 )

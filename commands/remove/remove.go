@@ -1,7 +1,6 @@
 package remove
 
 import (
-	"fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
@@ -15,12 +14,12 @@ import (
 type Command struct {
 	flagSet *flag.FlagSet
 	usage   string
-	files   infrastructure.FileSystem
+	files   internal.FileSystem
 	app     internal.AppInfo
 	user    *user.User
 }
 
-func NewCommand(files infrastructure.FileSystem, app internal.AppInfo, user *user.User) *Command {
+func NewCommand(files internal.FileSystem, app internal.AppInfo, user *user.User) *Command {
 	return &Command{
 		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:   "removes fisherman from git repository",

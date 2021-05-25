@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	infra "fisherman/infrastructure"
+	infra "fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"

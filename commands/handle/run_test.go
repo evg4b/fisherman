@@ -3,7 +3,7 @@ package handle_test
 import (
 	"errors"
 	"fisherman/commands/handle"
-	"fisherman/infrastructure"
+	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
@@ -30,7 +30,7 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", nil).
-			GetUserMock.Return(infrastructure.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+			GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		).
 		WithShell(mocks.NewShellMock(t)).
 		Build()
@@ -105,7 +105,7 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", errors.New("test error")).
-			GetUserMock.Return(infrastructure.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+			GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		).
 		WithShell(mocks.NewShellMock(t)).
 		Build()

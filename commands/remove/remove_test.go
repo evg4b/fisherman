@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fisherman/commands/remove"
 	"fisherman/configuration"
-	"fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
@@ -55,7 +54,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		files         infrastructure.FileSystem
+		files         internal.FileSystem
 		expectedError string
 	}{
 		{

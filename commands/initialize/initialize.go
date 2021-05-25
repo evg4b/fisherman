@@ -2,7 +2,6 @@ package initialize
 
 import (
 	cnfg "fisherman/configuration"
-	"fisherman/infrastructure"
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
@@ -23,12 +22,12 @@ type Command struct {
 	force    bool
 	absolute bool
 	usage    string
-	files    infrastructure.FileSystem
+	files    internal.FileSystem
 	app      internal.AppInfo
 	user     *user.User
 }
 
-func NewCommand(files infrastructure.FileSystem, app internal.AppInfo, user *user.User) *Command {
+func NewCommand(files internal.FileSystem, app internal.AppInfo, user *user.User) *Command {
 	command := &Command{
 		flagSet: flag.NewFlagSet("init", flag.ExitOnError),
 		usage:   "initializes fisherman in git repository",
