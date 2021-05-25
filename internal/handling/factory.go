@@ -2,7 +2,7 @@ package handling
 
 import (
 	"errors"
-	"fisherman/configuration"
+	"fisherman/internal/configuration"
 	c "fisherman/internal/constants"
 	"fisherman/internal/expression"
 	"fisherman/internal/utils"

@@ -2,8 +2,8 @@ package handling
 
 import (
 	"errors"
-	"fisherman/configuration"
 	"fisherman/internal"
+	"fisherman/internal/configuration"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"fisherman/pkg/prefixwriter"

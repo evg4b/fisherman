@@ -1,7 +1,7 @@
 package configuration_test
 
 import (
-	. "fisherman/configuration"
+	. "fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/rules"
 	"fisherman/pkg/log"

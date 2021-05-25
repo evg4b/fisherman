@@ -50,5 +50,5 @@ tasks:
       - minimock -i fisherman/internal.FileSystem -o ./testing/mocks/file_system_mock.go
       - minimock -i fisherman/internal/handling.Handler -o ./testing/mocks/handler_mock.go
       - minimock -i fisherman/internal.Repository -o ./testing/mocks/repository_mock.go
-      - minimock -i fisherman/configuration.Rule -o ./testing/mocks/rule_mock.go
+      - minimock -i fisherman/internal/configuration.Rule -o ./testing/mocks/rule_mock.go
       - minimock -i fisherman/internal.Shell -o ./testing/mocks/shell_mock.go

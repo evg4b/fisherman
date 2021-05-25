@@ -1,8 +1,8 @@
 package handling
 
 import (
-	"fisherman/configuration"
 	"fisherman/internal"
+	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
 )
 

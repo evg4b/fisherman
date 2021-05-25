@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"fisherman/configuration"
 	"fisherman/internal"
+	"fisherman/internal/configuration"
 )
 
 var AppInfoStub = internal.AppInfo{

@@ -1,7 +1,7 @@
 package handling_test
 
 import (
-	"fisherman/configuration"
+	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/testing/mocks"

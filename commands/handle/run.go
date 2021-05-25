@@ -2,8 +2,8 @@ package handle
 
 import (
 	"errors"
-	"fisherman/configuration"
 	"fisherman/internal"
+	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/internal/utils"

@@ -2,7 +2,7 @@ package handling_test
 
 import (
 	"errors"
-	"fisherman/configuration"
+	"fisherman/internal/configuration"
 	"fisherman/internal/handling"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"

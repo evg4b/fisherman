@@ -1,8 +1,8 @@
 package handle
 
 import (
-	cnfg "fisherman/configuration"
 	"fisherman/internal"
+	cnfg "fisherman/internal/configuration"
 	"fisherman/internal/handling"
 	"flag"
 )

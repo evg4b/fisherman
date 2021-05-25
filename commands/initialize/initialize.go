@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	cnfg "fisherman/configuration"
 	"fisherman/internal"
+	cnfg "fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
