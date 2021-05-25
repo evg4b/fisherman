@@ -32,6 +32,13 @@ tasks:
     cmds:
       - golangci-lint run ./...
 
+  check:
+    desc: Runs build, lint and test tasks
+    cmds:
+      - task: build
+      - task: lint
+      - task: test
+
   generate:
     desc: Generates mocks
     cmds:
