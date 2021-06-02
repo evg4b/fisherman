@@ -4,7 +4,6 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
-	"fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"flag"
 	"fmt"
@@ -78,15 +77,10 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 		}
 	}
 
-	bin := command.app.Executable
-	if !command.absolute {
-		bin, command.absolute = utils.NormalizePath(bin)
-	}
-
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
 
-		err := afero.WriteFile(command.files, hookPath, buildHook(hookName, bin, command.absolute), os.ModePerm)
+		err := afero.WriteFile(command.files, hookPath, buildHook(hookName, command.getBinaryPath(), command.absolute), os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -135,4 +129,12 @@ func (command *Command) writeConfig() error {
 	}
 
 	return nil
+}
+
+func (command *Command) getBinaryPath() string {
+	if command.absolute {
+		return command.app.Executable
+	}
+
+	return constants.AppName
 }
