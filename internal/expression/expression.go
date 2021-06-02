@@ -17,11 +17,6 @@ type GoExpressionEngine struct {
 
 func NewGoExpressionEngine() *GoExpressionEngine {
 	return &GoExpressionEngine{
-		// TODO: Add functions:
-		// - filesChanged(...glob) bool
-		// - filesExist(...glob) bool
-		// - env(name string) string
-		// - filesChangedRelativeTo(...glob, branch) bool
 		functions: map[string]interface{}{
 			"IsEmpty": utils.IsEmpty,
 		},
