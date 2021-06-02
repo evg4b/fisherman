@@ -2,7 +2,8 @@ package appcontext
 
 import (
 	"context"
-	i "fisherman/internal"
+	"fisherman/internal"
+	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fmt"
 	"io"
@@ -10,24 +11,25 @@ import (
 )
 
 type ApplicationContext struct {
-	fs            i.FileSystem
-	shell         i.Shell
-	repo          i.Repository
+	cwd           string
+	fs            internal.FileSystem
+	shell         internal.Shell
+	repo          internal.Repository
 	args          []string
 	output        io.Writer
 	baseCtx       context.Context
 	cancelBaseCtx context.CancelFunc
 }
 
-func (ctx *ApplicationContext) Files() i.FileSystem {
+func (ctx *ApplicationContext) Files() internal.FileSystem {
 	return ctx.fs
 }
 
-func (ctx *ApplicationContext) Shell() i.Shell {
+func (ctx *ApplicationContext) Shell() internal.Shell {
 	return ctx.shell
 }
 
-func (ctx *ApplicationContext) Repository() i.Repository {
+func (ctx *ApplicationContext) Repository() internal.Repository {
 	return ctx.repo
 }
 
@@ -98,9 +100,11 @@ func (ctx *ApplicationContext) GlobalVariables() (map[string]interface{}, error)
 	}
 
 	return map[string]interface{}{
-		"Tag":        lastTag,
-		"BranchName": currentBranch,
-		"UserEmail":  user.Email,
-		"UserName":   user.UserName,
+		constants.UserEmailVariable:        user.Email,
+		constants.UserNameVariable:         user.UserName,
+		constants.FishermanVersionVariable: constants.Version,
+		constants.CwdVariable:              ctx.cwd,
+		constants.BranchNameVariable:       currentBranch,
+		constants.TagVariable:              lastTag,
 	}, nil
 }

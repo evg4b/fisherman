@@ -5,6 +5,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/internal/commands/handle"
+	"fisherman/internal/constants"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"io/ioutil"
@@ -18,10 +19,12 @@ func init() {
 }
 
 var globalVars = map[string]interface{}{
-	"BranchName": "/refs/head/develop",
-	"Tag":        "1.0.0",
-	"UserEmail":  "evg4b@mail.com",
-	"UserName":   "evg4b",
+	constants.BranchNameVariable:       "/refs/head/develop",
+	constants.TagVariable:              "1.0.0",
+	constants.UserEmailVariable:        "evg4b@mail.com",
+	constants.UserNameVariable:         "evg4b",
+	constants.FishermanVersionVariable: constants.Version,
+	constants.CwdVariable:              "~/project",
 }
 
 func getCtx(t *testing.T) *appcontext.ApplicationContext {
@@ -33,6 +36,7 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 			GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		).
 		WithShell(mocks.NewShellMock(t)).
+		WithCwd("~/project").
 		Build()
 }
 

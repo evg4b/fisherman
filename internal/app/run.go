@@ -11,6 +11,7 @@ import (
 )
 
 type FishermanApp struct {
+	cwd      string
 	fs       i.FileSystem
 	shell    i.Shell
 	repo     i.Repository
@@ -37,6 +38,7 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 			}
 
 			ctx := appcontext.NewContextBuilder().
+				WithCwd(r.cwd).
 				WithContext(baseCtx).
 				WithFileSystem(r.fs).
 				WithShell(r.shell).

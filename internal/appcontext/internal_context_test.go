@@ -6,6 +6,7 @@ import (
 	"errors"
 	infra "fisherman/internal"
 	"fisherman/internal/appcontext"
+	"fisherman/internal/constants"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
@@ -220,10 +221,12 @@ func TestContext_GlobalVariables(t *testing.T) {
 				GetCurrentBranchMock.Return("refs/head/develop", nil).
 				GetUserMock.Return(infra.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 			expected: map[string]interface{}{
-				"Tag":        "1.0.0",
-				"BranchName": "refs/head/develop",
-				"UserName":   "evg4b",
-				"UserEmail":  "evg4b@mail.com",
+				constants.UserEmailVariable:        "evg4b@mail.com",
+				constants.UserNameVariable:         "evg4b",
+				constants.FishermanVersionVariable: constants.Version,
+				constants.CwdVariable:              "~/project",
+				constants.BranchNameVariable:       "refs/head/develop",
+				constants.TagVariable:              "1.0.0",
 			},
 		},
 	}
@@ -233,6 +236,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 				WithFileSystem(mocks.NewFileSystemMock(t)).
 				WithShell(mocks.NewShellMock(t)).
 				WithRepository(tt.repository).
+				WithCwd("~/project").
 				Build()
 
 			actual, err := ctx.GlobalVariables()

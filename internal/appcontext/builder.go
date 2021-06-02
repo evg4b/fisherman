@@ -8,6 +8,7 @@ import (
 )
 
 type ContextBuilder struct {
+	cwd    string
 	fs     i.FileSystem
 	shell  i.Shell
 	repo   i.Repository
@@ -26,6 +27,12 @@ func NewContextBuilder() *ContextBuilder {
 
 func (cb *ContextBuilder) WithFileSystem(fileSystem i.FileSystem) *ContextBuilder {
 	cb.fs = fileSystem
+
+	return cb
+}
+
+func (cb *ContextBuilder) WithCwd(cwd string) *ContextBuilder {
+	cb.cwd = cwd
 
 	return cb
 }
@@ -68,6 +75,7 @@ func (cb *ContextBuilder) Build() *ApplicationContext {
 	baseContext, cancelBaseContext := context.WithCancel(cb.ctx)
 
 	return &ApplicationContext{
+		cwd:           cb.cwd,
 		fs:            cb.fs,
 		shell:         cb.shell,
 		repo:          cb.repo,

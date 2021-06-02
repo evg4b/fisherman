@@ -34,10 +34,12 @@ var HooksNames = []string{
 }
 
 const (
-	EmailVariable            = "Email"
+	UserEmailVariable        = "UserEmail"
 	UserNameVariable         = "UserName"
 	FishermanVersionVariable = "FishermanVersion"
 	CwdVariable              = "CWD"
+	BranchNameVariable       = "BranchName"
+	TagVariable              = "TagName"
 )
 
 const (

@@ -12,6 +12,7 @@ type Builder struct {
 	repo     i.Repository
 	output   io.Writer
 	commands []i.CliCommand
+	cwd      string
 }
 
 func NewAppBuilder() *Builder {
@@ -22,6 +23,12 @@ func NewAppBuilder() *Builder {
 
 func (rb *Builder) WithCommands(commands []i.CliCommand) *Builder {
 	rb.commands = commands
+
+	return rb
+}
+
+func (rb *Builder) WithCwd(cwd string) *Builder {
+	rb.cwd = cwd
 
 	return rb
 }
