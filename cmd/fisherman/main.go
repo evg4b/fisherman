@@ -56,6 +56,10 @@ func main() {
 		Configs:    configs,
 	}
 
+	shell := shell.NewShell().
+		WithWorkingDirectory(cwd).
+		WithDefaultShell(config.DefaultShell)
+
 	fishermanApp := app.NewAppBuilder().
 		WithCommands([]internal.CliCommand{
 			initialize.NewCommand(fs, appInfo, usr),
@@ -65,8 +69,8 @@ func main() {
 		}).
 		WithFs(fs).
 		WithOutput(os.Stdout).
-		WithRepository(vcs.NewGitRepository(cwd)).
-		WithShell(shell.NewShell(os.Stdout, cwd, config.DefaultShell)).
+		WithRepository(vcs.OpenGitRepository(cwd)).
+		WithShell(shell).
 		Build()
 
 	if err = fishermanApp.Run(ctx, os.Args[1:]); err != nil {

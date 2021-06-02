@@ -13,8 +13,20 @@ type SystemShell struct {
 	defaultShell string
 }
 
-func NewShell(output io.Writer, cwd, defaultShell string) *SystemShell {
-	return &SystemShell{cwd, utils.GetOrDefault(defaultShell, DefaultShell)}
+func NewShell() *SystemShell {
+	return &SystemShell{defaultShell: DefaultShell}
+}
+
+func (sh *SystemShell) WithWorkingDirectory(cwd string) *SystemShell {
+	sh.cwd = cwd
+
+	return sh
+}
+
+func (sh *SystemShell) WithDefaultShell(defaultShell string) *SystemShell {
+	sh.defaultShell = defaultShell
+
+	return sh
 }
 
 func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string, script *Script) error {
@@ -45,5 +57,10 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 		}
 	}()
 
-	return command.Run()
+	script.duration, err = utils.ExecWithTime(command.Run)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

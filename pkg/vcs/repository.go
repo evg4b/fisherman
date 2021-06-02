@@ -16,7 +16,7 @@ type GitRepository struct {
 	repoOnce     sync.Once
 }
 
-func NewGitRepository(path string) *GitRepository {
+func OpenGitRepository(path string) *GitRepository {
 	return &GitRepository{path: path, internalRepo: nil}
 }
 

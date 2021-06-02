@@ -27,8 +27,7 @@ func (rule *ShellScript) GetPosition() byte {
 }
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
-	script := shell.NewScript().
-		SetCommands(rule.Commands).
+	script := shell.NewScript(rule.Commands).
 		SetEnvironmentVariables(rule.Env).
 		SetDirectory(rule.Dir)
 

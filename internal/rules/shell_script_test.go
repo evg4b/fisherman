@@ -50,8 +50,7 @@ func TestShellScript_Check(t *testing.T) {
 			expectedErr:    nil,
 			shellOutput:    "test",
 			expectedShell:  "",
-			expectedScript: shell.NewScript().
-				SetCommands([]string{"demo"}).
+			expectedScript: shell.NewScript([]string{"demo"}).
 				SetEnvironmentVariables(map[string]string{
 					"demo":  "demo",
 					"demo2": "demo2",

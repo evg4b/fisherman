@@ -10,7 +10,8 @@ import (
 )
 
 func TestSystemShell_Exec(t *testing.T) {
-	sh := shell.NewShell(ioutil.Discard, "/", shell.DefaultShell)
+	sh := shell.NewShell().
+		WithWorkingDirectory("/")
 
 	tests := []struct {
 		name     string
@@ -33,8 +34,7 @@ func TestSystemShell_Exec(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.NewScript().
-				SetCommands(tt.commands).
+			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.NewScript(tt.commands).
 				SetEnvironmentVariables(tt.env).
 				SetDirectory("/"))
 
