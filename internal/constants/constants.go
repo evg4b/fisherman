@@ -34,7 +34,6 @@ var HooksNames = []string{
 }
 
 const (
-	// TODO: [Next realise] Add BranchName variable
 	EmailVariable            = "Email"
 	UserNameVariable         = "UserName"
 	FishermanVersionVariable = "FishermanVersion"

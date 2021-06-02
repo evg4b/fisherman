@@ -2,7 +2,6 @@ package rules
 
 import "fisherman/internal/utils"
 
-// TODO: Create more flexible approach to create correct execution order
 var (
 	PreScripts  byte = 1
 	Scripts     byte = 2
