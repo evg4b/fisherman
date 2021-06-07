@@ -12,14 +12,17 @@ Can be used to check that message starts with issue number.
 hooks:
   commit-msg:
     extract-variables:
-      - 'Extract(BranchName, "^refs/heads/(?P<IssueNumber>PROJ\d+)-.*$")'
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>PROJ-\d+)-.*$'
     rules:
       - type: commit-message
         when: IssueNumber != nil
-        prefix: '[{{IssueNumber}}]'
+        prefix: '{{IssueNumber}}: '
 ```
 
-related links:
+For branch with name `PROJ-175-new_very_very_important_feature` commit message should be started with `PROJ-175: `
+
+Related links:
 
 <!-- TODO: Add correct links -->
 - [extract-variables](/)
