@@ -94,21 +94,21 @@ func TestContext_Message(t *testing.T) {
 			files:       map[string]string{"filepath": "expectedMessage"},
 			expected:    "expectedMessage",
 			expectedErr: "",
-			args:        []string{"filepath"},
+			args:        []string{"handle", "--hook", "commit-msg", "filepath"},
 		},
 		{
 			name:        "return message from file2",
 			files:       map[string]string{},
 			expected:    "",
-			expectedErr: "argument at index 0 is not provided",
-			args:        []string{},
+			expectedErr: "argument at index 3 is not provided",
+			args:        []string{"handle", "--hook", "commit-msg"},
 		},
 		{
 			name:        "return message from file",
 			files:       map[string]string{},
 			expected:    "",
 			expectedErr: "open filepath: file does not exist",
-			args:        []string{"filepath"},
+			args:        []string{"handle", "--hook", "commit-msg", "filepath"},
 		},
 	}
 	for _, tt := range tests {

@@ -21,6 +21,8 @@ type ApplicationContext struct {
 	cancelBaseCtx context.CancelFunc
 }
 
+const filePathArgumentIndex = 3
+
 func (ctx *ApplicationContext) Files() internal.FileSystem {
 	return ctx.fs
 }
@@ -62,7 +64,7 @@ func (ctx *ApplicationContext) Value(key interface{}) interface{} {
 }
 
 func (ctx *ApplicationContext) Message() (string, error) {
-	messageFilePath, err := ctx.arg(0)
+	messageFilePath, err := ctx.arg(filePathArgumentIndex)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +79,7 @@ func (ctx *ApplicationContext) Message() (string, error) {
 
 func (ctx *ApplicationContext) arg(index int) (string, error) {
 	if ctx.args == nil || len(ctx.args) <= index {
-		return "", fmt.Errorf("argument at index %b is not provided", index)
+		return "", fmt.Errorf("argument at index %d is not provided", index)
 	}
 
 	return ctx.args[index], nil
