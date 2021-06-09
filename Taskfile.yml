@@ -11,17 +11,17 @@ vars:
 
 tasks:
   build:
-    desc: Build the go binary in developer mode.
+    desc: Builds the go binary in developer mode.
     cmds:
       - go build -v -o {{ .OUTPUT_FILE }} -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   build:ci:
-    desc: '[For CI] Build the go binary in production mode (NOT REALISE)'
+    desc: '[For CI] Builds the go binary in production mode (NOT REALISE)'
     cmds:
-      - go build -v -o {{ .OUTPUT_FILE }} -ldflags="-s -w -X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+      - go build -v -o {{ .OUTPUT_FILE }} -ldflags="-s -w -X {{ .VERSION_PATH }}=ci-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   test:
-    desc: Run all tests
+    desc: Runs all tests
     cmds:
       - go test -cover ./...
 
@@ -31,7 +31,7 @@ tasks:
       - go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
 
   lint:
-    desc: Lint all code
+    desc: Lints all code
     cmds:
       - golangci-lint run ./...
 
@@ -41,6 +41,11 @@ tasks:
       - task: build
       - task: lint
       - task: test
+
+  install:
+    desc: Installs applications on the local computer using GO.
+    cmds:
+      - go install -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   generate:
     desc: Generates mocks
