@@ -14,19 +14,22 @@ and add to your `PATH`. The fisherman_checksums.txt file contains the SHA-256 ch
 
 ### Build from source
 
-First, make sure you have Go properly installed and setup. Fisherman requires Go Modules.
+First, make sure you have Go properly installed and setup. Fisherman requires Go Modules. Recommended used [task runner](https://taskfile.dev/).
 Installing in another directory:
 
 ```bash
 git clone git@github.com:evg4b/fisherman.git
 cd fisherman
 
-# Compiling binary to $GOPATH/bin
-go install -v .
+# Compiling binary to $GOPATH/bin:
+task install
+# Or without task:
+go install -v ./cmd/fisherman/main.go
 
-# Compiling it to another location.
-# Replace <version> to fisherman version
-go build -v -ldflags="-s -w -X fisherman/internal/constants.Version=<version>"
+# Compiling it to another location:
+task build
+# Or without task (Note: replace <version> to fisherman version):
+go build -v -ldflags="-s -w -X fisherman/internal/constants.Version=<version>" ./cmd/fisherman/main.go -o fisherman
 
 ./fisherman
 ```
@@ -61,11 +64,6 @@ hooks:
 ```
 
 To quickly find common configuration solutions visit the [FAQ page](./faq.md).
-
-:::caution
-At the moment, the application works only with YAML files with `.yml` extension.
-The config file must be named `.fisherman.yml` (NOT `.fisherman.yaml`).
-:::
 
 ## Commit changes
 

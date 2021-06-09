@@ -5,59 +5,69 @@ hooks:
 
   commit-msg:
     variables:
-      from-branch: regexp
-      from-last-tag: regexp
-
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
     rules:
-      - type: commit-suffix
+      - type: commit-message
         when: 1 == 1
         suffix: string
-
-      - type: commit-prefix
+      - type: commit-message
         when: 1 == 1
         prefix: string
         suffix: string
-
-      - type: commit-regexp
+      - type: commit-message
         when: 1 == 1
         prefix: string
 
-    not-empty: false
-    commit-regexp: regexp
-    commit-prefix: string
-    commit-suffix: string
-    static-message: string
+  apply-patch-msg:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
-  apply-patch-msg: null
+  fs-monitor-watchman:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
-  fs-monitor-watchman: null
+  post-update:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
-  post-update: null
-
-  pre-apply-patch: null
+  pre-apply-patch:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
   pre-commit:
     variables:
-      from-branch: regexp
-      from-last-tag: regexp
-
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
     rules:
-
       - type: suppress-commit-files
         when: 1 == 1
         globs: [glob1, glob2, glob3]
         remove-from-index: true
-
-      - type: commit-suffix
+      - type: commit-message
         when: 1 == 1
         suffix: string
-
-      - type: commit-prefix
+      - type: commit-message
         when: 1 == 1
         prefix: string
         suffix: string
-
-      - type: commit-regexp
+      - type: commit-message
         when: 1 == 1
         prefix: string
 
@@ -85,26 +95,31 @@ hooks:
 
   pre-push:
     variables:
-      from-branch: regexp
-      from-last-tag: regexp
-    shell:
-      script1:
-        - command1
-        - command2
-      script2:
-        - command3
-        - command4
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
-  pre-rebase: null
+  pre-rebase:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
-  pre-receive: null
+  pre-receive:
+    variables:
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
   prepare-commit-msg:
     variables:
-      from-branch: regexp
-    message: string
-    shell:
-      demo: 'ls'
+      name: value
+    extract-variables:
+      - variable: BranchName
+        expression: '^refs/heads/(?P<IssueNumber>.*)$'
 
 output:
   level: None

@@ -2,7 +2,7 @@ module.exports = {
   someSidebar: [
     {
       type: "doc",
-      id: "fisherman"
+      id: "introduction"
     },
     {
       type: "doc",

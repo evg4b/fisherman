@@ -1,5 +1,5 @@
 ---
-id: fisherman
+id: introduction
 title: Fisherman Introduction
 slug: /
 ---

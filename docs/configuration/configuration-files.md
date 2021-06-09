@@ -5,31 +5,6 @@ title: Configuration files
 
 Fisherman supports very flexible configuration. All its configuration is contained in `.fisherman.yml` file.
 
-## Complete configuration file structure
-
-```yaml
-variables:
-  name: value
-
-hooks:
-  commit-msg:
-    variables:
-      from-branch: 'regexp'
-    not-empty: false
-    commit-regexp: 'regexp'
-    commit-prefix: 'template'
-    commit-suffix: 'template'
-    static-message: 'template'
-  prepare-commit-msg:
-    variables:
-      from-branch: 'regexp'
-    message: 'template'
-
-output:
-  level: enum
-  colors: boolean
-```
-
 ## Configuration file inheritance
 
 Fisherman supports inheritance of configuration files with different visibility levels.

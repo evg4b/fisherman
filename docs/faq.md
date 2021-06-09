@@ -22,6 +22,8 @@ hooks:
 
 For branch with name `PROJ-175-new_very_very_important_feature` commit message should be started with `PROJ-175: `
 
+This rule will be skipped when the branch name does not match to expression. Remove `when: IssueNumber != nil` to change it.
+
 Related links:
 
 <!-- TODO: Add correct links -->
