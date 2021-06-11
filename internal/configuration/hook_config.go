@@ -3,10 +3,10 @@ package configuration
 import (
 	"fisherman/internal"
 	"fisherman/internal/utils"
-	"fmt"
 	"io"
 	"regexp"
 
+	"github.com/go-errors/errors"
 	"github.com/imdario/mergo"
 	"gopkg.in/yaml.v3"
 )
@@ -76,7 +76,7 @@ func (c *HookConfig) Compile(global Variables) (Variables, error) {
 		for _, value := range c.ExtractVariables {
 			targetVar, ok := variables[value.Variable]
 			if !ok {
-				return nil, fmt.Errorf("variable '%s' is not defined", value.Variable)
+				return nil, errors.Errorf("variable '%s' is not defined", value.Variable)
 			}
 
 			extractedVariables, err := extract(targetVar.(string), value.Expression)

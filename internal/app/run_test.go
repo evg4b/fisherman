@@ -2,12 +2,14 @@ package app_test
 
 import (
 	"context"
-	"errors"
 	"fisherman/internal"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"fmt"
 	"io/ioutil"
+
+	"github.com/go-errors/errors"
 
 	"fisherman/internal/app"
 	"testing"
@@ -24,7 +26,7 @@ func TestRunner_Run(t *testing.T) {
 		name          string
 		args          []string
 		commands      []internal.CliCommand
-		expectedError error
+		expectedError string
 	}{
 		{
 			name: "Should run called commnad and return its error",
@@ -34,7 +36,7 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeExpectedCommand(t, "init", errors.New("expected error")),
 			},
-			expectedError: errors.New("expected error"),
+			expectedError: "expected error",
 		},
 		{
 			name: "Should run called commnad and return nil when command executed witout error",
@@ -44,7 +46,6 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeExpectedCommand(t, "init", nil),
 			},
-			expectedError: nil,
 		},
 		{
 			name: "Should return error when command not found",
@@ -54,13 +55,13 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeCommand(t, "init"),
 			},
-			expectedError: errors.New("unknown command: not"),
+			expectedError: "unknown command: not",
 		},
 		{
 			name:          "Should return error when command not registered",
 			args:          []string{"not"},
 			commands:      []internal.CliCommand{},
-			expectedError: errors.New("unknown command: not"),
+			expectedError: "unknown command: not",
 		},
 		{
 			name: "Should not return error when commnad not specified",
@@ -70,7 +71,6 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeCommand(t, "init"),
 			},
-			expectedError: nil,
 		},
 	}
 
@@ -85,7 +85,7 @@ func TestRunner_Run(t *testing.T) {
 
 			assert.NotPanics(t, func() {
 				err := appInstance.Run(context.TODO(), tt.args)
-				assert.Equal(t, tt.expectedError, err)
+				testutils.CheckError(t, tt.expectedError, err)
 			})
 		})
 	}

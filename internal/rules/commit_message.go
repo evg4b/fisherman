@@ -3,10 +3,11 @@ package rules
 import (
 	"fisherman/internal"
 	"fisherman/internal/utils"
-	"fmt"
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/go-errors/errors"
 )
 
 const CommitMessageType = "commit-message"
@@ -26,15 +27,15 @@ func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) erro
 	}
 
 	if rule.NotEmpty && utils.IsEmpty(message) {
-		return fmt.Errorf("commit message should not be empty")
+		return errors.Errorf("commit message should not be empty")
 	}
 
 	if !utils.IsEmpty(rule.Prefix) && !strings.HasPrefix(message, rule.Prefix) {
-		return fmt.Errorf("commit message should have prefix '%s'", rule.Prefix)
+		return errors.Errorf("commit message should have prefix '%s'", rule.Prefix)
 	}
 
 	if !utils.IsEmpty(rule.Suffix) && !strings.HasSuffix(message, rule.Suffix) {
-		return fmt.Errorf("commit message should have suffix '%s'", rule.Suffix)
+		return errors.Errorf("commit message should have suffix '%s'", rule.Suffix)
 	}
 
 	if !utils.IsEmpty(rule.Regexp) {
@@ -44,7 +45,7 @@ func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) erro
 		}
 
 		if !matched {
-			return fmt.Errorf("commit message should be matched regular expression '%s'", rule.Regexp)
+			return errors.Errorf("commit message should be matched regular expression '%s'", rule.Regexp)
 		}
 	}
 

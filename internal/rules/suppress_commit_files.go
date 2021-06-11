@@ -1,12 +1,12 @@
 package rules
 
 import (
-	"errors"
 	"fisherman/internal"
 	"fisherman/internal/utils"
-	"fmt"
 	"io"
 	"path/filepath"
+
+	"github.com/go-errors/errors"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/go-multierror"
@@ -52,7 +52,7 @@ func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Write
 				return err
 			}
 		} else {
-			multiError = multierror.Append(multiError, fmt.Errorf("file %s can not be committed", file))
+			multiError = multierror.Append(multiError, errors.Errorf("file %s can not be committed", file))
 		}
 	}
 

@@ -1,7 +1,6 @@
 package handling
 
 import (
-	"errors"
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/utils"
@@ -10,6 +9,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
+
+	"github.com/go-errors/errors"
 
 	"github.com/hashicorp/go-multierror"
 )
@@ -92,7 +93,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 		err := rule.Check(ctx, writer)
 		if err != nil {
 			typeName := rule.GetType()
-			output <- fmt.Errorf("[%s] %s", typeName, err)
+			output <- errors.Errorf("[%s] %s", typeName, err)
 		}
 	}
 }

@@ -39,7 +39,7 @@ func TestShouldBeDefined(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if len(tt.err) > 0 {
-				assert.PanicsWithValue(t, tt.err, func() {
+				assert.PanicsWithError(t, tt.err, func() {
 					guards.ShouldBeDefined(tt.object, tt.message)
 				})
 			} else {

@@ -1,12 +1,12 @@
 package handling
 
 import (
-	"errors"
 	"fisherman/internal/configuration"
 	c "fisherman/internal/constants"
 	"fisherman/internal/expression"
 	"fisherman/internal/utils"
-	"fmt"
+
+	"github.com/go-errors/errors"
 
 	"github.com/hashicorp/go-multierror"
 )
@@ -77,13 +77,13 @@ func (f *HookHandlerFactory) configure(name string, config *configuration.HookCo
 		var multiError *multierror.Error
 		for _, rule := range config.Rules {
 			if !utils.Contains(allowedHooks[name], rule.GetType()) {
-				multiError = multierror.Append(multiError, fmt.Errorf("rule %s is not allowed", rule.GetType()))
+				multiError = multierror.Append(multiError, errors.Errorf("rule %s is not allowed", rule.GetType()))
 			}
 		}
 
 		err = multiError.ErrorOrNil()
 		if err != nil {
-			return nil, fmt.Errorf("%s hook: %v", name, err)
+			return nil, errors.Errorf("%s hook: %v", name, err)
 		}
 
 		return &HookHandler{

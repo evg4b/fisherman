@@ -1,8 +1,9 @@
 package log
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/go-errors/errors"
 
 	"gopkg.in/yaml.v3"
 )

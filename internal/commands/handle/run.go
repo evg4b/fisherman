@@ -1,13 +1,14 @@
 package handle
 
 import (
-	"errors"
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
+
+	"github.com/go-errors/errors"
 )
 
 func (command *Command) Init(args []string) error {

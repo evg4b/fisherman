@@ -11,6 +11,7 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"github.com/go-errors/errors"
 	"github.com/hashicorp/go-multierror"
 	"github.com/spf13/afero"
 )
@@ -67,7 +68,7 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 
 			if exist {
 				log.Debugf("Hook '%s' already exist", hookName)
-				result = multierror.Append(result, fmt.Errorf("file %s already exists", hookPath))
+				result = multierror.Append(result, errors.Errorf("file %s already exists", hookPath))
 			}
 		}
 

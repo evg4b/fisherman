@@ -5,9 +5,10 @@ import (
 	i "fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/log"
-	"fmt"
 	"io"
 	"strings"
+
+	"github.com/go-errors/errors"
 )
 
 type FishermanApp struct {
@@ -62,5 +63,5 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 
 	log.Debugf("Command %s not found", commandName)
 
-	return fmt.Errorf("unknown command: %s", commandName)
+	return errors.Errorf("unknown command: %s", commandName)
 }

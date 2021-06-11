@@ -5,9 +5,10 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
-	"fmt"
 	"io"
 	"time"
+
+	"github.com/go-errors/errors"
 )
 
 type ApplicationContext struct {
@@ -79,7 +80,7 @@ func (ctx *ApplicationContext) Message() (string, error) {
 
 func (ctx *ApplicationContext) arg(index int) (string, error) {
 	if ctx.args == nil || len(ctx.args) <= index {
-		return "", fmt.Errorf("argument at index %d is not provided", index)
+		return "", errors.Errorf("argument at index %d is not provided", index)
 	}
 
 	return ctx.args[index], nil

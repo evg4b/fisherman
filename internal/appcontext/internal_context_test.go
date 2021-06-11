@@ -3,13 +3,14 @@ package appcontext_test
 import (
 	"bytes"
 	"context"
-	"errors"
 	infra "fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/internal/constants"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
+
+	"github.com/go-errors/errors"
 
 	"github.com/stretchr/testify/assert"
 )

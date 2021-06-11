@@ -27,7 +27,7 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 		name        string
 		files       []string
 		expected    map[string]string
-		expectedErr error
+		expectedErr string
 	}{
 		{
 			name: "mere then one config file",
@@ -37,7 +37,7 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 				filepath.Join(repoConfig, constants.AppConfigNames[0]),
 				filepath.Join(globalConfig, constants.AppConfigNames[0]),
 			},
-			expectedErr: fmt.Errorf("more then one config file specifies in folder '%s'", localConfig),
+			expectedErr: fmt.Sprintf("more then one config file specifies in folder '%s'", localConfig),
 		},
 		{
 			name: "correct files loading",
@@ -60,10 +60,8 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 
 			actual, err := loaded.FindConfigFiles()
 
-			assert.Equal(t, tt.expectedErr, err)
-			if tt.expectedErr == nil {
-				assert.EqualValues(t, tt.expected, actual)
-			}
+			testutils.CheckError(t, tt.expectedErr, err)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }

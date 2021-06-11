@@ -3,9 +3,9 @@ package configuration
 import (
 	"fisherman/internal/rules"
 	"fisherman/internal/utils"
-	"fmt"
 	"reflect"
 
+	"github.com/go-errors/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -30,12 +30,12 @@ func (def *ruleDef) UnmarshalYAML(value *yaml.Node) error {
 	}
 
 	if utils.IsEmpty(def.Type) {
-		return fmt.Errorf("required property 'type' not defined")
+		return errors.Errorf("required property 'type' not defined")
 	}
 
 	reflectType, ok := definedTypes[def.Type]
 	if !ok {
-		return fmt.Errorf("type %s is not supported", def.Type)
+		return errors.Errorf("type %s is not supported", def.Type)
 	}
 
 	def.Rule = reflect.New(reflectType).Interface().(Rule)

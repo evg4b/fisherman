@@ -4,10 +4,10 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
-	"fmt"
 	"os/user"
 	"path/filepath"
 
+	"github.com/go-errors/errors"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
@@ -38,7 +38,7 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 			configPath := filepath.Join(folder, name)
 			exist, err := afero.Exists(loader.files, configPath)
 			if err != nil {
-				return configs, err
+				return nil, err
 			}
 
 			if exist {
@@ -47,7 +47,7 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 		}
 
 		if len(files) > 1 {
-			return configs, fmt.Errorf("more then one config file specifies in folder '%s'", folder)
+			return nil, errors.Errorf("more then one config file specifies in folder '%s'", folder)
 		}
 
 		if len(files) == 1 {
