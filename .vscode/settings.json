@@ -34,4 +34,5 @@
     "go.lintFlags": [
         "--fast"
     ],
+    "go.buildTags": "debug"
 }

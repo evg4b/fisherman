@@ -6,14 +6,14 @@ vars:
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
   VERSION_PATH: fisherman/internal/constants.Version
-  ENTRY_POINT: cmd/fisherman/main.go
+  ENTRY_POINT: ./cmd/fisherman/...
   OUTPUT_FILE: fisherman{{exeExt}}
 
 tasks:
   build:
     desc: Builds the go binary in developer mode.
     cmds:
-      - go build -v -o {{ .OUTPUT_FILE }} -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+      - go build -v -tags=debug -o {{ .OUTPUT_FILE }} -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   build:ci:
     desc: '[For CI] Builds the go binary in production mode (NOT REALISE)'
