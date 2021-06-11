@@ -20,6 +20,5 @@ func DumpError(err error) {
 }
 
 func printWithStackError(err *errors.Error) {
-	Errorf("debug information: %s", err.TypeName())
-	Error(err.ErrorStack())
+	Errorf("===> [debug]: %s", err.ErrorStack())
 }
