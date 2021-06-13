@@ -37,7 +37,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	command, err := CommandFactory(ctx, utils.GetOrDefault(shell, sh.defaultShell))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create %w", err)
 	}
 
 	command.Env = envList
@@ -47,7 +47,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	stdin, err := command.StdinPipe()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	go func() {

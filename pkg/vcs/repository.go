@@ -4,7 +4,7 @@ import (
 	"fisherman/internal"
 	"sync"
 
-	"github.com/go-errors/errors"
+	"errors"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
