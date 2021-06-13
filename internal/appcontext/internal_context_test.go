@@ -136,7 +136,7 @@ func TestContext_Stop(t *testing.T) {
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
 
-	ctx.Stop()
+	ctx.Cancel()
 
 	assert.Equal(t, context.Canceled, ctx.Err())
 }

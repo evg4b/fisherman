@@ -19,11 +19,23 @@ import (
 type ExecutionContextMock struct {
 	t minimock.Tester
 
+	funcArg          func(index int) (s1 string, err error)
+	inspectFuncArg   func(index int)
+	afterArgCounter  uint64
+	beforeArgCounter uint64
+	ArgMock          mExecutionContextMockArg
+
 	funcArgs          func() (sa1 []string)
 	inspectFuncArgs   func()
 	afterArgsCounter  uint64
 	beforeArgsCounter uint64
 	ArgsMock          mExecutionContextMockArgs
+
+	funcCancel          func()
+	inspectFuncCancel   func()
+	afterCancelCounter  uint64
+	beforeCancelCounter uint64
+	CancelMock          mExecutionContextMockCancel
 
 	funcDeadline          func() (deadline time.Time, ok bool)
 	inspectFuncDeadline   func()
@@ -80,12 +92,6 @@ type ExecutionContextMock struct {
 	beforeShellCounter uint64
 	ShellMock          mExecutionContextMockShell
 
-	funcStop          func()
-	inspectFuncStop   func()
-	afterStopCounter  uint64
-	beforeStopCounter uint64
-	StopMock          mExecutionContextMockStop
-
 	funcValue          func(key interface{}) (p1 interface{})
 	inspectFuncValue   func(key interface{})
 	afterValueCounter  uint64
@@ -100,7 +106,12 @@ func NewExecutionContextMock(t minimock.Tester) *ExecutionContextMock {
 		controller.RegisterMocker(m)
 	}
 
+	m.ArgMock = mExecutionContextMockArg{mock: m}
+	m.ArgMock.callArgs = []*ExecutionContextMockArgParams{}
+
 	m.ArgsMock = mExecutionContextMockArgs{mock: m}
+
+	m.CancelMock = mExecutionContextMockCancel{mock: m}
 
 	m.DeadlineMock = mExecutionContextMockDeadline{mock: m}
 
@@ -120,12 +131,226 @@ func NewExecutionContextMock(t minimock.Tester) *ExecutionContextMock {
 
 	m.ShellMock = mExecutionContextMockShell{mock: m}
 
-	m.StopMock = mExecutionContextMockStop{mock: m}
-
 	m.ValueMock = mExecutionContextMockValue{mock: m}
 	m.ValueMock.callArgs = []*ExecutionContextMockValueParams{}
 
 	return m
+}
+
+type mExecutionContextMockArg struct {
+	mock               *ExecutionContextMock
+	defaultExpectation *ExecutionContextMockArgExpectation
+	expectations       []*ExecutionContextMockArgExpectation
+
+	callArgs []*ExecutionContextMockArgParams
+	mutex    sync.RWMutex
+}
+
+// ExecutionContextMockArgExpectation specifies expectation struct of the ExecutionContext.Arg
+type ExecutionContextMockArgExpectation struct {
+	mock    *ExecutionContextMock
+	params  *ExecutionContextMockArgParams
+	results *ExecutionContextMockArgResults
+	Counter uint64
+}
+
+// ExecutionContextMockArgParams contains parameters of the ExecutionContext.Arg
+type ExecutionContextMockArgParams struct {
+	index int
+}
+
+// ExecutionContextMockArgResults contains results of the ExecutionContext.Arg
+type ExecutionContextMockArgResults struct {
+	s1  string
+	err error
+}
+
+// Expect sets up expected params for ExecutionContext.Arg
+func (mmArg *mExecutionContextMockArg) Expect(index int) *mExecutionContextMockArg {
+	if mmArg.mock.funcArg != nil {
+		mmArg.mock.t.Fatalf("ExecutionContextMock.Arg mock is already set by Set")
+	}
+
+	if mmArg.defaultExpectation == nil {
+		mmArg.defaultExpectation = &ExecutionContextMockArgExpectation{}
+	}
+
+	mmArg.defaultExpectation.params = &ExecutionContextMockArgParams{index}
+	for _, e := range mmArg.expectations {
+		if minimock.Equal(e.params, mmArg.defaultExpectation.params) {
+			mmArg.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmArg.defaultExpectation.params)
+		}
+	}
+
+	return mmArg
+}
+
+// Inspect accepts an inspector function that has same arguments as the ExecutionContext.Arg
+func (mmArg *mExecutionContextMockArg) Inspect(f func(index int)) *mExecutionContextMockArg {
+	if mmArg.mock.inspectFuncArg != nil {
+		mmArg.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.Arg")
+	}
+
+	mmArg.mock.inspectFuncArg = f
+
+	return mmArg
+}
+
+// Return sets up results that will be returned by ExecutionContext.Arg
+func (mmArg *mExecutionContextMockArg) Return(s1 string, err error) *ExecutionContextMock {
+	if mmArg.mock.funcArg != nil {
+		mmArg.mock.t.Fatalf("ExecutionContextMock.Arg mock is already set by Set")
+	}
+
+	if mmArg.defaultExpectation == nil {
+		mmArg.defaultExpectation = &ExecutionContextMockArgExpectation{mock: mmArg.mock}
+	}
+	mmArg.defaultExpectation.results = &ExecutionContextMockArgResults{s1, err}
+	return mmArg.mock
+}
+
+//Set uses given function f to mock the ExecutionContext.Arg method
+func (mmArg *mExecutionContextMockArg) Set(f func(index int) (s1 string, err error)) *ExecutionContextMock {
+	if mmArg.defaultExpectation != nil {
+		mmArg.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Arg method")
+	}
+
+	if len(mmArg.expectations) > 0 {
+		mmArg.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.Arg method")
+	}
+
+	mmArg.mock.funcArg = f
+	return mmArg.mock
+}
+
+// When sets expectation for the ExecutionContext.Arg which will trigger the result defined by the following
+// Then helper
+func (mmArg *mExecutionContextMockArg) When(index int) *ExecutionContextMockArgExpectation {
+	if mmArg.mock.funcArg != nil {
+		mmArg.mock.t.Fatalf("ExecutionContextMock.Arg mock is already set by Set")
+	}
+
+	expectation := &ExecutionContextMockArgExpectation{
+		mock:   mmArg.mock,
+		params: &ExecutionContextMockArgParams{index},
+	}
+	mmArg.expectations = append(mmArg.expectations, expectation)
+	return expectation
+}
+
+// Then sets up ExecutionContext.Arg return parameters for the expectation previously defined by the When method
+func (e *ExecutionContextMockArgExpectation) Then(s1 string, err error) *ExecutionContextMock {
+	e.results = &ExecutionContextMockArgResults{s1, err}
+	return e.mock
+}
+
+// Arg implements internal.ExecutionContext
+func (mmArg *ExecutionContextMock) Arg(index int) (s1 string, err error) {
+	mm_atomic.AddUint64(&mmArg.beforeArgCounter, 1)
+	defer mm_atomic.AddUint64(&mmArg.afterArgCounter, 1)
+
+	if mmArg.inspectFuncArg != nil {
+		mmArg.inspectFuncArg(index)
+	}
+
+	mm_params := &ExecutionContextMockArgParams{index}
+
+	// Record call args
+	mmArg.ArgMock.mutex.Lock()
+	mmArg.ArgMock.callArgs = append(mmArg.ArgMock.callArgs, mm_params)
+	mmArg.ArgMock.mutex.Unlock()
+
+	for _, e := range mmArg.ArgMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.s1, e.results.err
+		}
+	}
+
+	if mmArg.ArgMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmArg.ArgMock.defaultExpectation.Counter, 1)
+		mm_want := mmArg.ArgMock.defaultExpectation.params
+		mm_got := ExecutionContextMockArgParams{index}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmArg.t.Errorf("ExecutionContextMock.Arg got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmArg.ArgMock.defaultExpectation.results
+		if mm_results == nil {
+			mmArg.t.Fatal("No results are set for the ExecutionContextMock.Arg")
+		}
+		return (*mm_results).s1, (*mm_results).err
+	}
+	if mmArg.funcArg != nil {
+		return mmArg.funcArg(index)
+	}
+	mmArg.t.Fatalf("Unexpected call to ExecutionContextMock.Arg. %v", index)
+	return
+}
+
+// ArgAfterCounter returns a count of finished ExecutionContextMock.Arg invocations
+func (mmArg *ExecutionContextMock) ArgAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmArg.afterArgCounter)
+}
+
+// ArgBeforeCounter returns a count of ExecutionContextMock.Arg invocations
+func (mmArg *ExecutionContextMock) ArgBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmArg.beforeArgCounter)
+}
+
+// Calls returns a list of arguments used in each call to ExecutionContextMock.Arg.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmArg *mExecutionContextMockArg) Calls() []*ExecutionContextMockArgParams {
+	mmArg.mutex.RLock()
+
+	argCopy := make([]*ExecutionContextMockArgParams, len(mmArg.callArgs))
+	copy(argCopy, mmArg.callArgs)
+
+	mmArg.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockArgDone returns true if the count of the Arg invocations corresponds
+// the number of defined expectations
+func (m *ExecutionContextMock) MinimockArgDone() bool {
+	for _, e := range m.ArgMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ArgMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterArgCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcArg != nil && mm_atomic.LoadUint64(&m.afterArgCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockArgInspect logs each unmet expectation
+func (m *ExecutionContextMock) MinimockArgInspect() {
+	for _, e := range m.ArgMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to ExecutionContextMock.Arg with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ArgMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterArgCounter) < 1 {
+		if m.ArgMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ExecutionContextMock.Arg")
+		} else {
+			m.t.Errorf("Expected call to ExecutionContextMock.Arg with params: %#v", *m.ArgMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcArg != nil && mm_atomic.LoadUint64(&m.afterArgCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.Arg")
+	}
 }
 
 type mExecutionContextMockArgs struct {
@@ -268,6 +493,141 @@ func (m *ExecutionContextMock) MinimockArgsInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcArgs != nil && mm_atomic.LoadUint64(&m.afterArgsCounter) < 1 {
 		m.t.Error("Expected call to ExecutionContextMock.Args")
+	}
+}
+
+type mExecutionContextMockCancel struct {
+	mock               *ExecutionContextMock
+	defaultExpectation *ExecutionContextMockCancelExpectation
+	expectations       []*ExecutionContextMockCancelExpectation
+}
+
+// ExecutionContextMockCancelExpectation specifies expectation struct of the ExecutionContext.Cancel
+type ExecutionContextMockCancelExpectation struct {
+	mock *ExecutionContextMock
+
+	Counter uint64
+}
+
+// Expect sets up expected params for ExecutionContext.Cancel
+func (mmCancel *mExecutionContextMockCancel) Expect() *mExecutionContextMockCancel {
+	if mmCancel.mock.funcCancel != nil {
+		mmCancel.mock.t.Fatalf("ExecutionContextMock.Cancel mock is already set by Set")
+	}
+
+	if mmCancel.defaultExpectation == nil {
+		mmCancel.defaultExpectation = &ExecutionContextMockCancelExpectation{}
+	}
+
+	return mmCancel
+}
+
+// Inspect accepts an inspector function that has same arguments as the ExecutionContext.Cancel
+func (mmCancel *mExecutionContextMockCancel) Inspect(f func()) *mExecutionContextMockCancel {
+	if mmCancel.mock.inspectFuncCancel != nil {
+		mmCancel.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.Cancel")
+	}
+
+	mmCancel.mock.inspectFuncCancel = f
+
+	return mmCancel
+}
+
+// Return sets up results that will be returned by ExecutionContext.Cancel
+func (mmCancel *mExecutionContextMockCancel) Return() *ExecutionContextMock {
+	if mmCancel.mock.funcCancel != nil {
+		mmCancel.mock.t.Fatalf("ExecutionContextMock.Cancel mock is already set by Set")
+	}
+
+	if mmCancel.defaultExpectation == nil {
+		mmCancel.defaultExpectation = &ExecutionContextMockCancelExpectation{mock: mmCancel.mock}
+	}
+
+	return mmCancel.mock
+}
+
+//Set uses given function f to mock the ExecutionContext.Cancel method
+func (mmCancel *mExecutionContextMockCancel) Set(f func()) *ExecutionContextMock {
+	if mmCancel.defaultExpectation != nil {
+		mmCancel.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Cancel method")
+	}
+
+	if len(mmCancel.expectations) > 0 {
+		mmCancel.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.Cancel method")
+	}
+
+	mmCancel.mock.funcCancel = f
+	return mmCancel.mock
+}
+
+// Cancel implements internal.ExecutionContext
+func (mmCancel *ExecutionContextMock) Cancel() {
+	mm_atomic.AddUint64(&mmCancel.beforeCancelCounter, 1)
+	defer mm_atomic.AddUint64(&mmCancel.afterCancelCounter, 1)
+
+	if mmCancel.inspectFuncCancel != nil {
+		mmCancel.inspectFuncCancel()
+	}
+
+	if mmCancel.CancelMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmCancel.CancelMock.defaultExpectation.Counter, 1)
+
+		return
+
+	}
+	if mmCancel.funcCancel != nil {
+		mmCancel.funcCancel()
+		return
+	}
+	mmCancel.t.Fatalf("Unexpected call to ExecutionContextMock.Cancel.")
+
+}
+
+// CancelAfterCounter returns a count of finished ExecutionContextMock.Cancel invocations
+func (mmCancel *ExecutionContextMock) CancelAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCancel.afterCancelCounter)
+}
+
+// CancelBeforeCounter returns a count of ExecutionContextMock.Cancel invocations
+func (mmCancel *ExecutionContextMock) CancelBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCancel.beforeCancelCounter)
+}
+
+// MinimockCancelDone returns true if the count of the Cancel invocations corresponds
+// the number of defined expectations
+func (m *ExecutionContextMock) MinimockCancelDone() bool {
+	for _, e := range m.CancelMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CancelMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCancelCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCancel != nil && mm_atomic.LoadUint64(&m.afterCancelCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockCancelInspect logs each unmet expectation
+func (m *ExecutionContextMock) MinimockCancelInspect() {
+	for _, e := range m.CancelMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to ExecutionContextMock.Cancel")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CancelMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCancelCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.Cancel")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCancel != nil && mm_atomic.LoadUint64(&m.afterCancelCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.Cancel")
 	}
 }
 
@@ -1565,141 +1925,6 @@ func (m *ExecutionContextMock) MinimockShellInspect() {
 	}
 }
 
-type mExecutionContextMockStop struct {
-	mock               *ExecutionContextMock
-	defaultExpectation *ExecutionContextMockStopExpectation
-	expectations       []*ExecutionContextMockStopExpectation
-}
-
-// ExecutionContextMockStopExpectation specifies expectation struct of the ExecutionContext.Stop
-type ExecutionContextMockStopExpectation struct {
-	mock *ExecutionContextMock
-
-	Counter uint64
-}
-
-// Expect sets up expected params for ExecutionContext.Stop
-func (mmStop *mExecutionContextMockStop) Expect() *mExecutionContextMockStop {
-	if mmStop.mock.funcStop != nil {
-		mmStop.mock.t.Fatalf("ExecutionContextMock.Stop mock is already set by Set")
-	}
-
-	if mmStop.defaultExpectation == nil {
-		mmStop.defaultExpectation = &ExecutionContextMockStopExpectation{}
-	}
-
-	return mmStop
-}
-
-// Inspect accepts an inspector function that has same arguments as the ExecutionContext.Stop
-func (mmStop *mExecutionContextMockStop) Inspect(f func()) *mExecutionContextMockStop {
-	if mmStop.mock.inspectFuncStop != nil {
-		mmStop.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.Stop")
-	}
-
-	mmStop.mock.inspectFuncStop = f
-
-	return mmStop
-}
-
-// Return sets up results that will be returned by ExecutionContext.Stop
-func (mmStop *mExecutionContextMockStop) Return() *ExecutionContextMock {
-	if mmStop.mock.funcStop != nil {
-		mmStop.mock.t.Fatalf("ExecutionContextMock.Stop mock is already set by Set")
-	}
-
-	if mmStop.defaultExpectation == nil {
-		mmStop.defaultExpectation = &ExecutionContextMockStopExpectation{mock: mmStop.mock}
-	}
-
-	return mmStop.mock
-}
-
-//Set uses given function f to mock the ExecutionContext.Stop method
-func (mmStop *mExecutionContextMockStop) Set(f func()) *ExecutionContextMock {
-	if mmStop.defaultExpectation != nil {
-		mmStop.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Stop method")
-	}
-
-	if len(mmStop.expectations) > 0 {
-		mmStop.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.Stop method")
-	}
-
-	mmStop.mock.funcStop = f
-	return mmStop.mock
-}
-
-// Stop implements internal.ExecutionContext
-func (mmStop *ExecutionContextMock) Stop() {
-	mm_atomic.AddUint64(&mmStop.beforeStopCounter, 1)
-	defer mm_atomic.AddUint64(&mmStop.afterStopCounter, 1)
-
-	if mmStop.inspectFuncStop != nil {
-		mmStop.inspectFuncStop()
-	}
-
-	if mmStop.StopMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmStop.StopMock.defaultExpectation.Counter, 1)
-
-		return
-
-	}
-	if mmStop.funcStop != nil {
-		mmStop.funcStop()
-		return
-	}
-	mmStop.t.Fatalf("Unexpected call to ExecutionContextMock.Stop.")
-
-}
-
-// StopAfterCounter returns a count of finished ExecutionContextMock.Stop invocations
-func (mmStop *ExecutionContextMock) StopAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmStop.afterStopCounter)
-}
-
-// StopBeforeCounter returns a count of ExecutionContextMock.Stop invocations
-func (mmStop *ExecutionContextMock) StopBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmStop.beforeStopCounter)
-}
-
-// MinimockStopDone returns true if the count of the Stop invocations corresponds
-// the number of defined expectations
-func (m *ExecutionContextMock) MinimockStopDone() bool {
-	for _, e := range m.StopMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.StopMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterStopCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcStop != nil && mm_atomic.LoadUint64(&m.afterStopCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockStopInspect logs each unmet expectation
-func (m *ExecutionContextMock) MinimockStopInspect() {
-	for _, e := range m.StopMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to ExecutionContextMock.Stop")
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.StopMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterStopCounter) < 1 {
-		m.t.Error("Expected call to ExecutionContextMock.Stop")
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcStop != nil && mm_atomic.LoadUint64(&m.afterStopCounter) < 1 {
-		m.t.Error("Expected call to ExecutionContextMock.Stop")
-	}
-}
-
 type mExecutionContextMockValue struct {
 	mock               *ExecutionContextMock
 	defaultExpectation *ExecutionContextMockValueExpectation
@@ -1918,7 +2143,11 @@ func (m *ExecutionContextMock) MinimockValueInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *ExecutionContextMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockArgInspect()
+
 		m.MinimockArgsInspect()
+
+		m.MinimockCancelInspect()
 
 		m.MinimockDeadlineInspect()
 
@@ -1937,8 +2166,6 @@ func (m *ExecutionContextMock) MinimockFinish() {
 		m.MinimockRepositoryInspect()
 
 		m.MinimockShellInspect()
-
-		m.MinimockStopInspect()
 
 		m.MinimockValueInspect()
 		m.t.FailNow()
@@ -1964,7 +2191,9 @@ func (m *ExecutionContextMock) MinimockWait(timeout mm_time.Duration) {
 func (m *ExecutionContextMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockArgDone() &&
 		m.MinimockArgsDone() &&
+		m.MinimockCancelDone() &&
 		m.MinimockDeadlineDone() &&
 		m.MinimockDoneDone() &&
 		m.MinimockErrDone() &&
@@ -1974,6 +2203,5 @@ func (m *ExecutionContextMock) minimockDone() bool {
 		m.MinimockOutputDone() &&
 		m.MinimockRepositoryDone() &&
 		m.MinimockShellDone() &&
-		m.MinimockStopDone() &&
 		m.MinimockValueDone()
 }

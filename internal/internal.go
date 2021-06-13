@@ -19,7 +19,7 @@ type ExecutionContext interface {
 	Args() []string
 	Output() io.Writer
 	Message() (string, error)
-	Stop()
+	Cancel()
 }
 
 type AppInfo struct {

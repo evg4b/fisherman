@@ -44,7 +44,7 @@ func (ctx *ApplicationContext) Output() io.Writer {
 	return ctx.output
 }
 
-func (ctx *ApplicationContext) Stop() {
+func (ctx *ApplicationContext) Cancel() {
 	ctx.cancelBaseCtx()
 }
 
