@@ -65,7 +65,7 @@ func (ctx *ApplicationContext) Value(key interface{}) interface{} {
 }
 
 func (ctx *ApplicationContext) Message() (string, error) {
-	messageFilePath, err := ctx.arg(filePathArgumentIndex)
+	messageFilePath, err := ctx.Arg(filePathArgumentIndex)
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +78,11 @@ func (ctx *ApplicationContext) Message() (string, error) {
 	return message, nil
 }
 
-func (ctx *ApplicationContext) arg(index int) (string, error) {
+func (ctx *ApplicationContext) Arg(index int) (string, error) {
+	if index < 0 {
+		return "", errors.New("incorrect argument index")
+	}
+
 	if ctx.args == nil || len(ctx.args) <= index {
 		return "", errors.Errorf("argument at index %d is not provided", index)
 	}

@@ -17,6 +17,7 @@ type ExecutionContext interface {
 	Shell() Shell
 	Repository() Repository
 	Args() []string
+	Arg(index int) (string, error)
 	Output() io.Writer
 	Message() (string, error)
 	Cancel()

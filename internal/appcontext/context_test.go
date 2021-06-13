@@ -3,7 +3,7 @@ package appcontext_test
 import (
 	"bytes"
 	"context"
-	infra "fisherman/internal"
+	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/internal/constants"
 	"fisherman/testing/mocks"
@@ -66,6 +66,38 @@ func TestContext_Args(t *testing.T) {
 	actualArgs := ctx.Args()
 
 	assert.Equal(t, expectedArgs, actualArgs)
+}
+
+func TestContext_Arg(t *testing.T) {
+	ctx := appcontext.NewContextBuilder().
+		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithShell(mocks.NewShellMock(t)).
+		WithRepository(mocks.NewRepositoryMock(t)).
+		WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}).
+		Build()
+
+	tests := []struct {
+		name        string
+		index       int
+		expected    string
+		expectedErr string
+	}{
+		{name: "first argument", index: 0, expected: "fisherman"},
+		{name: "negative argument index", index: -1, expectedErr: "incorrect argument index"},
+		{name: "second argument", index: 1, expected: "handle"},
+		{name: "last argument", index: 4, expected: "/user/home/MESSAGE"},
+		{name: "out of rage argument index", index: 50, expectedErr: "argument at index 50 is not provided"},
+		{name: "at index 3", index: 3, expected: "commit-msg"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, err := ctx.Arg(tt.index)
+
+			assert.Equal(t, tt.expected, value)
+			testutils.CheckError(t, tt.expectedErr, err)
+		})
+	}
 }
 
 func TestContext_Output(t *testing.T) {
@@ -188,7 +220,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 	tests := []struct {
 		name        string
 		expected    map[string]interface{}
-		repository  infra.Repository
+		repository  internal.Repository
 		expectedErr string
 	}{
 		{
@@ -211,7 +243,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 			repository: mocks.NewRepositoryMock(t).
 				GetLastTagMock.Return("1.0.0", nil).
 				GetCurrentBranchMock.Return("refs/head/develop", nil).
-				GetUserMock.Return(infra.User{}, errors.New("GetUser error")),
+				GetUserMock.Return(internal.User{}, errors.New("GetUser error")),
 			expected:    nil,
 			expectedErr: "GetUser error",
 		},
@@ -220,7 +252,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 			repository: mocks.NewRepositoryMock(t).
 				GetLastTagMock.Return("1.0.0", nil).
 				GetCurrentBranchMock.Return("refs/head/develop", nil).
-				GetUserMock.Return(infra.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+				GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 			expected: map[string]interface{}{
 				constants.UserEmailVariable:        "evg4b@mail.com",
 				constants.UserNameVariable:         "evg4b",
