@@ -2,16 +2,16 @@ package appcontext
 
 import (
 	"context"
-	i "fisherman/internal"
+	"fisherman/internal"
 	"fisherman/pkg/guards"
 	"io"
 )
 
 type ContextBuilder struct {
 	cwd    string
-	fs     i.FileSystem
-	shell  i.Shell
-	repo   i.Repository
+	fs     internal.FileSystem
+	shell  internal.Shell
+	repo   internal.Repository
 	args   []string
 	output io.Writer
 	ctx    context.Context
@@ -25,7 +25,7 @@ func NewContextBuilder() *ContextBuilder {
 	}
 }
 
-func (cb *ContextBuilder) WithFileSystem(fileSystem i.FileSystem) *ContextBuilder {
+func (cb *ContextBuilder) WithFileSystem(fileSystem internal.FileSystem) *ContextBuilder {
 	cb.fs = fileSystem
 
 	return cb
@@ -37,13 +37,13 @@ func (cb *ContextBuilder) WithCwd(cwd string) *ContextBuilder {
 	return cb
 }
 
-func (cb *ContextBuilder) WithShell(shell i.Shell) *ContextBuilder {
+func (cb *ContextBuilder) WithShell(shell internal.Shell) *ContextBuilder {
 	cb.shell = shell
 
 	return cb
 }
 
-func (cb *ContextBuilder) WithRepository(repository i.Repository) *ContextBuilder {
+func (cb *ContextBuilder) WithRepository(repository internal.Repository) *ContextBuilder {
 	cb.repo = repository
 
 	return cb
