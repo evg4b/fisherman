@@ -7,14 +7,16 @@
 - Added ability to use `.yaml` and `.yml` extension for config files
 - Implemented new rule based approach to validation
 - Added `add-to-index` section for include files in index after scripts.
-- Added property to configure working directory for shell scripts.
-- Added default global shell configuration.
+- (shell-script rule) Added property to configure working directory.
+- (shell-script rule) Added default global shell configuration.
 - Added possibility to disable file commit or automatic exclusion of files from index.
-- Added ability to run shell scripts by condition.
+- Added ability to check rules by condition.
+- (shell-script rule) Added correct cross-platform exit code checking
 
 ### Fixed
 
-- Problem with new repo initialization.
+- Problem with new repo initialization
+- (shell-script rule) Fixed default shell bug
 
 ___
 
