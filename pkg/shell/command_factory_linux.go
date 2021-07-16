@@ -6,7 +6,7 @@ const (
 	Bash = "bash"
 )
 
-var DefaultShell = Bash
+var PlatformDefaultShell = Bash
 
 var ShellConfigurations = map[string]wrapConfiguration{
 	Bash: {
