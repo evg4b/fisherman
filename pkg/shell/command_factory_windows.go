@@ -17,7 +17,7 @@ var ShellConfigurations = map[string]wrapConfiguration{
 	},
 	Cmd: {
 		Path:        Cmd,
-		Args:        []string{"/Q", "/D"},
+		Args:        []string{"/Q", "/D", "/K"},
 		PostCommand: "IF %ERRORLEVEL% NEQ 0 ( exit %ERRORLEVEL% )",
 	},
 }
