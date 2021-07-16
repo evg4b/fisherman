@@ -7,9 +7,17 @@ const (
 	Cmd        = "cmd"
 )
 
-var DefaultShell = Cmd
+var PlatformDefaultShell = Cmd
 
-var ArgumentBuilders = map[string]ArgumentBuilder{
-	PowerShell: func() []string { return []string{"-NoProfile", "-NonInteractive", "-NoLogo"} },
-	Cmd:        func() []string { return []string{"/Q", "/D"} },
+var ShellConfigurations = map[string]wrapConfiguration{
+	PowerShell: {
+		Path:        PowerShell,
+		Args:        []string{"-NoProfile", "-NonInteractive", "-NoLogo"},
+		PostCommand: "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+	},
+	Cmd: {
+		Path:        Cmd,
+		Args:        []string{"/Q", "/D"},
+		PostCommand: "IF %ERRORLEVEL% NEQ 0 ( exit %ERRORLEVEL% )",
+	},
 }

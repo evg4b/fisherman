@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 )
 
 type SystemShell struct {
@@ -14,7 +15,7 @@ type SystemShell struct {
 }
 
 func NewShell() *SystemShell {
-	return &SystemShell{defaultShell: DefaultShell}
+	return &SystemShell{defaultShell: PlatformDefaultShell}
 }
 
 func (sh *SystemShell) WithWorkingDirectory(cwd string) *SystemShell {
@@ -35,11 +36,12 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	command, err := CommandFactory(ctx, utils.GetOrDefault(shell, sh.defaultShell))
+	config, err := getShellWrapConfiguration(shell)
 	if err != nil {
-		return fmt.Errorf("failed to create %w", err)
+		return err
 	}
 
+	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
 	command.Env = envList
 	command.Dir = utils.GetOrDefault(script.dir, sh.cwd)
 	command.Stdout = output
@@ -52,9 +54,12 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	go func() {
 		defer stdin.Close()
+		writeCommandLine(stdin, config.Init)
 		for _, commandLine := range script.commands {
-			fmt.Fprintln(stdin, commandLine)
+			writeCommandLine(stdin, commandLine)
+			writeCommandLine(stdin, config.PostCommand)
 		}
+		writeCommandLine(stdin, config.Dispose)
 	}()
 
 	script.duration, err = utils.ExecWithTime(command.Run)
@@ -63,4 +68,10 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 	}
 
 	return err
+}
+
+func writeCommandLine(stdin io.Writer, command string) {
+	if !utils.IsEmpty(command) {
+		fmt.Fprintln(stdin, command)
+	}
 }

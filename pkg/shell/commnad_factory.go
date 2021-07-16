@@ -1,22 +1,29 @@
 package shell
 
 import (
-	"context"
 	"fmt"
 	"os/exec"
 )
 
-type ArgumentBuilder = func() []string
+type wrapConfiguration struct {
+	Path        string
+	Args        []string
+	Init        string
+	PostCommand string
+	Dispose     string
+}
 
-func CommandFactory(ctx context.Context, shell string) (*exec.Cmd, error) {
-	if builder, ok := ArgumentBuilders[shell]; ok {
+func getShellWrapConfiguration(shell string) (wrapConfiguration, error) {
+	if config, ok := ShellConfigurations[shell]; ok {
 		binPath, err := exec.LookPath(shell)
 		if err != nil {
-			return nil, err
+			return wrapConfiguration{}, err
 		}
 
-		return exec.CommandContext(ctx, binPath, builder()...), nil
+		config.Path = binPath
+
+		return config, nil
 	}
 
-	return nil, fmt.Errorf("shell '%s' is not supported", shell)
+	return wrapConfiguration{}, fmt.Errorf("shell '%s' is not supported", shell)
 }

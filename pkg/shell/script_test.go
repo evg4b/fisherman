@@ -16,7 +16,7 @@ func TestScript_GetDuration(t *testing.T) {
 
 	script := shell.NewScript([]string{"echo 'demo'"})
 
-	_ = sh.Exec(context.TODO(), io.Discard, shell.DefaultShell, script)
+	_ = sh.Exec(context.TODO(), io.Discard, shell.PlatformDefaultShell, script)
 
 	duration := script.GetDuration()
 

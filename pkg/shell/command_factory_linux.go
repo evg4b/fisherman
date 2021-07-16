@@ -8,6 +8,10 @@ const (
 
 var DefaultShell = Bash
 
-var ArgumentBuilders = map[string]ArgumentBuilder{
-	Bash: func() []string { return []string{"-i"} },
+var ShellConfigurations = map[string]wrapConfiguration{
+	Bash: {
+		Path: Bash,
+		Args: []string{"-i"},
+		Init: "set -e",
+	},
 }

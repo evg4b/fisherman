@@ -34,7 +34,7 @@ func TestSystemShell_Exec(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sh.Exec(context.TODO(), ioutil.Discard, shell.DefaultShell, shell.NewScript(tt.commands).
+			result := sh.Exec(context.TODO(), ioutil.Discard, shell.PlatformDefaultShell, shell.NewScript(tt.commands).
 				SetEnvironmentVariables(tt.env).
 				SetDirectory("/"))
 
