@@ -36,7 +36,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	config, err := getShellWrapConfiguration(shell)
+	config, err := getShellWrapConfiguration(utils.GetOrDefault(shell, sh.defaultShell))
 	if err != nil {
 		return err
 	}
