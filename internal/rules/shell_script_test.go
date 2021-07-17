@@ -29,7 +29,7 @@ func TestShellScript_Check(t *testing.T) {
 				Name:   "testScript",
 				Output: true,
 			},
-			expectedOutput: "[testScript] test",
+			expectedOutput: "test",
 			expectedErr:    nil,
 			shellOutput:    "test",
 			expectedShell:  "",
@@ -64,7 +64,7 @@ func TestShellScript_Check(t *testing.T) {
 				Output: true,
 				Shell:  "zsh",
 			},
-			expectedOutput: "[zsh-script] demo",
+			expectedOutput: "demo",
 			expectedErr:    nil,
 			shellOutput:    "demo",
 			expectedShell:  "zsh",
@@ -131,4 +131,13 @@ func TestShellScript_Compile(t *testing.T) {
 		Dir:    "VALUE",
 		Output: true,
 	}, rule)
+}
+
+func TestShellScript_GetPrefix(t *testing.T) {
+	expectedValue := "TestName"
+	rule := rules.ShellScript{Name: expectedValue}
+
+	actual := rule.GetPrefix()
+
+	assert.Equal(t, actual, expectedValue)
 }

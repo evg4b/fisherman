@@ -26,14 +26,17 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 					EvalMock.Return(true, nil),
 				Rules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
 						CheckMock.Return(nil),
@@ -48,12 +51,15 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 					EvalMock.Return(false, errors.New("test")),
 				Rules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3"),
 				},
@@ -68,14 +74,17 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 					EvalMock.Return(true, nil),
 				Rules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
 						CheckMock.Return(errors.New("test")),
@@ -126,14 +135,17 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 					EvalMock.Return(true, nil),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
 						CheckMock.Return(nil),
@@ -148,12 +160,15 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 					EvalMock.Return(false, errors.New("test")),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3"),
 				},
@@ -168,14 +183,17 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 					EvalMock.Return(true, nil),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==0").
 						GetTypeMock.Return("rule1").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==2").
 						GetTypeMock.Return("rule2").
 						CheckMock.Return(nil),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
 						CheckMock.Return(errors.New("test")),
@@ -203,14 +221,17 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 				Engine: mocks.NewEngineMock(t),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Return("").
 						CheckMock.Return(nil).
 						GetTypeMock.Return("test1"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Return("").
 						CheckMock.Return(nil).
 						GetTypeMock.Return("test2"),
 					mocks.NewRuleMock(t).
+						GetPrefixMock.Return("TEST").
 						GetContitionMock.Return("").
 						CheckMock.Return(nil).
 						GetTypeMock.Return("test3"),

@@ -17,6 +17,10 @@ func (rule *BaseRule) GetType() string {
 	return rule.Type
 }
 
+func (rule *BaseRule) GetPrefix() string {
+	return rule.Type
+}
+
 func (rule *BaseRule) GetContition() string {
 	return rule.Condition
 }

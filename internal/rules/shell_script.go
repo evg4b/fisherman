@@ -3,9 +3,7 @@ package rules
 import (
 	"fisherman/internal"
 	"fisherman/internal/utils"
-	"fisherman/pkg/prefixwriter"
 	"fisherman/pkg/shell"
-	"fmt"
 	"io"
 	"io/ioutil"
 )
@@ -24,6 +22,10 @@ type ShellScript struct {
 
 func (rule *ShellScript) GetPosition() byte {
 	return Scripts
+}
+
+func (rule *ShellScript) GetPrefix() string {
+	return utils.GetOrDefault(rule.Name, rule.Type)
 }
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
@@ -45,7 +47,7 @@ func (rule *ShellScript) Compile(variables map[string]interface{}) {
 
 func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
 	if rule.Output {
-		return prefixwriter.New(output, fmt.Sprintf("[%s] ", rule.Name))
+		return output
 	}
 
 	return ioutil.Discard

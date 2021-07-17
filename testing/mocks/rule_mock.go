@@ -42,6 +42,12 @@ type RuleMock struct {
 	beforeGetPositionCounter uint64
 	GetPositionMock          mRuleMockGetPosition
 
+	funcGetPrefix          func() (s1 string)
+	inspectFuncGetPrefix   func()
+	afterGetPrefixCounter  uint64
+	beforeGetPrefixCounter uint64
+	GetPrefixMock          mRuleMockGetPrefix
+
 	funcGetType          func() (s1 string)
 	inspectFuncGetType   func()
 	afterGetTypeCounter  uint64
@@ -65,6 +71,8 @@ func NewRuleMock(t minimock.Tester) *RuleMock {
 	m.GetContitionMock = mRuleMockGetContition{mock: m}
 
 	m.GetPositionMock = mRuleMockGetPosition{mock: m}
+
+	m.GetPrefixMock = mRuleMockGetPrefix{mock: m}
 
 	m.GetTypeMock = mRuleMockGetType{mock: m}
 
@@ -760,6 +768,149 @@ func (m *RuleMock) MinimockGetPositionInspect() {
 	}
 }
 
+type mRuleMockGetPrefix struct {
+	mock               *RuleMock
+	defaultExpectation *RuleMockGetPrefixExpectation
+	expectations       []*RuleMockGetPrefixExpectation
+}
+
+// RuleMockGetPrefixExpectation specifies expectation struct of the Rule.GetPrefix
+type RuleMockGetPrefixExpectation struct {
+	mock *RuleMock
+
+	results *RuleMockGetPrefixResults
+	Counter uint64
+}
+
+// RuleMockGetPrefixResults contains results of the Rule.GetPrefix
+type RuleMockGetPrefixResults struct {
+	s1 string
+}
+
+// Expect sets up expected params for Rule.GetPrefix
+func (mmGetPrefix *mRuleMockGetPrefix) Expect() *mRuleMockGetPrefix {
+	if mmGetPrefix.mock.funcGetPrefix != nil {
+		mmGetPrefix.mock.t.Fatalf("RuleMock.GetPrefix mock is already set by Set")
+	}
+
+	if mmGetPrefix.defaultExpectation == nil {
+		mmGetPrefix.defaultExpectation = &RuleMockGetPrefixExpectation{}
+	}
+
+	return mmGetPrefix
+}
+
+// Inspect accepts an inspector function that has same arguments as the Rule.GetPrefix
+func (mmGetPrefix *mRuleMockGetPrefix) Inspect(f func()) *mRuleMockGetPrefix {
+	if mmGetPrefix.mock.inspectFuncGetPrefix != nil {
+		mmGetPrefix.mock.t.Fatalf("Inspect function is already set for RuleMock.GetPrefix")
+	}
+
+	mmGetPrefix.mock.inspectFuncGetPrefix = f
+
+	return mmGetPrefix
+}
+
+// Return sets up results that will be returned by Rule.GetPrefix
+func (mmGetPrefix *mRuleMockGetPrefix) Return(s1 string) *RuleMock {
+	if mmGetPrefix.mock.funcGetPrefix != nil {
+		mmGetPrefix.mock.t.Fatalf("RuleMock.GetPrefix mock is already set by Set")
+	}
+
+	if mmGetPrefix.defaultExpectation == nil {
+		mmGetPrefix.defaultExpectation = &RuleMockGetPrefixExpectation{mock: mmGetPrefix.mock}
+	}
+	mmGetPrefix.defaultExpectation.results = &RuleMockGetPrefixResults{s1}
+	return mmGetPrefix.mock
+}
+
+//Set uses given function f to mock the Rule.GetPrefix method
+func (mmGetPrefix *mRuleMockGetPrefix) Set(f func() (s1 string)) *RuleMock {
+	if mmGetPrefix.defaultExpectation != nil {
+		mmGetPrefix.mock.t.Fatalf("Default expectation is already set for the Rule.GetPrefix method")
+	}
+
+	if len(mmGetPrefix.expectations) > 0 {
+		mmGetPrefix.mock.t.Fatalf("Some expectations are already set for the Rule.GetPrefix method")
+	}
+
+	mmGetPrefix.mock.funcGetPrefix = f
+	return mmGetPrefix.mock
+}
+
+// GetPrefix implements configuration.Rule
+func (mmGetPrefix *RuleMock) GetPrefix() (s1 string) {
+	mm_atomic.AddUint64(&mmGetPrefix.beforeGetPrefixCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetPrefix.afterGetPrefixCounter, 1)
+
+	if mmGetPrefix.inspectFuncGetPrefix != nil {
+		mmGetPrefix.inspectFuncGetPrefix()
+	}
+
+	if mmGetPrefix.GetPrefixMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetPrefix.GetPrefixMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmGetPrefix.GetPrefixMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetPrefix.t.Fatal("No results are set for the RuleMock.GetPrefix")
+		}
+		return (*mm_results).s1
+	}
+	if mmGetPrefix.funcGetPrefix != nil {
+		return mmGetPrefix.funcGetPrefix()
+	}
+	mmGetPrefix.t.Fatalf("Unexpected call to RuleMock.GetPrefix.")
+	return
+}
+
+// GetPrefixAfterCounter returns a count of finished RuleMock.GetPrefix invocations
+func (mmGetPrefix *RuleMock) GetPrefixAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetPrefix.afterGetPrefixCounter)
+}
+
+// GetPrefixBeforeCounter returns a count of RuleMock.GetPrefix invocations
+func (mmGetPrefix *RuleMock) GetPrefixBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetPrefix.beforeGetPrefixCounter)
+}
+
+// MinimockGetPrefixDone returns true if the count of the GetPrefix invocations corresponds
+// the number of defined expectations
+func (m *RuleMock) MinimockGetPrefixDone() bool {
+	for _, e := range m.GetPrefixMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetPrefixMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetPrefixCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetPrefix != nil && mm_atomic.LoadUint64(&m.afterGetPrefixCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetPrefixInspect logs each unmet expectation
+func (m *RuleMock) MinimockGetPrefixInspect() {
+	for _, e := range m.GetPrefixMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to RuleMock.GetPrefix")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetPrefixMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetPrefixCounter) < 1 {
+		m.t.Error("Expected call to RuleMock.GetPrefix")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetPrefix != nil && mm_atomic.LoadUint64(&m.afterGetPrefixCounter) < 1 {
+		m.t.Error("Expected call to RuleMock.GetPrefix")
+	}
+}
+
 type mRuleMockGetType struct {
 	mock               *RuleMock
 	defaultExpectation *RuleMockGetTypeExpectation
@@ -914,6 +1065,8 @@ func (m *RuleMock) MinimockFinish() {
 
 		m.MinimockGetPositionInspect()
 
+		m.MinimockGetPrefixInspect()
+
 		m.MinimockGetTypeInspect()
 		m.t.FailNow()
 	}
@@ -942,5 +1095,6 @@ func (m *RuleMock) minimockDone() bool {
 		m.MinimockCompileDone() &&
 		m.MinimockGetContitionDone() &&
 		m.MinimockGetPositionDone() &&
+		m.MinimockGetPrefixDone() &&
 		m.MinimockGetTypeDone()
 }

@@ -13,6 +13,7 @@ import (
 
 type Rule interface {
 	GetType() string
+	GetPrefix() string
 	GetContition() string
 	GetPosition() byte
 	Check(internal.ExecutionContext, io.Writer) error

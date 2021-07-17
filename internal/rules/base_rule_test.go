@@ -35,3 +35,14 @@ func TestBaseRule_Compile(t *testing.T) {
 
 	assert.Equal(t, rules.BaseRule{Condition: "VALUE", Type: "{{var1}}"}, rule)
 }
+
+func TestBaseRule_GetPrefix(t *testing.T) {
+	expected := "test-type"
+	rule := rules.BaseRule{
+		Type: expected,
+	}
+
+	actual := rule.GetPrefix()
+
+	assert.Equal(t, expected, actual)
+}

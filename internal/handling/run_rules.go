@@ -88,7 +88,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	defer wg.Done()
 
 	for rule := range input {
-		prefix := fmt.Sprintf("[%s]", rule.GetType())
+		prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
 		writer := prefixwriter.New(os.Stdout, prefix)
 		err := rule.Check(ctx, writer)
 		if err != nil {
