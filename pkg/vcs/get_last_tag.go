@@ -23,6 +23,20 @@ func (r *GitRepository) GetLastTag() (string, error) {
 		return "", err
 	}
 
+	head, err := repo.Head()
+	if err != nil {
+		if errors.Is(err, plumbing.ErrReferenceNotFound) {
+			return "", nil
+		}
+
+		return "", err
+	}
+
+	headCommit, err := repo.CommitObject(head.Hash())
+	if err != nil {
+		return "", err
+	}
+
 	var latestTagCommit *object.Commit
 	var latestTagName string
 
@@ -48,12 +62,16 @@ func (r *GitRepository) GetLastTag() (string, error) {
 			return "", err
 		}
 
+		if commit.Committer.When.After(headCommit.Committer.When) {
+			continue
+		}
+
 		if latestTagCommit == nil {
 			latestTagCommit = commit
 			latestTagName = tagRef.Name().String()
 		}
 
-		if commit.Committer.When.After(latestTagCommit.Committer.When) {
+		if commit.Committer.When.After(latestTagCommit.Committer.When) || commit.Committer.When.Equal(latestTagCommit.Committer.When) {
 			latestTagCommit = commit
 			latestTagName = tagRef.Name().String()
 		}

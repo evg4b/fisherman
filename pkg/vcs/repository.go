@@ -12,13 +12,32 @@ import (
 )
 
 type GitRepository struct {
-	path         string
-	internalRepo *git.Repository
-	repoOnce     sync.Once
+	repo func() (*git.Repository, error)
 }
 
 func OpenGitRepository(path string) *GitRepository {
-	return &GitRepository{path: path, internalRepo: nil}
+	var repoOnce sync.Once
+	var repo *git.Repository
+
+	return &GitRepository{
+		repo: func() (*git.Repository, error) {
+			var err error
+
+			repoOnce.Do(func() {
+				repo, err = git.PlainOpen(path)
+			})
+
+			return repo, err
+		},
+	}
+}
+
+func CreateGitRepository(repo *git.Repository) *GitRepository {
+	return &GitRepository{
+		repo: func() (*git.Repository, error) {
+			return repo, nil
+		},
+	}
 }
 
 func (r *GitRepository) GetCurrentBranch() (string, error) {
@@ -54,16 +73,6 @@ func (r *GitRepository) GetUser() (internal.User, error) {
 		UserName: gitConfig.User.Name,
 		Email:    gitConfig.User.Name,
 	}, err
-}
-
-func (r *GitRepository) repo() (*git.Repository, error) {
-	var err error
-
-	r.repoOnce.Do(func() {
-		r.internalRepo, err = git.PlainOpen(r.path)
-	})
-
-	return r.internalRepo, err
 }
 
 func (r *GitRepository) AddGlob(glob string) error {

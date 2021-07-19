@@ -1,29 +1,25 @@
-package vcs
+package vcs_test
 
 import (
+	"fisherman/internal/utils"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"testing"
 
-	"github.com/go-git/go-git/v5/storage/memory"
-	"github.com/stretchr/testify/assert"
-
+	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/storage/memory"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
-	fs := memfs.New()
-	r, _ := git.Init(memory.NewStorage(), fs)
+	repo, _, fs, w := createRepo()
 
-	w, _ := r.Worktree()
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
 	})
-
-	repo := OpenGitRepository("test")
-	_, _ = repo.repo()
-	repo.internalRepo = r
 
 	files, err := repo.GetFilesInIndex()
 	assert.NoError(t, err)
@@ -31,10 +27,8 @@ func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
 }
 
 func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
-	fs := memfs.New()
-	r, _ := git.Init(memory.NewStorage(), fs)
+	repo, _, fs, w := createRepo()
 
-	w, _ := r.Worktree()
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
@@ -44,20 +38,14 @@ func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
 		"untracked": "untracked content",
 	})
 
-	repo := OpenGitRepository("test")
-	_, _ = repo.repo()
-	repo.internalRepo = r
-
 	files, err := repo.GetFilesInIndex()
 	assert.NoError(t, err)
 	assert.Empty(t, files)
 }
 
 func TestGitRepository_GetFilesInIndex(t *testing.T) {
-	fs := memfs.New()
-	r, _ := git.Init(memory.NewStorage(), fs)
+	repo, _, fs, w := createRepo()
 
-	w, _ := r.Worktree()
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
@@ -67,13 +55,22 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 		"tracked": "untracked content",
 	})
 
-	_ = w.AddGlob(".")
-
-	repo := OpenGitRepository("test")
-	_, _ = repo.repo()
-	repo.internalRepo = r
+	err := w.AddGlob(".")
+	utils.HandleCriticalError(err)
 
 	files, err := repo.GetFilesInIndex()
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"tracked"}, files)
+}
+
+func createRepo() (*vcs.GitRepository, *git.Repository, billy.Filesystem, *git.Worktree) {
+	fs := memfs.New()
+	r, err := git.Init(memory.NewStorage(), fs)
+	utils.HandleCriticalError(err)
+	repo := vcs.CreateGitRepository(r)
+	utils.HandleCriticalError(err)
+	w, err := r.Worktree()
+	utils.HandleCriticalError(err)
+
+	return repo, r, fs, w
 }
