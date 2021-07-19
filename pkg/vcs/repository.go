@@ -4,11 +4,8 @@ import (
 	"fisherman/internal"
 	"sync"
 
-	"errors"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type GitRepository struct {
@@ -48,10 +45,6 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 
 	headRef, err := repo.Head()
 	if err != nil {
-		if errors.Is(err, plumbing.ErrReferenceNotFound) {
-			return "", nil
-		}
-
 		return "", err
 	}
 

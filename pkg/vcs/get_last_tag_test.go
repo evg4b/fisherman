@@ -2,25 +2,17 @@ package vcs_test
 
 import (
 	"fisherman/internal/utils"
-	"fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"testing"
 
-	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGitRepository_GetLastTag(t *testing.T) {
-	fs := memfs.New()
-	r, err := git.Init(memory.NewStorage(), fs)
-	utils.HandleCriticalError(err)
-	repo := vcs.CreateGitRepository(r)
-	utils.HandleCriticalError(err)
-	w, err := r.Worktree()
-	utils.HandleCriticalError(err)
+	repo, r, fs, w := createRepo()
+
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 	})
@@ -66,10 +58,10 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 		"init commit": {"LICENSE": "MIT"},
 	})
 
-	head, err := r.Head()
+	expectedCommitRef, err := r.Head()
 	utils.HandleCriticalError(err)
 
-	_, err = r.CreateTag("tag1", head.Hash(), &git.CreateTagOptions{
+	_, err = r.CreateTag("tag1", expectedCommitRef.Hash(), &git.CreateTagOptions{
 		Message: "test tag 1",
 		Tagger: &object.Signature{
 			Name:  "Test name",
@@ -82,10 +74,10 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 		"test commit": {"demo": "this is test file"},
 	})
 
-	head2, err := r.Head()
+	head, err := r.Head()
 	utils.HandleCriticalError(err)
 
-	_, err = r.CreateTag("tag2", head2.Hash(), &git.CreateTagOptions{
+	_, err = r.CreateTag("tag2", head.Hash(), &git.CreateTagOptions{
 		Message: "test tag 2",
 		Tagger: &object.Signature{
 			Name:  "Test name",
@@ -95,7 +87,7 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 	utils.HandleCriticalError(err)
 
 	err = w.Checkout(&git.CheckoutOptions{
-		Hash: head.Hash(),
+		Hash: expectedCommitRef.Hash(),
 	})
 	utils.HandleCriticalError(err)
 
