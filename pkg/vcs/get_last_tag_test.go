@@ -11,7 +11,7 @@ import (
 )
 
 func TestGitRepository_GetLastTag(t *testing.T) {
-	repo, r, fs, w := createRepo()
+	repo, r, fs, w := testutils.CreateRepo()
 
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
@@ -52,7 +52,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
-	repo, r, fs, w := createRepo()
+	repo, r, fs, w := testutils.CreateRepo()
 
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
@@ -98,7 +98,7 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_NoTags(t *testing.T) {
-	repo, _, fs, w := createRepo()
+	repo, _, fs, w := testutils.CreateRepo()
 
 	testutils.MakeCommits(w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
@@ -112,7 +112,7 @@ func TestGitRepository_GetLastTag_NoTags(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_EmptyRepo(t *testing.T) {
-	repo, _, _, _ := createRepo()
+	repo, _, _, _ := testutils.CreateRepo()
 
 	tag, err := repo.GetLastTag()
 
