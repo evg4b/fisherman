@@ -17,7 +17,7 @@ func (r *FishermanApp) PrintDefaults() {
 	})
 	fmt.Fprintln(log.InfoOutput, "                 Small git hook management tool for developer.")
 	fmt.Fprintln(log.InfoOutput, "")
-	fmt.Fprintln(log.InfoOutput, preffix, "Commands :")
+	fmt.Fprintln(log.InfoOutput, preffix, "Commands:")
 	for _, command := range r.commands {
 		fmt.Fprintln(
 			log.InfoOutput,
@@ -27,5 +27,7 @@ func (r *FishermanApp) PrintDefaults() {
 			strings.Repeat(" ", baseCommandLen-len(command.Name())),
 			command.Description())
 	}
+	fmt.Fprintln(log.InfoOutput, "")
+	fmt.Fprintln(log.InfoOutput, preffix, "Configuration docs:", constants.ConfigurationDocks)
 	fmt.Fprintln(log.InfoOutput, "")
 }
