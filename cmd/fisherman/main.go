@@ -32,26 +32,28 @@ func main() {
 	cwd, err := os.Getwd()
 	utils.HandleCriticalError(err)
 
-	executable, err := os.Executable()
+	executablePath, err := os.Executable()
 	utils.HandleCriticalError(err)
 
 	fs := afero.NewOsFs()
 
-	loader := configuration.NewLoader(usr, cwd, fs)
-	configs, err := loader.FindConfigFiles()
+	configLoader := configuration.NewLoader(usr, cwd, fs)
+
+	configs, err := configLoader.FindConfigFiles()
 	utils.HandleCriticalError(err)
 
-	config, err := loader.Load(configs)
+	config, err := configLoader.Load(configs)
 	utils.HandleCriticalError(err)
 
 	log.Configure(config.Output)
 
 	ctx := context.Background()
 	engine := expression.NewGoExpressionEngine()
+
 	hookFactory := handling.NewHookHandlerFactory(engine, config.Hooks)
 
 	appInfo := internal.AppInfo{
-		Executable: executable,
+		Executable: executablePath,
 		Cwd:        cwd,
 		Configs:    configs,
 	}

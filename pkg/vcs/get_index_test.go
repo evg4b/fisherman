@@ -17,6 +17,7 @@ func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
 	})
 
 	files, err := repo.GetFilesInIndex()
+
 	assert.NoError(t, err)
 	assert.Empty(t, files)
 }
@@ -34,6 +35,7 @@ func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
 	})
 
 	files, err := repo.GetFilesInIndex()
+
 	assert.NoError(t, err)
 	assert.Empty(t, files)
 }
@@ -54,6 +56,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 	utils.HandleCriticalError(err)
 
 	files, err := repo.GetFilesInIndex()
+
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"tracked"}, files)
 }

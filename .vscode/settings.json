@@ -23,6 +23,7 @@
         "hashicorp",
         "imdario",
         "ldflags",
+        "memfs",
         "mergo",
         "mitchellh",
         "mkideal",

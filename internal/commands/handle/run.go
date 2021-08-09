@@ -33,6 +33,7 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 	}
 
 	log.Debugf("handler for '%s' hook founded", command.hook)
+
 	files := command.app.Configs
 	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
 		constants.HookName:                 command.hook,

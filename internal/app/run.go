@@ -6,9 +6,6 @@ import (
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/log"
 	"io"
-	"strings"
-
-	"github.com/go-errors/errors"
 )
 
 type FishermanApp struct {
@@ -17,7 +14,7 @@ type FishermanApp struct {
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer
-	commands []i.CliCommand
+	commands CliCommands
 }
 
 func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
@@ -29,39 +26,28 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 	}
 
 	commandName := args[0]
-	log.Debugf("Called command '%s'", commandName)
-
-	for _, command := range r.commands {
-		if strings.EqualFold(command.Name(), commandName) {
-			err := command.Init(args[1:])
-			if err != nil {
-				return err
-			}
-
-			ctx := appcontext.NewContextBuilder().
-				WithCwd(r.cwd).
-				WithContext(baseCtx).
-				WithFileSystem(r.fs).
-				WithShell(r.shell).
-				WithRepository(r.repo).
-				WithArgs(args).
-				WithOutput(log.InfoOutput).
-				Build()
-
-			log.Debugf("Command '%s' was initialized", commandName)
-			if err := command.Run(ctx); err != nil {
-				log.Debugf("Command '%s' finished with error, %v", commandName, err)
-
-				return err
-			}
-
-			log.Debugf("Command '%s' finished witout error", commandName)
-
-			return nil
-		}
+	command, err := r.commands.GetCommand(args)
+	if err != nil {
+		return err
 	}
 
-	log.Debugf("Command %s not found", commandName)
+	ctx := appcontext.NewContextBuilder().
+		WithCwd(r.cwd).
+		WithContext(baseCtx).
+		WithFileSystem(r.fs).
+		WithShell(r.shell).
+		WithRepository(r.repo).
+		WithArgs(args).
+		WithOutput(log.InfoOutput).
+		Build()
 
-	return errors.Errorf("unknown command: %s", commandName)
+	if err := command.Run(ctx); err != nil {
+		log.Debugf("Command '%s' finished with error, %v", commandName, err)
+
+		return err
+	}
+
+	log.Debugf("Command '%s' finished witout error", commandName)
+
+	return nil
 }

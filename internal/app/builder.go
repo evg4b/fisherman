@@ -11,7 +11,7 @@ type Builder struct {
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer
-	commands []i.CliCommand
+	commands CliCommands
 	cwd      string
 }
 

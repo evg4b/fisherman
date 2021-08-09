@@ -14,8 +14,10 @@ func CreateRepo() (*vcs.GitRepository, *git.Repository, billy.Filesystem, *git.W
 	fs := memfs.New()
 	r, err := git.Init(memory.NewStorage(), fs)
 	utils.HandleCriticalError(err)
+
 	repo := vcs.CreateGitRepository(r)
 	utils.HandleCriticalError(err)
+
 	w, err := r.Worktree()
 	utils.HandleCriticalError(err)
 
