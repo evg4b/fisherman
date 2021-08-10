@@ -1,18 +1,21 @@
 package rules_test
 
 import (
-	"errors"
+	syserrors "errors"
 	"fisherman/internal/rules"
+	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
+
+	"github.com/go-errors/errors"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAddToIndex_NotConfigured(t *testing.T) {
-	rule := rules.AddToIndex{}
+	rule := rules.AddToIndex{BaseRule: rules.BaseRule{Type: rules.AddToIndexType}}
 
 	err := rule.Check(mocks.NewExecutionContextMock(t), ioutil.Discard)
 
@@ -43,7 +46,7 @@ func TestAddToIndex_CorrectAddToIndex(t *testing.T) {
 func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 	repo := mocks.NewRepositoryMock(t).
 		AddGlobMock.When("glob1/*.go").Then(nil).
-		AddGlobMock.When("*.css").Then(errors.New("testError")).
+		AddGlobMock.When("*.css").Then(syserrors.New("testError")).
 		AddGlobMock.When("mocks").Then(nil)
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
@@ -57,7 +60,8 @@ func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 	}
 	err := rule.Check(ctx, ioutil.Discard)
 
-	assert.Error(t, err, "testError")
+	assert.EqualError(t, err, "failed to add files matching pattern '*.css' to the index: testError")
+	assert.IsType(t, &errors.Error{}, err)
 }
 
 func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
@@ -79,6 +83,7 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rule := rules.AddToIndex{
+				BaseRule: rules.BaseRule{Type: rules.AddToIndexType},
 				Globs: []rules.Glob{
 					{"glob1/*.go", tt.isRequired},
 					{"*.css", tt.isRequired},
@@ -91,7 +96,8 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 			if !tt.isRequired {
 				assert.NoError(t, err)
 			} else {
-				assert.Equal(t, err, git.ErrGlobNoMatches)
+				assert.EqualError(t, err, errorMessage(rules.AddToIndexType, "can't add files matching pattern *.css"))
+				assert.IsType(t, &validation.Error{}, err)
 			}
 		})
 	}
@@ -106,8 +112,8 @@ func TestAddToIndex_GetPosition(t *testing.T) {
 func TestAddToIndex_Compile(t *testing.T) {
 	rule := rules.AddToIndex{
 		Globs: []rules.Glob{
-			{Glob: "{{var1}}", IsRequired: false},
-			{Glob: "data", IsRequired: false},
+			{Pattern: "{{var1}}", IsRequired: false},
+			{Pattern: "data", IsRequired: false},
 		},
 	}
 
@@ -115,8 +121,8 @@ func TestAddToIndex_Compile(t *testing.T) {
 
 	assert.Equal(t, rules.AddToIndex{
 		Globs: []rules.Glob{
-			{Glob: "VALUE", IsRequired: false},
-			{Glob: "data", IsRequired: false},
+			{Pattern: "VALUE", IsRequired: false},
+			{Pattern: "data", IsRequired: false},
 		},
 	}, rule)
 }

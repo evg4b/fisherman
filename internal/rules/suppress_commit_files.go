@@ -52,7 +52,7 @@ func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Write
 				return err
 			}
 		} else {
-			multiError = multierror.Append(multiError, errors.Errorf("file %s can not be committed", file))
+			multiError = multierror.Append(multiError, rule.errorf("file %s can not be committed", file))
 		}
 	}
 

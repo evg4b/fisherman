@@ -6,8 +6,6 @@ import (
 	"io"
 	"regexp"
 	"strings"
-
-	"github.com/go-errors/errors"
 )
 
 const CommitMessageType = "commit-message"
@@ -27,15 +25,15 @@ func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) erro
 	}
 
 	if rule.NotEmpty && utils.IsEmpty(message) {
-		return errors.Errorf("commit message should not be empty")
+		return rule.errorf("commit message should not be empty")
 	}
 
 	if !utils.IsEmpty(rule.Prefix) && !strings.HasPrefix(message, rule.Prefix) {
-		return errors.Errorf("commit message should have prefix '%s'", rule.Prefix)
+		return rule.errorf("commit message should have prefix '%s'", rule.Prefix)
 	}
 
 	if !utils.IsEmpty(rule.Suffix) && !strings.HasSuffix(message, rule.Suffix) {
-		return errors.Errorf("commit message should have suffix '%s'", rule.Suffix)
+		return rule.errorf("commit message should have suffix '%s'", rule.Suffix)
 	}
 
 	if !utils.IsEmpty(rule.Regexp) {
@@ -45,7 +43,7 @@ func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) erro
 		}
 
 		if !matched {
-			return errors.Errorf("commit message should be matched regular expression '%s'", rule.Regexp)
+			return rule.errorf("commit message should be matched regular expression '%s'", rule.Regexp)
 		}
 	}
 

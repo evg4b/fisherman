@@ -3,6 +3,7 @@ package rules_test
 
 import (
 	"fisherman/internal/rules"
+	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
@@ -11,7 +12,6 @@ import (
 )
 
 func TestCommitMessage_NotEmpty(t *testing.T) {
-	message := "commit message should not be empty"
 	tests := []struct {
 		name     string
 		message  string
@@ -29,13 +29,15 @@ func TestCommitMessage_NotEmpty(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
+				BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
 				NotEmpty: tt.notEmpty,
 			}
 
 			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
-				assert.Error(t, err, message)
+				assert.EqualError(t, err, errorMessage(rules.CommitMessageType, "commit message should not be empty"))
+				assert.IsType(t, &validation.Error{}, err)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -63,13 +65,15 @@ func TestCommitMessage_HasPrefix(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
-				Prefix: tt.prefix,
+				BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
+				Prefix:   tt.prefix,
 			}
 
 			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
-				assert.Error(t, err, "commit message should have prefix 'prefix-'")
+				assert.EqualError(t, err, errorMessage(rules.CommitMessageType, "commit message should have prefix 'prefix-'"))
+				assert.IsType(t, &validation.Error{}, err)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -97,13 +101,15 @@ func TestCommitMessage_HasSuffix(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
-				Suffix: tt.suffix,
+				BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
+				Suffix:   tt.suffix,
 			}
 
 			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
-				assert.Error(t, err, "commit message should have suffix '-suffix'")
+				assert.EqualError(t, err, errorMessage(rules.CommitMessageType, "commit message should have suffix '-suffix'"))
+				assert.IsType(t, &validation.Error{}, err)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -120,7 +126,6 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 	}{
 		{name: "Inactive with empty string", hasError: false, message: "", expression: ""},
 		{name: "Active with empty string", hasError: true, message: "", expression: "^[a-z]{5}$"},
-		{name: "Invalid expression", hasError: true, message: "", expression: "[a-z]($"},
 		{name: "Active with correct matching", hasError: true, message: "message", expression: "^[a-z]{5}$"},
 		{name: "Active with correct matching", hasError: false, message: "message", expression: "^[a-z]{7}$"},
 	}
@@ -130,13 +135,15 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
 
 			rule := rules.CommitMessage{
-				Regexp: tt.expression,
+				BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
+				Regexp:   tt.expression,
 			}
 
 			err := rule.Check(ctx, ioutil.Discard)
 
 			if tt.hasError {
 				assert.Error(t, err)
+				assert.IsType(t, &validation.Error{}, err)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -144,8 +151,22 @@ func TestCommitMessage_TestMessageRegexp(t *testing.T) {
 	}
 }
 
+func TestCommitMessage_TestMessageRegexp_MachingError(t *testing.T) {
+	ctx := mocks.NewExecutionContextMock(t).MessageMock.Return("message", nil)
+
+	rule := rules.CommitMessage{
+		BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
+		Regexp:   "[a-z]($",
+	}
+
+	err := rule.Check(ctx, ioutil.Discard)
+
+	assert.Error(t, err)
+}
+
 func TestCommitMessage_Compile(t *testing.T) {
 	rule := rules.CommitMessage{
+		BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
 		Prefix:   "Prefix{{var1}}",
 		Suffix:   "Suffix{{var1}}",
 		Regexp:   "Regexp{{var1}}",
@@ -155,6 +176,7 @@ func TestCommitMessage_Compile(t *testing.T) {
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
 	assert.Equal(t, rules.CommitMessage{
+		BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
 		Prefix:   "PrefixVALUE",
 		Suffix:   "SuffixVALUE",
 		Regexp:   "RegexpVALUE",

@@ -27,6 +27,6 @@ func TestExecWithTime_Error(t *testing.T) {
 		return errors.New("TestError")
 	})
 
-	assert.Error(t, err, "TestError")
+	assert.EqualError(t, err, "TestError")
 	assert.Greater(t, int(duration), 0)
 }

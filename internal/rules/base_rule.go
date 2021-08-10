@@ -1,6 +1,9 @@
 package rules
 
-import "fisherman/internal/utils"
+import (
+	"fisherman/internal/utils"
+	"fisherman/internal/validation"
+)
 
 var (
 	PreScripts  byte = 1
@@ -31,4 +34,8 @@ func (rule *BaseRule) GetPosition() byte {
 
 func (rule *BaseRule) Compile(variables map[string]interface{}) {
 	utils.FillTemplate(&rule.Condition, variables)
+}
+
+func (rule *BaseRule) errorf(message string, a ...interface{}) error {
+	return validation.Errorf(rule.GetPrefix(), message, a...)
 }

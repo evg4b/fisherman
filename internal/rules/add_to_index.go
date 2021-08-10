@@ -13,7 +13,7 @@ import (
 const AddToIndexType = "add-to-index"
 
 type Glob struct {
-	Glob       string `yaml:"glob"`
+	Pattern    string `yaml:"glob"`
 	IsRequired bool   `yaml:"required"`
 }
 
@@ -27,17 +27,23 @@ func (rule *AddToIndex) GetPosition() byte {
 }
 
 func (rule *AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
-	if len(rule.Globs) > 0 {
-		repo := ctx.Repository()
-		for _, glob := range rule.Globs {
-			err := repo.AddGlob(glob.Glob)
-			if err != nil {
-				if errors.Is(err, git.ErrGlobNoMatches) && !glob.IsRequired {
+	if len(rule.Globs) < 1 {
+		return nil
+	}
+
+	repo := ctx.Repository()
+	for _, glob := range rule.Globs {
+		err := repo.AddGlob(glob.Pattern)
+		if err != nil {
+			if errors.Is(err, git.ErrGlobNoMatches) {
+				if !glob.IsRequired {
 					continue
 				}
 
-				return err
+				return rule.errorf("can't add files matching pattern %s", glob.Pattern)
 			}
+
+			return errors.Errorf("failed to add files matching pattern '%s' to the index: %w", glob.Pattern, err)
 		}
 	}
 
@@ -47,6 +53,6 @@ func (rule *AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error 
 func (rule *AddToIndex) Compile(variables map[string]interface{}) {
 	rule.BaseRule.Compile(variables)
 	for index := range rule.Globs {
-		utils.FillTemplate(&rule.Globs[index].Glob, variables)
+		utils.FillTemplate(&rule.Globs[index].Pattern, variables)
 	}
 }

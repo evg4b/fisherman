@@ -4,10 +4,10 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/utils"
+	"fisherman/internal/validation"
 	"fisherman/pkg/log"
 	"fisherman/pkg/prefixwriter"
 	"fmt"
-	"os"
 	"sync"
 
 	"github.com/go-errors/errors"
@@ -69,8 +69,8 @@ func startWorkers(ctx coxtext, input in, output out, count int) error {
 		return errors.New("incorrect workers count")
 	}
 
+	wg.Add(count)
 	for i := 0; i < count; i++ {
-		wg.Add(1)
 		go worker(i, &wg, ctx, input, output)
 	}
 
@@ -89,9 +89,13 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 
 	for rule := range input {
 		prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
-		writer := prefixwriter.New(os.Stdout, prefix)
+		writer := prefixwriter.New(ctx.Output(), prefix)
 		err := rule.Check(ctx, writer)
 		if err != nil {
+			if !validation.IsValidationError(err) {
+				ctx.Cancel()
+			}
+
 			typeName := rule.GetType()
 			output <- errors.Errorf("[%s] %s", typeName, err)
 		}

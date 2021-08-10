@@ -6,6 +6,7 @@ import (
 	"fisherman/pkg/shell"
 	"io"
 	"io/ioutil"
+	"os/exec"
 )
 
 const ShellScriptType = "shell-script"
@@ -33,8 +34,14 @@ func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) 
 		SetEnvironmentVariables(rule.Env).
 		SetDirectory(rule.Dir)
 
-	return ctx.Shell().
-		Exec(ctx, formatOutput(output, rule), rule.Shell, script)
+	shell := ctx.Shell()
+	err := shell.Exec(ctx, formatOutput(output, rule), rule.Shell, script)
+
+	if exitError, ok := err.(*exec.ExitError); ok { // TODO check correct exit code handling
+		return rule.errorf("%s", exitError.Error()) // TODO add correct description
+	}
+
+	return err
 }
 
 func (rule *ShellScript) Compile(variables map[string]interface{}) {

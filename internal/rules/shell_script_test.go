@@ -14,6 +14,7 @@ import (
 )
 
 func TestShellScript_Check(t *testing.T) {
+	baseRule := rules.BaseRule{Type: rules.ShellScriptType}
 	tests := []struct {
 		name           string
 		config         rules.ShellScript
@@ -26,8 +27,9 @@ func TestShellScript_Check(t *testing.T) {
 		{
 			name: "script with output",
 			config: rules.ShellScript{
-				Name:   "testScript",
-				Output: true,
+				BaseRule: baseRule,
+				Name:     "testScript",
+				Output:   true,
 			},
 			expectedOutput: "test",
 			expectedErr:    nil,
@@ -37,6 +39,7 @@ func TestShellScript_Check(t *testing.T) {
 		{
 			name: "script with out output",
 			config: rules.ShellScript{
+				BaseRule: baseRule,
 				Name:     "testScript",
 				Output:   false,
 				Commands: []string{"demo"},
@@ -60,9 +63,10 @@ func TestShellScript_Check(t *testing.T) {
 		{
 			name: "script with with custom shell",
 			config: rules.ShellScript{
-				Name:   "zsh-script",
-				Output: true,
-				Shell:  "zsh",
+				BaseRule: baseRule,
+				Name:     "zsh-script",
+				Output:   true,
+				Shell:    "zsh",
 			},
 			expectedOutput: "demo",
 			expectedErr:    nil,
@@ -100,7 +104,7 @@ func TestShellScript_Check(t *testing.T) {
 }
 
 func TestShellScript_GetPosition(t *testing.T) {
-	rule := rules.ShellScript{}
+	rule := rules.ShellScript{BaseRule: rules.BaseRule{Type: rules.ShellScriptType}}
 
 	actual := rule.GetPosition()
 
@@ -109,6 +113,7 @@ func TestShellScript_GetPosition(t *testing.T) {
 
 func TestShellScript_Compile(t *testing.T) {
 	rule := rules.ShellScript{
+		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
 		Name:     "{{var1}}",
 		Shell:    "{{var1}}",
 		Commands: []string{"{{var1}}1", "{{var1}}2"},
@@ -122,6 +127,7 @@ func TestShellScript_Compile(t *testing.T) {
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
 	assert.Equal(t, rules.ShellScript{
+		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
 		Name:     "VALUE",
 		Shell:    "{{var1}}",
 		Commands: []string{"VALUE1", "VALUE2"},
@@ -135,7 +141,10 @@ func TestShellScript_Compile(t *testing.T) {
 
 func TestShellScript_GetPrefix(t *testing.T) {
 	expectedValue := "TestName"
-	rule := rules.ShellScript{Name: expectedValue}
+	rule := rules.ShellScript{
+		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
+		Name:     expectedValue,
+	}
 
 	actual := rule.GetPrefix()
 

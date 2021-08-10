@@ -2,6 +2,7 @@ package rules_test
 
 import (
 	"fisherman/internal/rules"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,4 +46,8 @@ func TestBaseRule_GetPrefix(t *testing.T) {
 	actual := rule.GetPrefix()
 
 	assert.Equal(t, expected, actual)
+}
+
+func errorMessage(typeString, message string) string {
+	return fmt.Sprintf("[%s] %s", typeString, message)
 }

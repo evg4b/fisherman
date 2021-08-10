@@ -53,7 +53,7 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 
 	err = command.Run(getCtx(t))
 
-	assert.Error(t, err, "'test' is not valid hook name")
+	assert.EqualError(t, err, "'test' is not valid hook name")
 }
 
 func TestCommand_Run(t *testing.T) {
@@ -88,7 +88,7 @@ func TestCommand_Run_Hander(t *testing.T) {
 
 	err = command.Run(getCtx(t))
 
-	assert.Error(t, err, "test error")
+	assert.EqualError(t, err, "test error")
 }
 
 func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
@@ -116,5 +116,5 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 
 	err = command.Run(ctx)
 
-	assert.Error(t, err, "test error")
+	assert.EqualError(t, err, "test error")
 }
