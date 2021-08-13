@@ -1,17 +1,21 @@
 package handling_test
 
 import (
-	"errors"
 	"fisherman/internal/configuration"
 	"fisherman/internal/handling"
+	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
+	"io"
 	"testing"
 )
+
+// TODO: Add test for ctx Cancel
 
 // nolint: dupl
 func TestHookHandler_Handle_Rules(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t).
+		OutputMock.Return(io.Discard).
 		GlobalVariablesMock.Return(map[string]interface{}{}, nil)
 
 	tests := []struct {
@@ -48,7 +52,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 			name: "negative case",
 			handler: handling.HookHandler{
 				Engine: mocks.NewEngineMock(t).
-					EvalMock.Return(false, errors.New("test")),
+					EvalMock.Return(false, validation.Errorf("test-rule", "test")),
 				Rules: []configuration.Rule{
 					mocks.NewRuleMock(t).
 						GetPrefixMock.Return("TEST").
@@ -65,7 +69,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			expectedErr: "test",
+			expectedErr: "[test-rule] test",
 		},
 		{
 			name: "rule returns error",
@@ -87,11 +91,11 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
-						CheckMock.Return(errors.New("test")),
+						CheckMock.Return(validation.Errorf("test-rule", "test")),
 				},
 				WorkersCount: 2,
 			},
-			expectedErr: "1 error occurred:\n\t* [rule3] test\n\n",
+			expectedErr: "1 error occurred:\n\t* [rule3] [test-rule] test\n\n",
 		},
 		{
 			name: "rule returns error",
@@ -121,6 +125,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 // nolint: dupl
 func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t).
+		OutputMock.Return(io.Discard).
 		GlobalVariablesMock.Return(map[string]interface{}{}, nil)
 
 	tests := []struct {
@@ -157,7 +162,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 			name: "negative case",
 			handler: handling.HookHandler{
 				Engine: mocks.NewEngineMock(t).
-					EvalMock.Return(false, errors.New("test")),
+					EvalMock.Return(false, validation.Errorf("test-rule", "test")),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
 						GetPrefixMock.Return("TEST").
@@ -174,7 +179,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 				},
 				WorkersCount: 2,
 			},
-			expectedErr: "test",
+			expectedErr: "[test-rule] test",
 		},
 		{
 			name: "rule returns error",
@@ -196,11 +201,11 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 						GetPrefixMock.Return("TEST").
 						GetContitionMock.Expect().Return("1==3").
 						GetTypeMock.Return("rule3").
-						CheckMock.Return(errors.New("test")),
+						CheckMock.Return(validation.Errorf("test-rule", "test")),
 				},
 				WorkersCount: 2,
 			},
-			expectedErr: "1 error occurred:\n\t* [rule3] test\n\n",
+			expectedErr: "1 error occurred:\n\t* [rule3] [test-rule] test\n\n",
 		},
 		{
 			name: "incorrect workers count",

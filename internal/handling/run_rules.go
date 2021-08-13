@@ -82,6 +82,7 @@ func startWorkers(ctx coxtext, input in, output out, count int) error {
 	return nil
 }
 
+// TODO: Add panic interceptor
 func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	log.Debugf("workder %d started", id)
 	defer log.Debugf("workder %d finished", id)

@@ -87,7 +87,7 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 		}
 
 		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
-		var fileMode os.FileMode = os.ModePerm
+		fileMode := os.ModePerm
 		err = command.files.Chmod(hookPath, fileMode)
 		if err != nil {
 			return err
