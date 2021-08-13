@@ -11,9 +11,9 @@ import (
 )
 
 func TestGitRepository_GetLastTag(t *testing.T) {
-	repo, r, fs, w := testutils.CreateRepo()
+	repo, r, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 	})
 
@@ -29,7 +29,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 	})
 	utils.HandleCriticalError(err)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 
@@ -52,9 +52,9 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
-	repo, r, fs, w := testutils.CreateRepo()
+	repo, r, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 	})
 
@@ -70,7 +70,7 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 	})
 	utils.HandleCriticalError(err)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 
@@ -98,9 +98,9 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_NoTags(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
 	})
@@ -112,7 +112,7 @@ func TestGitRepository_GetLastTag_NoTags(t *testing.T) {
 }
 
 func TestGitRepository_GetLastTag_EmptyRepo(t *testing.T) {
-	repo, _, _, _ := testutils.CreateRepo()
+	repo, _, _, _ := testutils.CreateRepo(t)
 
 	tag, err := repo.GetLastTag()
 

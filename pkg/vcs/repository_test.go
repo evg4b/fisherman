@@ -15,9 +15,9 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 	branchName := "test-branch"
 	expectedBranchName := fmt.Sprintf("refs/heads/%s", branchName)
 
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 
@@ -34,9 +34,9 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 }
 
 func TestGitRepository_GetCurrentBranch_NoBranches(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 

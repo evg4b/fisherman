@@ -9,9 +9,9 @@ import (
 )
 
 func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
 	})
@@ -23,14 +23,14 @@ func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
 }
 
 func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
 	})
 
-	testutils.MakeFiles(fs, map[string]string{
+	testutils.MakeFiles(t, fs, map[string]string{
 		"untracked": "untracked content",
 	})
 
@@ -41,14 +41,14 @@ func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
 }
 
 func TestGitRepository_GetFilesInIndex(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo()
+	repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(w, fs, map[string]map[string]string{
+	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"init commit": {"LICENSE": "MIT"},
 		"test commit": {"demo": "this is test file"},
 	})
 
-	testutils.MakeFiles(fs, map[string]string{
+	testutils.MakeFiles(t, fs, map[string]string{
 		"tracked": "untracked content",
 	})
 

@@ -2,6 +2,7 @@ package testutils
 
 import (
 	"fisherman/internal/utils"
+	"testing"
 	"time"
 
 	"github.com/go-git/go-billy/v5"
@@ -12,9 +13,11 @@ import (
 
 var index int = 0
 
-func MakeCommits(wt *git.Worktree, fs billy.Basic, data map[string](map[string]string)) {
+func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string](map[string]string)) {
+	t.Helper()
+
 	for commitMessage, files := range data {
-		MakeFiles(fs, files)
+		MakeFiles(t, fs, files)
 		err := wt.AddGlob(".")
 		utils.HandleCriticalError(err)
 
@@ -32,7 +35,9 @@ func MakeCommits(wt *git.Worktree, fs billy.Basic, data map[string](map[string]s
 	}
 }
 
-func MakeFiles(fs billy.Basic, files map[string]string) {
+func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
+	t.Helper()
+
 	for filemane, content := range files {
 		err := util.WriteFile(fs, filemane, []byte(content), 0644)
 		utils.HandleCriticalError(err)
