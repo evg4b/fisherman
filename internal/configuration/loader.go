@@ -99,7 +99,7 @@ func (loader *ConfigLoader) unmarshlFile(path string) (*FishermanConfig, error) 
 
 	file, err := loader.files.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("open %s: %w", path, err)
 	}
 	defer file.Close()
 
