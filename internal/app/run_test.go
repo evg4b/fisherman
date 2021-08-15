@@ -78,7 +78,7 @@ func TestRunner_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			appInstance := app.NewAppBuilder().
 				WithCommands(tt.commands).
-				WithFs(mocks.NewFileSystemMock(t)).
+				WithFs(mocks.NewFilesystemMock(t)).
 				WithRepository(mocks.NewRepositoryMock(t)).
 				WithShell(mocks.NewShellMock(t)).
 				Build()

@@ -153,7 +153,7 @@ hooks:
 	}{
 		{
 			name:   "",
-			loader: NewLoader(&usr, cwd, mocks.NewFileSystemMock(t)),
+			loader: NewLoader(&usr, cwd, mocks.NewFilesystemMock(t)),
 			files:  map[string]string{},
 			expected: &FishermanConfig{
 				Output: log.DefaultOutputConfig,

@@ -3,23 +3,24 @@ package remove
 import (
 	"fisherman/internal"
 	"fisherman/internal/constants"
+	"fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"flag"
 	"os/user"
 	"path/filepath"
 
-	"github.com/spf13/afero"
+	"github.com/go-git/go-billy/v5"
 )
 
 type Command struct {
 	flagSet *flag.FlagSet
 	usage   string
-	files   internal.FileSystem
+	files   billy.Filesystem
 	app     internal.AppInfo
 	user    *user.User
 }
 
-func NewCommand(files internal.FileSystem, app internal.AppInfo, user *user.User) *Command {
+func NewCommand(files billy.Filesystem, app internal.AppInfo, user *user.User) *Command {
 	return &Command{
 		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:   "removes fisherman from git repository",
@@ -41,7 +42,7 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 
 	for _, hookName := range constants.HooksNames {
 		path := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
-		exist, err := afero.Exists(command.files, path)
+		exist, err := utils.Exists(command.files, path)
 		if err != nil {
 			return err
 		}

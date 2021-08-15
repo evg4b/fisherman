@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,17 +55,17 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		files         internal.FileSystem
+		files         billy.Filesystem
 		expectedError string
 	}{
 		{
 			name:          "exist errors",
-			files:         mocks.NewFileSystemMock(t).StatMock.Return(nil, errors.New("Test error")),
+			files:         mocks.NewFilesystemMock(t).StatMock.Return(nil, errors.New("Test error")),
 			expectedError: "Test error",
 		},
 		{
 			name: "delete error",
-			files: mocks.NewFileSystemMock(t).
+			files: mocks.NewFilesystemMock(t).
 				StatMock.Return(nil, nil).
 				RemoveMock.Return(errors.New("delete error")),
 			expectedError: "delete error",
@@ -89,7 +90,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 func TestCommand_Name(t *testing.T) {
 	command := remove.NewCommand(
-		mocks.NewFileSystemMock(t),
+		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,
 		&testutils.TestUser,
 	)
@@ -99,7 +100,7 @@ func TestCommand_Name(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := remove.NewCommand(
-		mocks.NewFileSystemMock(t),
+		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,
 		&testutils.TestUser,
 	)

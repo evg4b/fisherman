@@ -12,6 +12,7 @@ import (
 	"time"
 	mm_time "time"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/gojuno/minimock/v3"
 )
 
@@ -56,7 +57,7 @@ type ExecutionContextMock struct {
 	beforeErrCounter uint64
 	ErrMock          mExecutionContextMockErr
 
-	funcFiles          func() (f1 mm_internal.FileSystem)
+	funcFiles          func() (f1 billy.Filesystem)
 	inspectFuncFiles   func()
 	afterFilesCounter  uint64
 	beforeFilesCounter uint64
@@ -1081,7 +1082,7 @@ type ExecutionContextMockFilesExpectation struct {
 
 // ExecutionContextMockFilesResults contains results of the ExecutionContext.Files
 type ExecutionContextMockFilesResults struct {
-	f1 mm_internal.FileSystem
+	f1 billy.Filesystem
 }
 
 // Expect sets up expected params for ExecutionContext.Files
@@ -1109,7 +1110,7 @@ func (mmFiles *mExecutionContextMockFiles) Inspect(f func()) *mExecutionContextM
 }
 
 // Return sets up results that will be returned by ExecutionContext.Files
-func (mmFiles *mExecutionContextMockFiles) Return(f1 mm_internal.FileSystem) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Return(f1 billy.Filesystem) *ExecutionContextMock {
 	if mmFiles.mock.funcFiles != nil {
 		mmFiles.mock.t.Fatalf("ExecutionContextMock.Files mock is already set by Set")
 	}
@@ -1122,7 +1123,7 @@ func (mmFiles *mExecutionContextMockFiles) Return(f1 mm_internal.FileSystem) *Ex
 }
 
 //Set uses given function f to mock the ExecutionContext.Files method
-func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 mm_internal.FileSystem)) *ExecutionContextMock {
+func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 billy.Filesystem)) *ExecutionContextMock {
 	if mmFiles.defaultExpectation != nil {
 		mmFiles.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Files method")
 	}
@@ -1136,7 +1137,7 @@ func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 mm_internal.FileSyst
 }
 
 // Files implements internal.ExecutionContext
-func (mmFiles *ExecutionContextMock) Files() (f1 mm_internal.FileSystem) {
+func (mmFiles *ExecutionContextMock) Files() (f1 billy.Filesystem) {
 	mm_atomic.AddUint64(&mmFiles.beforeFilesCounter, 1)
 	defer mm_atomic.AddUint64(&mmFiles.afterFilesCounter, 1)
 

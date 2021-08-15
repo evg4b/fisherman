@@ -1,15 +1,15 @@
 package configuration
 
 import (
-	"fisherman/internal"
 	"fisherman/internal/constants"
+	"fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"os/user"
 	"path/filepath"
 
 	"github.com/go-errors/errors"
+	"github.com/go-git/go-billy/v5"
 	"github.com/imdario/mergo"
-	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,10 +18,10 @@ const gitDir = ".git"
 type ConfigLoader struct {
 	usr   *user.User
 	cwd   string
-	files internal.FileSystem
+	files billy.Filesystem
 }
 
-func NewLoader(usr *user.User, cwd string, files internal.FileSystem) *ConfigLoader {
+func NewLoader(usr *user.User, cwd string, files billy.Filesystem) *ConfigLoader {
 	return &ConfigLoader{
 		usr:   usr,
 		cwd:   cwd,
@@ -36,7 +36,7 @@ func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
-			exist, err := afero.Exists(loader.files, configPath)
+			exist, err := utils.Exists(loader.files, configPath)
 			if err != nil {
 				return nil, err
 			}

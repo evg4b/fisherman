@@ -1,14 +1,35 @@
 package utils
 
 import (
-	"github.com/spf13/afero"
+	"io/ioutil"
+	"os"
+
+	"github.com/go-git/go-billy/v5"
 )
 
-func ReadFileAsString(fs afero.Fs, filepath string) (string, error) {
-	data, err := afero.ReadFile(fs, filepath)
+func ReadFileAsString(fs billy.Filesystem, filepath string) (string, error) {
+	file, err := fs.Open(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		return "", err
 	}
 
 	return string(data), nil
+}
+
+func Exists(fs billy.Filesystem, filepath string) (bool, error) {
+	_, err := fs.Stat(filepath)
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return false, err
 }

@@ -9,11 +9,12 @@ import (
 	"time"
 
 	"github.com/go-errors/errors"
+	"github.com/go-git/go-billy/v5"
 )
 
 type ApplicationContext struct {
 	cwd           string
-	fs            internal.FileSystem
+	fs            billy.Filesystem
 	shell         internal.Shell
 	repo          internal.Repository
 	args          []string
@@ -24,7 +25,7 @@ type ApplicationContext struct {
 
 const filePathArgumentIndex = 3
 
-func (ctx *ApplicationContext) Files() internal.FileSystem {
+func (ctx *ApplicationContext) Files() billy.Filesystem {
 	return ctx.fs
 }
 

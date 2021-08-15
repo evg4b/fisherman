@@ -4,10 +4,12 @@ import (
 	i "fisherman/internal"
 	"fisherman/pkg/guards"
 	"io"
+
+	"github.com/go-git/go-billy/v5"
 )
 
 type Builder struct {
-	fs       i.FileSystem
+	fs       billy.Filesystem
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer
@@ -33,7 +35,7 @@ func (rb *Builder) WithCwd(cwd string) *Builder {
 	return rb
 }
 
-func (rb *Builder) WithFs(fs i.FileSystem) *Builder {
+func (rb *Builder) WithFs(fs billy.Filesystem) *Builder {
 	rb.fs = fs
 
 	return rb

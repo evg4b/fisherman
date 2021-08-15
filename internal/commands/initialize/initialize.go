@@ -4,6 +4,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
+	"fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"flag"
 	"fmt"
@@ -12,8 +13,9 @@ import (
 	"path/filepath"
 
 	"github.com/go-errors/errors"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/util"
 	"github.com/hashicorp/go-multierror"
-	"github.com/spf13/afero"
 )
 
 type Command struct {
@@ -22,12 +24,12 @@ type Command struct {
 	force    bool
 	absolute bool
 	usage    string
-	files    internal.FileSystem
+	files    billy.Filesystem
 	app      internal.AppInfo
 	user     *user.User
 }
 
-func NewCommand(files internal.FileSystem, app internal.AppInfo, user *user.User) *Command {
+func NewCommand(files billy.Filesystem, app internal.AppInfo, user *user.User) *Command {
 	command := &Command{
 		flagSet: flag.NewFlagSet("init", flag.ExitOnError),
 		usage:   "initializes fisherman in git repository",
@@ -61,7 +63,7 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
 			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
-			exist, err := afero.Exists(command.files, hookPath)
+			exist, err := utils.Exists(command.files, hookPath)
 			if err != nil {
 				return err
 			}
@@ -81,25 +83,12 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 	for _, hookName := range constants.HooksNames {
 		hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
 
-		err := afero.WriteFile(command.files, hookPath, buildHook(hookName, command.getBinaryPath(), command.absolute), os.ModePerm)
+		err := util.WriteFile(command.files, hookPath, buildHook(hookName, command.getBinaryPath(), command.absolute), os.ModePerm)
 		if err != nil {
 			return err
 		}
 
 		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
-		fileMode := os.ModePerm
-		err = command.files.Chmod(hookPath, fileMode)
-		if err != nil {
-			return err
-		}
-
-		log.Debugf("Hook file mode changed to %s", fileMode.String())
-
-		err = command.chown(hookPath, command.user)
-		if err != nil {
-			return err
-		}
-		log.Debug("Hook file ownership changed to currect user")
 	}
 
 	return command.writeConfig()
@@ -117,13 +106,13 @@ func (command *Command) writeConfig() error {
 	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 
-	exist, err := afero.Exists(command.files, configPath)
+	exist, err := utils.Exists(command.files, configPath)
 	if err != nil {
 		return err
 	}
 
 	if !exist {
-		err := afero.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
+		err := util.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
 		if err != nil {
 			return err
 		}

@@ -5,11 +5,13 @@ import (
 	"fisherman/internal"
 	"fisherman/pkg/guards"
 	"io"
+
+	"github.com/go-git/go-billy/v5"
 )
 
 type ContextBuilder struct {
 	cwd    string
-	fs     internal.FileSystem
+	fs     billy.Filesystem
 	shell  internal.Shell
 	repo   internal.Repository
 	args   []string
@@ -25,7 +27,7 @@ func NewContextBuilder() *ContextBuilder {
 	}
 }
 
-func (cb *ContextBuilder) WithFileSystem(fileSystem internal.FileSystem) *ContextBuilder {
+func (cb *ContextBuilder) WithFileSystem(fileSystem billy.Filesystem) *ContextBuilder {
 	cb.fs = fileSystem
 
 	return cb

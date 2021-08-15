@@ -4,15 +4,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/spf13/afero"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-billy/v5/util"
 )
 
-func FsFromMap(t *testing.T, files map[string]string) afero.Fs {
+func FsFromMap(t *testing.T, files map[string]string) billy.Filesystem {
 	t.Helper()
 
-	fs := afero.NewMemMapFs()
+	fs := memfs.New()
 	for path, content := range files {
-		err := afero.WriteFile(fs, path, []byte(content), os.ModePerm)
+		err := util.WriteFile(fs, path, []byte(content), os.ModePerm)
 		if err != nil {
 			t.Error(err)
 		}
@@ -21,12 +23,12 @@ func FsFromMap(t *testing.T, files map[string]string) afero.Fs {
 	return fs
 }
 
-func FsFromSlice(t *testing.T, files []string) afero.Fs {
+func FsFromSlice(t *testing.T, files []string) billy.Filesystem {
 	t.Helper()
 
-	fs := afero.NewMemMapFs()
+	fs := memfs.New()
 	for _, path := range files {
-		err := afero.WriteFile(fs, path, []byte("test"), os.ModePerm)
+		err := util.WriteFile(fs, path, []byte("test"), os.ModePerm)
 		if err != nil {
 			t.Error(err)
 		}

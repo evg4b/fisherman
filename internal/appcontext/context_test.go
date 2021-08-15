@@ -16,7 +16,7 @@ import (
 )
 
 func TestContext_Files(t *testing.T) {
-	expectedFs := mocks.NewFileSystemMock(t)
+	expectedFs := mocks.NewFilesystemMock(t)
 	ctx := appcontext.NewContextBuilder().
 		WithFileSystem(expectedFs).
 		WithShell(mocks.NewShellMock(t)).
@@ -31,7 +31,7 @@ func TestContext_Files(t *testing.T) {
 func TestContext_Shell(t *testing.T) {
 	expectedShell := mocks.NewShellMock(t)
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(expectedShell).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
@@ -44,7 +44,7 @@ func TestContext_Shell(t *testing.T) {
 func TestContext_Repository(t *testing.T) {
 	expectedRepo := mocks.NewRepositoryMock(t)
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(expectedRepo).
 		Build()
@@ -57,7 +57,7 @@ func TestContext_Repository(t *testing.T) {
 func TestContext_Args(t *testing.T) {
 	expectedArgs := []string{"param"}
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		WithArgs(expectedArgs).
@@ -70,7 +70,7 @@ func TestContext_Args(t *testing.T) {
 
 func TestContext_Arg(t *testing.T) {
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}).
@@ -103,7 +103,7 @@ func TestContext_Arg(t *testing.T) {
 func TestContext_Output(t *testing.T) {
 	expectedOutput := bytes.NewBufferString("")
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		WithOutput(expectedOutput).
@@ -163,7 +163,7 @@ func TestContext_Message(t *testing.T) {
 
 func TestContext_Stop(t *testing.T) {
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
@@ -179,7 +179,7 @@ func TestContext_Value(t *testing.T) {
 
 	ctx := appcontext.NewContextBuilder().
 		WithContext(context.WithValue(context.Background(), key, expected)). //nolint
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
@@ -192,7 +192,7 @@ func TestContext_Value(t *testing.T) {
 func TestContext_Deadline(t *testing.T) {
 	ctx := appcontext.NewContextBuilder().
 		WithContext(context.Background()).
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
@@ -206,7 +206,7 @@ func TestContext_Deadline(t *testing.T) {
 func TestContext_Done(t *testing.T) {
 	ctx := appcontext.NewContextBuilder().
 		WithContext(context.Background()).
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
 		Build()
@@ -266,7 +266,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := appcontext.NewContextBuilder().
-				WithFileSystem(mocks.NewFileSystemMock(t)).
+				WithFileSystem(mocks.NewFilesystemMock(t)).
 				WithShell(mocks.NewShellMock(t)).
 				WithRepository(tt.repository).
 				WithCwd("~/project").

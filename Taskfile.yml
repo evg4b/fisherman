@@ -54,8 +54,8 @@ tasks:
       - minimock -i fisherman/internal/expression.Engine -o ./testing/mocks/engine_mock.go
       - minimock -i fisherman/internal.ExecutionContext -o ./testing/mocks/execution_context_mock.go
       - minimock -i fisherman/internal/handling.Factory -o ./testing/mocks/factory_mock.go
-      - minimock -i fisherman/internal.FileSystem -o ./testing/mocks/file_system_mock.go
       - minimock -i fisherman/internal/handling.Handler -o ./testing/mocks/handler_mock.go
       - minimock -i fisherman/internal.Repository -o ./testing/mocks/repository_mock.go
       - minimock -i fisherman/internal/configuration.Rule -o ./testing/mocks/rule_mock.go
       - minimock -i fisherman/internal.Shell -o ./testing/mocks/shell_mock.go
+      - minimock -i github.com/go-git/go-billy/v5.Filesystem -o ./testing/mocks/filesystem_mock.go

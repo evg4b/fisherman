@@ -6,11 +6,13 @@ import (
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/log"
 	"io"
+
+	"github.com/go-git/go-billy/v5"
 )
 
 type FishermanApp struct {
 	cwd      string
-	fs       i.FileSystem
+	fs       billy.Filesystem
 	shell    i.Shell
 	repo     i.Repository
 	output   io.Writer

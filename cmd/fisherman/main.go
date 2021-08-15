@@ -19,7 +19,7 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/spf13/afero"
+	"github.com/go-git/go-billy/v5/osfs"
 )
 
 const fatalExitCode = 1
@@ -36,7 +36,7 @@ func main() {
 	executablePath, err := os.Executable()
 	guards.NoError(err)
 
-	fs := afero.NewOsFs()
+	fs := osfs.New("")
 
 	configLoader := configuration.NewLoader(usr, cwd, fs)
 

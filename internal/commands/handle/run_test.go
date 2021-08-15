@@ -29,7 +29,7 @@ var globalVars = map[string]interface{}{
 
 func getCtx(t *testing.T) *appcontext.ApplicationContext {
 	return appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", nil).
@@ -105,7 +105,7 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 	assert.NoError(t, err)
 
 	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFileSystemMock(t)).
+		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", errors.New("test error")).

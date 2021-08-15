@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/spf13/afero"
+	"github.com/go-git/go-billy/v5/util"
 )
 
 const PrepareMessageType = "prepare-message"
@@ -23,7 +23,7 @@ func (rule PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) err
 
 	args := ctx.Args()
 
-	return afero.WriteFile(ctx.Files(), args[0], []byte(rule.Message), fs.ModePerm)
+	return util.WriteFile(ctx.Files(), args[0], []byte(rule.Message), fs.ModePerm)
 }
 
 func (rule *PrepareMessage) Compile(variables map[string]interface{}) {
