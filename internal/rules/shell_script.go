@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os/exec"
+
+	"github.com/go-errors/errors"
 )
 
 const ShellScriptType = "shell-script"
@@ -36,12 +38,16 @@ func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) 
 
 	shell := ctx.Shell()
 	err := shell.Exec(ctx, formatOutput(output, rule), rule.Shell, script)
+	if err != nil {
+		var exitCodeError *exec.ExitError
+		if errors.As(err, &exitCodeError) {
+			return rule.errorf("script finished with exit code %d", exitCodeError.ExitCode())
+		}
 
-	if exitError, ok := err.(*exec.ExitError); ok { // TODO check correct exit code handling
-		return rule.errorf("%s", exitError.Error()) // TODO add correct description
+		return errors.Errorf("failed to exec shell script: %w", err)
 	}
 
-	return err
+	return nil
 }
 
 func (rule *ShellScript) Compile(variables map[string]interface{}) {

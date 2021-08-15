@@ -97,7 +97,12 @@ func TestShellScript_Check(t *testing.T) {
 
 			err := tt.config.Check(ctx, output)
 
-			assert.Equal(t, tt.expectedErr, err)
+			if tt.expectedErr == nil {
+				assert.NoError(t, err)
+			} else {
+				assert.EqualError(t, err, tt.expectedErr.Error())
+			}
+
 			assert.Equal(t, tt.expectedOutput, output.String())
 		})
 	}
