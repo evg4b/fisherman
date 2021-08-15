@@ -8,6 +8,8 @@ import (
 )
 
 func FsFromMap(t *testing.T, files map[string]string) afero.Fs {
+	t.Helper()
+
 	fs := afero.NewMemMapFs()
 	for path, content := range files {
 		err := afero.WriteFile(fs, path, []byte(content), os.ModePerm)
@@ -20,6 +22,8 @@ func FsFromMap(t *testing.T, files map[string]string) afero.Fs {
 }
 
 func FsFromSlice(t *testing.T, files []string) afero.Fs {
+	t.Helper()
+
 	fs := afero.NewMemMapFs()
 	for _, path := range files {
 		err := afero.WriteFile(fs, path, []byte("test"), os.ModePerm)
