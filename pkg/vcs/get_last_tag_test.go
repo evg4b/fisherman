@@ -97,6 +97,15 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 	assert.Equal(t, "refs/tags/tag1", tag)
 }
 
+func TestGitRepository_GetLastTag_NotCommits(t *testing.T) {
+	repo, _, _, _ := testutils.CreateRepo(t)
+
+	tag, err := repo.GetLastTag()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "", tag)
+}
+
 func TestGitRepository_GetLastTag_NoTags(t *testing.T) {
 	repo, _, fs, w := testutils.CreateRepo(t)
 
