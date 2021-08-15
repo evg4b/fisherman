@@ -63,7 +63,7 @@ func TestGitRepository_GetUser(t *testing.T) {
 
 	repo, r, _, _ := testutils.CreateRepo(t)
 
-	r.SetConfig(&config.Config{
+	err := r.SetConfig(&config.Config{
 		User: struct {
 			Name  string
 			Email string
@@ -72,6 +72,7 @@ func TestGitRepository_GetUser(t *testing.T) {
 			Email: expectedEmail,
 		},
 	})
+	guards.NoError(err)
 
 	user, err := repo.GetUser()
 

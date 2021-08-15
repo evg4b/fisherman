@@ -70,7 +70,7 @@ func (r *GitRepository) GetUser() (internal.User, error) {
 
 	return internal.User{
 		UserName: gitConfig.User.Name,
-		Email:    gitConfig.User.Name,
+		Email:    gitConfig.User.Email,
 	}, err
 }
 
