@@ -1,7 +1,7 @@
 package vcs_test
 
 import (
-	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"fisherman/testing/testutils"
 	"testing"
 
@@ -18,7 +18,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 	})
 
 	head, err := r.Head()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	_, err = r.CreateTag("tag1", head.Hash(), &git.CreateTagOptions{
 		Message: "test tag 1",
@@ -27,14 +27,14 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 			Email: "test@email.com",
 		},
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 
 	head, err = r.Head()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	_, err = r.CreateTag("tag2", head.Hash(), &git.CreateTagOptions{
 		Message: "test tag 2",
@@ -43,7 +43,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 			Email: "test@email.com",
 		},
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	tag, err := repo.GetLastTag()
 
@@ -59,7 +59,7 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 	})
 
 	expectedCommitRef, err := r.Head()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	_, err = r.CreateTag("tag1", expectedCommitRef.Hash(), &git.CreateTagOptions{
 		Message: "test tag 1",
@@ -68,14 +68,14 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 			Email: "test@email.com",
 		},
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
 		"test commit": {"demo": "this is test file"},
 	})
 
 	head, err := r.Head()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	_, err = r.CreateTag("tag2", head.Hash(), &git.CreateTagOptions{
 		Message: "test tag 2",
@@ -84,12 +84,12 @@ func TestGitRepository_GetLastTag_NotLastHead(t *testing.T) {
 			Email: "test@email.com",
 		},
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	err = w.Checkout(&git.CheckoutOptions{
 		Hash: expectedCommitRef.Hash(),
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	tag, err := repo.GetLastTag()
 

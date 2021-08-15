@@ -5,6 +5,7 @@ import (
 	"fisherman/pkg/shell"
 	"fisherman/testing/testutils"
 	"io/ioutil"
+	"runtime"
 	"testing"
 )
 
@@ -43,9 +44,11 @@ func TestSystemShell_Exec(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := sh.Exec(context.TODO(), ioutil.Discard, tt.shell, shell.NewScript(tt.commands).
+			script := shell.NewScript(tt.commands).
 				SetEnvironmentVariables(tt.env).
-				SetDirectory("/"))
+				SetDirectory("/")
+
+			err := sh.Exec(context.TODO(), ioutil.Discard, tt.shell, script)
 
 			testutils.CheckError(t, tt.expectedError, err)
 		})
@@ -62,8 +65,14 @@ func TestSystemShell_Exec_ShellNotInstalled(t *testing.T) {
 		WithWorkingDirectory("/").
 		WithDefaultShell(shellName)
 
-	err := sh.Exec(context.TODO(), ioutil.Discard, shellName, shell.NewScript([]string{"echo 1", "echo 2"}).
-		SetDirectory("/"))
+	script := shell.NewScript([]string{"echo 1", "echo 2"}).
+		SetDirectory("/")
 
-	testutils.CheckError(t, "failed to get shell configuration: exec: \"test-shell\": executable file not found in %PATH%", err)
+	err := sh.Exec(context.TODO(), ioutil.Discard, shellName, script)
+
+	if runtime.GOOS == "windows" {
+		testutils.CheckError(t, "failed to get shell configuration: exec: \"test-shell\": executable file not found in %PATH%", err)
+	} else {
+		testutils.CheckError(t, "failed to get shell configuration: exec: \"test-shell\": executable file not found in $PATH", err)
+	}
 }

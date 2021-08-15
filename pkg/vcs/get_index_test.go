@@ -1,7 +1,7 @@
 package vcs_test
 
 import (
-	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"testing"
@@ -55,7 +55,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 	})
 
 	err := w.AddGlob(".")
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	files, err := repo.GetFilesInIndex()
 
@@ -79,7 +79,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 	})
 
 	err := w.AddGlob(".")
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	changes, err := repo.GetIndexChanges()
 

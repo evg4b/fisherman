@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"fisherman/pkg/vcs"
 	"testing"
 
@@ -17,13 +17,13 @@ func CreateRepo(t *testing.T) (*vcs.GitRepository, *git.Repository, billy.Filesy
 	fs := memfs.New()
 
 	r, err := git.Init(memory.NewStorage(), fs)
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	repo := vcs.CreateGitRepository(r)
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	w, err := r.Worktree()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	return repo, r, fs, w
 }

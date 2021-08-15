@@ -12,6 +12,7 @@ import (
 	"fisherman/internal/expression"
 	"fisherman/internal/handling"
 	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
 	"fisherman/pkg/shell"
 	"fisherman/pkg/vcs"
@@ -27,23 +28,23 @@ func main() {
 	defer utils.PanicInterceptor(os.Exit, fatalExitCode)
 
 	usr, err := user.Current()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	cwd, err := os.Getwd()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	executablePath, err := os.Executable()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	fs := afero.NewOsFs()
 
 	configLoader := configuration.NewLoader(usr, cwd, fs)
 
 	configs, err := configLoader.FindConfigFiles()
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	config, err := configLoader.Load(configs)
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	log.Configure(config.Output)
 

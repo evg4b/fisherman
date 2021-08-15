@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"testing"
 	"time"
 
@@ -19,7 +19,7 @@ func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string
 	for commitMessage, files := range data {
 		MakeFiles(t, fs, files)
 		err := wt.AddGlob(".")
-		utils.HandleCriticalError(err)
+		guards.NoError(err)
 
 		signature := object.Signature{
 			Name:  "Test name",
@@ -31,7 +31,7 @@ func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string
 			Committer: &signature,
 		})
 		index++
-		utils.HandleCriticalError(err)
+		guards.NoError(err)
 	}
 }
 
@@ -40,6 +40,6 @@ func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
 
 	for filemane, content := range files {
 		err := util.WriteFile(fs, filemane, []byte(content), 0644)
-		utils.HandleCriticalError(err)
+		guards.NoError(err)
 	}
 }

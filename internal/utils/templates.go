@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fisherman/pkg/guards"
 	"io"
 
 	"github.com/valyala/fasttemplate"
@@ -12,7 +13,7 @@ const endTag = "}}"
 func PrintGraphics(wr io.Writer, content string, data map[string]interface{}) {
 	tpl := fasttemplate.New(content, startTag, endTag)
 	_, err := tpl.Execute(wr, data)
-	HandleCriticalError(err)
+	guards.NoError(err)
 }
 
 func FillTemplate(src *string, data map[string]interface{}) {

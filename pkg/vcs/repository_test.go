@@ -1,7 +1,7 @@
 package vcs_test
 
 import (
-	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"fisherman/testing/testutils"
 	"fmt"
 	"testing"
@@ -25,7 +25,7 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 		Create: true,
 		Branch: plumbing.NewBranchReferenceName(branchName),
 	})
-	utils.HandleCriticalError(err)
+	guards.NoError(err)
 
 	branch, err := repo.GetCurrentBranch()
 

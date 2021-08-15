@@ -30,6 +30,11 @@ func TestShouldBeDefined(t *testing.T) {
 			object:  struct{}{},
 		},
 		{
+			name:    "should not panic for defined empty slice",
+			message: "unknown",
+			object:  []string{},
+		},
+		{
 			name:    "should panic for nil value",
 			message: "value is null",
 			err:     "value is null",
