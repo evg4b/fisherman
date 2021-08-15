@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/go-errors/errors"
 )
 
 type SystemShell struct {
@@ -38,7 +40,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	config, err := getShellWrapConfiguration(utils.GetOrDefault(shell, sh.defaultShell))
 	if err != nil {
-		return err
+		return errors.Errorf("failed to get shell configuration: %w", err)
 	}
 
 	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
@@ -49,29 +51,33 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	stdin, err := command.StdinPipe()
 	if err != nil {
-		return err
+		return errors.Errorf("failed to get stdin pipe for communication with the process: %w", err)
 	}
 
-	go func() {
-		defer stdin.Close()
-		writeCommandLine(stdin, config.Init)
-		for _, commandLine := range script.commands {
-			writeCommandLine(stdin, commandLine)
-			writeCommandLine(stdin, config.PostCommand)
-		}
-		writeCommandLine(stdin, config.Dispose)
-	}()
+	go startWriter(stdin, script.commands, config)
 
 	script.duration, err = utils.ExecWithTime(command.Run)
 	if err != nil {
-		return err
+		return errors.Errorf("script completed with an error: %w", err)
 	}
 
-	return err
+	return nil
 }
 
 func writeCommandLine(stdin io.Writer, command string) {
 	if !utils.IsEmpty(command) {
 		fmt.Fprintln(stdin, command)
 	}
+}
+
+func startWriter(stdin io.WriteCloser, commands []string, config WrapConfiguration) {
+	defer stdin.Close()
+
+	writeCommandLine(stdin, config.Init)
+	for _, commandLine := range commands {
+		writeCommandLine(stdin, commandLine)
+		writeCommandLine(stdin, config.PostCommand)
+	}
+
+	writeCommandLine(stdin, config.Dispose)
 }

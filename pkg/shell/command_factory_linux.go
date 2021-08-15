@@ -8,7 +8,7 @@ const (
 
 var PlatformDefaultShell = Bash
 
-var ShellConfigurations = map[string]wrapConfiguration{
+var ShellConfigurations = map[string]WrapConfiguration{
 	Bash: {
 		Path: Bash,
 		Args: []string{"-i"},

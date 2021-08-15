@@ -1,11 +1,12 @@
 package shell
 
 import (
-	"fmt"
 	"os/exec"
+
+	"github.com/go-errors/errors"
 )
 
-type wrapConfiguration struct {
+type WrapConfiguration struct {
 	Path        string
 	Args        []string
 	Init        string
@@ -13,11 +14,11 @@ type wrapConfiguration struct {
 	Dispose     string
 }
 
-func getShellWrapConfiguration(shell string) (wrapConfiguration, error) {
+func getShellWrapConfiguration(shell string) (WrapConfiguration, error) {
 	if config, ok := ShellConfigurations[shell]; ok {
 		binPath, err := exec.LookPath(shell)
 		if err != nil {
-			return wrapConfiguration{}, err
+			return WrapConfiguration{}, err
 		}
 
 		config.Path = binPath
@@ -25,5 +26,5 @@ func getShellWrapConfiguration(shell string) (wrapConfiguration, error) {
 		return config, nil
 	}
 
-	return wrapConfiguration{}, fmt.Errorf("shell '%s' is not supported", shell)
+	return WrapConfiguration{}, errors.Errorf("shell '%s' is not supported", shell)
 }

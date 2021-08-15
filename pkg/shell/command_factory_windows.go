@@ -9,7 +9,7 @@ const (
 
 var PlatformDefaultShell = Cmd
 
-var ShellConfigurations = map[string]wrapConfiguration{
+var ShellConfigurations = map[string]WrapConfiguration{
 	PowerShell: {
 		Path:        PowerShell,
 		Args:        []string{"-NoProfile", "-NonInteractive", "-NoLogo"},
