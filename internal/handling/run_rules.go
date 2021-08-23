@@ -89,9 +89,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	defer wg.Done()
 
 	for rule := range input {
-		prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
-		writer := prefixwriter.New(ctx.Output(), prefix)
-		err := rule.Check(ctx, writer)
+		err := checkRule(ctx, rule)
 		if err != nil {
 			if !validation.IsValidationError(err) {
 				ctx.Cancel()
@@ -101,4 +99,14 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 			output <- errors.Errorf("[%s] %s", typeName, err)
 		}
 	}
+}
+
+func checkRule(ctx coxtext, rule configuration.Rule) error {
+	writer := ctx.Output()
+	defer writer.Close()
+
+	prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
+	prefixedWriter := prefixwriter.New(writer, prefix)
+
+	return rule.Check(ctx, prefixedWriter)
 }

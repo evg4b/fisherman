@@ -6,6 +6,7 @@ import (
 	"fisherman/pkg/guards"
 	"io"
 
+	"github.com/evg4b/linebyline"
 	"github.com/go-git/go-billy/v5"
 )
 
@@ -82,7 +83,7 @@ func (cb *ContextBuilder) Build() *ApplicationContext {
 		shell:         cb.shell,
 		repo:          cb.repo,
 		args:          cb.args,
-		output:        cb.output,
+		output:        *linebyline.NewWriterGroup(cb.output),
 		baseCtx:       baseContext,
 		cancelBaseCtx: cancelBaseContext,
 	}

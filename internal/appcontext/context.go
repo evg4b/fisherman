@@ -8,6 +8,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/evg4b/linebyline"
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"
 )
@@ -18,7 +19,7 @@ type ApplicationContext struct {
 	shell         internal.Shell
 	repo          internal.Repository
 	args          []string
-	output        io.Writer
+	output        linebyline.WriterGroup
 	baseCtx       context.Context
 	cancelBaseCtx context.CancelFunc
 }
@@ -41,8 +42,8 @@ func (ctx *ApplicationContext) Args() []string {
 	return ctx.args
 }
 
-func (ctx *ApplicationContext) Output() io.Writer {
-	return ctx.output
+func (ctx *ApplicationContext) Output() io.WriteCloser {
+	return ctx.output.CreateWriter()
 }
 
 func (ctx *ApplicationContext) Cancel() {

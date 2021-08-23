@@ -8,6 +8,7 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
+	"fmt"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -101,17 +102,22 @@ func TestContext_Arg(t *testing.T) {
 }
 
 func TestContext_Output(t *testing.T) {
-	expectedOutput := bytes.NewBufferString("")
+	expectedString := ""
+
+	buffer := bytes.NewBufferString("")
 	ctx := appcontext.NewContextBuilder().
 		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithShell(mocks.NewShellMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t)).
-		WithOutput(expectedOutput).
+		WithOutput(buffer).
 		Build()
 
 	actualOutput := ctx.Output()
 
-	assert.Equal(t, expectedOutput, actualOutput)
+	fmt.Fprintln(actualOutput, expectedString)
+
+	assert.NoError(t, actualOutput.Close())
+	assert.Equal(t, expectedString, buffer.String())
 }
 
 func TestContext_Message(t *testing.T) {

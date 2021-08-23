@@ -16,7 +16,7 @@ type ExecutionContext interface {
 	Repository() Repository
 	Args() []string
 	Arg(index int) (string, error)
-	Output() io.Writer
+	Output() io.WriteCloser
 	Message() (string, error)
 	Cancel()
 }

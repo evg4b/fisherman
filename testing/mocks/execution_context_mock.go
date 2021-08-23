@@ -75,7 +75,7 @@ type ExecutionContextMock struct {
 	beforeMessageCounter uint64
 	MessageMock          mExecutionContextMockMessage
 
-	funcOutput          func() (w1 io.Writer)
+	funcOutput          func() (w1 io.WriteCloser)
 	inspectFuncOutput   func()
 	afterOutputCounter  uint64
 	beforeOutputCounter uint64
@@ -1513,7 +1513,7 @@ type ExecutionContextMockOutputExpectation struct {
 
 // ExecutionContextMockOutputResults contains results of the ExecutionContext.Output
 type ExecutionContextMockOutputResults struct {
-	w1 io.Writer
+	w1 io.WriteCloser
 }
 
 // Expect sets up expected params for ExecutionContext.Output
@@ -1541,7 +1541,7 @@ func (mmOutput *mExecutionContextMockOutput) Inspect(f func()) *mExecutionContex
 }
 
 // Return sets up results that will be returned by ExecutionContext.Output
-func (mmOutput *mExecutionContextMockOutput) Return(w1 io.Writer) *ExecutionContextMock {
+func (mmOutput *mExecutionContextMockOutput) Return(w1 io.WriteCloser) *ExecutionContextMock {
 	if mmOutput.mock.funcOutput != nil {
 		mmOutput.mock.t.Fatalf("ExecutionContextMock.Output mock is already set by Set")
 	}
@@ -1554,7 +1554,7 @@ func (mmOutput *mExecutionContextMockOutput) Return(w1 io.Writer) *ExecutionCont
 }
 
 //Set uses given function f to mock the ExecutionContext.Output method
-func (mmOutput *mExecutionContextMockOutput) Set(f func() (w1 io.Writer)) *ExecutionContextMock {
+func (mmOutput *mExecutionContextMockOutput) Set(f func() (w1 io.WriteCloser)) *ExecutionContextMock {
 	if mmOutput.defaultExpectation != nil {
 		mmOutput.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Output method")
 	}
@@ -1568,7 +1568,7 @@ func (mmOutput *mExecutionContextMockOutput) Set(f func() (w1 io.Writer)) *Execu
 }
 
 // Output implements internal.ExecutionContext
-func (mmOutput *ExecutionContextMock) Output() (w1 io.Writer) {
+func (mmOutput *ExecutionContextMock) Output() (w1 io.WriteCloser) {
 	mm_atomic.AddUint64(&mmOutput.beforeOutputCounter, 1)
 	defer mm_atomic.AddUint64(&mmOutput.afterOutputCounter, 1)
 
