@@ -1,9 +1,15 @@
 package vcs
 
-import "github.com/go-git/go-git/v5"
+type ChangeCode byte
+
+const (
+	Unmodified ChangeCode = '='
+	Added      ChangeCode = '+'
+	Deleted    ChangeCode = '-'
+)
 
 type Change struct {
-	Status git.StatusCode
+	Status ChangeCode
 	Change string
 }
 
