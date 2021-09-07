@@ -1,0 +1,396 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Fisherman config file",
+  "type": "object",
+  "definitions": {
+    "variables": {
+      "type": "object",
+      "uniqueItems": true,
+      "minProperties": 1,
+      "title": "Variables definition",
+      "description": "TODO: add descriptions",
+      "additionalProperties": {
+        "type": [ "string", "integer" ]
+      }
+    },
+    "extract-variables": {
+      "type": "array",
+      "uniqueItems": true,
+      "title": "Expressions to extract variables",
+      "description": "A section extracts variables from selected variable using named groups in regular expressions.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variable": { "type": "string", "minLength": 1 },
+          "expression": { "type": "string", "minLength": 1 }
+        },
+        "required": [ "variable", "expression" ]
+      }
+    },
+    "base-rule": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type of rule",
+          "description": "A string describing the type of rule for validation."
+        },
+        "when": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Rule condition",
+          "description":"An expression on C like language. It allows you to define a condition for executing a rule. See more https://cutt.ly/hWAG7pJ"
+        }
+      },
+      "required": ["type"]
+    },
+    "shell-script": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "properties": {
+        "type": { "enum": [ "shell-script" ] },
+        "variables": { "$ref": "#/definitions/variables" },
+        "extract-variables": { "$ref": "#/definitions/extract-variables" },
+        "shell": {
+          "title": "System shell name",
+          "enum": [ "bash", "cmd", "powershell" ]
+        },
+        "commands": {
+          "type": "array",
+          "title": "Script commands",
+          "description": "Array of strings with validation script commands. Is also supports tempesting based on hook variables.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "minProperties": 1,
+          "title": "Environment variables for script",
+          "description": "Sets additional environment variables (system environment variables also will be included) for the command"
+        },
+        "output": {
+          "type": "boolean",
+          "title": "Script output",
+          "description": "Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line."
+        },
+        "dir": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Working directory"
+        }
+      },
+      "required": [ "commands" ]
+    },
+    "add-to-index": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "properties": {
+        "glob": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Filename pattern matching",
+          "description": "List of files to be added to index before commit but after when all validations and shell scripts finished. This files always will be added to index."
+        },
+        "required": {
+          "type": "boolean",
+          "title": "Is files required",
+          "description": "This flag marks this action as an required or not. When glob masked as required and where there are no files matched to it, commit will be rejected."
+        }
+      },
+      "required": [ "glob" ]
+    },
+    "commit-message": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "properties": {
+        "prefix": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Message prefix",
+          "description": "The template with which the message should start."
+        },
+        "suffix": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Message suffix",
+          "description": "The template with which the message should end."
+        },
+        "regexp": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Message validation regexp",
+          "description": "The regular expression to validation commit messuage."
+        },
+        "not-empty": {
+          "type": "boolean",
+          "title": "Is files required",
+          "description": "This flag marks this action as an required or not. When glob masked as required and where there are no files matched to it, commit will be rejected."
+        }
+      }
+    },
+    "prepare-message": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "properties": {
+        "message": { "type": "string" }
+      },
+      "required": ["message"]
+    },
+    "suppress-commit-files": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "minProperties": 1,
+      "properties": {
+        "globs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Filename matching pattern"
+          },
+          "title": "Filename matching patterns",
+          "description": "List of files to be checked in index before commit. Commit fill be rejected when file will be founded."
+        },
+        "remove-from-index": {
+          "type": "boolean",
+          "title": "Is should remove from index on commit",
+          "description": "When this flag is `true` then files founded in index will be removed from it and commit well be continued."
+        }
+      }
+    }
+  },
+  "properties": {
+    "variables": {
+      "$ref": "#/definitions/variables",
+      "title": "Global fisherman variables",
+      "description": "TODO: add descriptions"
+    },
+    "hooks": {
+      "type": "object",
+      "minLength": 1,
+      "properties": {
+        "commit-msg": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script", "commit-message"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/commit-message" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "apply-patch-msg": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "fs-monitor-watchman": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "post-update": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "pre-apply-patch": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "pre-commit": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script", "add-to-index", "suppress-commit-files"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/add-to-index" },
+                  { "$ref": "#/definitions/suppress-commit-files" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "pre-push": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "pre-rebase": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "pre-receive": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        },
+        "prepare-commit-msg": {
+          "type": "object",
+          "properties": {
+            "variables": { "$ref": "#/definitions/variables" },
+            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "type": { "enum": ["shell-script"] }
+                },
+                "anyOf": [
+                  { "$ref": "#/definitions/shell-script" }
+                ],
+                "required": ["type"]
+              }
+            }
+          },
+          "required": [ "rules" ]
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "level": {
+          "enum": [ "error", "debug", "info", "none" ],
+          "default": "info"
+        },
+        "colors": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "required": [ "hooks" ]
+}

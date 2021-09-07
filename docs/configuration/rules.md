@@ -78,7 +78,7 @@ You can create as many scripts to validation. Scripts will be executed on the [s
 
 **commands** - Array of strings with validation script commands. Is also supports tempesting based on hook variables.
 
-**when** - An expression on C link language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
+**when** - An expression on C like language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
 
 **env** - Sets additional environment variables (system environment variables also will be included)  for the command.
 
