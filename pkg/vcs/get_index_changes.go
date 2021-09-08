@@ -2,7 +2,8 @@ package vcs
 
 import (
 	"bytes"
-	"io/ioutil"
+	"fisherman/internal/utils"
+	"path"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -36,8 +37,6 @@ func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 		return nil, err
 	}
 
-	from := object.NewTreeRootNode(commitTree)
-
 	idx, err := repo.Storer.Index()
 	if err != nil {
 		return nil, err
@@ -48,61 +47,66 @@ func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 		return nil, err
 	}
 
-	fS := wt.Filesystem
+	fs := wt.Filesystem
 
-	to := index.NewRootNode(idx)
-
-	dd, err := merkletrie.DiffTree(from, to, diffTreeIsEquals)
+	diffTree, err := merkletrie.DiffTree(object.NewTreeRootNode(commitTree), index.NewRootNode(idx), diffTreeIsEquals)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, v := range dd {
-		ff, _ := fS.Open(v.To.Name())
-		content, err := ioutil.ReadAll(ff)
+	for _, diffTreeItem := range diffTree {
+		toPath := convertToPath(diffTreeItem.To)
+		toContent, err := utils.ReadFileAsString(fs, toPath)
 		if err != nil {
 			return nil, err
 		}
 
-		ff.Close()
-
-		if v.From == nil {
-
-			indexChanges[v.To.Name()] = Changes{
-				Change{
-					Status: Added,
-					Change: string(content),
-				},
-			}
-		} else {
-
-			ff, err := commitTree.File("tracked")
-			if err != nil {
-				return nil, err
+		if diffTreeItem.From == nil {
+			indexChanges[toPath] = Changes{
+				Change{Status: Added, Change: toContent},
 			}
 
-			cc, _ := ff.Contents()
-
-			difference := diff.Do(cc, string(content))
-
-			file := Changes{}
-			for _, ddd := range difference {
-				if ddd.Type != diffmatchpatch.DiffEqual {
-					file = append(file, Change{
-						Status: convertStatis(ddd.Type),
-						Change: ddd.Text,
-					})
-				}
-			}
-
-			indexChanges[v.To.Name()] = file
+			continue
 		}
+
+		fromPath := convertToPath(diffTreeItem.From)
+		fromFile, err := commitTree.File(fromPath)
+		if err != nil {
+			return nil, err
+		}
+
+		fromContent, err := fromFile.Contents()
+		if err != nil {
+			return nil, err
+		}
+
+		fileChanges := Changes{}
+		for _, diffItem := range diff.Do(fromContent, toContent) {
+			if diffItem.Type != diffmatchpatch.DiffEqual {
+				fileChanges = append(fileChanges, Change{
+					Status: convertStatus(diffItem.Type),
+					Change: diffItem.Text,
+				})
+			}
+		}
+
+		indexChanges[toPath] = fileChanges
 	}
 
 	return indexChanges, nil
 }
 
-func convertStatis(ty diffmatchpatch.Operation) ChangeCode {
+func convertToPath(node noder.Path) string {
+	var pathValue []string
+
+	for _, nodeSection := range node {
+		pathValue = append(pathValue, nodeSection.Name())
+	}
+
+	return path.Join(pathValue...)
+}
+
+func convertStatus(ty diffmatchpatch.Operation) ChangeCode {
 	switch ty {
 	case diffmatchpatch.DiffEqual:
 		return Unmodified
@@ -112,22 +116,24 @@ func convertStatis(ty diffmatchpatch.Operation) ChangeCode {
 		return Deleted
 	}
 
-	panic("sadsad")
+	panic("incorrect diffmatchpatch.Operation")
 }
 
 func isModified(status git.StatusCode) bool {
 	return status != git.Unmodified && status != git.Untracked
 }
 
-var emptyNoderHash = make([]byte, 24)
+const hashSize = 24
+
+var emptyHash = make([]byte, hashSize)
 
 func diffTreeIsEquals(a, b noder.Hasher) bool {
 	hashA := a.Hash()
 	hashB := b.Hash()
 
-	if bytes.Equal(hashA, emptyNoderHash) || bytes.Equal(hashB, emptyNoderHash) {
-		return false
+	if bytes.Equal(hashA, hashB) && !bytes.Equal(hashA, emptyHash) {
+		return true
 	}
 
-	return bytes.Equal(hashA, hashB)
+	return false
 }
