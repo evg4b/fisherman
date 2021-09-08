@@ -1,2 +1,0 @@
-shorturl.at/fksDV
-https://fisherman.netlify.app/docs/configuration/configuration-files#configuration-file-inheritance
