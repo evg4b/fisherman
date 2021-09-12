@@ -6,6 +6,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/internal/constants"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
@@ -249,7 +250,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 			repository: mocks.NewRepositoryMock(t).
 				GetLastTagMock.Return("1.0.0", nil).
 				GetCurrentBranchMock.Return("refs/head/develop", nil).
-				GetUserMock.Return(internal.User{}, errors.New("GetUser error")),
+				GetUserMock.Return(vcs.User{}, errors.New("GetUser error")),
 			expected:    nil,
 			expectedErr: "GetUser error",
 		},
@@ -258,7 +259,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 			repository: mocks.NewRepositoryMock(t).
 				GetLastTagMock.Return("1.0.0", nil).
 				GetCurrentBranchMock.Return("refs/head/develop", nil).
-				GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+				GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 			expected: map[string]interface{}{
 				constants.UserEmailVariable:        "evg4b@mail.com",
 				constants.UserNameVariable:         "evg4b",

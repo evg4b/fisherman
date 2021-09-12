@@ -2,11 +2,11 @@ package handle_test
 
 import (
 	"errors"
-	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/internal/commands/handle"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
@@ -33,7 +33,7 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", nil).
-			GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		).
 		WithShell(mocks.NewShellMock(t)).
 		WithCwd("~/project").
@@ -109,7 +109,7 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 		WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", errors.New("test error")).
-			GetUserMock.Return(internal.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		).
 		WithShell(mocks.NewShellMock(t)).
 		Build()

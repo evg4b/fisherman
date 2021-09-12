@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fisherman/pkg/shell"
+	"fisherman/pkg/vcs"
 	"io"
 
 	"github.com/go-git/go-billy/v5"
@@ -27,18 +28,14 @@ type AppInfo struct {
 	Configs    map[string]string
 }
 
-type User struct {
-	UserName string
-	Email    string
-}
-
 type Repository interface {
 	GetCurrentBranch() (string, error)
-	GetUser() (User, error)
+	GetUser() (vcs.User, error)
 	GetLastTag() (string, error)
 	AddGlob(glob string) error
 	RemoveGlob(glob string) error
 	GetFilesInIndex() ([]string, error)
+	GetIndexChanges() (map[string]vcs.Changes, error)
 }
 
 type Shell interface {

@@ -47,6 +47,7 @@ The `pre-commit` hook is run first, before you even type in a commit message. It
 - [shell-script](./rules#shell-script)
 - [add-to-index](./rules#add-to-index)
 - [suppress-commit-files](./rules#suppress-commit-files)
+- [suppress-text](./rules#suppress-text)
 
 ## pre-push
 

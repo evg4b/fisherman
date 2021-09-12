@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal.Repository -o ./testing/mocks/repository_mock.go
 
 import (
-	mm_internal "fisherman/internal"
+	"fisherman/pkg/vcs"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -35,13 +35,19 @@ type RepositoryMock struct {
 	beforeGetFilesInIndexCounter uint64
 	GetFilesInIndexMock          mRepositoryMockGetFilesInIndex
 
+	funcGetIndexChanges          func() (m1 map[string]vcs.Changes, err error)
+	inspectFuncGetIndexChanges   func()
+	afterGetIndexChangesCounter  uint64
+	beforeGetIndexChangesCounter uint64
+	GetIndexChangesMock          mRepositoryMockGetIndexChanges
+
 	funcGetLastTag          func() (s1 string, err error)
 	inspectFuncGetLastTag   func()
 	afterGetLastTagCounter  uint64
 	beforeGetLastTagCounter uint64
 	GetLastTagMock          mRepositoryMockGetLastTag
 
-	funcGetUser          func() (u1 mm_internal.User, err error)
+	funcGetUser          func() (u1 vcs.User, err error)
 	inspectFuncGetUser   func()
 	afterGetUserCounter  uint64
 	beforeGetUserCounter uint64
@@ -67,6 +73,8 @@ func NewRepositoryMock(t minimock.Tester) *RepositoryMock {
 	m.GetCurrentBranchMock = mRepositoryMockGetCurrentBranch{mock: m}
 
 	m.GetFilesInIndexMock = mRepositoryMockGetFilesInIndex{mock: m}
+
+	m.GetIndexChangesMock = mRepositoryMockGetIndexChanges{mock: m}
 
 	m.GetLastTagMock = mRepositoryMockGetLastTag{mock: m}
 
@@ -581,6 +589,150 @@ func (m *RepositoryMock) MinimockGetFilesInIndexInspect() {
 	}
 }
 
+type mRepositoryMockGetIndexChanges struct {
+	mock               *RepositoryMock
+	defaultExpectation *RepositoryMockGetIndexChangesExpectation
+	expectations       []*RepositoryMockGetIndexChangesExpectation
+}
+
+// RepositoryMockGetIndexChangesExpectation specifies expectation struct of the Repository.GetIndexChanges
+type RepositoryMockGetIndexChangesExpectation struct {
+	mock *RepositoryMock
+
+	results *RepositoryMockGetIndexChangesResults
+	Counter uint64
+}
+
+// RepositoryMockGetIndexChangesResults contains results of the Repository.GetIndexChanges
+type RepositoryMockGetIndexChangesResults struct {
+	m1  map[string]vcs.Changes
+	err error
+}
+
+// Expect sets up expected params for Repository.GetIndexChanges
+func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Expect() *mRepositoryMockGetIndexChanges {
+	if mmGetIndexChanges.mock.funcGetIndexChanges != nil {
+		mmGetIndexChanges.mock.t.Fatalf("RepositoryMock.GetIndexChanges mock is already set by Set")
+	}
+
+	if mmGetIndexChanges.defaultExpectation == nil {
+		mmGetIndexChanges.defaultExpectation = &RepositoryMockGetIndexChangesExpectation{}
+	}
+
+	return mmGetIndexChanges
+}
+
+// Inspect accepts an inspector function that has same arguments as the Repository.GetIndexChanges
+func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Inspect(f func()) *mRepositoryMockGetIndexChanges {
+	if mmGetIndexChanges.mock.inspectFuncGetIndexChanges != nil {
+		mmGetIndexChanges.mock.t.Fatalf("Inspect function is already set for RepositoryMock.GetIndexChanges")
+	}
+
+	mmGetIndexChanges.mock.inspectFuncGetIndexChanges = f
+
+	return mmGetIndexChanges
+}
+
+// Return sets up results that will be returned by Repository.GetIndexChanges
+func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Return(m1 map[string]vcs.Changes, err error) *RepositoryMock {
+	if mmGetIndexChanges.mock.funcGetIndexChanges != nil {
+		mmGetIndexChanges.mock.t.Fatalf("RepositoryMock.GetIndexChanges mock is already set by Set")
+	}
+
+	if mmGetIndexChanges.defaultExpectation == nil {
+		mmGetIndexChanges.defaultExpectation = &RepositoryMockGetIndexChangesExpectation{mock: mmGetIndexChanges.mock}
+	}
+	mmGetIndexChanges.defaultExpectation.results = &RepositoryMockGetIndexChangesResults{m1, err}
+	return mmGetIndexChanges.mock
+}
+
+//Set uses given function f to mock the Repository.GetIndexChanges method
+func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Set(f func() (m1 map[string]vcs.Changes, err error)) *RepositoryMock {
+	if mmGetIndexChanges.defaultExpectation != nil {
+		mmGetIndexChanges.mock.t.Fatalf("Default expectation is already set for the Repository.GetIndexChanges method")
+	}
+
+	if len(mmGetIndexChanges.expectations) > 0 {
+		mmGetIndexChanges.mock.t.Fatalf("Some expectations are already set for the Repository.GetIndexChanges method")
+	}
+
+	mmGetIndexChanges.mock.funcGetIndexChanges = f
+	return mmGetIndexChanges.mock
+}
+
+// GetIndexChanges implements internal.Repository
+func (mmGetIndexChanges *RepositoryMock) GetIndexChanges() (m1 map[string]vcs.Changes, err error) {
+	mm_atomic.AddUint64(&mmGetIndexChanges.beforeGetIndexChangesCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetIndexChanges.afterGetIndexChangesCounter, 1)
+
+	if mmGetIndexChanges.inspectFuncGetIndexChanges != nil {
+		mmGetIndexChanges.inspectFuncGetIndexChanges()
+	}
+
+	if mmGetIndexChanges.GetIndexChangesMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetIndexChanges.GetIndexChangesMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmGetIndexChanges.GetIndexChangesMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetIndexChanges.t.Fatal("No results are set for the RepositoryMock.GetIndexChanges")
+		}
+		return (*mm_results).m1, (*mm_results).err
+	}
+	if mmGetIndexChanges.funcGetIndexChanges != nil {
+		return mmGetIndexChanges.funcGetIndexChanges()
+	}
+	mmGetIndexChanges.t.Fatalf("Unexpected call to RepositoryMock.GetIndexChanges.")
+	return
+}
+
+// GetIndexChangesAfterCounter returns a count of finished RepositoryMock.GetIndexChanges invocations
+func (mmGetIndexChanges *RepositoryMock) GetIndexChangesAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetIndexChanges.afterGetIndexChangesCounter)
+}
+
+// GetIndexChangesBeforeCounter returns a count of RepositoryMock.GetIndexChanges invocations
+func (mmGetIndexChanges *RepositoryMock) GetIndexChangesBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetIndexChanges.beforeGetIndexChangesCounter)
+}
+
+// MinimockGetIndexChangesDone returns true if the count of the GetIndexChanges invocations corresponds
+// the number of defined expectations
+func (m *RepositoryMock) MinimockGetIndexChangesDone() bool {
+	for _, e := range m.GetIndexChangesMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetIndexChangesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetIndexChangesCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetIndexChanges != nil && mm_atomic.LoadUint64(&m.afterGetIndexChangesCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetIndexChangesInspect logs each unmet expectation
+func (m *RepositoryMock) MinimockGetIndexChangesInspect() {
+	for _, e := range m.GetIndexChangesMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to RepositoryMock.GetIndexChanges")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetIndexChangesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetIndexChangesCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.GetIndexChanges")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetIndexChanges != nil && mm_atomic.LoadUint64(&m.afterGetIndexChangesCounter) < 1 {
+		m.t.Error("Expected call to RepositoryMock.GetIndexChanges")
+	}
+}
+
 type mRepositoryMockGetLastTag struct {
 	mock               *RepositoryMock
 	defaultExpectation *RepositoryMockGetLastTagExpectation
@@ -741,7 +893,7 @@ type RepositoryMockGetUserExpectation struct {
 
 // RepositoryMockGetUserResults contains results of the Repository.GetUser
 type RepositoryMockGetUserResults struct {
-	u1  mm_internal.User
+	u1  vcs.User
 	err error
 }
 
@@ -770,7 +922,7 @@ func (mmGetUser *mRepositoryMockGetUser) Inspect(f func()) *mRepositoryMockGetUs
 }
 
 // Return sets up results that will be returned by Repository.GetUser
-func (mmGetUser *mRepositoryMockGetUser) Return(u1 mm_internal.User, err error) *RepositoryMock {
+func (mmGetUser *mRepositoryMockGetUser) Return(u1 vcs.User, err error) *RepositoryMock {
 	if mmGetUser.mock.funcGetUser != nil {
 		mmGetUser.mock.t.Fatalf("RepositoryMock.GetUser mock is already set by Set")
 	}
@@ -783,7 +935,7 @@ func (mmGetUser *mRepositoryMockGetUser) Return(u1 mm_internal.User, err error) 
 }
 
 //Set uses given function f to mock the Repository.GetUser method
-func (mmGetUser *mRepositoryMockGetUser) Set(f func() (u1 mm_internal.User, err error)) *RepositoryMock {
+func (mmGetUser *mRepositoryMockGetUser) Set(f func() (u1 vcs.User, err error)) *RepositoryMock {
 	if mmGetUser.defaultExpectation != nil {
 		mmGetUser.mock.t.Fatalf("Default expectation is already set for the Repository.GetUser method")
 	}
@@ -797,7 +949,7 @@ func (mmGetUser *mRepositoryMockGetUser) Set(f func() (u1 mm_internal.User, err 
 }
 
 // GetUser implements internal.Repository
-func (mmGetUser *RepositoryMock) GetUser() (u1 mm_internal.User, err error) {
+func (mmGetUser *RepositoryMock) GetUser() (u1 vcs.User, err error) {
 	mm_atomic.AddUint64(&mmGetUser.beforeGetUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetUser.afterGetUserCounter, 1)
 
@@ -1093,6 +1245,8 @@ func (m *RepositoryMock) MinimockFinish() {
 
 		m.MinimockGetFilesInIndexInspect()
 
+		m.MinimockGetIndexChangesInspect()
+
 		m.MinimockGetLastTagInspect()
 
 		m.MinimockGetUserInspect()
@@ -1124,6 +1278,7 @@ func (m *RepositoryMock) minimockDone() bool {
 		m.MinimockAddGlobDone() &&
 		m.MinimockGetCurrentBranchDone() &&
 		m.MinimockGetFilesInIndexDone() &&
+		m.MinimockGetIndexChangesDone() &&
 		m.MinimockGetLastTagDone() &&
 		m.MinimockGetUserDone() &&
 		m.MinimockRemoveGlobDone()

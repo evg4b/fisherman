@@ -12,6 +12,7 @@
 - Added possibility to disable file commit or automatic exclusion of files from index.
 - Added ability to check rules by condition.
 - (shell-script rule) Added correct cross-platform exit code checking
+- Added `suppress-text` rule for suppress file content
 
 ### Fixed
 

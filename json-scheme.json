@@ -160,6 +160,35 @@
           "description": "When this flag is `true` then files founded in index will be removed from it and commit well be continued."
         }
       }
+    },
+    "suppress-text": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "minProperties": 1,
+      "properties": {
+        "substrings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Substring to suppress"
+          },
+          "title": "Substrings",
+          "description": "List of lines that should not be included in the commit"
+        },
+        "exclude": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Filename matching pattern"
+          },
+          "title": "Is should remove from index on commit",
+          "description": "List of globs in which you do not need to check this rule"
+        }
+      }
     }
   },
   "properties": {

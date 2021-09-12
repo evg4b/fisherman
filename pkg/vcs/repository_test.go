@@ -1,8 +1,8 @@
 package vcs_test
 
 import (
-	"fisherman/internal"
 	"fisherman/pkg/guards"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"fmt"
 	"testing"
@@ -77,7 +77,7 @@ func TestGitRepository_GetUser(t *testing.T) {
 	user, err := repo.GetUser()
 
 	assert.NoError(t, err)
-	assert.Equal(t, internal.User{
+	assert.Equal(t, vcs.User{
 		UserName: expectedUserName,
 		Email:    expectedEmail,
 	}, user)
