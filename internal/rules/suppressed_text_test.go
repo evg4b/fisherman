@@ -6,10 +6,11 @@ import (
 	"fisherman/internal/rules"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
 	"io"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSuppressedText_Check(t *testing.T) {
@@ -17,7 +18,7 @@ func TestSuppressedText_Check(t *testing.T) {
 		name        string
 		substrings  []string
 		repo        internal.Repository
-		expectedErr string
+		expectedErr []string
 	}{
 		{
 			name: "no changes",
@@ -60,7 +61,7 @@ func TestSuppressedText_Check(t *testing.T) {
 					"README.md":    {{Status: vcs.Added, Change: "hello word"}},
 				}, nil),
 			substrings:  []string{"suppressed text"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed text'",
+			expectedErr: []string{"file 'test/file.go' should not contains 'suppressed text'"},
 		},
 		{
 			name: "suppressed multiple text founded",
@@ -73,7 +74,7 @@ func TestSuppressedText_Check(t *testing.T) {
 					"README.md": {{Status: vcs.Added, Change: "hello word"}},
 				}, nil),
 			substrings:  []string{"suppressed text"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed text'",
+			expectedErr: []string{"file 'test/file.go' should not contains 'suppressed text'"},
 		},
 		{
 			name: "multiple files with suppressed text founded",
@@ -82,8 +83,11 @@ func TestSuppressedText_Check(t *testing.T) {
 					"test/file.go": {{Status: vcs.Added, Change: "this is suppressed text"}},
 					"README.md":    {{Status: vcs.Added, Change: "this is second suppressed text in other file"}},
 				}, nil),
-			substrings:  []string{"suppressed text"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed text'\nfile 'README.md' should not contains 'suppressed text'",
+			substrings: []string{"suppressed text"},
+			expectedErr: []string{
+				"file 'test/file.go' should not contains 'suppressed text'",
+				"file 'README.md' should not contains 'suppressed text'",
+			},
 		},
 		{
 			name: "multiple suppressed string in one line",
@@ -92,8 +96,11 @@ func TestSuppressedText_Check(t *testing.T) {
 					"test/file.go": {{Status: vcs.Added, Change: "this is suppressed text"}},
 					"README.md":    {{Status: vcs.Deleted, Change: "this is second suppressed text in other file"}},
 				}, nil),
-			substrings:  []string{"suppressed", "text"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed'\nfile 'test/file.go' should not contains 'text'",
+			substrings: []string{"suppressed", "text"},
+			expectedErr: []string{
+				"file 'test/file.go' should not contains 'suppressed'",
+				"file 'test/file.go' should not contains 'text'",
+			},
 		},
 		{
 			name: "multiple suppressed string in difference lines",
@@ -109,19 +116,19 @@ func TestSuppressedText_Check(t *testing.T) {
 					},
 				}, nil),
 			substrings: []string{"suppressed", "text"},
-			expectedErr: strings.Join([]string{
+			expectedErr: []string{
 				"file 'test/file.go' should not contains 'suppressed'",
 				"file 'test/file.go' should not contains 'text'",
 				"file 'README.md' should not contains 'suppressed'",
 				"file 'README.md' should not contains 'text'",
-			}, "\n"),
+			},
 		},
 		{
 			name: "internal error",
 			repo: mocks.NewRepositoryMock(t).GetIndexChangesMock.
 				Return(map[string]vcs.Changes{}, errors.New("test error")),
 			substrings:  []string{"suppressed", "text"},
-			expectedErr: "test error",
+			expectedErr: []string{"test error"},
 		},
 	}
 	for _, tt := range tests {
@@ -135,7 +142,7 @@ func TestSuppressedText_Check(t *testing.T) {
 
 			err := rule.Check(ctx, io.Discard)
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			assertFlatMultiError(t, tt.expectedErr, err)
 		})
 	}
 }
@@ -144,31 +151,30 @@ func TestSuppressedText_Check_Excluded(t *testing.T) {
 	tests := []struct {
 		name        string
 		exclude     []string
-		expectedErr string
+		expectedErr []string
 	}{
 		{
-			name:        "suppressed files not excluded",
-			exclude:     []string{"other-file.go"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed text'\nfile 'README.md' should not contains 'suppressed text'",
+			name:    "suppressed files not excluded",
+			exclude: []string{"other-file.go"},
+			expectedErr: []string{
+				"file 'test/file.go' should not contains 'suppressed text'",
+				"file 'README.md' should not contains 'suppressed text'",
+			},
 		},
 		{
 			name:        "suppressed single files excluded with glob",
 			exclude:     []string{"*.md"},
-			expectedErr: "file 'test/file.go' should not contains 'suppressed text'",
+			expectedErr: []string{"file 'test/file.go' should not contains 'suppressed text'"},
 		},
 		{
 			name:        "suppressed single files not excluded with path",
 			exclude:     []string{"test/file.go"},
-			expectedErr: "file 'README.md' should not contains 'suppressed text'",
-		},
-		{
-			name:    "exclude all files",
-			exclude: []string{"*"},
+			expectedErr: []string{"file 'README.md' should not contains 'suppressed text'"},
 		},
 		{
 			name:        "winvalid glob pattern",
 			exclude:     []string{"some/[*"},
-			expectedErr: "syntax error in pattern",
+			expectedErr: []string{"syntax error in pattern"},
 		},
 	}
 	for _, tt := range tests {
@@ -195,7 +201,22 @@ func TestSuppressedText_Check_Excluded(t *testing.T) {
 
 			err := rule.Check(ctx, io.Discard)
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			assertFlatMultiError(t, tt.expectedErr, err)
 		})
+	}
+}
+
+func assertFlatMultiError(t *testing.T, expected []string, actual error) {
+	t.Helper()
+
+	if len(expected) > 0 {
+		message := actual.Error()
+		parts := strings.Split(message, "\n")
+		assert.Equal(t, len(parts), len(expected))
+		for _, expectedLine := range expected {
+			assert.Contains(t, parts, expectedLine)
+		}
+	} else {
+		assert.NoError(t, actual)
 	}
 }
