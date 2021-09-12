@@ -20,6 +20,7 @@ var definedTypes = map[string]reflect.Type{
 	rules.PrepareMessageType:      reflect.TypeOf(rules.PrepareMessage{}),
 	rules.ShellScriptType:         reflect.TypeOf(rules.ShellScript{}),
 	rules.AddToIndexType:          reflect.TypeOf(rules.AddToIndex{}),
+	rules.SuppressedTextType:      reflect.TypeOf(rules.SuppressCommitFiles{}),
 }
 
 func (def *ruleDef) UnmarshalYAML(value *yaml.Node) error {
