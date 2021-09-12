@@ -30,6 +30,16 @@ tasks:
     cmds:
       - go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
 
+  test:docker:
+    desc: ' Run all tests in docker container'
+    cmds:
+      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test ./...
+
+  test:docker-cover:
+    desc: ' Run all tests with coverage and race detection in docker container'
+    cmds:
+      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+
   lint:
     desc: Lints all code
     cmds:
