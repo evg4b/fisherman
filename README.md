@@ -1,5 +1,7 @@
 <p align="center">
+  <a href="https://fisherman.netlify.app/" title="fisherman">
     <img width="80%" src="https://res.cloudinary.com/evg-abramovitch/image/upload/v1590264697/fisherman/logo.png">
+  </a>
 </p>
 <p align="center">
     Small git hook management tool for developer.
@@ -20,3 +22,5 @@
     </a>
     <img alt="GitHub tag (latest by date)" src="https://img.shields.io/github/v/tag/evg4b/fisherman?label=Version">
 </p>
+<!-- TODO: Add quick start guide -->
+<!-- TODO: Contributing guide -->

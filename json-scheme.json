@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Fisherman config file",
+  "title": "Fisherman configuration file",
   "type": "object",
   "definitions": {
     "variables": {

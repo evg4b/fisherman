@@ -13,6 +13,10 @@ type GitRepository struct {
 	repo func() (*git.Repository, error)
 }
 
+// OpenGitRepository returns not initialized git repo with root in passed path.
+//
+// Repo has lazy initialization. Error in case of error opening the repository
+// will be returned only on the first access to any method.
 func OpenGitRepository(path string) *GitRepository {
 	var repoOnce sync.Once
 	var repo *git.Repository
@@ -30,6 +34,10 @@ func OpenGitRepository(path string) *GitRepository {
 	}
 }
 
+// CreateGitRepository returns not initialized git repo based on passed go-git repo
+//
+// Repo has lazy initialization. Error in case of error opening the repository
+// will be returned only on the first access to any method.
 func CreateGitRepository(repo *git.Repository) *GitRepository {
 	return &GitRepository{
 		repo: func() (*git.Repository, error) {

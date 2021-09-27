@@ -32,11 +32,11 @@ Related links:
 
 ## I want check TODOs in my code before commit
 
-Can be used to check that message starts with issue number.
+Can be used to check that message starts with the issue number.
 
 ```yaml
 hooks:
-  pre=commit:
+  pre-commit:
     rules:
       - type: suppressed-text
         substrings: [ 'TODO: ' ]
@@ -47,3 +47,26 @@ Related links:
 
 <!-- TODO: Add correct links -->
 - [suppressed-text rule](./configuration/rules.md#suppressed-text)
+
+## I want run tests or lint before push changes to remote repo
+
+Can be used for final validation before pr create/update operation.
+
+```yaml
+hooks:
+  pre-push:
+    rules:
+      - type: shell-script
+        name: Linting
+        commands:
+          - golangci-lint run ./...
+      - type: shell-script
+        name: Tests
+        commands:
+          - go test run ./...
+```
+
+Related links:
+
+<!-- TODO: Add correct links -->
+- [shell-script rule](./configuration/rules.md#shell-script)

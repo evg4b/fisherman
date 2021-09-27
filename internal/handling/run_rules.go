@@ -106,7 +106,7 @@ func checkRule(ctx coxtext, rule configuration.Rule) error {
 	defer writer.Close()
 
 	prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
-	prefixedWriter := prefixwriter.New(writer, prefix)
+	prefixedWriter := prefixwriter.NewWriter(writer, prefix)
 
 	return rule.Check(ctx, prefixedWriter)
 }
