@@ -29,3 +29,21 @@ Related links:
 <!-- TODO: Add correct links -->
 - [extract-variables](/)
 - [commit-message](/)
+
+## I want check TODOs in my code before commit
+
+Can be used to check that message starts with issue number.
+
+```yaml
+hooks:
+  pre=commit:
+    rules:
+      - type: suppressed-text
+        substrings: [ 'TODO: ' ]
+        exclude: [ 'README.md' ]
+```
+
+Related links:
+
+<!-- TODO: Add correct links -->
+- [suppressed-text rule](./configuration/rules.md#suppressed-text)
