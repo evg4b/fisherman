@@ -56,7 +56,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	go startWriter(stdin, script.commands, config)
 
-	script.duration, err = utils.ExecWithTime(command.Run)
+	script.duration, err = ExecWithTime(command.Run)
 	if err != nil {
 		return errors.Errorf("script completed with an error: %w", err)
 	}

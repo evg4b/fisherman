@@ -1,8 +1,8 @@
-package utils_test
+package shell_test
 
 import (
 	"errors"
-	"fisherman/internal/utils"
+	"fisherman/pkg/shell"
 	"testing"
 	"time"
 
@@ -10,7 +10,7 @@ import (
 )
 
 func TestExecWithTime(t *testing.T) {
-	duration, err := utils.ExecWithTime(func() error {
+	duration, err := shell.ExecWithTime(func() error {
 		time.Sleep(time.Millisecond * 1)
 
 		return nil
@@ -21,7 +21,7 @@ func TestExecWithTime(t *testing.T) {
 }
 
 func TestExecWithTime_Error(t *testing.T) {
-	duration, err := utils.ExecWithTime(func() error {
+	duration, err := shell.ExecWithTime(func() error {
 		time.Sleep(time.Millisecond * 1)
 
 		return errors.New("TestError")
