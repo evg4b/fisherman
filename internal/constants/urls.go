@@ -1,11 +1,8 @@
 // nolint lll
 package constants
 
-// ConfigurationDocks url to https://fisherman.netlify.app/docs/
-const ConfigurationDocks = "https://cutt.ly/6QYk1Lm"
+// ConfigurationDocksURL is url to main docs page
+const ConfigurationDocksURL = "https://fisherman.netlify.app/docs"
 
-// ConfigurationInheritanceURL url to https://fisherman.netlify.app/docs/configuration/configuration-files#configuration-file-inheritance
-const ConfigurationInheritanceURL = "https://cutt.ly/PkZ1rSZ"
-
-// ConditionExpressionsURL url to https://fisherman.netlify.app/docs/configuration/expressions
-const ConditionExpressionsURL = "https://cutt.ly/hWAG7pJ"
+// ConfigurationInheritanceURL is url to configuration inheritance page
+const ConfigurationInheritanceURL = "https://fisherman.netlify.app/docs/configuration/configuration-files#configuration-file-inheritance"

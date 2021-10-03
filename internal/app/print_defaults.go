@@ -33,6 +33,6 @@ func (r *FishermanApp) PrintDefaults() {
 	}
 
 	fmt.Fprintln(log.InfoOutput, "")
-	fmt.Fprintln(log.InfoOutput, preffix, "Configuration docs:", constants.ConfigurationDocks)
+	fmt.Fprintln(log.InfoOutput, preffix, "Configuration docs:", constants.ConfigurationDocksURL)
 	fmt.Fprintln(log.InfoOutput, "")
 }
