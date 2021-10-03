@@ -2,7 +2,7 @@ package validation
 
 import "fmt"
 
-// Error is base error
+// Error is base error.
 type Error struct {
 	prefix  string
 	message string

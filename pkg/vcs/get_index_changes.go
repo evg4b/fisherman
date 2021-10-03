@@ -14,6 +14,7 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
+// nolint: cyclop
 func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 	indexChanges := make(map[string]Changes)
 
@@ -97,7 +98,7 @@ func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 }
 
 func convertToPath(node noder.Path) string {
-	var pathValue []string
+	pathValue := make([]string, 0, len(node))
 
 	for _, nodeSection := range node {
 		pathValue = append(pathValue, nodeSection.Name())

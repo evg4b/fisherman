@@ -113,7 +113,7 @@ func (mmExec *mShellMockExec) Return(err error) *ShellMock {
 	return mmExec.mock
 }
 
-//Set uses given function f to mock the Shell.Exec method
+// Set uses given function f to mock the Shell.Exec method
 func (mmExec *mShellMockExec) Set(f func(ctx context.Context, w1 io.Writer, s1 string, sp1 *shell.Script) (err error)) *ShellMock {
 	if mmExec.defaultExpectation != nil {
 		mmExec.mock.t.Fatalf("Default expectation is already set for the Shell.Exec method")

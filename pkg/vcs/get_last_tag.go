@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+// nolint: cyclop
 func (r *GitRepository) GetLastTag() (string, error) {
 	repo, err := r.repo()
 	if err != nil {
@@ -44,7 +45,7 @@ func (r *GitRepository) GetLastTag() (string, error) {
 	for {
 		tagRef, err := tagRef.Next()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return latestTagName, nil
 			}
 

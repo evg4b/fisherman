@@ -14,7 +14,7 @@ func OriginalOrNA(path string) string {
 	return path
 }
 
-func GetOrDefault(value string, defaultValue string) string {
+func GetOrDefault(value, defaultValue string) string {
 	if !IsEmpty(value) {
 		return value
 	}

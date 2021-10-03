@@ -1,9 +1,14 @@
 package validation
 
-import "github.com/hashicorp/go-multierror"
+import (
+	"errors"
+
+	"github.com/hashicorp/go-multierror"
+)
 
 func IsValidationError(err error) bool {
-	if multierror, ok := err.(*multierror.Error); ok {
+	var multierror *multierror.Error
+	if errors.As(err, &multierror) {
 		for _, e := range multierror.Errors {
 			if !isValidationErrorInternal(e) {
 				return false
@@ -17,7 +22,7 @@ func IsValidationError(err error) bool {
 }
 
 func isValidationErrorInternal(err error) bool {
-	_, ok := err.(*Error)
+	var validationError *Error
 
-	return ok
+	return errors.As(err, &validationError)
 }

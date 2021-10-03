@@ -150,6 +150,8 @@ func Test_getScriptRules(t *testing.T) {
 }
 
 func getRule(t *testing.T, ruleType byte) handling.Rule {
+	t.Helper()
+
 	return mocks.NewRuleMock(t).
 		GetTypeMock.Return(rules.ShellScriptType).
 		GetPositionMock.Return(ruleType).

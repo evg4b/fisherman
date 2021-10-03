@@ -39,7 +39,7 @@ func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
 	t.Helper()
 
 	for filemane, content := range files {
-		err := util.WriteFile(fs, filemane, []byte(content), 0644)
+		err := util.WriteFile(fs, filemane, []byte(content), 0o644)
 		guards.NoError(err)
 	}
 }

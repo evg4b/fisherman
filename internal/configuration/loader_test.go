@@ -55,7 +55,7 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var fs = testutils.FsFromSlice(t, tt.files)
+			fs := testutils.FsFromSlice(t, tt.files)
 			loaded := NewLoader(&usr, cwd, fs)
 
 			actual, err := loaded.FindConfigFiles()

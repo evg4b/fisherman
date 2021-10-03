@@ -3,25 +3,22 @@ package app_test
 import (
 	"context"
 	"fisherman/internal"
+	"fisherman/internal/app"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
 	"io/ioutil"
+	"testing"
 
 	"github.com/go-errors/errors"
-
-	"fisherman/internal/app"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
-
 func TestRunner_Run(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
+
 	tests := []struct {
 		name          string
 		args          []string
@@ -92,6 +89,8 @@ func TestRunner_Run(t *testing.T) {
 }
 
 func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {
+	t.Helper()
+
 	return mocks.NewCliCommandMock(t).
 		NameMock.Return(name).
 		InitMock.Return(nil).
@@ -99,6 +98,8 @@ func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {
 }
 
 func makeExpectedCommand(t *testing.T, name string, err error) *mocks.CliCommandMock {
+	t.Helper()
+
 	return makeCommand(t, name).
 		RunMock.Return(err)
 }

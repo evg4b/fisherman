@@ -11,10 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
-
 func TestCommand_Run(t *testing.T) {
 	output := bytes.NewBufferString("")
 	log.SetOutput(output)
@@ -31,6 +27,7 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := version.NewCommand()
 	err := command.Init([]string{})
 
@@ -39,6 +36,7 @@ func TestCommand_Description(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := version.NewCommand()
 	err := command.Init([]string{})
 

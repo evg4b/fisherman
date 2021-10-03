@@ -17,11 +17,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
-
 func TestCommand_Run(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	fs := testutils.FsFromMap(t, map[string]string{
 		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
 		filepath.Join("usr", "home", ".fisherman.yaml"):             "content",
@@ -45,6 +42,7 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Run_WithError(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	appInfo := internal.AppInfo{
 		Cwd:        filepath.Join("usr", "home"),
 		Executable: filepath.Join("bin", "fisherman.exe"),
@@ -89,6 +87,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := remove.NewCommand(
 		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,
@@ -99,6 +98,7 @@ func TestCommand_Name(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := remove.NewCommand(
 		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,

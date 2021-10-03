@@ -18,6 +18,7 @@ type CommitMessage struct {
 	NotEmpty bool   `yaml:"not-empty"`
 }
 
+// nolint: cyclop
 func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	message, err := ctx.Message()
 	if err != nil {

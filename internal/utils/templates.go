@@ -7,8 +7,10 @@ import (
 	"github.com/valyala/fasttemplate"
 )
 
-const startTag = "{{"
-const endTag = "}}"
+const (
+	startTag = "{{"
+	endTag   = "}}"
+)
 
 func PrintGraphics(wr io.Writer, content string, data map[string]interface{}) {
 	tpl := makeTemplate(content)

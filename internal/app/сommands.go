@@ -15,7 +15,6 @@ func (commands CliCommands) GetCommand(args []string) (internal.CliCommand, erro
 	for _, command := range commands {
 		if strings.EqualFold(command.Name(), commandName) {
 			err := command.Init(args[1:])
-
 			if err != nil {
 				return nil, err
 			}

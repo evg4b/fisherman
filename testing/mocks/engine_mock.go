@@ -109,7 +109,7 @@ func (mmEval *mEngineMockEval) Return(b1 bool, err error) *EngineMock {
 	return mmEval.mock
 }
 
-//Set uses given function f to mock the Engine.Eval method
+// Set uses given function f to mock the Engine.Eval method
 func (mmEval *mEngineMockEval) Set(f func(expression string, vars map[string]interface{}) (b1 bool, err error)) *EngineMock {
 	if mmEval.defaultExpectation != nil {
 		mmEval.mock.t.Fatalf("Default expectation is already set for the Engine.Eval method")

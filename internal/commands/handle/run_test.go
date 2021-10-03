@@ -14,10 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
-
 var globalVars = map[string]interface{}{
 	constants.BranchNameVariable:       "/refs/head/develop",
 	constants.TagVariable:              "1.0.0",
@@ -28,6 +24,8 @@ var globalVars = map[string]interface{}{
 }
 
 func getCtx(t *testing.T) *appcontext.ApplicationContext {
+	t.Helper()
+
 	return appcontext.NewContextBuilder().
 		WithFileSystem(mocks.NewFilesystemMock(t)).
 		WithRepository(mocks.NewRepositoryMock(t).
@@ -41,6 +39,7 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 }
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("test", globalVars).Return(nil, errors.New("'test' is not valid hook name")),
@@ -57,6 +56,7 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 }
 
 func TestCommand_Run(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("pre-commit", globalVars).
@@ -74,6 +74,7 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Run_Hander(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(errors.New("test error"))
 	command := handle.NewCommand(
@@ -92,6 +93,7 @@ func TestCommand_Run_Hander(t *testing.T) {
 }
 
 func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(nil)
 	command := handle.NewCommand(

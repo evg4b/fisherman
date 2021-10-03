@@ -1,30 +1,73 @@
 run:
   skip-dirs:
     - testing
-    - website
   allow-parallel-runners: true
   timeout: 5m
 linters:
   enable:
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
     - gosec
     - unconvert
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
     - nlreturn
     - nestif
     - gomnd
+    - unused
+    - varcheck
     - stylecheck
     - gocyclo
-    - maligned
     - dupl
     - misspell
     - unparam
     - whitespace
-    - golint
-    - interfacer
     - goconst
     - asciicheck
     - lll
     - gocritic
     - vet
+    - asciicheck
+    - cyclop
+    - depguard
+    # - paralleltest
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - gochecknoinits
+    - gocognit
+    - gocritic
+    - godot
+    - gomnd
+    - gomoddirectives
+    - gosec
+    - ifshort
+    - importas
+    - makezero
+    - misspell
+    - nakedret
+    - nilerr
+    - nlreturn
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
+    - stylecheck
+    - tagliatelle
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+    # - wrapcheck
 
 linters-settings:
   lll:
@@ -38,3 +81,8 @@ linters-settings:
       - log: "logging is allowed only by fisherman/pkg/log"
       - gopkg.in/yaml.v2: "please use v3"
       - gopkg.in/yaml.v1: "please use v3"
+  tagliatelle:
+    case:
+      rules:
+        yaml: kebab
+

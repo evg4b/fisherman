@@ -41,8 +41,7 @@ type hookConfigDef struct {
 
 func (c *HookConfig) UnmarshalYAML(value *yaml.Node) error {
 	var def hookConfigDef
-	err := value.Decode(&def)
-	if err != nil {
+	if err := value.Decode(&def); err != nil {
 		return err
 	}
 

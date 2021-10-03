@@ -4,18 +4,17 @@ import (
 	"bytes"
 	"fisherman/pkg/log"
 	"fmt"
-
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-var formattingParams = []interface{}{1, "s", 44.3}
-var emptyParamas = []interface{}{}
+var (
+	formattingParams = []interface{}{1, "s", 44.3}
+	emptyParamas     = []interface{}{}
+)
 
 func TestErrorWithLogLevel(t *testing.T) {
-	t.Parallel()
-
 	testData := []struct {
 		message string
 		output  string

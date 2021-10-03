@@ -20,6 +20,7 @@ type SuppressCommitFiles struct {
 	RemoveFromIndex bool     `yaml:"remove-from-index"`
 }
 
+// nolint: cyclop
 func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Writer) error {
 	if len(rule.Globs) == 0 {
 		return nil

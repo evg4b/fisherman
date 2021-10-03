@@ -13,7 +13,7 @@ import (
 
 var ErrNotPresented = errors.New("configuration for hook is not presented")
 
-// TODO: move to configuration
+// TODO: move to configuration.
 const workersCount = 5
 
 type CompilableConfig interface {
@@ -24,9 +24,11 @@ type Factory interface {
 	GetHook(name string, global map[string]interface{}) (Handler, error)
 }
 
-type Variables = map[string]interface{}
-type hookBuilder = func(globalVars Variables) (Handler, error)
-type builders = map[string]hookBuilder
+type (
+	Variables   = map[string]interface{}
+	hookBuilder = func(globalVars Variables) (Handler, error)
+	builders    = map[string]hookBuilder
+)
 
 type HookHandlerFactory struct {
 	engine        expression.Engine

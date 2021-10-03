@@ -8,8 +8,10 @@ import (
 	"strings"
 )
 
-const preffix = "  "
-const baseCommandLen = 8
+const (
+	preffix        = "  "
+	baseCommandLen = 8
+)
 
 func (r *FishermanApp) PrintDefaults() {
 	utils.PrintGraphics(log.InfoOutput, constants.Logo, map[string]interface{}{

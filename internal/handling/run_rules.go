@@ -15,9 +15,11 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
-type in = <-chan configuration.Rule
-type out = chan<- error
-type coxtext = internal.ExecutionContext
+type (
+	in      = <-chan configuration.Rule
+	out     = chan<- error
+	coxtext = internal.ExecutionContext
+)
 
 func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	input := make(chan configuration.Rule)
@@ -82,7 +84,7 @@ func startWorkers(ctx coxtext, input in, output out, count int) error {
 	return nil
 }
 
-// TODO: Add panic interceptor
+// TODO: Add panic interceptor.
 func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	log.Debugf("workder %d started", id)
 	defer log.Debugf("workder %d finished", id)

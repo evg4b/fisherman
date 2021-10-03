@@ -11,7 +11,7 @@ import (
 )
 
 func TestScript_GetDuration(t *testing.T) {
-	var expectedDuration time.Duration = 0
+	var expectedDuration time.Duration
 	sh := shell.NewShell()
 
 	script := shell.NewScript([]string{"echo 'demo'"})
@@ -20,7 +20,7 @@ func TestScript_GetDuration(t *testing.T) {
 
 	duration := script.GetDuration()
 
-	assert.True(t, duration > expectedDuration)
+	assert.Greater(t, duration, expectedDuration)
 }
 
 func TestScript_EnvironmentVariables(t *testing.T) {
