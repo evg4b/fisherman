@@ -5,7 +5,6 @@ import (
 	"fisherman/internal/commands/version"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,6 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	command := version.NewCommand()
 	err := command.Init([]string{})
 
@@ -36,7 +34,6 @@ func TestCommand_Description(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	command := version.NewCommand()
 	err := command.Init([]string{})
 

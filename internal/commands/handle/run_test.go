@@ -5,10 +5,8 @@ import (
 	"fisherman/internal/appcontext"
 	"fisherman/internal/commands/handle"
 	"fisherman/internal/constants"
-	"fisherman/pkg/log"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,7 +37,6 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 }
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("test", globalVars).Return(nil, errors.New("'test' is not valid hook name")),
@@ -56,7 +53,6 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 }
 
 func TestCommand_Run(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	command := handle.NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("pre-commit", globalVars).
@@ -74,7 +70,6 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Run_Hander(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(errors.New("test error"))
 	command := handle.NewCommand(
@@ -93,7 +88,6 @@ func TestCommand_Run_Hander(t *testing.T) {
 }
 
 func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(nil)
 	command := handle.NewCommand(

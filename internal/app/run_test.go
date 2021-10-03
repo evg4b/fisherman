@@ -4,11 +4,9 @@ import (
 	"context"
 	"fisherman/internal"
 	"fisherman/internal/app"
-	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
-	"io/ioutil"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -17,8 +15,6 @@ import (
 )
 
 func TestRunner_Run(t *testing.T) {
-	log.SetOutput(ioutil.Discard)
-
 	tests := []struct {
 		name          string
 		args          []string
