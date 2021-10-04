@@ -3,11 +3,9 @@ package configuration_test
 import (
 	. "fisherman/internal/configuration"
 	"fisherman/testing/testutils"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v3"
 )
 
 func TestHookConfig_Compile_Empty(t *testing.T) {
@@ -74,13 +72,9 @@ extract-variables:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			reader := strings.NewReader(tt.source)
-			decoder := yaml.NewDecoder(reader)
-			decoder.KnownFields(true)
-
 			var section HookConfig
 
-			err := decoder.Decode(&section)
+			err := testutils.DecodeYaml(tt.source, &section)
 
 			assert.ObjectsAreEqual(tt.expected, section)
 			testutils.CheckError(t, tt.expectedError, err)
