@@ -19,11 +19,11 @@ import (
 
 func TestContext_Files(t *testing.T) {
 	expectedFs := mocks.NewFilesystemMock(t)
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(expectedFs).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(expectedFs),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	actualFs := ctx.Files()
 
@@ -32,11 +32,11 @@ func TestContext_Files(t *testing.T) {
 
 func TestContext_Shell(t *testing.T) {
 	expectedShell := mocks.NewShellMock(t)
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(expectedShell).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(expectedShell),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	actualSh := ctx.Shell()
 
@@ -45,11 +45,11 @@ func TestContext_Shell(t *testing.T) {
 
 func TestContext_Repository(t *testing.T) {
 	expectedRepo := mocks.NewRepositoryMock(t)
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(expectedRepo).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(expectedRepo),
+	)
 
 	actualRepo := ctx.Repository()
 
@@ -58,12 +58,12 @@ func TestContext_Repository(t *testing.T) {
 
 func TestContext_Args(t *testing.T) {
 	expectedArgs := []string{"param"}
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		WithArgs(expectedArgs).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		appcontext.WithArgs(expectedArgs),
+	)
 
 	actualArgs := ctx.Args()
 
@@ -71,12 +71,12 @@ func TestContext_Args(t *testing.T) {
 }
 
 func TestContext_Arg(t *testing.T) {
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		appcontext.WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}),
+	)
 
 	tests := []struct {
 		name        string
@@ -106,12 +106,12 @@ func TestContext_Output(t *testing.T) {
 	expectedString := ""
 
 	buffer := bytes.NewBufferString("")
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		WithOutput(buffer).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		appcontext.WithOutput(buffer),
+	)
 
 	actualOutput := ctx.Output()
 
@@ -153,12 +153,12 @@ func TestContext_Message(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := appcontext.NewContextBuilder().
-				WithFileSystem(testutils.FsFromMap(t, tt.files)).
-				WithShell(mocks.NewShellMock(t)).
-				WithRepository(mocks.NewRepositoryMock(t)).
-				WithArgs(tt.args).
-				Build()
+			ctx := appcontext.NewContext(
+				appcontext.WithFileSystem(testutils.FsFromMap(t, tt.files)),
+				appcontext.WithShell(mocks.NewShellMock(t)),
+				appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+				appcontext.WithArgs(tt.args),
+			)
 
 			actual, err := ctx.Message()
 
@@ -169,11 +169,11 @@ func TestContext_Message(t *testing.T) {
 }
 
 func TestContext_Stop(t *testing.T) {
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	ctx.Cancel()
 
@@ -184,12 +184,12 @@ func TestContext_Value(t *testing.T) {
 	key := "this-is-key"
 	expected := "this-is-value"
 
-	ctx := appcontext.NewContextBuilder().
-		WithContext(context.WithValue(context.Background(), key, expected)). //nolint
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithBaseContext(context.WithValue(context.Background(), key, expected)), //nolint
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	data := ctx.Value(key)
 
@@ -197,12 +197,12 @@ func TestContext_Value(t *testing.T) {
 }
 
 func TestContext_Deadline(t *testing.T) {
-	ctx := appcontext.NewContextBuilder().
-		WithContext(context.Background()).
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithBaseContext(context.Background()),
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	data, ok := ctx.Deadline()
 
@@ -211,12 +211,12 @@ func TestContext_Deadline(t *testing.T) {
 }
 
 func TestContext_Done(t *testing.T) {
-	ctx := appcontext.NewContextBuilder().
-		WithContext(context.Background()).
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithShell(mocks.NewShellMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t)).
-		Build()
+	ctx := appcontext.NewContext(
+		appcontext.WithBaseContext(context.Background()),
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	)
 
 	chanell := ctx.Done()
 
@@ -272,12 +272,12 @@ func TestContext_GlobalVariables(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := appcontext.NewContextBuilder().
-				WithFileSystem(mocks.NewFilesystemMock(t)).
-				WithShell(mocks.NewShellMock(t)).
-				WithRepository(tt.repository).
-				WithCwd("~/project").
-				Build()
+			ctx := appcontext.NewContext(
+				appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+				appcontext.WithShell(mocks.NewShellMock(t)),
+				appcontext.WithRepository(tt.repository),
+				appcontext.WithCwd("~/project"),
+			)
 
 			actual, err := ctx.GlobalVariables()
 

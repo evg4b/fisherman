@@ -5,6 +5,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
+	"fisherman/pkg/guards"
 	"io"
 	"time"
 
@@ -25,6 +26,27 @@ type ApplicationContext struct {
 }
 
 const filePathArgumentIndex = 3
+
+func NewContext(options ...contextOption) *ApplicationContext {
+	baseCtx, cancelBaseCtx := context.WithCancel(context.TODO())
+	context := ApplicationContext{
+		cwd:           "",
+		args:          []string{},
+		output:        *linebyline.NewWriterGroup(io.Discard),
+		baseCtx:       baseCtx,
+		cancelBaseCtx: cancelBaseCtx,
+	}
+
+	for _, option := range options {
+		option(&context)
+	}
+
+	guards.ShouldBeDefined(context.fs, "FileSystem should be connfigured")
+	guards.ShouldBeDefined(context.shell, "Shell should be connfigured")
+	guards.ShouldBeDefined(context.repo, "Repository should be connfigured")
+
+	return &context
+}
 
 func (ctx *ApplicationContext) Files() billy.Filesystem {
 	return ctx.fs

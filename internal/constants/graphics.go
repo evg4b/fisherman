@@ -1,5 +1,6 @@
 package constants
 
+// Logo is a logotip of fisherman.
 var Logo = `
  .d888  d8b          888
  d88P"  Y8P          888                                 Version: {{FishermanVersion}}
@@ -12,6 +13,7 @@ var Logo = `
 
 `
 
+// HookHeader is a graphic with hook and configuration information.
 var HookHeader = `
            .d8b.  |
           d88888b | Hook: {{HookName}}

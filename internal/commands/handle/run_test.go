@@ -24,16 +24,16 @@ var globalVars = map[string]interface{}{
 func getCtx(t *testing.T) *appcontext.ApplicationContext {
 	t.Helper()
 
-	return appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t).
+	return appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", nil).
 			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
-		).
-		WithShell(mocks.NewShellMock(t)).
-		WithCwd("~/project").
-		Build()
+		),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithCwd("~/project"),
+	)
 }
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
@@ -100,15 +100,15 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 	err := command.Init([]string{"--hook", "pre-commit"})
 	assert.NoError(t, err)
 
-	ctx := appcontext.NewContextBuilder().
-		WithFileSystem(mocks.NewFilesystemMock(t)).
-		WithRepository(mocks.NewRepositoryMock(t).
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t).
 			GetCurrentBranchMock.Return("/refs/head/develop", nil).
 			GetLastTagMock.Return("1.0.0", errors.New("test error")).
 			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
-		).
-		WithShell(mocks.NewShellMock(t)).
-		Build()
+		),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+	)
 
 	err = command.Run(ctx)
 

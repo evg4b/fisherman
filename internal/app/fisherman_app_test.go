@@ -69,12 +69,12 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			appInstance := app.NewAppBuilder().
-				WithCommands(tt.commands).
-				WithFs(mocks.NewFilesystemMock(t)).
-				WithRepository(mocks.NewRepositoryMock(t)).
-				WithShell(mocks.NewShellMock(t)).
-				Build()
+			appInstance := app.NewFishermanApp(
+				app.WithCommands(tt.commands),
+				app.WithFs(mocks.NewFilesystemMock(t)),
+				app.WithRepository(mocks.NewRepositoryMock(t)),
+				app.WithShell(mocks.NewShellMock(t)),
+			)
 
 			assert.NotPanics(t, func() {
 				err := appInstance.Run(context.TODO(), tt.args)

@@ -9,6 +9,7 @@ import (
 	"github.com/go-git/go-billy/v5"
 )
 
+// ExecutionContext is interface to access execution context.
 type ExecutionContext interface {
 	context.Context
 	GlobalVariables() (map[string]interface{}, error)
@@ -28,6 +29,7 @@ type AppInfo struct {
 	Configs    map[string]string
 }
 
+// Repository is interface to comunicate with git.
 type Repository interface {
 	GetCurrentBranch() (string, error)
 	GetUser() (vcs.User, error)
@@ -38,10 +40,12 @@ type Repository interface {
 	GetIndexChanges() (map[string]vcs.Changes, error)
 }
 
+// Shell is interface to comunicate with system shell (cmd, powersell, bash and etc.).
 type Shell interface {
 	Exec(context.Context, io.Writer, string, *shell.Script) error
 }
 
+// CliCommand is interface to define cli command.
 type CliCommand interface {
 	Init(args []string) error
 	Run(ctx ExecutionContext) error
