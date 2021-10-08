@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
+// CreateRepo creates vcs.GitRepository and all dependencies.
 func CreateRepo(t *testing.T) (*vcs.GitRepository, *git.Repository, billy.Filesystem, *git.Worktree) {
 	t.Helper()
 

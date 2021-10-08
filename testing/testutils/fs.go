@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"fisherman/pkg/guards"
 	"os"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/go-git/go-billy/v5/util"
 )
 
+// FsFromMap creates billy.Filesystem in memory from map.
+// Where key is a filename and value is file context.
 func FsFromMap(t *testing.T, files map[string]string) billy.Filesystem {
 	t.Helper()
 
@@ -23,6 +26,8 @@ func FsFromMap(t *testing.T, files map[string]string) billy.Filesystem {
 	return fs
 }
 
+// FsFromMap creates billy.Filesystem in memory from slice.
+// Each element of slice is filename, content always "test".
 func FsFromSlice(t *testing.T, files []string) billy.Filesystem {
 	t.Helper()
 
@@ -35,4 +40,15 @@ func FsFromSlice(t *testing.T, files []string) billy.Filesystem {
 	}
 
 	return fs
+}
+
+// MakeFiles creates in billy.Filesystem files from map.
+// Where key is a filename and value is file context.
+func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
+	t.Helper()
+
+	for filemane, content := range files {
+		err := util.WriteFile(fs, filemane, []byte(content), os.ModePerm)
+		guards.NoError(err)
+	}
 }

@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/go-git/go-billy/v5"
-	"github.com/go-git/go-billy/v5/util"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-var index int = 0
+var index int
 
+// MakeCommits creates commits history from two-dimensional map.
+// First level key is a commit message, second key is a file name and value is a file content.
 func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string](map[string]string)) {
 	t.Helper()
 
@@ -31,15 +32,6 @@ func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string
 			Committer: &signature,
 		})
 		index++
-		guards.NoError(err)
-	}
-}
-
-func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
-	t.Helper()
-
-	for filemane, content := range files {
-		err := util.WriteFile(fs, filemane, []byte(content), 0o644)
 		guards.NoError(err)
 	}
 }

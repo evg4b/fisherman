@@ -7,7 +7,7 @@ import (
 )
 
 // CheckError error by string, where expected string is empty then error should be null.
-// Otherwise error message should be matched to string
+// Otherwise error message should be matched to string.
 func CheckError(t *testing.T, expected string, actual error) {
 	t.Helper()
 

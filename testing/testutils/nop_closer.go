@@ -14,6 +14,7 @@ func (w *nopCloser) Close() error {
 	return nil
 }
 
+// NopCloser transforms io.Writer to io.WriteCloser.
 func NopCloser(wr io.Writer) io.WriteCloser {
 	return &nopCloser{wr: wr}
 }

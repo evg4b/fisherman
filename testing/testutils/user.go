@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 )
 
+// TestUser is os/user.User stub.
 var TestUser = user.User{
 	Uid:      "1",
 	Gid:      "2",
