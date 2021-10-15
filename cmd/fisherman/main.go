@@ -59,9 +59,11 @@ func main() {
 		Configs:    configs,
 	}
 
-	shell := shell.NewShell().
-		WithWorkingDirectory(cwd).
-		WithDefaultShell(utils.GetOrDefault(config.DefaultShell, shell.PlatformDefaultShell))
+	defaultShell := utils.GetOrDefault(config.DefaultShell, shell.PlatformDefaultShell)
+	shell := shell.NewShell(
+		shell.WithWorkingDirectory(cwd),
+		shell.WithDefaultShell(defaultShell),
+	)
 
 	fishermanApp := app.NewFishermanApp(
 		app.WithCommands([]internal.CliCommand{

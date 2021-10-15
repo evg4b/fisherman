@@ -16,20 +16,17 @@ type SystemShell struct {
 	defaultShell string
 }
 
-func NewShell() *SystemShell {
-	return &SystemShell{defaultShell: PlatformDefaultShell}
-}
+func NewShell(options ...shellOption) *SystemShell {
+	sh := SystemShell{
+		defaultShell: PlatformDefaultShell,
+		cwd:          "",
+	}
 
-func (sh *SystemShell) WithWorkingDirectory(cwd string) *SystemShell {
-	sh.cwd = cwd
+	for _, option := range options {
+		option(&sh)
+	}
 
-	return sh
-}
-
-func (sh *SystemShell) WithDefaultShell(defaultShell string) *SystemShell {
-	sh.defaultShell = defaultShell
-
-	return sh
+	return &sh
 }
 
 func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string, script *Script) error {
