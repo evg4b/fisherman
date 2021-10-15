@@ -1,8 +1,10 @@
 package utils_test
 
 import (
+	"errors"
 	"fisherman/internal/utils"
 	"fisherman/pkg/guards"
+	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"path/filepath"
 	"testing"
@@ -110,4 +112,16 @@ func TestExists(t *testing.T) {
 			testutils.CheckError(t, tt.expectedError, err)
 		})
 	}
+}
+
+func TestReadingFailed(t *testing.T) {
+	fileMock := mocks.NewFileMock(t).
+		ReadMock.Return(0, errors.New("test error"))
+	fs := mocks.NewFilesystemMock(t).
+		OpenMock.Return(fileMock, nil)
+
+	content, err := utils.ReadFileAsString(fs, "demo.txt")
+
+	assert.Empty(t, content)
+	assert.EqualError(t, err, "test error")
 }

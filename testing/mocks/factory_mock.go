@@ -110,7 +110,7 @@ func (mmGetHook *mFactoryMockGetHook) Return(h1 mm_handling.Handler, err error) 
 	return mmGetHook.mock
 }
 
-// Set uses given function f to mock the Factory.GetHook method
+//Set uses given function f to mock the Factory.GetHook method
 func (mmGetHook *mFactoryMockGetHook) Set(f func(name string, global map[string]interface{}) (h1 mm_handling.Handler, err error)) *FactoryMock {
 	if mmGetHook.defaultExpectation != nil {
 		mmGetHook.mock.t.Fatalf("Default expectation is already set for the Factory.GetHook method")

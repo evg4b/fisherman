@@ -44,7 +44,8 @@ type ExecutionContextMock struct {
 	beforeDeadlineCounter uint64
 	DeadlineMock          mExecutionContextMockDeadline
 
-	funcDone          func() (ch1 <-chan struct{})
+	funcDone func() (ch1 <-chan struct {
+	})
 	inspectFuncDone   func()
 	afterDoneCounter  uint64
 	beforeDoneCounter uint64
@@ -209,7 +210,7 @@ func (mmArg *mExecutionContextMockArg) Return(s1 string, err error) *ExecutionCo
 	return mmArg.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Arg method
+//Set uses given function f to mock the ExecutionContext.Arg method
 func (mmArg *mExecutionContextMockArg) Set(f func(index int) (s1 string, err error)) *ExecutionContextMock {
 	if mmArg.defaultExpectation != nil {
 		mmArg.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Arg method")
@@ -409,7 +410,7 @@ func (mmArgs *mExecutionContextMockArgs) Return(sa1 []string) *ExecutionContextM
 	return mmArgs.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Args method
+//Set uses given function f to mock the ExecutionContext.Args method
 func (mmArgs *mExecutionContextMockArgs) Set(f func() (sa1 []string)) *ExecutionContextMock {
 	if mmArgs.defaultExpectation != nil {
 		mmArgs.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Args method")
@@ -546,7 +547,7 @@ func (mmCancel *mExecutionContextMockCancel) Return() *ExecutionContextMock {
 	return mmCancel.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Cancel method
+//Set uses given function f to mock the ExecutionContext.Cancel method
 func (mmCancel *mExecutionContextMockCancel) Set(f func()) *ExecutionContextMock {
 	if mmCancel.defaultExpectation != nil {
 		mmCancel.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Cancel method")
@@ -580,6 +581,7 @@ func (mmCancel *ExecutionContextMock) Cancel() {
 		return
 	}
 	mmCancel.t.Fatalf("Unexpected call to ExecutionContextMock.Cancel.")
+
 }
 
 // CancelAfterCounter returns a count of finished ExecutionContextMock.Cancel invocations
@@ -687,7 +689,7 @@ func (mmDeadline *mExecutionContextMockDeadline) Return(deadline time.Time, ok b
 	return mmDeadline.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Deadline method
+//Set uses given function f to mock the ExecutionContext.Deadline method
 func (mmDeadline *mExecutionContextMockDeadline) Set(f func() (deadline time.Time, ok bool)) *ExecutionContextMock {
 	if mmDeadline.defaultExpectation != nil {
 		mmDeadline.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Deadline method")
@@ -790,7 +792,8 @@ type ExecutionContextMockDoneExpectation struct {
 
 // ExecutionContextMockDoneResults contains results of the ExecutionContext.Done
 type ExecutionContextMockDoneResults struct {
-	ch1 <-chan struct{}
+	ch1 <-chan struct {
+	}
 }
 
 // Expect sets up expected params for ExecutionContext.Done
@@ -818,7 +821,8 @@ func (mmDone *mExecutionContextMockDone) Inspect(f func()) *mExecutionContextMoc
 }
 
 // Return sets up results that will be returned by ExecutionContext.Done
-func (mmDone *mExecutionContextMockDone) Return(ch1 <-chan struct{}) *ExecutionContextMock {
+func (mmDone *mExecutionContextMockDone) Return(ch1 <-chan struct {
+}) *ExecutionContextMock {
 	if mmDone.mock.funcDone != nil {
 		mmDone.mock.t.Fatalf("ExecutionContextMock.Done mock is already set by Set")
 	}
@@ -830,8 +834,9 @@ func (mmDone *mExecutionContextMockDone) Return(ch1 <-chan struct{}) *ExecutionC
 	return mmDone.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Done method
-func (mmDone *mExecutionContextMockDone) Set(f func() (ch1 <-chan struct{})) *ExecutionContextMock {
+//Set uses given function f to mock the ExecutionContext.Done method
+func (mmDone *mExecutionContextMockDone) Set(f func() (ch1 <-chan struct {
+})) *ExecutionContextMock {
 	if mmDone.defaultExpectation != nil {
 		mmDone.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Done method")
 	}
@@ -845,7 +850,8 @@ func (mmDone *mExecutionContextMockDone) Set(f func() (ch1 <-chan struct{})) *Ex
 }
 
 // Done implements internal.ExecutionContext
-func (mmDone *ExecutionContextMock) Done() (ch1 <-chan struct{}) {
+func (mmDone *ExecutionContextMock) Done() (ch1 <-chan struct {
+}) {
 	mm_atomic.AddUint64(&mmDone.beforeDoneCounter, 1)
 	defer mm_atomic.AddUint64(&mmDone.afterDoneCounter, 1)
 
@@ -973,7 +979,7 @@ func (mmErr *mExecutionContextMockErr) Return(err error) *ExecutionContextMock {
 	return mmErr.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Err method
+//Set uses given function f to mock the ExecutionContext.Err method
 func (mmErr *mExecutionContextMockErr) Set(f func() (err error)) *ExecutionContextMock {
 	if mmErr.defaultExpectation != nil {
 		mmErr.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Err method")
@@ -1116,7 +1122,7 @@ func (mmFiles *mExecutionContextMockFiles) Return(f1 billy.Filesystem) *Executio
 	return mmFiles.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Files method
+//Set uses given function f to mock the ExecutionContext.Files method
 func (mmFiles *mExecutionContextMockFiles) Set(f func() (f1 billy.Filesystem)) *ExecutionContextMock {
 	if mmFiles.defaultExpectation != nil {
 		mmFiles.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Files method")
@@ -1260,7 +1266,7 @@ func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Return(m1 map[str
 	return mmGlobalVariables.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.GlobalVariables method
+//Set uses given function f to mock the ExecutionContext.GlobalVariables method
 func (mmGlobalVariables *mExecutionContextMockGlobalVariables) Set(f func() (m1 map[string]interface{}, err error)) *ExecutionContextMock {
 	if mmGlobalVariables.defaultExpectation != nil {
 		mmGlobalVariables.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.GlobalVariables method")
@@ -1404,7 +1410,7 @@ func (mmMessage *mExecutionContextMockMessage) Return(s1 string, err error) *Exe
 	return mmMessage.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Message method
+//Set uses given function f to mock the ExecutionContext.Message method
 func (mmMessage *mExecutionContextMockMessage) Set(f func() (s1 string, err error)) *ExecutionContextMock {
 	if mmMessage.defaultExpectation != nil {
 		mmMessage.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Message method")
@@ -1547,7 +1553,7 @@ func (mmOutput *mExecutionContextMockOutput) Return(w1 io.WriteCloser) *Executio
 	return mmOutput.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Output method
+//Set uses given function f to mock the ExecutionContext.Output method
 func (mmOutput *mExecutionContextMockOutput) Set(f func() (w1 io.WriteCloser)) *ExecutionContextMock {
 	if mmOutput.defaultExpectation != nil {
 		mmOutput.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Output method")
@@ -1690,7 +1696,7 @@ func (mmRepository *mExecutionContextMockRepository) Return(r1 mm_internal.Repos
 	return mmRepository.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Repository method
+//Set uses given function f to mock the ExecutionContext.Repository method
 func (mmRepository *mExecutionContextMockRepository) Set(f func() (r1 mm_internal.Repository)) *ExecutionContextMock {
 	if mmRepository.defaultExpectation != nil {
 		mmRepository.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Repository method")
@@ -1833,7 +1839,7 @@ func (mmShell *mExecutionContextMockShell) Return(s1 mm_internal.Shell) *Executi
 	return mmShell.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Shell method
+//Set uses given function f to mock the ExecutionContext.Shell method
 func (mmShell *mExecutionContextMockShell) Set(f func() (s1 mm_internal.Shell)) *ExecutionContextMock {
 	if mmShell.defaultExpectation != nil {
 		mmShell.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Shell method")
@@ -1991,7 +1997,7 @@ func (mmValue *mExecutionContextMockValue) Return(p1 interface{}) *ExecutionCont
 	return mmValue.mock
 }
 
-// Set uses given function f to mock the ExecutionContext.Value method
+//Set uses given function f to mock the ExecutionContext.Value method
 func (mmValue *mExecutionContextMockValue) Set(f func(key interface{}) (p1 interface{})) *ExecutionContextMock {
 	if mmValue.defaultExpectation != nil {
 		mmValue.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Value method")

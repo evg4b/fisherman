@@ -157,7 +157,7 @@ func (mmAddGlob *mRepositoryMockAddGlob) Return(err error) *RepositoryMock {
 	return mmAddGlob.mock
 }
 
-// Set uses given function f to mock the Repository.AddGlob method
+//Set uses given function f to mock the Repository.AddGlob method
 func (mmAddGlob *mRepositoryMockAddGlob) Set(f func(glob string) (err error)) *RepositoryMock {
 	if mmAddGlob.defaultExpectation != nil {
 		mmAddGlob.mock.t.Fatalf("Default expectation is already set for the Repository.AddGlob method")
@@ -358,7 +358,7 @@ func (mmGetCurrentBranch *mRepositoryMockGetCurrentBranch) Return(s1 string, err
 	return mmGetCurrentBranch.mock
 }
 
-// Set uses given function f to mock the Repository.GetCurrentBranch method
+//Set uses given function f to mock the Repository.GetCurrentBranch method
 func (mmGetCurrentBranch *mRepositoryMockGetCurrentBranch) Set(f func() (s1 string, err error)) *RepositoryMock {
 	if mmGetCurrentBranch.defaultExpectation != nil {
 		mmGetCurrentBranch.mock.t.Fatalf("Default expectation is already set for the Repository.GetCurrentBranch method")
@@ -502,7 +502,7 @@ func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Return(sa1 []string, er
 	return mmGetFilesInIndex.mock
 }
 
-// Set uses given function f to mock the Repository.GetFilesInIndex method
+//Set uses given function f to mock the Repository.GetFilesInIndex method
 func (mmGetFilesInIndex *mRepositoryMockGetFilesInIndex) Set(f func() (sa1 []string, err error)) *RepositoryMock {
 	if mmGetFilesInIndex.defaultExpectation != nil {
 		mmGetFilesInIndex.mock.t.Fatalf("Default expectation is already set for the Repository.GetFilesInIndex method")
@@ -646,7 +646,7 @@ func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Return(m1 map[string]vc
 	return mmGetIndexChanges.mock
 }
 
-// Set uses given function f to mock the Repository.GetIndexChanges method
+//Set uses given function f to mock the Repository.GetIndexChanges method
 func (mmGetIndexChanges *mRepositoryMockGetIndexChanges) Set(f func() (m1 map[string]vcs.Changes, err error)) *RepositoryMock {
 	if mmGetIndexChanges.defaultExpectation != nil {
 		mmGetIndexChanges.mock.t.Fatalf("Default expectation is already set for the Repository.GetIndexChanges method")
@@ -790,7 +790,7 @@ func (mmGetLastTag *mRepositoryMockGetLastTag) Return(s1 string, err error) *Rep
 	return mmGetLastTag.mock
 }
 
-// Set uses given function f to mock the Repository.GetLastTag method
+//Set uses given function f to mock the Repository.GetLastTag method
 func (mmGetLastTag *mRepositoryMockGetLastTag) Set(f func() (s1 string, err error)) *RepositoryMock {
 	if mmGetLastTag.defaultExpectation != nil {
 		mmGetLastTag.mock.t.Fatalf("Default expectation is already set for the Repository.GetLastTag method")
@@ -934,7 +934,7 @@ func (mmGetUser *mRepositoryMockGetUser) Return(u1 vcs.User, err error) *Reposit
 	return mmGetUser.mock
 }
 
-// Set uses given function f to mock the Repository.GetUser method
+//Set uses given function f to mock the Repository.GetUser method
 func (mmGetUser *mRepositoryMockGetUser) Set(f func() (u1 vcs.User, err error)) *RepositoryMock {
 	if mmGetUser.defaultExpectation != nil {
 		mmGetUser.mock.t.Fatalf("Default expectation is already set for the Repository.GetUser method")
@@ -1092,7 +1092,7 @@ func (mmRemoveGlob *mRepositoryMockRemoveGlob) Return(err error) *RepositoryMock
 	return mmRemoveGlob.mock
 }
 
-// Set uses given function f to mock the Repository.RemoveGlob method
+//Set uses given function f to mock the Repository.RemoveGlob method
 func (mmRemoveGlob *mRepositoryMockRemoveGlob) Set(f func(glob string) (err error)) *RepositoryMock {
 	if mmRemoveGlob.defaultExpectation != nil {
 		mmRemoveGlob.mock.t.Fatalf("Default expectation is already set for the Repository.RemoveGlob method")

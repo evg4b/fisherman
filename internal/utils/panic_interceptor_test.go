@@ -1,7 +1,10 @@
 package utils_test
 
 import (
+	"bytes"
+	"errors"
 	"fisherman/internal/utils"
+	"fisherman/pkg/log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,4 +34,25 @@ func TestPanicInterceptor(t *testing.T) {
 			assert.True(t, called)
 		})
 	}
+}
+
+func TestPanicInterceptorWithErrorDump(t *testing.T) {
+	buffer := bytes.NewBufferString("")
+
+	log.SetOutput(buffer)
+
+	called := false
+	exitCode := 3
+
+	assert.NotPanics(t, func() {
+		defer utils.PanicInterceptor(func(code int) {
+			exitCode = code
+			called = true
+		}, 3)
+		panic(errors.New("test panic"))
+	})
+
+	assert.True(t, called)
+	assert.Equal(t, 3, exitCode)
+	assert.Equal(t, buffer.String(), "Fatal error: test panic\n")
 }
