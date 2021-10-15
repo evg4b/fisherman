@@ -7,6 +7,7 @@ import (
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -74,6 +75,8 @@ func TestRunner_Run(t *testing.T) {
 				app.WithFs(mocks.NewFilesystemMock(t)),
 				app.WithRepository(mocks.NewRepositoryMock(t)),
 				app.WithShell(mocks.NewShellMock(t)),
+				app.WithCwd("/"),
+				app.WithOutput(io.Discard),
 			)
 
 			assert.NotPanics(t, func() {

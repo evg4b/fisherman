@@ -46,6 +46,7 @@ func CreateGitRepository(repo *git.Repository) *GitRepository {
 	}
 }
 
+// GetCurrentBranch return current branch name.
 func (r *GitRepository) GetCurrentBranch() (string, error) {
 	repo, err := r.repo()
 	if err != nil {
@@ -64,6 +65,7 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 	return headRef.Name().String(), nil
 }
 
+// GetUser return information ablout configured git user.
 func (r *GitRepository) GetUser() (User, error) {
 	repo, err := r.repo()
 	if err != nil {
@@ -78,9 +80,10 @@ func (r *GitRepository) GetUser() (User, error) {
 	return User{
 		UserName: gitConfig.User.Name,
 		Email:    gitConfig.User.Email,
-	}, err
+	}, nil
 }
 
+// AddGlob adds files in index by glob expresion.
 func (r *GitRepository) AddGlob(glob string) error {
 	repo, err := r.repo()
 	if err != nil {
@@ -95,6 +98,7 @@ func (r *GitRepository) AddGlob(glob string) error {
 	return wt.AddGlob(glob)
 }
 
+// AddGlob removes files from index by glob expresion.
 func (r *GitRepository) RemoveGlob(glob string) error {
 	repo, err := r.repo()
 	if err != nil {

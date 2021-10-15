@@ -13,6 +13,7 @@ const (
 	baseCommandLen = 8
 )
 
+// PrintDefaults prints custom information output.
 func (r *FishermanApp) PrintDefaults() {
 	utils.PrintGraphics(log.InfoOutput, constants.Logo, map[string]interface{}{
 		constants.FishermanVersionVariable: constants.Version,

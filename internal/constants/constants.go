@@ -3,7 +3,7 @@ package constants
 // AppName is a binary file name.
 const AppName = "fisherman"
 
-// Version is version of binary.
+// Version is version string of binary.
 var Version = "x.x.x"
 
 // AppConfigNames is allowed config names.

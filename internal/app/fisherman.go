@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	i "fisherman/internal"
+	"fisherman/internal"
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
@@ -11,19 +11,21 @@ import (
 	"github.com/go-git/go-billy/v5"
 )
 
+// FishermanApp is main application structure.
 type FishermanApp struct {
 	cwd      string
 	fs       billy.Filesystem
-	shell    i.Shell
-	repo     i.Repository
+	shell    internal.Shell
+	repo     internal.Repository
 	output   io.Writer
 	commands CliCommands
 }
 
+// NewFishermanApp is an fisherman application constructor.
 func NewFishermanApp(options ...appOption) *FishermanApp {
 	app := FishermanApp{
 		output:   io.Discard,
-		commands: make(CliCommands, 0),
+		commands: CliCommands{},
 		cwd:      "",
 	}
 
@@ -39,6 +41,7 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 	return &app
 }
 
+// Run runs fisherman application.
 func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 	if len(args) < 1 {
 		log.Debug("No command detected")

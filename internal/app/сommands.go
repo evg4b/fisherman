@@ -7,8 +7,10 @@ import (
 	"github.com/go-errors/errors"
 )
 
+// CliCommands is commands collection type.
 type CliCommands []internal.CliCommand
 
+// GetCommand initializes and returns command object by cli arguments.
 func (commands CliCommands) GetCommand(args []string) (internal.CliCommand, error) {
 	commandName := args[0]
 
