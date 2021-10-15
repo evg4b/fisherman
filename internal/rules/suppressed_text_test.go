@@ -206,6 +206,39 @@ func TestSuppressedText_Check_Excluded(t *testing.T) {
 	}
 }
 
+func TestSuppressedText_GetPosition(t *testing.T) {
+	rule := rules.SuppressedText{
+		BaseRule:   rules.BaseRule{Type: rules.SuppressedTextType},
+		Substrings: []string{"suppressed text"},
+	}
+
+	actual := rule.GetPosition()
+
+	assert.Equal(t, actual, rules.PostScripts)
+}
+
+func TestSuppressedText_Compile(t *testing.T) {
+	rule := rules.SuppressedText{
+		BaseRule:   rules.BaseRule{Type: rules.ShellScriptType},
+		Substrings: []string{"DEMO {{var1}}"},
+		ExcludedGlobs: []string{
+			"Glob1 {{var1}}",
+			"Glob2 {{var1}}",
+		},
+	}
+
+	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+
+	assert.Equal(t, rules.SuppressedText{
+		BaseRule:   rules.BaseRule{Type: rules.ShellScriptType},
+		Substrings: []string{"DEMO VALUE"},
+		ExcludedGlobs: []string{
+			"Glob1 VALUE",
+			"Glob2 VALUE",
+		},
+	}, rule)
+}
+
 func assertFlatMultiError(t *testing.T, expected []string, actual error) {
 	t.Helper()
 

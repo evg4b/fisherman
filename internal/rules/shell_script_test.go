@@ -3,12 +3,15 @@ package rules_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fisherman/internal/rules"
 	"fisherman/pkg/shell"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
 	"io"
+	"os"
+	"os/exec"
 	"runtime"
 	"testing"
 
@@ -20,8 +23,9 @@ func TestShellScript_Check(t *testing.T) {
 	tests := []struct {
 		name           string
 		config         rules.ShellScript
+		execErr        error
 		expectedOutput string
-		expectedErr    error
+		expectedErr    string
 		shellOutput    string
 		expectedShell  string
 		expectedScript *shell.Script
@@ -36,9 +40,34 @@ func TestShellScript_Check(t *testing.T) {
 				},
 			},
 			expectedOutput: "test",
-			expectedErr:    nil,
 			shellOutput:    "test",
 			expectedShell:  "",
+		},
+		{
+			name: "script with error",
+			config: rules.ShellScript{
+				BaseRule: baseRule,
+				BaseShell: rules.BaseShell{
+					Name:   "testScript",
+					Output: true,
+				},
+			},
+			execErr:     errors.New("execution error"),
+			expectedErr: "failed to exec shell script: execution error",
+		},
+		{
+			name: "script with exec.ExitError",
+			config: rules.ShellScript{
+				BaseRule: baseRule,
+				BaseShell: rules.BaseShell{
+					Name:   "testScript",
+					Output: true,
+				},
+			},
+			execErr: &exec.ExitError{
+				ProcessState: &os.ProcessState{},
+			},
+			expectedErr: "[shell-script] script finished with exit code 0",
 		},
 		{
 			name: "script with out output",
@@ -56,7 +85,6 @@ func TestShellScript_Check(t *testing.T) {
 				},
 			},
 			expectedOutput: "",
-			expectedErr:    nil,
 			shellOutput:    "test",
 			expectedShell:  "",
 			expectedScript: shell.NewScript([]string{"demo"}).
@@ -77,7 +105,6 @@ func TestShellScript_Check(t *testing.T) {
 				},
 			},
 			expectedOutput: "demo",
-			expectedErr:    nil,
 			shellOutput:    "demo",
 			expectedShell:  "zsh",
 		},
@@ -98,19 +125,14 @@ func TestShellScript_Check(t *testing.T) {
 						assert.EqualValues(t, *tt.expectedScript, *s2)
 					}
 
-					return tt.expectedErr
+					return tt.execErr
 				})
 
 			ctx.ShellMock.Return(sh)
 
 			err := tt.config.Check(ctx, output)
 
-			if tt.expectedErr == nil {
-				assert.NoError(t, err)
-			} else {
-				assert.EqualError(t, err, tt.expectedErr.Error())
-			}
-
+			testutils.CheckError(t, tt.expectedErr, err)
 			assert.Equal(t, tt.expectedOutput, output.String())
 		})
 	}

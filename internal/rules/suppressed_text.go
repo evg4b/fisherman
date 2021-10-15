@@ -61,4 +61,5 @@ func (rule *SuppressedText) GetPosition() byte {
 func (rule *SuppressedText) Compile(variables map[string]interface{}) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplatesArray(rule.Substrings, variables)
+	utils.FillTemplatesArray(rule.ExcludedGlobs, variables)
 }

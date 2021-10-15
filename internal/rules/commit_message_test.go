@@ -2,6 +2,7 @@
 package rules_test
 
 import (
+	"errors"
 	"fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
@@ -162,6 +163,19 @@ func TestCommitMessage_TestMessageRegexp_MachingError(t *testing.T) {
 	err := rule.Check(ctx, ioutil.Discard)
 
 	assert.Error(t, err)
+}
+
+func TestCommitMessage_MessageReadingError(t *testing.T) {
+	ctx := mocks.NewExecutionContextMock(t).MessageMock.Return("", errors.New("message cannot be read"))
+
+	rule := rules.CommitMessage{
+		BaseRule: rules.BaseRule{Type: rules.CommitMessageType},
+		Regexp:   "[a-z]($",
+	}
+
+	err := rule.Check(ctx, ioutil.Discard)
+
+	assert.EqualError(t, err, "message cannot be read")
 }
 
 func TestCommitMessage_Compile(t *testing.T) {
