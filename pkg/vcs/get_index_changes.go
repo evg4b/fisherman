@@ -18,17 +18,16 @@ import (
 func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 	indexChanges := make(map[string]Changes)
 
-	repo, err := r.repo()
+	if err := r.init(); err != nil {
+		return nil, err
+	}
+
+	head, err := r.repo.Head()
 	if err != nil {
 		return nil, err
 	}
 
-	head, err := repo.Head()
-	if err != nil {
-		return nil, err
-	}
-
-	commit, err := repo.CommitObject(head.Hash())
+	commit, err := r.repo.CommitObject(head.Hash())
 	if err != nil {
 		return nil, err
 	}
@@ -38,12 +37,12 @@ func (r *GitRepository) GetIndexChanges() (map[string]Changes, error) {
 		return nil, err
 	}
 
-	idx, err := repo.Storer.Index()
+	idx, err := r.storer.Index()
 	if err != nil {
 		return nil, err
 	}
 
-	wt, err := repo.Worktree()
+	wt, err := r.repo.Worktree()
 	if err != nil {
 		return nil, err
 	}

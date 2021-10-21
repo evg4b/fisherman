@@ -2,58 +2,39 @@ package vcs
 
 import (
 	"errors"
-	"sync"
 
-	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/storage"
 )
 
 type GitRepository struct {
-	repo func() (*git.Repository, error)
+	init   func() error
+	repo   GoGitRepository
+	storer storage.Storer
 }
 
-// OpenGitRepository returns not initialized git repo with root in passed path.
+// NewRepository returns not initialized git repo with passed options.
 //
 // Repo has lazy initialization. Error in case of error opening the repository
 // will be returned only on the first access to any method.
-func OpenGitRepository(path string) *GitRepository {
-	var repoOnce sync.Once
-	var repo *git.Repository
+func NewRepository(options ...repositoryOption) *GitRepository {
+	repo := &GitRepository{}
 
-	return &GitRepository{
-		repo: func() (*git.Repository, error) {
-			var err error
-
-			repoOnce.Do(func() {
-				repo, err = git.PlainOpen(path)
-			})
-
-			return repo, err
-		},
+	for _, option := range options {
+		option(repo)
 	}
-}
 
-// CreateGitRepository returns not initialized git repo based on passed go-git repo
-//
-// Repo has lazy initialization. Error in case of error opening the repository
-// will be returned only on the first access to any method.
-func CreateGitRepository(repo *git.Repository) *GitRepository {
-	return &GitRepository{
-		repo: func() (*git.Repository, error) {
-			return repo, nil
-		},
-	}
+	return repo
 }
 
 // GetCurrentBranch return current branch name.
 func (r *GitRepository) GetCurrentBranch() (string, error) {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return "", err
 	}
 
-	headRef, err := repo.Head()
+	headRef, err := r.repo.Head()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -67,12 +48,11 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 
 // GetUser return information ablout configured git user.
 func (r *GitRepository) GetUser() (User, error) {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return User{}, err
 	}
 
-	gitConfig, err := repo.ConfigScoped(config.SystemScope)
+	gitConfig, err := r.repo.ConfigScoped(config.SystemScope)
 	if err != nil {
 		return User{}, err
 	}
@@ -85,12 +65,11 @@ func (r *GitRepository) GetUser() (User, error) {
 
 // AddGlob adds files in index by glob expresion.
 func (r *GitRepository) AddGlob(glob string) error {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return err
 	}
 
-	wt, err := repo.Worktree()
+	wt, err := r.repo.Worktree()
 	if err != nil {
 		return err
 	}
@@ -100,12 +79,11 @@ func (r *GitRepository) AddGlob(glob string) error {
 
 // AddGlob removes files from index by glob expresion.
 func (r *GitRepository) RemoveGlob(glob string) error {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return err
 	}
 
-	wt, err := repo.Worktree()
+	wt, err := r.repo.Worktree()
 	if err != nil {
 		return err
 	}

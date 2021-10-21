@@ -23,7 +23,13 @@ func (changes Changes) Deleted() Changes {
 	return changes.filter(Deleted)
 }
 
-func (changes Changes) filter(status ChangeCode) (filtered Changes) {
+func (changes Changes) Unmodified() Changes {
+	return changes.filter(Unmodified)
+}
+
+func (changes Changes) filter(status ChangeCode) Changes {
+	filtered := Changes{}
+
 	for _, change := range changes {
 		if change.Status == status {
 			filtered = append(filtered, change)

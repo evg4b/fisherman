@@ -74,7 +74,9 @@ func main() {
 		}),
 		app.WithFs(fs),
 		app.WithOutput(os.Stdout),
-		app.WithRepository(vcs.OpenGitRepository(cwd)),
+		app.WithRepository(vcs.NewRepository(
+			vcs.WithFsRepo(cwd),
+		)),
 		app.WithShell(shell),
 	)
 

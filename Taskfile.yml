@@ -70,3 +70,4 @@ tasks:
       - minimock -i fisherman/internal.Shell -o ./testing/mocks/shell_mock.go
       - minimock -i github.com/go-git/go-billy/v5.Filesystem -o ./testing/mocks/filesystem_mock.go
       - minimock -i github.com/go-git/go-billy/v5.File -o ./testing/mocks/file_mock.go
+      - minimock -i fisherman/pkg/vcs.GoGitRepository -o ./testing/mocks/go_git_repository_mock.go

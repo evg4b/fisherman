@@ -1,12 +1,11 @@
 package vcs
 
 func (r *GitRepository) GetFilesInIndex() ([]string, error) {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return nil, err
 	}
 
-	worktree, err := repo.Worktree()
+	worktree, err := r.repo.Worktree()
 	if err != nil {
 		return nil, err
 	}

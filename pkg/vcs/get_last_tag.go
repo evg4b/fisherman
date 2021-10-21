@@ -10,21 +10,11 @@ import (
 
 // nolint: cyclop
 func (r *GitRepository) GetLastTag() (string, error) {
-	repo, err := r.repo()
-	if err != nil {
+	if err := r.init(); err != nil {
 		return "", err
 	}
 
-	tagRef, err := repo.Tags()
-	if err != nil {
-		if errors.Is(err, plumbing.ErrReferenceNotFound) {
-			return "", nil
-		}
-
-		return "", err
-	}
-
-	head, err := repo.Head()
+	tagRef, err := r.repo.Tags()
 	if err != nil {
 		if errors.Is(err, plumbing.ErrReferenceNotFound) {
 			return "", nil
@@ -33,7 +23,16 @@ func (r *GitRepository) GetLastTag() (string, error) {
 		return "", err
 	}
 
-	headCommit, err := repo.CommitObject(head.Hash())
+	head, err := r.repo.Head()
+	if err != nil {
+		if errors.Is(err, plumbing.ErrReferenceNotFound) {
+			return "", nil
+		}
+
+		return "", err
+	}
+
+	headCommit, err := r.repo.CommitObject(head.Hash())
 	if err != nil {
 		return "", err
 	}
@@ -53,12 +52,12 @@ func (r *GitRepository) GetLastTag() (string, error) {
 		}
 
 		revision := plumbing.Revision(tagRef.Name().String())
-		tagCommitHash, err := repo.ResolveRevision(revision)
+		tagCommitHash, err := r.repo.ResolveRevision(revision)
 		if err != nil {
 			return "", err
 		}
 
-		commit, err := repo.CommitObject(*tagCommitHash)
+		commit, err := r.repo.CommitObject(*tagCommitHash)
 		if err != nil {
 			return "", err
 		}

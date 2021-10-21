@@ -1,10 +1,14 @@
 package vcs_test
 
 import (
+	"errors"
 	"fisherman/pkg/guards"
+	"fisherman/pkg/vcs"
+	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
 
+	"github.com/go-git/go-git/v5/storage"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,4 +63,17 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"tracked"}, files)
+}
+
+func TestGitRepository_GetFilesInIndex_Worktree_Error(t *testing.T) {
+	expectedError := errors.New("worktree error")
+	gitMock := mocks.NewGoGitRepositoryMock(t).WorktreeMock.Return(nil, expectedError)
+
+	repo := vcs.NewRepository(vcs.WithFactoryMethod(func() (vcs.GoGitRepository, storage.Storer, error) {
+		return gitMock, nil, nil
+	}))
+
+	_, err := repo.GetFilesInIndex()
+
+	assert.EqualError(t, err, expectedError.Error())
 }
