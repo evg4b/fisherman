@@ -50,7 +50,6 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		return nil
 	}
 
-	commandName := args[0]
 	command, err := r.commands.GetCommand(args)
 	if err != nil {
 		return err
@@ -67,12 +66,12 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 	)
 
 	if err := command.Run(ctx); err != nil {
-		log.Debugf("Command '%s' finished with error, %v", commandName, err)
+		log.Debugf("Command '%s' finished with error, %v", command.Name(), err)
 
 		return err
 	}
 
-	log.Debugf("Command '%s' finished witout error", commandName)
+	log.Debugf("Command '%s' finished witout error", command.Name())
 
 	return nil
 }

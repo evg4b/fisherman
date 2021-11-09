@@ -23,7 +23,7 @@ func TestRunner_Run(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name: "Should run called commnad and return its error",
+			name: "should run called commnad and return its error",
 			args: []string{"init"},
 			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
@@ -33,7 +33,7 @@ func TestRunner_Run(t *testing.T) {
 			expectedError: "expected error",
 		},
 		{
-			name: "Should run called commnad and return nil when command executed witout error",
+			name: "should run called commnad and return nil when command executed witout error",
 			args: []string{"init"},
 			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
@@ -42,7 +42,7 @@ func TestRunner_Run(t *testing.T) {
 			},
 		},
 		{
-			name: "Should return error when command not found",
+			name: "should return error when command not found",
 			args: []string{"not"},
 			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),
@@ -58,7 +58,7 @@ func TestRunner_Run(t *testing.T) {
 			expectedError: "unknown command: not",
 		},
 		{
-			name: "Should not return error when commnad not specified",
+			name: "should not return error when commnad not specified",
 			args: []string{},
 			commands: []internal.CliCommand{
 				makeCommand(t, "handle"),

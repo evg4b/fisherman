@@ -1,16 +1,17 @@
-package shell_test
+package shell
 
 import (
 	"errors"
-	"fisherman/pkg/shell"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: remove this test file
+
 func TestExecWithTime(t *testing.T) {
-	duration, err := shell.ExecWithTime(func() error {
+	duration, err := execWithTime(func() error {
 		time.Sleep(time.Millisecond * 1)
 
 		return nil
@@ -21,7 +22,7 @@ func TestExecWithTime(t *testing.T) {
 }
 
 func TestExecWithTime_Error(t *testing.T) {
-	duration, err := shell.ExecWithTime(func() error {
+	duration, err := execWithTime(func() error {
 		time.Sleep(time.Millisecond * 1)
 
 		return errors.New("TestError")

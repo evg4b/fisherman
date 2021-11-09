@@ -19,15 +19,14 @@ func (r *FishermanApp) PrintDefaults() {
 		constants.FishermanVersionVariable: constants.Version,
 	})
 
-	fmt.Fprintln(log.InfoOutput, "                 Small git hook management tool for developer.")
+	fmt.Fprintln(log.InfoOutput, strings.Repeat(preffix, 8), "Small git hook management tool for developer.") // nolint mnd
 	fmt.Fprintln(log.InfoOutput, "")
 	fmt.Fprintln(log.InfoOutput, preffix, "Commands:")
 
 	for _, command := range r.commands {
 		fmt.Fprintln(
 			log.InfoOutput,
-			preffix,
-			preffix,
+			strings.Repeat(preffix, 2), // nolint mnd
 			command.Name(),
 			strings.Repeat(" ", baseCommandLen-len(command.Name())),
 			command.Description())

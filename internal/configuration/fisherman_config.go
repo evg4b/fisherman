@@ -24,3 +24,5 @@ var (
 	LocalMode  = "local"
 	RepoMode   = "repo"
 )
+
+var ModeOptions = []string{GlobalMode, RepoMode, LocalMode}

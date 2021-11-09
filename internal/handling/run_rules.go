@@ -23,20 +23,18 @@ type (
 
 func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	input := make(chan configuration.Rule)
-	output := make(chan error)
-
-	err := startWorkers(ctx, input, output, h.WorkersCount)
+	output, err := startWorkers(ctx, input, h.WorkersCount)
 	if err != nil {
 		return err
 	}
 
 	filteredRules := []configuration.Rule{}
 	for _, rule := range rules {
-		shouldAadd := true
+		shouldAdd := true
 
 		condition := rule.GetContition()
 		if !utils.IsEmpty(condition) {
-			shouldAadd, err = h.Engine.Eval(condition, h.GlobalVariables)
+			shouldAdd, err = h.Engine.Eval(condition, h.GlobalVariables)
 			if err != nil {
 				close(input)
 
@@ -44,7 +42,7 @@ func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 			}
 		}
 
-		if shouldAadd {
+		if shouldAdd {
 			filteredRules = append(filteredRules, rule)
 		}
 	}
@@ -64,14 +62,17 @@ func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	return multierr.ErrorOrNil()
 }
 
-func startWorkers(ctx coxtext, input in, output out, count int) error {
+func startWorkers(ctx coxtext, input in, count int) (chan error, error) {
 	wg := sync.WaitGroup{}
 
 	if count <= 0 {
-		return errors.New("incorrect workers count")
+		return nil, errors.New("incorrect workers count")
 	}
 
+	output := make(chan error)
+
 	wg.Add(count)
+	// TODO: suppress spawn unused workers
 	for i := 0; i < count; i++ {
 		go worker(i, &wg, ctx, input, output)
 	}
@@ -81,7 +82,7 @@ func startWorkers(ctx coxtext, input in, output out, count int) error {
 		close(output)
 	}()
 
-	return nil
+	return output, nil
 }
 
 // TODO: Add panic interceptor.
@@ -92,6 +93,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 
 	for rule := range input {
 		err := checkRule(ctx, rule)
+		// TODO: Move canclation to workers run method
 		if err != nil {
 			if !validation.IsValidationError(err) {
 				ctx.Cancel()
@@ -103,6 +105,7 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	}
 }
 
+// TODO: Add more detailed validation result.
 func checkRule(ctx coxtext, rule configuration.Rule) error {
 	writer := ctx.Output()
 	defer writer.Close()

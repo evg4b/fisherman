@@ -9,6 +9,7 @@ type Script struct {
 	duration time.Duration
 }
 
+// TODO: Add options pattern to configure script.
 func NewScript(commands []string) *Script {
 	return &Script{
 		commands: commands,

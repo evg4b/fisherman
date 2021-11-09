@@ -43,6 +43,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
 	command.Env = envList
 	command.Dir = utils.GetOrDefault(script.dir, sh.cwd)
+	// TODO: Add custom encoding for different shell
 	command.Stdout = output
 	command.Stderr = output
 
@@ -53,7 +54,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	go startWriter(stdin, script.commands, config)
 
-	script.duration, err = ExecWithTime(command.Run)
+	script.duration, err = execWithTime(command.Run)
 	if err != nil {
 		return errors.Errorf("script completed with an error: %w", err)
 	}

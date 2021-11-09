@@ -4,6 +4,7 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
+	"fisherman/pkg/shell"
 	"os/user"
 	"path/filepath"
 
@@ -16,27 +17,27 @@ import (
 const gitDir = ".git"
 
 type ConfigLoader struct {
-	usr   *user.User
-	cwd   string
-	files billy.Filesystem
+	usr *user.User
+	cwd string
+	fs  billy.Filesystem
 }
 
-func NewLoader(usr *user.User, cwd string, files billy.Filesystem) *ConfigLoader {
+func NewLoader(usr *user.User, cwd string, fs billy.Filesystem) *ConfigLoader {
 	return &ConfigLoader{
-		usr:   usr,
-		cwd:   cwd,
-		files: files,
+		usr: usr,
+		cwd: cwd,
+		fs:  fs,
 	}
 }
 
 func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
 	configs := map[string]string{}
-	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
+	for _, mode := range ModeOptions {
 		folder := GetConfigFolder(loader.usr, loader.cwd, mode)
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
-			exist, err := utils.Exists(loader.files, configPath)
+			exist, err := utils.Exists(loader.fs, configPath)
 			if err != nil {
 				return nil, err
 			}
@@ -73,10 +74,11 @@ func GetConfigFolder(usr *user.User, cwd, mode string) string {
 
 func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, error) {
 	config := FishermanConfig{
-		Output: log.DefaultOutputConfig,
+		Output:       log.DefaultOutputConfig,
+		DefaultShell: shell.PlatformDefaultShell,
 	}
 
-	for _, mode := range []string{GlobalMode, RepoMode, LocalMode} {
+	for _, mode := range ModeOptions {
 		file, ok := files[mode]
 		if ok {
 			loadedConfig, err := loader.unmarshlFile(file)
@@ -97,7 +99,7 @@ func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, err
 func (loader *ConfigLoader) unmarshlFile(path string) (*FishermanConfig, error) {
 	var config FishermanConfig
 
-	file, err := loader.files.Open(path)
+	file, err := loader.fs.Open(path)
 	if err != nil {
 		return nil, errors.Errorf("open %s: %w", path, err)
 	}

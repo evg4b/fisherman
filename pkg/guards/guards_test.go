@@ -4,6 +4,7 @@ import (
 	"fisherman/pkg/guards"
 	"testing"
 
+	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,6 +42,7 @@ func TestShouldBeDefined(t *testing.T) {
 			object:  nil,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if len(tt.err) > 0 {
@@ -54,4 +56,17 @@ func TestShouldBeDefined(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNoErrorPanicForError(t *testing.T) {
+	err := errors.New("Test err")
+	assert.PanicsWithError(t, err.Error(), func() {
+		guards.NoError(err)
+	})
+}
+
+func TestNoErrorNotPanicForNil(t *testing.T) {
+	assert.NotPanics(t, func() {
+		guards.NoError(nil)
+	})
 }

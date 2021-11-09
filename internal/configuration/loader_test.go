@@ -5,6 +5,7 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/internal/rules"
 	"fisherman/pkg/log"
+	"fisherman/pkg/shell"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
@@ -156,7 +157,8 @@ hooks:
 			loader: NewLoader(&usr, cwd, mocks.NewFilesystemMock(t)),
 			files:  map[string]string{},
 			expected: &FishermanConfig{
-				Output: log.DefaultOutputConfig,
+				DefaultShell: shell.PlatformDefaultShell,
+				Output:       log.DefaultOutputConfig,
 			},
 		},
 		{
@@ -174,7 +176,8 @@ hooks:
 				GlobalMode: "GlobalConfig",
 			},
 			expected: &FishermanConfig{
-				Output: log.DefaultOutputConfig,
+				DefaultShell: shell.PlatformDefaultShell,
+				Output:       log.DefaultOutputConfig,
 				GlobalVariables: map[string]interface{}{
 					"name": "value",
 				},
@@ -253,7 +256,8 @@ variables:
 
 	assert.NoError(t, err)
 	assert.Equal(t, &FishermanConfig{
-		Output: log.DefaultOutputConfig,
+		Output:       log.DefaultOutputConfig,
+		DefaultShell: shell.PlatformDefaultShell,
 		GlobalVariables: map[string]interface{}{
 			"var1": "local",
 			"var2": "repo",
