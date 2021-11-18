@@ -24,6 +24,7 @@ type ExecutionContext interface {
 	Cwd() string
 }
 
+// TODO: Remove this structure after option pattern implementation in internal/commands/... .
 type AppInfo struct {
 	Cwd        string
 	Executable string

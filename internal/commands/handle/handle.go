@@ -16,6 +16,7 @@ type Command struct {
 	app         internal.AppInfo
 }
 
+// TODO: Refactor to implement options pattern.
 func NewCommand(hookFactory handling.Factory, config *cnfg.HooksConfig, app internal.AppInfo) *Command {
 	command := &Command{
 		flagSet:     flag.NewFlagSet("handle", flag.ExitOnError),

@@ -31,6 +31,7 @@ type ShellScript struct {
 	BaseShell `yaml:",inline"`
 }
 
+// TODO: Remove OS related overload struct. Use condition to run scripts in some OS.
 type osRelatedShellScript struct {
 	BaseRule `yaml:",inline"`
 	Windows  BaseShell `yaml:"windows"`

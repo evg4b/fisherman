@@ -20,6 +20,7 @@ type Command struct {
 	user    *user.User
 }
 
+// TODO: Refactor to implement options pattern.
 func NewCommand(files billy.Filesystem, app internal.AppInfo, user *user.User) *Command {
 	return &Command{
 		flagSet: flag.NewFlagSet("remove", flag.ExitOnError),

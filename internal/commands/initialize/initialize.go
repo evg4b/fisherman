@@ -29,6 +29,7 @@ type Command struct {
 	user     *user.User
 }
 
+// TODO: Refactor to implement options pattern.
 func NewCommand(files billy.Filesystem, app internal.AppInfo, user *user.User) *Command {
 	command := &Command{
 		flagSet: flag.NewFlagSet("init", flag.ExitOnError),
