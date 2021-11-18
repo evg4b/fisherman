@@ -102,6 +102,11 @@ func (ctx *ApplicationContext) Message() (string, error) {
 	return message, nil
 }
 
+// Cwd returns current working directory.
+func (ctx *ApplicationContext) Cwd() string {
+	return ctx.cwd
+}
+
 func (ctx *ApplicationContext) Arg(index int) (string, error) {
 	if index < 0 {
 		return "", errors.New("incorrect argument index")

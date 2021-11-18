@@ -70,6 +70,21 @@ func TestContext_Args(t *testing.T) {
 	assert.Equal(t, expectedArgs, actualArgs)
 }
 
+func TestContext_Cwd(t *testing.T) {
+	expectedCwd := "/usr/root/home"
+
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		appcontext.WithCwd(expectedCwd),
+	)
+
+	actualCwd := ctx.Cwd()
+
+	assert.Equal(t, expectedCwd, actualCwd)
+}
+
 func TestContext_Arg(t *testing.T) {
 	ctx := appcontext.NewContext(
 		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),

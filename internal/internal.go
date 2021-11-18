@@ -21,6 +21,7 @@ type ExecutionContext interface {
 	Output() io.WriteCloser
 	Message() (string, error)
 	Cancel()
+	Cwd() string
 }
 
 type AppInfo struct {
