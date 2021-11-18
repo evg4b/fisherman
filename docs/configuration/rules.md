@@ -151,6 +151,7 @@ Powershell by default do not return non zero exit code on fail. [See more](https
 **globs** - List of files to be checked in index before commit. Commit fill be rejected when file will be founded.
 
 **remove-from-index** - When this flag is `true` then files founded in index will be removed from it and commit well be continued.
+
 ## suppressed-text
 
 The rule that prohibits committing if forbidden lines were added.
@@ -165,3 +166,31 @@ The rule that prohibits committing if forbidden lines were added.
 **substrings** - List of lines that should not be included in the commit.
 
 **exclude** - List of globs in which you do not need to check this rule.
+
+## run-program
+
+This rules runs program for validation (All scripts are executed in parallel at the moment the hook is triggered).
+
+Run program rule can be configured using the following structure:
+
+``` yaml
+- type: run-program
+  when: 1 == 1
+  name: Tests
+  program: go
+  args: ["test", "./..."]
+```
+
+**name** - List of lines that should not be included in the commit.
+
+**program** - Program name or path to program binary
+
+**args** - List of arguments for start
+
+**when** - An expression on C like language. It allows you to define a condition for executing a program. See more in section [Condition expressions](./expressions.md).
+
+**env** - Sets additional environment variables (system environment variables also will be included) for the program.
+
+**output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
+
+**dir** - Sets current working directory for program.

@@ -14,12 +14,14 @@ This section is common variables section without additional params. See more inf
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## commit-msg
 
 The `commit-msg` hook is run first, before you even type in a commit message. It can be used to override the commit message or validate its contents. This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 - [commit-message](./rules#commit-message)
 
 ## fsmonitor-watchman
@@ -27,24 +29,28 @@ The `commit-msg` hook is run first, before you even type in a commit message. It
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## post-update
 
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## pre-applypatch
 
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## pre-commit
 
 The `pre-commit` hook is run first, before you even type in a commit message. It’s used to inspect the snapshot that’s about to be committed, to see if you’ve forgotten something, to make sure tests run, or to examine whatever you need to inspect in the code. This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 - [add-to-index](./rules#add-to-index)
 - [suppress-commit-files](./rules#suppress-commit-files)
 - [suppress-text](./rules#suppress-text)
@@ -54,18 +60,21 @@ The `pre-commit` hook is run first, before you even type in a commit message. It
 The `pre-push` hook runs during git push, after the remote refs have been updated but before any objects have been transferred. It receives the name and location of the remote as parameters, and a list of to-be-updated refs through stdin. You can use it to validate a set of ref updates before a push occurs. This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## pre-rebase
 
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## pre-receive
 
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)
 
 ## prepare-commit-msg
 
@@ -78,3 +87,4 @@ This hook is invoked by git-commit right after preparing the default log message
 This hook has following rules:
 
 - [shell-script](./rules#shell-script)
+- [run-program](./rules#run-program)

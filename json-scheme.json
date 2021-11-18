@@ -17,7 +17,7 @@
       "type": "array",
       "uniqueItems": true,
       "title": "Expressions to extract variables",
-      "description": "A section extracts variables from selected variable using named groups in regular expressions.",
+      "description": "A section extracts variables from selected variable using named groups in regular expressions",
       "items": {
         "type": "object",
         "properties": {
@@ -73,7 +73,7 @@
         "output": {
           "type": "boolean",
           "title": "Script output",
-          "description": "Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line."
+          "description": "Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line"
         },
         "dir": {
           "type": "string",
@@ -82,6 +82,47 @@
         }
       },
       "required": [ "commands" ]
+    },
+    "run-program": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "properties": {
+        "type": { "enum": [ "run-program" ] },
+        "variables": { "$ref": "#/definitions/variables" },
+        "extract-variables": { "$ref": "#/definitions/extract-variables" },
+        "program": {
+          "type": "string",
+          "title": "Program name",
+          "description": "Program alias or path to executable file"
+        },
+        "args": {
+          "type": "array",
+          "title": "Program arguments",
+          "description": "List of arguments for program",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "minProperties": 1,
+          "title": "Environment variables for program",
+          "description": "Sets additional environment variables (system environment variables also will be included) for the program"
+        },
+        "output": {
+          "type": "boolean",
+          "title": "Program output",
+          "description": "Indicates whether to print output from program. By default false. To display parallel output, use a prefix with rule name before each output line"
+        },
+        "dir": {
+          "type": "string",
+          "minLength": 1,
+          "title": "Working directory"
+        }
+      },
+      "required": [ "program" ]
     },
     "add-to-index": {
       "type": "object",
@@ -210,10 +251,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "commit-message"] }
+                  "type": { "enum": ["shell-script", "run-program", "commit-message"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" },
                   { "$ref": "#/definitions/commit-message" }
                 ],
                 "required": ["type"]
@@ -231,10 +273,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -251,10 +294,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -271,10 +315,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -291,10 +336,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -311,10 +357,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "add-to-index", "suppress-commit-files"] }
+                  "type": { "enum": ["shell-script", "run-program", "add-to-index", "suppress-commit-files"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" },
                   { "$ref": "#/definitions/add-to-index" },
                   { "$ref": "#/definitions/suppress-commit-files" }
                 ],
@@ -333,10 +380,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -353,10 +401,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -373,10 +422,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }
@@ -393,10 +443,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script"] }
+                  "type": { "enum": ["shell-script", "run-program"] }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" }
+                  { "$ref": "#/definitions/shell-script" },
+                  { "$ref": "#/definitions/run-program" }
                 ],
                 "required": ["type"]
               }

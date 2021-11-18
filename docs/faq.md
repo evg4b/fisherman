@@ -56,17 +56,17 @@ Can be used for final validation before pr create/update operation.
 hooks:
   pre-push:
     rules:
-      - type: shell-script
+      - type: run-program
         name: Linting
-        commands:
-          - golangci-lint run ./...
-      - type: shell-script
+        program: golangci-lint
+        args: [ run,  ./... ]
+      - type: run-program
         name: Tests
-        commands:
-          - go test run ./...
+        program: go
+        args: [ test,  ./... ]
 ```
 
 Related links:
 
 <!-- TODO: Add correct links -->
-- [shell-script rule](./configuration/rules.md#shell-script)
+- [run-program rule](./configuration/rules.md#run-program)

@@ -139,7 +139,9 @@ func TestShellScript_Check(t *testing.T) {
 }
 
 func TestShellScript_GetPosition(t *testing.T) {
-	rule := rules.ShellScript{BaseRule: rules.BaseRule{Type: rules.ShellScriptType}}
+	rule := rules.ShellScript{
+		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
+	}
 
 	actual := rule.GetPosition()
 
