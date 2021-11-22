@@ -15,3 +15,10 @@ func WithDefaultShell(defaultShell string) shellOption {
 		sh.defaultShell = defaultShell
 	}
 }
+
+// WithEnv setups environment variables for shell.
+func WithEnv(env []string) shellOption {
+	return func(sh *SystemShell) {
+		sh.env = env
+	}
+}

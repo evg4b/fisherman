@@ -64,6 +64,7 @@ func main() {
 	shell := shell.NewShell(
 		shell.WithWorkingDirectory(cwd),
 		shell.WithDefaultShell(defaultShell),
+		shell.WithEnv(os.Environ()),
 	)
 
 	fishermanApp := app.NewFishermanApp(
@@ -79,6 +80,7 @@ func main() {
 			vcs.WithFsRepo(cwd),
 		)),
 		app.WithShell(shell),
+		app.WithEnv(os.Environ()),
 	)
 
 	// TODO: Add interrupt event hadling (stopping)

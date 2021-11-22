@@ -3,9 +3,9 @@ package shell
 import (
 	"context"
 	"fisherman/internal/utils"
+	pkgutils "fisherman/pkg/utils"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 
 	"github.com/go-errors/errors"
@@ -14,12 +14,14 @@ import (
 type SystemShell struct {
 	cwd          string
 	defaultShell string
+	env          []string
 }
 
 func NewShell(options ...shellOption) *SystemShell {
 	sh := SystemShell{
 		defaultShell: PlatformDefaultShell,
 		cwd:          "",
+		env:          []string{},
 	}
 
 	for _, option := range options {
@@ -30,18 +32,13 @@ func NewShell(options ...shellOption) *SystemShell {
 }
 
 func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string, script *Script) error {
-	envList := os.Environ()
-	for key, value := range script.env {
-		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
-	}
-
 	config, err := getShellWrapConfiguration(utils.FirstNotEmpty(shell, sh.defaultShell))
 	if err != nil {
 		return errors.Errorf("failed to get shell configuration: %w", err)
 	}
 
 	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
-	command.Env = envList
+	command.Env = pkgutils.MergeEnvs(sh.env, script.env)
 	command.Dir = utils.FirstNotEmpty(script.dir, sh.cwd)
 	// TODO: Add custom encoding for different shell
 	command.Stdout = output

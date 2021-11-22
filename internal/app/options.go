@@ -50,3 +50,10 @@ func WithRepository(repo internal.Repository) appOption {
 		app.repo = repo
 	}
 }
+
+// WithEnv setups environment variables for fisherman application.
+func WithEnv(env []string) appOption {
+	return func(ac *FishermanApp) {
+		ac.env = env
+	}
+}

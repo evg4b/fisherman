@@ -57,6 +57,12 @@ type ExecutionContextMock struct {
 	beforeDoneCounter uint64
 	DoneMock          mExecutionContextMockDone
 
+	funcEnv          func() (sa1 []string)
+	inspectFuncEnv   func()
+	afterEnvCounter  uint64
+	beforeEnvCounter uint64
+	EnvMock          mExecutionContextMockEnv
+
 	funcErr          func() (err error)
 	inspectFuncErr   func()
 	afterErrCounter  uint64
@@ -125,6 +131,8 @@ func NewExecutionContextMock(t minimock.Tester) *ExecutionContextMock {
 	m.DeadlineMock = mExecutionContextMockDeadline{mock: m}
 
 	m.DoneMock = mExecutionContextMockDone{mock: m}
+
+	m.EnvMock = mExecutionContextMockEnv{mock: m}
 
 	m.ErrMock = mExecutionContextMockErr{mock: m}
 
@@ -1071,6 +1079,149 @@ func (m *ExecutionContextMock) MinimockDoneInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcDone != nil && mm_atomic.LoadUint64(&m.afterDoneCounter) < 1 {
 		m.t.Error("Expected call to ExecutionContextMock.Done")
+	}
+}
+
+type mExecutionContextMockEnv struct {
+	mock               *ExecutionContextMock
+	defaultExpectation *ExecutionContextMockEnvExpectation
+	expectations       []*ExecutionContextMockEnvExpectation
+}
+
+// ExecutionContextMockEnvExpectation specifies expectation struct of the ExecutionContext.Env
+type ExecutionContextMockEnvExpectation struct {
+	mock *ExecutionContextMock
+
+	results *ExecutionContextMockEnvResults
+	Counter uint64
+}
+
+// ExecutionContextMockEnvResults contains results of the ExecutionContext.Env
+type ExecutionContextMockEnvResults struct {
+	sa1 []string
+}
+
+// Expect sets up expected params for ExecutionContext.Env
+func (mmEnv *mExecutionContextMockEnv) Expect() *mExecutionContextMockEnv {
+	if mmEnv.mock.funcEnv != nil {
+		mmEnv.mock.t.Fatalf("ExecutionContextMock.Env mock is already set by Set")
+	}
+
+	if mmEnv.defaultExpectation == nil {
+		mmEnv.defaultExpectation = &ExecutionContextMockEnvExpectation{}
+	}
+
+	return mmEnv
+}
+
+// Inspect accepts an inspector function that has same arguments as the ExecutionContext.Env
+func (mmEnv *mExecutionContextMockEnv) Inspect(f func()) *mExecutionContextMockEnv {
+	if mmEnv.mock.inspectFuncEnv != nil {
+		mmEnv.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.Env")
+	}
+
+	mmEnv.mock.inspectFuncEnv = f
+
+	return mmEnv
+}
+
+// Return sets up results that will be returned by ExecutionContext.Env
+func (mmEnv *mExecutionContextMockEnv) Return(sa1 []string) *ExecutionContextMock {
+	if mmEnv.mock.funcEnv != nil {
+		mmEnv.mock.t.Fatalf("ExecutionContextMock.Env mock is already set by Set")
+	}
+
+	if mmEnv.defaultExpectation == nil {
+		mmEnv.defaultExpectation = &ExecutionContextMockEnvExpectation{mock: mmEnv.mock}
+	}
+	mmEnv.defaultExpectation.results = &ExecutionContextMockEnvResults{sa1}
+	return mmEnv.mock
+}
+
+//Set uses given function f to mock the ExecutionContext.Env method
+func (mmEnv *mExecutionContextMockEnv) Set(f func() (sa1 []string)) *ExecutionContextMock {
+	if mmEnv.defaultExpectation != nil {
+		mmEnv.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Env method")
+	}
+
+	if len(mmEnv.expectations) > 0 {
+		mmEnv.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.Env method")
+	}
+
+	mmEnv.mock.funcEnv = f
+	return mmEnv.mock
+}
+
+// Env implements internal.ExecutionContext
+func (mmEnv *ExecutionContextMock) Env() (sa1 []string) {
+	mm_atomic.AddUint64(&mmEnv.beforeEnvCounter, 1)
+	defer mm_atomic.AddUint64(&mmEnv.afterEnvCounter, 1)
+
+	if mmEnv.inspectFuncEnv != nil {
+		mmEnv.inspectFuncEnv()
+	}
+
+	if mmEnv.EnvMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmEnv.EnvMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmEnv.EnvMock.defaultExpectation.results
+		if mm_results == nil {
+			mmEnv.t.Fatal("No results are set for the ExecutionContextMock.Env")
+		}
+		return (*mm_results).sa1
+	}
+	if mmEnv.funcEnv != nil {
+		return mmEnv.funcEnv()
+	}
+	mmEnv.t.Fatalf("Unexpected call to ExecutionContextMock.Env.")
+	return
+}
+
+// EnvAfterCounter returns a count of finished ExecutionContextMock.Env invocations
+func (mmEnv *ExecutionContextMock) EnvAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmEnv.afterEnvCounter)
+}
+
+// EnvBeforeCounter returns a count of ExecutionContextMock.Env invocations
+func (mmEnv *ExecutionContextMock) EnvBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmEnv.beforeEnvCounter)
+}
+
+// MinimockEnvDone returns true if the count of the Env invocations corresponds
+// the number of defined expectations
+func (m *ExecutionContextMock) MinimockEnvDone() bool {
+	for _, e := range m.EnvMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.EnvMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterEnvCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcEnv != nil && mm_atomic.LoadUint64(&m.afterEnvCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockEnvInspect logs each unmet expectation
+func (m *ExecutionContextMock) MinimockEnvInspect() {
+	for _, e := range m.EnvMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to ExecutionContextMock.Env")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.EnvMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterEnvCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.Env")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcEnv != nil && mm_atomic.LoadUint64(&m.afterEnvCounter) < 1 {
+		m.t.Error("Expected call to ExecutionContextMock.Env")
 	}
 }
 
@@ -2307,6 +2458,8 @@ func (m *ExecutionContextMock) MinimockFinish() {
 
 		m.MinimockDoneInspect()
 
+		m.MinimockEnvInspect()
+
 		m.MinimockErrInspect()
 
 		m.MinimockFilesInspect()
@@ -2351,6 +2504,7 @@ func (m *ExecutionContextMock) minimockDone() bool {
 		m.MinimockCwdDone() &&
 		m.MinimockDeadlineDone() &&
 		m.MinimockDoneDone() &&
+		m.MinimockEnvDone() &&
 		m.MinimockErrDone() &&
 		m.MinimockFilesDone() &&
 		m.MinimockGlobalVariablesDone() &&

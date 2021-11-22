@@ -6,6 +6,7 @@ import (
 	"fisherman/internal/appcontext"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
+	pkgutils "fisherman/pkg/utils"
 	"io"
 
 	"github.com/go-git/go-billy/v5"
@@ -19,6 +20,7 @@ type FishermanApp struct {
 	repo     internal.Repository
 	output   io.Writer
 	commands CliCommands
+	env      []string
 }
 
 // NewFishermanApp is an fisherman application constructor.
@@ -27,6 +29,7 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 		output:   io.Discard,
 		commands: CliCommands{},
 		cwd:      "",
+		env:      []string{},
 	}
 
 	for _, option := range options {
@@ -63,6 +66,9 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		appcontext.WithRepository(r.repo),
 		appcontext.WithArgs(args),
 		appcontext.WithOutput(log.InfoOutput),
+		appcontext.WithEnv(pkgutils.MergeEnvs(r.env, map[string]string{
+			// TODO: Privide cistom environment variables from
+		})),
 	)
 
 	if err := command.Run(ctx); err != nil {

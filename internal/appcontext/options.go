@@ -52,3 +52,10 @@ func WithBaseContext(ctx context.Context) contextOption {
 		ac.baseCtx, ac.cancelBaseCtx = context.WithCancel(ctx)
 	}
 }
+
+// WithEnv setups environment variables for ApplicationContext.
+func WithEnv(env []string) contextOption {
+	return func(ac *ApplicationContext) {
+		ac.env = env
+	}
+}

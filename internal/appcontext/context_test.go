@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/go-errors/errors"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -300,4 +299,18 @@ func TestContext_GlobalVariables(t *testing.T) {
 			testutils.CheckError(t, tt.expectedErr, err)
 		})
 	}
+}
+
+func TestApplicationContext_Envs(t *testing.T) {
+	expectedEnvs := []string{"VALUE1=123", "VALUE4=234234"}
+	ctx := appcontext.NewContext(
+		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+		appcontext.WithShell(mocks.NewShellMock(t)),
+		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		appcontext.WithEnv(expectedEnvs),
+	)
+
+	actualEnvs := ctx.Env()
+
+	assert.Equal(t, expectedEnvs, actualEnvs)
 }

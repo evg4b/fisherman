@@ -22,6 +22,7 @@ type ExecutionContext interface {
 	Message() (string, error)
 	Cancel()
 	Cwd() string
+	Env() []string
 }
 
 // TODO: Remove this structure after option pattern implementation in internal/commands/... .

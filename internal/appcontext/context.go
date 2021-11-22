@@ -20,6 +20,7 @@ type ApplicationContext struct {
 	shell         internal.Shell
 	repo          internal.Repository
 	args          []string
+	env           []string
 	output        linebyline.WriterGroup
 	baseCtx       context.Context
 	cancelBaseCtx context.CancelFunc
@@ -32,6 +33,7 @@ func NewContext(options ...contextOption) *ApplicationContext {
 	context := ApplicationContext{
 		cwd:           "",
 		args:          []string{},
+		env:           []string{},
 		output:        *linebyline.NewWriterGroup(io.Discard),
 		baseCtx:       baseCtx,
 		cancelBaseCtx: cancelBaseCtx,
@@ -143,4 +145,9 @@ func (ctx *ApplicationContext) GlobalVariables() (map[string]interface{}, error)
 		constants.BranchNameVariable:       currentBranch,
 		constants.TagVariable:              lastTag,
 	}, nil
+}
+
+// Env returns list of environment variables.
+func (ctx *ApplicationContext) Env() []string {
+	return ctx.env
 }

@@ -3,9 +3,8 @@ package rules
 import (
 	"fisherman/internal"
 	"fisherman/internal/utils"
-	"fmt"
+	pkgutils "fisherman/pkg/utils"
 	"io"
-	"os"
 	"os/exec"
 
 	"github.com/hashicorp/go-multierror"
@@ -50,12 +49,12 @@ func (rule *Exec) GetPrefix() string {
 }
 
 func (rule *Exec) Check(ctx internal.ExecutionContext, output io.Writer) error {
-	globalEnv := mergeEnvs(os.Environ(), rule.Env) // TODO: prodive os.Environ() from DI
+	globalEnv := pkgutils.MergeEnvs(ctx.Env(), rule.Env)
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
 		command := exec.CommandContext(ctx, commandDef.Program, commandDef.Args...) // nolint gosec
-		command.Env = mergeEnvs(globalEnv, commandDef.Env)
+		command.Env = pkgutils.MergeEnvs(globalEnv, commandDef.Env)
 		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, ctx.Cwd())
 
 		// TODO: Add custom encoding for different shell
@@ -78,15 +77,4 @@ func (rule *Exec) Compile(variables map[string]interface{}) {
 	for _, command := range rule.Commands {
 		command.Compile(variables)
 	}
-}
-
-func mergeEnvs(envs []string, newVars map[string]string) []string {
-	envList := []string{}
-	_ = copy(envs, envList)
-
-	for key, value := range newVars {
-		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
-	}
-
-	return envList
 }

@@ -59,6 +59,7 @@
         "noder",
         "nolint",
         "paralleltest",
+        "pkgutils",
         "prealloc",
         "predeclared",
         "prerebase",
