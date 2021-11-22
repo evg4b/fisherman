@@ -60,7 +60,7 @@ func main() {
 		Configs:    configs,
 	}
 
-	defaultShell := utils.GetOrDefault(config.DefaultShell, shell.PlatformDefaultShell)
+	defaultShell := utils.FirstNotEmpty(config.DefaultShell, shell.PlatformDefaultShell)
 	shell := shell.NewShell(
 		shell.WithWorkingDirectory(cwd),
 		shell.WithDefaultShell(defaultShell),

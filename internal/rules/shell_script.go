@@ -44,7 +44,7 @@ func (rule *ShellScript) GetPosition() byte {
 }
 
 func (rule *ShellScript) GetPrefix() string {
-	return utils.GetOrDefault(rule.Name, rule.Type)
+	return utils.FirstNotEmpty(rule.Name, rule.Type)
 }
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {

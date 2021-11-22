@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 func IsEmpty(value string) bool {
 	return len(strings.TrimSpace(value)) == 0
@@ -14,10 +17,16 @@ func OriginalOrNA(path string) string {
 	return path
 }
 
-func GetOrDefault(value, defaultValue string) string {
-	if !IsEmpty(value) {
-		return value
+func FirstNotEmpty(values ...string) string {
+	if len(values) == 0 {
+		panic(errors.New("sequence contains no elements"))
 	}
 
-	return defaultValue
+	for _, value := range values {
+		if !IsEmpty(value) {
+			return value
+		}
+	}
+
+	return values[len(values)-1]
 }
