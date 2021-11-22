@@ -8,8 +8,8 @@ import (
 )
 
 func TestRunProgram_GetPosition(t *testing.T) {
-	rule := rules.RunProgram{
-		BaseRule: rules.BaseRule{Type: rules.RunProgramType},
+	rule := rules.Exec{
+		BaseRule: rules.BaseRule{Type: rules.ExecType},
 	}
 
 	actual := rule.GetPosition()
@@ -21,37 +21,23 @@ func TestRunProgram_GetPrefix(t *testing.T) {
 	tests := []struct {
 		name     string
 		ruleName string
-		program  string
-		args     []string
 		expected string
 	}{
 		{
 			name:     "user defined name",
 			ruleName: "Prefix",
-			program:  "go",
-			args:     []string{"test", "./..."},
 			expected: "Prefix",
 		},
 		{
-			name:     "generated short prefix",
-			program:  "go",
-			args:     []string{"version"},
-			expected: "go version",
-		},
-		{
-			name:     "generated long prefix",
-			program:  "program",
-			args:     []string{"arg1", "arg2", "arg3", "arg4", "arg5", "arg6", "arg7"},
-			expected: "program arg1 a...",
+			name:     "default prefix",
+			expected: rules.ExecType,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := rules.RunProgram{
-				BaseRule: rules.BaseRule{Type: rules.RunProgramType},
+			rule := rules.Exec{
+				BaseRule: rules.BaseRule{Type: rules.ExecType},
 				Name:     tt.ruleName,
-				Program:  tt.program,
-				Args:     tt.args,
 			}
 
 			actual := rule.GetPrefix()

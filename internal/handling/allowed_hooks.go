@@ -8,48 +8,48 @@ import (
 var allowedHooks = map[string][]string{
 	constants.ApplyPatchMsgHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.CommitMsgHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 		rules.CommitMessageType,
 	},
 	constants.FsMonitorWatchmanHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PostUpdateHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PreApplyPatchHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PreCommitHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 		rules.AddToIndexType,
 		rules.SuppressCommitFilesType,
 	},
 	constants.PrePushHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PreRebaseHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PreReceiveHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 	constants.PrepareCommitMsgHook: {
 		rules.PrepareMessageType,
 	},
 	constants.UpdateHook: {
 		rules.ShellScriptType,
-		rules.RunProgramType,
+		rules.ExecType,
 	},
 }
