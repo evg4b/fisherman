@@ -38,7 +38,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 	}
 
 	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
-	command.Env = pkgutils.MergeEnvs(sh.env, script.env)
+	command.Env = pkgutils.MergeEnv(sh.env, script.env)
 	command.Dir = utils.FirstNotEmpty(script.dir, sh.cwd)
 	// TODO: Add custom encoding for different shell
 	command.Stdout = output

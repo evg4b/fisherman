@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
+var CommandContext = exec.CommandContext
+
 const ExecType = "exec"
 
 type Exec struct {
@@ -21,6 +23,7 @@ type Exec struct {
 	Commands []CommandDef      `yaml:"commands"`
 }
 
+// TODO: Add custom YAML unmarshalling.
 type CommandDef struct {
 	Program string            `yaml:"program"`
 	Args    []string          `yaml:"args"`
@@ -49,14 +52,13 @@ func (rule *Exec) GetPrefix() string {
 }
 
 func (rule *Exec) Check(ctx internal.ExecutionContext, output io.Writer) error {
-	globalEnv := pkgutils.MergeEnvs(ctx.Env(), rule.Env)
+	env := pkgutils.MergeEnv(ctx.Env(), rule.Env)
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
-		command := exec.CommandContext(ctx, commandDef.Program, commandDef.Args...) // nolint gosec
-		command.Env = pkgutils.MergeEnvs(globalEnv, commandDef.Env)
+		command := CommandContext(ctx, commandDef.Program, commandDef.Args...) // nolint gosec
+		command.Env = pkgutils.MergeEnv(env, commandDef.Env)
 		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, ctx.Cwd())
-
 		// TODO: Add custom encoding for different shell
 		command.Stdout = output
 		command.Stderr = output

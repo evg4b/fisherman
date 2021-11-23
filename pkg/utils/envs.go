@@ -2,14 +2,14 @@ package utils
 
 import "fmt"
 
-// MergeEnvs concatenates environment variables list with passed map[string]string.
-func MergeEnvs(env []string, newVars map[string]string) []string {
-	envList := []string{}
-	envList = append(env, envList...)
+// MergeEnv concatenates environment variables list with passed map[string]string.
+func MergeEnv(env []string, vars map[string]string) []string {
+	newEnv := []string{}
+	newEnv = append(env, newEnv...)
 
-	for key, value := range newVars {
-		envList = append(envList, fmt.Sprintf("%s=%s", key, value))
+	for key, value := range vars {
+		newEnv = append(newEnv, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	return envList
+	return newEnv
 }

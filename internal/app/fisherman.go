@@ -66,7 +66,7 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		appcontext.WithRepository(r.repo),
 		appcontext.WithArgs(args),
 		appcontext.WithOutput(log.InfoOutput),
-		appcontext.WithEnv(pkgutils.MergeEnvs(r.env, map[string]string{
+		appcontext.WithEnv(pkgutils.MergeEnv(r.env, map[string]string{
 			// TODO: Privide cistom environment variables from
 		})),
 	)

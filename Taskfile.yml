@@ -2,6 +2,9 @@
 
 version: '3'
 
+env:
+  GO_HELPER_PROCESS: 0
+
 vars:
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
