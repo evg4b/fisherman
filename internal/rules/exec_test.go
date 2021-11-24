@@ -55,6 +55,7 @@ func TestExec_Check(t *testing.T) {
 		name     string
 		expected string
 		commands []rules.CommandDef
+		env      map[string]string
 	}{
 		{
 			name: "successfully command execution",
@@ -93,16 +94,78 @@ func TestExec_Check(t *testing.T) {
 				{Program: "make", Args: []string{"build"}},
 			},
 		},
+		{
+			name: "successfully passed global env",
+			commands: []rules.CommandDef{
+				{Program: "go", Args: []string{"test", "env-global"}},
+			},
+		},
+		{
+			name: "successfully passed rule env",
+			env: map[string]string{
+				"RULE_ENV": "This is rule env",
+			},
+			commands: []rules.CommandDef{
+				{Program: "go", Args: []string{"test", "env-rule"}},
+			},
+		},
+		{
+			name: "successfully passed rule env",
+			env: map[string]string{
+				"RULE_ENV": "This is rule env",
+			},
+			commands: []rules.CommandDef{
+				{Program: "go", Args: []string{"test", "env-rule"}},
+			},
+		},
+		{
+			name: "successfully passed command env",
+			commands: []rules.CommandDef{
+				{
+					Program: "go",
+					Args:    []string{"test", "env-command"},
+					Env: map[string]string{
+						"COMMAND_ENV": "This is command env",
+					},
+				},
+			},
+		},
+		{
+			name: "successfully oweride env variables",
+			env: map[string]string{
+				"RULE_ENV": "This is rule env",
+				"VAR_2":    "Rule value 2",
+				"VAR_3":    "Rule value 3",
+			},
+			commands: []rules.CommandDef{
+				{
+					Program: "go",
+					Args:    []string{"test", "env-oweride"},
+					Env: map[string]string{
+						"VAR_3": "Command value 3",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rule := rules.Exec{
 				BaseRule: rules.BaseRule{Type: rules.ExecType},
 				Commands: tt.commands,
+				Env:      tt.env,
+			}
+
+			globalEnv := []string{
+				"GLOBAL_ENV=6482376487",
+				"PATH=Overwritten variable",
+				"VAR_1=Global value 1",
+				"VAR_2=Global value 2",
+				"VAR_3=Global value 3",
 			}
 
 			ctx := mocks.NewExecutionContextMock(t).
-				EnvMock.Return(envWrapper([]string{})).
+				EnvMock.Return(envWrapper(globalEnv)).
 				CwdMock.Return("/")
 
 			actual := rule.Check(ctx, io.Discard)
@@ -118,5 +181,20 @@ func TestExec_CheckHelper(t *testing.T) {
 		"go test ./valid":         func() { os.Exit(0) },
 		"go test ./another-valid": func() { os.Exit(0) },
 		"make build":              func() { os.Exit(33) },
+		"go test env-global": func() {
+			assert.Equal(t, "6482376487", os.Getenv("GLOBAL_ENV"))
+			assert.Equal(t, "Overwritten variable", os.Getenv("PATH"))
+		},
+		"go test env-rule": func() {
+			assert.Equal(t, "This is rule env", os.Getenv("RULE_ENV"))
+		},
+		"go test env-command": func() {
+			assert.Equal(t, "This is command env", os.Getenv("COMMAND_ENV"))
+		},
+		"go test env-oweride": func() {
+			assert.Equal(t, "Global value 1", os.Getenv("VAR_1"))
+			assert.Equal(t, "Rule value 2", os.Getenv("VAR_2"))
+			assert.Equal(t, "Command value 3", os.Getenv("VAR_3"))
+		},
 	})
 }

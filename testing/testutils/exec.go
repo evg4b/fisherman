@@ -27,6 +27,10 @@ func ConfigureFakeExec(helperTest string) (cmdBuilder, envBuilder) {
 	}
 
 	envBuilder := func(env []string) []string {
+		if env == nil {
+			env = []string{}
+		}
+
 		return append(env, envConstant+"=1")
 	}
 
