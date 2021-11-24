@@ -87,7 +87,7 @@ func TestExec_Check(t *testing.T) {
 		},
 		{
 			name:     "failed two command from list",
-			expected: "2 errors occurred:\n\t* exit status 2\n\t* exit status 954\n\n",
+			expected: "2 errors occurred:\n\t* exit status 2\n\t* exit status 33\n\n",
 			commands: []rules.CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 				{Program: "make", Args: []string{"build"}},
@@ -117,6 +117,6 @@ func TestExec_CheckHelper(t *testing.T) {
 		"go test ./...":           func() { os.Exit(2) },
 		"go test ./valid":         func() { os.Exit(0) },
 		"go test ./another-valid": func() { os.Exit(0) },
-		"make build":              func() { os.Exit(954) },
+		"make build":              func() { os.Exit(33) },
 	})
 }
