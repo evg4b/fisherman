@@ -33,10 +33,10 @@ type CommandDef struct {
 }
 
 func (command *CommandDef) Compile(variables map[string]interface{}) {
-	utils.FillTemplate(&command.Dir, variables)
 	utils.FillTemplate(&command.Program, variables)
 	utils.FillTemplatesArray(command.Args, variables)
 	utils.FillTemplatesMap(command.Env, variables)
+	utils.FillTemplate(&command.Dir, variables)
 }
 
 func (rule *Exec) GetPosition() byte {
@@ -75,8 +75,9 @@ func (rule *Exec) Check(ctx internal.ExecutionContext, output io.Writer) error {
 func (rule *Exec) Compile(variables map[string]interface{}) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplate(&rule.Dir, variables)
+	utils.FillTemplate(&rule.Name, variables)
 	utils.FillTemplatesMap(rule.Env, variables)
-	for _, command := range rule.Commands {
-		command.Compile(variables)
+	for i := 0; i < len(rule.Commands); i++ {
+		rule.Commands[i].Compile(variables)
 	}
 }

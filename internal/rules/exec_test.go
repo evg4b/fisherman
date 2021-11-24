@@ -198,3 +198,65 @@ func TestExec_CheckHelper(t *testing.T) {
 		},
 	})
 }
+
+func TestExec_Compile(t *testing.T) {
+	rule := rules.Exec{
+		BaseRule: rules.BaseRule{
+			Type:      rules.ExecType,
+			Condition: "{{VAR1}}=\"TEST\"",
+		},
+		Name: "{{VAR1}}-{{VAR2}}",
+		Env: map[string]string{
+			"VAR1": "[{{VAR1}}]",
+		},
+		Output: false,
+		Dir:    "/user/{{VAR2}}/test",
+		Commands: []rules.CommandDef{
+			{
+				Program: "app-{{Version}}",
+				Args: []string{
+					"build",
+					"--value={{VAR2}}",
+				},
+				Env: map[string]string{
+					"VAR1": "[{{VAR1}}]",
+				},
+				Output: false,
+				Dir:    "/user/{{VAR1}}/{{Version}}",
+			},
+		},
+	}
+
+	rule.Compile(map[string]interface{}{
+		"VAR1":    "TEST",
+		"VAR2":    "DEMO",
+		"Version": "3-5-17",
+	})
+
+	assert.Equal(t, rules.Exec{
+		BaseRule: rules.BaseRule{
+			Type:      rules.ExecType,
+			Condition: "TEST=\"TEST\"",
+		},
+		Name: "TEST-DEMO",
+		Env: map[string]string{
+			"VAR1": "[TEST]",
+		},
+		Output: false,
+		Dir:    "/user/DEMO/test",
+		Commands: []rules.CommandDef{
+			{
+				Program: "app-3-5-17",
+				Args: []string{
+					"build",
+					"--value=DEMO",
+				},
+				Env: map[string]string{
+					"VAR1": "[TEST]",
+				},
+				Output: false,
+				Dir:    "/user/TEST/3-5-17",
+			},
+		},
+	}, rule)
+}
