@@ -16,7 +16,6 @@ import (
 type FishermanApp struct {
 	cwd      string
 	fs       billy.Filesystem
-	shell    internal.Shell
 	repo     internal.Repository
 	output   io.Writer
 	commands CliCommands
@@ -37,7 +36,6 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 	}
 
 	guards.ShouldBeDefined(app.fs, "FileSystem should be configured")
-	guards.ShouldBeDefined(app.shell, "Shell should be configured")
 	guards.ShouldBeDefined(app.repo, "Repository should be configured")
 	guards.ShouldBeDefined(app.commands, "Commands should be configured")
 
@@ -62,7 +60,6 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		appcontext.WithCwd(r.cwd),
 		appcontext.WithBaseContext(baseCtx),
 		appcontext.WithFileSystem(r.fs),
-		appcontext.WithShell(r.shell),
 		appcontext.WithRepository(r.repo),
 		appcontext.WithArgs(args),
 		appcontext.WithOutput(log.InfoOutput),

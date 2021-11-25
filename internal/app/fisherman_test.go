@@ -74,7 +74,6 @@ func TestRunner_Run(t *testing.T) {
 				app.WithCommands(tt.commands),
 				app.WithFs(mocks.NewFilesystemMock(t)),
 				app.WithRepository(mocks.NewRepositoryMock(t)),
-				app.WithShell(mocks.NewShellMock(t)),
 				app.WithCwd("/"),
 				app.WithOutput(io.Discard),
 			)

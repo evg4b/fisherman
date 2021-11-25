@@ -31,7 +31,6 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 			GetLastTagMock.Return("1.0.0", nil).
 			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		),
-		appcontext.WithShell(mocks.NewShellMock(t)),
 		appcontext.WithCwd("~/project"),
 	)
 }
@@ -107,7 +106,6 @@ func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 			GetLastTagMock.Return("1.0.0", errors.New("test error")).
 			GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
 		),
-		appcontext.WithShell(mocks.NewShellMock(t)),
 	)
 
 	err = command.Run(ctx)

@@ -14,7 +14,6 @@ import (
 	"fisherman/internal/utils"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
-	"fisherman/pkg/shell"
 	"fisherman/pkg/vcs"
 	"os"
 	"os/user"
@@ -60,13 +59,6 @@ func main() {
 		Configs:    configs,
 	}
 
-	defaultShell := utils.FirstNotEmpty(config.DefaultShell, shell.PlatformDefaultShell)
-	shell := shell.NewShell(
-		shell.WithWorkingDirectoryOld(cwd),
-		shell.WithDefaultShell(defaultShell),
-		shell.WithEnvOld(os.Environ()),
-	)
-
 	fishermanApp := app.NewFishermanApp(
 		app.WithCommands([]internal.CliCommand{
 			initialize.NewCommand(fs, appInfo, usr),
@@ -79,7 +71,6 @@ func main() {
 		app.WithRepository(vcs.NewRepository(
 			vcs.WithFsRepo(cwd),
 		)),
-		app.WithShell(shell),
 		app.WithEnv(os.Environ()),
 	)
 

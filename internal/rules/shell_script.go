@@ -9,11 +9,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os/exec"
-	"reflect"
-	"runtime"
 
 	"github.com/go-errors/errors"
-	"gopkg.in/yaml.v3"
 )
 
 const ShellScriptType = "shell-script"
@@ -30,14 +27,6 @@ type BaseShell struct {
 type ShellScript struct {
 	BaseRule  `yaml:",inline"`
 	BaseShell `yaml:",inline"`
-}
-
-// TODO: Remove OS related overload struct. Use condition to run scripts in some OS.
-type osRelatedShellScript struct {
-	BaseRule `yaml:",inline"`
-	Windows  BaseShell `yaml:"windows"`
-	Linux    BaseShell `yaml:"linux"`
-	Darwin   BaseShell `yaml:"macos"`
 }
 
 func (rule *ShellScript) GetPosition() byte {
@@ -92,40 +81,4 @@ func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
 	}
 
 	return ioutil.Discard
-}
-
-func (rule *ShellScript) UnmarshalYAML(value *yaml.Node) error {
-	type plain ShellScript
-	err := value.Decode((*plain)(rule))
-	// FIXME: Fix problem with KnownFields parameter https://github.com/go-yaml/yaml/issues/460
-	// DeepEqual checking needed to fix this issue.
-	if err == nil && !reflect.DeepEqual(rule.BaseShell, BaseShell{}) {
-		return nil
-	}
-
-	var osRelated osRelatedShellScript
-	err = value.Decode(&osRelated)
-	if err == nil {
-		return fill(rule, &osRelated)
-	}
-
-	return err
-}
-
-func fill(rule *ShellScript, osRelated *osRelatedShellScript) error {
-	switch runtime.GOOS {
-	case "windows":
-		rule.BaseRule = osRelated.BaseRule
-		rule.BaseShell = osRelated.Windows
-	case "linux":
-		rule.BaseRule = osRelated.BaseRule
-		rule.BaseShell = osRelated.Linux
-	case "darwin":
-		rule.BaseRule = osRelated.BaseRule
-		rule.BaseShell = osRelated.Darwin
-	default:
-		return fmt.Errorf("system %s is not supported", runtime.GOOS)
-	}
-
-	return nil
 }

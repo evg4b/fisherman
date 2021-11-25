@@ -17,7 +17,6 @@ import (
 type ApplicationContext struct {
 	cwd           string
 	fs            billy.Filesystem
-	shell         internal.Shell
 	repo          internal.Repository
 	args          []string
 	env           []string
@@ -44,7 +43,6 @@ func NewContext(options ...contextOption) *ApplicationContext {
 	}
 
 	guards.ShouldBeDefined(context.fs, "FileSystem should be connfigured")
-	guards.ShouldBeDefined(context.shell, "Shell should be connfigured")
 	guards.ShouldBeDefined(context.repo, "Repository should be connfigured")
 
 	return &context
@@ -52,10 +50,6 @@ func NewContext(options ...contextOption) *ApplicationContext {
 
 func (ctx *ApplicationContext) Files() billy.Filesystem {
 	return ctx.fs
-}
-
-func (ctx *ApplicationContext) Shell() internal.Shell {
-	return ctx.shell
 }
 
 func (ctx *ApplicationContext) Repository() internal.Repository {

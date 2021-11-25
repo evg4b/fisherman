@@ -37,13 +37,6 @@ func WithOutput(output io.Writer) appOption {
 	}
 }
 
-// WithOutput setups shell abstraction object.
-func WithShell(shell internal.Shell) appOption {
-	return func(app *FishermanApp) {
-		app.shell = shell
-	}
-}
-
 // WithRepository setups git repository abstraction object.
 func WithRepository(repo internal.Repository) appOption {
 	return func(app *FishermanApp) {

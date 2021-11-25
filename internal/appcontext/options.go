@@ -23,12 +23,6 @@ func WithCwd(cwd string) contextOption {
 	}
 }
 
-func WithShell(shell internal.Shell) contextOption {
-	return func(ac *ApplicationContext) {
-		ac.shell = shell
-	}
-}
-
 func WithRepository(repository internal.Repository) contextOption {
 	return func(ac *ApplicationContext) {
 		ac.repo = repository

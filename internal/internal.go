@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fisherman/pkg/shell"
 	"fisherman/pkg/vcs"
 	"io"
 
@@ -14,7 +13,6 @@ type ExecutionContext interface {
 	context.Context
 	GlobalVariables() (map[string]interface{}, error)
 	Files() billy.Filesystem
-	Shell() Shell
 	Repository() Repository
 	Args() []string
 	Arg(index int) (string, error)
@@ -41,11 +39,6 @@ type Repository interface {
 	RemoveGlob(glob string) error
 	GetFilesInIndex() ([]string, error)
 	GetIndexChanges() (map[string]vcs.Changes, error)
-}
-
-// Shell is interface to comunicate with system shell (cmd, powersell, bash and etc.).
-type Shell interface {
-	Exec(context.Context, io.Writer, string, *shell.Script) error
 }
 
 // CliCommand is interface to define cli command.

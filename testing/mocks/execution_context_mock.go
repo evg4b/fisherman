@@ -99,12 +99,6 @@ type ExecutionContextMock struct {
 	beforeRepositoryCounter uint64
 	RepositoryMock          mExecutionContextMockRepository
 
-	funcShell          func() (s1 mm_internal.Shell)
-	inspectFuncShell   func()
-	afterShellCounter  uint64
-	beforeShellCounter uint64
-	ShellMock          mExecutionContextMockShell
-
 	funcValue          func(key interface{}) (p1 interface{})
 	inspectFuncValue   func(key interface{})
 	afterValueCounter  uint64
@@ -145,8 +139,6 @@ func NewExecutionContextMock(t minimock.Tester) *ExecutionContextMock {
 	m.OutputMock = mExecutionContextMockOutput{mock: m}
 
 	m.RepositoryMock = mExecutionContextMockRepository{mock: m}
-
-	m.ShellMock = mExecutionContextMockShell{mock: m}
 
 	m.ValueMock = mExecutionContextMockValue{mock: m}
 	m.ValueMock.callArgs = []*ExecutionContextMockValueParams{}
@@ -2085,149 +2077,6 @@ func (m *ExecutionContextMock) MinimockRepositoryInspect() {
 	}
 }
 
-type mExecutionContextMockShell struct {
-	mock               *ExecutionContextMock
-	defaultExpectation *ExecutionContextMockShellExpectation
-	expectations       []*ExecutionContextMockShellExpectation
-}
-
-// ExecutionContextMockShellExpectation specifies expectation struct of the ExecutionContext.Shell
-type ExecutionContextMockShellExpectation struct {
-	mock *ExecutionContextMock
-
-	results *ExecutionContextMockShellResults
-	Counter uint64
-}
-
-// ExecutionContextMockShellResults contains results of the ExecutionContext.Shell
-type ExecutionContextMockShellResults struct {
-	s1 mm_internal.Shell
-}
-
-// Expect sets up expected params for ExecutionContext.Shell
-func (mmShell *mExecutionContextMockShell) Expect() *mExecutionContextMockShell {
-	if mmShell.mock.funcShell != nil {
-		mmShell.mock.t.Fatalf("ExecutionContextMock.Shell mock is already set by Set")
-	}
-
-	if mmShell.defaultExpectation == nil {
-		mmShell.defaultExpectation = &ExecutionContextMockShellExpectation{}
-	}
-
-	return mmShell
-}
-
-// Inspect accepts an inspector function that has same arguments as the ExecutionContext.Shell
-func (mmShell *mExecutionContextMockShell) Inspect(f func()) *mExecutionContextMockShell {
-	if mmShell.mock.inspectFuncShell != nil {
-		mmShell.mock.t.Fatalf("Inspect function is already set for ExecutionContextMock.Shell")
-	}
-
-	mmShell.mock.inspectFuncShell = f
-
-	return mmShell
-}
-
-// Return sets up results that will be returned by ExecutionContext.Shell
-func (mmShell *mExecutionContextMockShell) Return(s1 mm_internal.Shell) *ExecutionContextMock {
-	if mmShell.mock.funcShell != nil {
-		mmShell.mock.t.Fatalf("ExecutionContextMock.Shell mock is already set by Set")
-	}
-
-	if mmShell.defaultExpectation == nil {
-		mmShell.defaultExpectation = &ExecutionContextMockShellExpectation{mock: mmShell.mock}
-	}
-	mmShell.defaultExpectation.results = &ExecutionContextMockShellResults{s1}
-	return mmShell.mock
-}
-
-//Set uses given function f to mock the ExecutionContext.Shell method
-func (mmShell *mExecutionContextMockShell) Set(f func() (s1 mm_internal.Shell)) *ExecutionContextMock {
-	if mmShell.defaultExpectation != nil {
-		mmShell.mock.t.Fatalf("Default expectation is already set for the ExecutionContext.Shell method")
-	}
-
-	if len(mmShell.expectations) > 0 {
-		mmShell.mock.t.Fatalf("Some expectations are already set for the ExecutionContext.Shell method")
-	}
-
-	mmShell.mock.funcShell = f
-	return mmShell.mock
-}
-
-// Shell implements internal.ExecutionContext
-func (mmShell *ExecutionContextMock) Shell() (s1 mm_internal.Shell) {
-	mm_atomic.AddUint64(&mmShell.beforeShellCounter, 1)
-	defer mm_atomic.AddUint64(&mmShell.afterShellCounter, 1)
-
-	if mmShell.inspectFuncShell != nil {
-		mmShell.inspectFuncShell()
-	}
-
-	if mmShell.ShellMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmShell.ShellMock.defaultExpectation.Counter, 1)
-
-		mm_results := mmShell.ShellMock.defaultExpectation.results
-		if mm_results == nil {
-			mmShell.t.Fatal("No results are set for the ExecutionContextMock.Shell")
-		}
-		return (*mm_results).s1
-	}
-	if mmShell.funcShell != nil {
-		return mmShell.funcShell()
-	}
-	mmShell.t.Fatalf("Unexpected call to ExecutionContextMock.Shell.")
-	return
-}
-
-// ShellAfterCounter returns a count of finished ExecutionContextMock.Shell invocations
-func (mmShell *ExecutionContextMock) ShellAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmShell.afterShellCounter)
-}
-
-// ShellBeforeCounter returns a count of ExecutionContextMock.Shell invocations
-func (mmShell *ExecutionContextMock) ShellBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmShell.beforeShellCounter)
-}
-
-// MinimockShellDone returns true if the count of the Shell invocations corresponds
-// the number of defined expectations
-func (m *ExecutionContextMock) MinimockShellDone() bool {
-	for _, e := range m.ShellMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ShellMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterShellCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcShell != nil && mm_atomic.LoadUint64(&m.afterShellCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockShellInspect logs each unmet expectation
-func (m *ExecutionContextMock) MinimockShellInspect() {
-	for _, e := range m.ShellMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to ExecutionContextMock.Shell")
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ShellMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterShellCounter) < 1 {
-		m.t.Error("Expected call to ExecutionContextMock.Shell")
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcShell != nil && mm_atomic.LoadUint64(&m.afterShellCounter) < 1 {
-		m.t.Error("Expected call to ExecutionContextMock.Shell")
-	}
-}
-
 type mExecutionContextMockValue struct {
 	mock               *ExecutionContextMock
 	defaultExpectation *ExecutionContextMockValueExpectation
@@ -2472,8 +2321,6 @@ func (m *ExecutionContextMock) MinimockFinish() {
 
 		m.MinimockRepositoryInspect()
 
-		m.MinimockShellInspect()
-
 		m.MinimockValueInspect()
 		m.t.FailNow()
 	}
@@ -2511,6 +2358,5 @@ func (m *ExecutionContextMock) minimockDone() bool {
 		m.MinimockMessageDone() &&
 		m.MinimockOutputDone() &&
 		m.MinimockRepositoryDone() &&
-		m.MinimockShellDone() &&
 		m.MinimockValueDone()
 }

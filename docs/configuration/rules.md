@@ -17,9 +17,8 @@ The rule is used to automatically add files to the index after user or previous 
       required: false
 ```
 
-**globs** - List of files to be added to index before commit but after when all validations and shell scripts finished. This files always will be added to index.
-
-**required** - This flag marks this action as an required or not. When glob masked as required and where there are no files matched to it, commit will be rejected.
+- **globs** - List of files to be added to index before commit but after when all validations and shell scripts finished. This files always will be added to index.
+- **required** - This flag marks this action as an required or not. When glob masked as required and where there are no files matched to it, commit will be rejected.
 
 You can also use a short syntax (required will be false):
 
@@ -39,13 +38,10 @@ You can also use a short syntax (required will be false):
   regexp: '[a-zA-Z]'
 ```
 
-**commit-regexp** - The regular expression to validation commit messuage.
-
-**commit-prefix** - The template with which the message should start.
-
-**commit-suffix** - The template with which the message should end.
-
-**not-empty** - This boolean value indicates whether a commit with an empty message is not allowed.
+- **commit-regexp** - The regular expression to validation commit messuage.
+- **commit-prefix** - The template with which the message should start.
+- **commit-suffix** - The template with which the message should end.
+- **not-empty** - This boolean value indicates whether a commit with an empty message is not allowed.
 Can be used to prevent commit with `--allow-empty-message` flag.
 
 ## prepare-message
@@ -56,7 +52,7 @@ Can be used to prevent commit with `--allow-empty-message` flag.
   message: 'Message draft'
 ```
 
-**message** - This is [template](/). Users commit message will be replaced by a compilation result of this field.
+- **message** - This is [template](/). Users commit message will be replaced by a compilation result of this field.
 
 :::caution Note
 When you commit with the `--no-verify` flag this action will not work.
@@ -71,18 +67,21 @@ Shell script can be configured using the following structure:
 ``` yaml
 - type: commit-suffix
   when: 1 == 1
-  suffix: string
+  env:
+    var1: value1
+    var2: value2
+  commands:
+    - command1
+    - command2
+  output: true
 ```
 
 You can create as many scripts to validation. Scripts will be executed on the [shell for your system](#shell-for-system).
 
-**commands** - Array of strings with validation script commands. Is also supports tempesting based on hook variables.
-
-**when** - An expression on C like language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
-
-**env** - Sets additional environment variables (system environment variables also will be included)  for the command.
-
-**output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
+- **commands** - Array of strings with validation script commands. Is also supports tempesting based on hook variables.
+- **when** - An expression on C like language. It allows you to define a condition for executing a script. See more in section [Condition expressions](./expressions.md).
+- **env** - Sets additional environment variables (system environment variables also will be included)  for the command.
+- **output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
 
 Example:
 
@@ -148,9 +147,8 @@ Powershell by default do not return non zero exit code on fail. [See more](https
   remove-from-index: false
 ```
 
-**globs** - List of files to be checked in index before commit. Commit fill be rejected when file will be founded.
-
-**remove-from-index** - When this flag is `true` then files founded in index will be removed from it and commit well be continued.
+- **globs** - List of files to be checked in index before commit. Commit fill be rejected when file will be founded.
+- **remove-from-index** - When this flag is `true` then files founded in index will be removed from it and commit well be continued.
 
 ## suppressed-text
 
@@ -163,9 +161,8 @@ The rule that prohibits committing if forbidden lines were added.
   exclude: [ 'some/excluded/file.go' ]
 ```
 
-**substrings** - List of lines that should not be included in the commit.
-
-**exclude** - List of globs in which you do not need to check this rule.
+- **substrings** - List of lines that should not be included in the commit.
+- **exclude** - List of globs in which you do not need to check this rule.
 
 ## run-program
 
@@ -181,16 +178,10 @@ Run program rule can be configured using the following structure:
   args: ["test", "./..."]
 ```
 
-**name** - List of lines that should not be included in the commit.
-
-**program** - Program name or path to program binary
-
-**args** - List of arguments for start
-
-**when** - An expression on C like language. It allows you to define a condition for executing a program. See more in section [Condition expressions](./expressions.md).
-
-**env** - Sets additional environment variables (system environment variables also will be included) for the program.
-
-**output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
-
-**dir** - Sets current working directory for program.
+- **name** - List of lines that should not be included in the commit.
+- **program** - Program name or path to program binary
+- **args** - List of arguments for start
+- **when** - An expression on C like language. It allows you to define a condition for executing a program. See more in section [Condition expressions](./expressions.md).
+- **env** - Sets additional environment variables (system environment variables also will be included) for the program.
+- **output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
+- **dir** - Sets current working directory for program.

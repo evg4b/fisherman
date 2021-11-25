@@ -2,31 +2,9 @@ package shell
 
 import "io"
 
-type (
-	shellOption = func(sh *SystemShell)
-	hostOption  = func(str ShellStrategy, host *Host)
-)
+var PlatformDefaultShell = ""
 
-// WithWorkingDirectoryOld setups default working directory for shell.
-func WithWorkingDirectoryOld(cwd string) shellOption {
-	return func(sh *SystemShell) {
-		sh.cwd = cwd
-	}
-}
-
-// WithDefaultShell setups default shell.
-func WithDefaultShell(defaultShell string) shellOption {
-	return func(sh *SystemShell) {
-		sh.defaultShell = defaultShell
-	}
-}
-
-// WithEnvOld setups environment variables for shell.
-func WithEnvOld(env []string) shellOption {
-	return func(sh *SystemShell) {
-		sh.env = env
-	}
-}
+type hostOption = func(str ShellStrategy, host *Host)
 
 // WithStdout setups Stdout writer for shell host.
 func WithStdout(output io.Writer) hostOption {
