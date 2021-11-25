@@ -62,9 +62,9 @@ func main() {
 
 	defaultShell := utils.FirstNotEmpty(config.DefaultShell, shell.PlatformDefaultShell)
 	shell := shell.NewShell(
-		shell.WithWorkingDirectory(cwd),
+		shell.WithWorkingDirectoryOld(cwd),
 		shell.WithDefaultShell(defaultShell),
-		shell.WithEnv(os.Environ()),
+		shell.WithEnvOld(os.Environ()),
 	)
 
 	fishermanApp := app.NewFishermanApp(

@@ -3,13 +3,13 @@ package shell
 const LineBreak = "\n"
 
 const (
-	Bash = "bash"
+	BashAlias = "bash"
 )
 
 var PlatformDefaultShell = Bash
 
 var ShellConfigurations = map[string]WrapConfiguration{
-	Bash: {
+	BashAlias: {
 		Path: Bash,
 		Args: []string{"-i"},
 		Init: "set -e",

@@ -37,7 +37,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 		return errors.Errorf("failed to get shell configuration: %w", err)
 	}
 
-	command := exec.CommandContext(ctx, config.Path, config.Args...) // nolint gosec
+	command := exec.CommandContext(ctx, config.Path, config.Args...)
 	command.Env = pkgutils.MergeEnv(sh.env, script.env)
 	command.Dir = utils.FirstNotEmpty(script.dir, sh.cwd)
 	// TODO: Add custom encoding for different shell
@@ -51,7 +51,7 @@ func (sh *SystemShell) Exec(ctx context.Context, output io.Writer, shell string,
 
 	go startWriter(stdin, script.commands, config)
 
-	script.duration, err = execWithTime(command.Run)
+	err = command.Run()
 	if err != nil {
 		return errors.Errorf("script completed with an error: %w", err)
 	}

@@ -56,15 +56,14 @@ func (rule *Exec) Check(ctx internal.ExecutionContext, output io.Writer) error {
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
-		command := CommandContext(ctx, commandDef.Program, commandDef.Args...) // nolint gosec
+		command := CommandContext(ctx, commandDef.Program, commandDef.Args...)
 		command.Env = pkgutils.MergeEnv(env, commandDef.Env)
 		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, ctx.Cwd())
 		// TODO: Add custom encoding for different shell
 		command.Stdout = output
 		command.Stderr = output
 
-		err := command.Run()
-		if err != nil {
+		if err := command.Run(); err != nil {
 			resultError = multierror.Append(resultError, err)
 		}
 	}

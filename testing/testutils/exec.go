@@ -23,7 +23,7 @@ func ConfigureFakeExec(helperTest string) (cmdBuilder, envBuilder) {
 		testArgs := []string{"-test.run=" + helperTest, "-test.v", "--", program}
 		testArgs = append(testArgs, args...)
 
-		return exec.Command(os.Args[0], testArgs...) // nolint gosec
+		return exec.Command(os.Args[0], testArgs...)
 	}
 
 	envBuilder := func(env []string) []string {

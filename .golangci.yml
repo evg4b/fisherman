@@ -83,4 +83,6 @@ linters-settings:
     case:
       rules:
         yaml: kebab
-
+  gosec:
+    excludes:
+      - G204

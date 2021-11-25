@@ -1,27 +1,11 @@
 package shell_test
 
 import (
-	"context"
 	"fisherman/pkg/shell"
-	"io"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestScript_GetDuration(t *testing.T) {
-	var expectedDuration time.Duration
-	sh := shell.NewShell()
-
-	script := shell.NewScript([]string{"echo 'demo'"})
-
-	_ = sh.Exec(context.TODO(), io.Discard, shell.PlatformDefaultShell, script)
-
-	duration := script.GetDuration()
-
-	assert.Greater(t, duration, expectedDuration)
-}
 
 func TestScript_EnvironmentVariables(t *testing.T) {
 	expectedVars := map[string]string{

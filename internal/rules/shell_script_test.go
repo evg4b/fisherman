@@ -113,7 +113,8 @@ func TestShellScript_Check(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			output := &bytes.Buffer{}
-			ctx := mocks.NewExecutionContextMock(t)
+			ctx := mocks.NewExecutionContextMock(t).
+				EnvMock.Return([]string{})
 			sh := mocks.NewShellMock(t).
 				ExecMock.
 				Set(func(c1 context.Context, w1 io.Writer, s1 string, s2 *shell.Script) error {

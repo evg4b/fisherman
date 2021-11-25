@@ -14,7 +14,7 @@ type PrefixWriter struct {
 	trailingNewline bool
 }
 
-// NewWriter wrappers passed io.Writer to PrefixWriter with passed preffix.
+// NewWriter wrappers passed io.Writer to PrefixWriter with passed prefix.
 func NewWriter(writer io.Writer, prefix string) *PrefixWriter {
 	return &PrefixWriter{prefix: prefix, writer: writer, trailingNewline: true}
 }

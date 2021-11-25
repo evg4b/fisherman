@@ -1,12 +1,9 @@
 package shell
 
-import "time"
-
 type Script struct {
 	commands []string
 	env      map[string]string
 	dir      string
-	duration time.Duration
 }
 
 // TODO: Add options pattern to configure script.
@@ -39,8 +36,4 @@ func (s *Script) SetDirectory(dir string) *Script {
 	s.dir = dir
 
 	return s
-}
-
-func (s *Script) GetDuration() time.Duration {
-	return s.duration
 }

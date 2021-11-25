@@ -10,7 +10,7 @@ import (
 )
 
 func TestSystemShell_Exec(t *testing.T) {
-	sh := shell.NewShell(shell.WithWorkingDirectory("/"))
+	sh := shell.NewShell(shell.WithWorkingDirectoryOld("/"))
 
 	tests := []struct {
 		name          string
@@ -61,7 +61,7 @@ func TestSystemShell_Exec_ShellNotInstalled(t *testing.T) {
 	}
 
 	sh := shell.NewShell(
-		shell.WithWorkingDirectory("/"),
+		shell.WithWorkingDirectoryOld("/"),
 		shell.WithDefaultShell(shellName),
 	)
 

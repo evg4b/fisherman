@@ -4,6 +4,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/utils"
 	"fisherman/pkg/shell"
+	pkgutils "fisherman/pkg/utils"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -48,12 +49,23 @@ func (rule *ShellScript) GetPrefix() string {
 }
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
-	script := shell.NewScript(rule.Commands).
-		SetEnvironmentVariables(rule.Env).
-		SetDirectory(rule.Dir)
+	formatterOutput := formatOutput(output, rule)
+	host := shell.NewHost(
+		ctx,
+		shell.Cmd(), // TODO: Create factory method to resolve needed shell
+		shell.WithEnv(pkgutils.MergeEnv(ctx.Env(), rule.Env)),
+		shell.WithStdout(formatterOutput),
+		shell.WithCwd(rule.Dir),
+	)
 
-	shell := ctx.Shell()
-	err := shell.Exec(ctx, formatOutput(output, rule), rule.Shell, script)
+	for _, command := range rule.Commands {
+		_, err := fmt.Fprintln(host, command)
+		if err != nil {
+			return errors.Errorf("failed to exec shell script: %w", err)
+		}
+	}
+
+	err := host.Wait()
 	if err != nil {
 		var exitCodeError *exec.ExitError
 		if errors.As(err, &exitCodeError) {

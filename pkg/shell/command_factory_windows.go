@@ -3,20 +3,20 @@ package shell
 const LineBreak = "\r\n"
 
 const (
-	PowerShell = "powershell"
-	Cmd        = "cmd"
+	PowerShellAlias = "powershell"
+	CmdAlias        = "cmd"
 )
 
-var PlatformDefaultShell = Cmd
+var PlatformDefaultShell = CmdAlias
 
 var ShellConfigurations = map[string]WrapConfiguration{
-	PowerShell: {
-		Path:        PowerShell,
+	PowerShellAlias: {
+		Path:        PowerShellAlias,
 		Args:        []string{"-NoProfile", "-NonInteractive", "-NoLogo"},
 		PostCommand: "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
 	},
-	Cmd: {
-		Path:        Cmd,
+	CmdAlias: {
+		Path:        CmdAlias,
 		Args:        []string{"/Q", "/D", "/K"},
 		PostCommand: "IF %ERRORLEVEL% NEQ 0 ( exit %ERRORLEVEL% )",
 	},
