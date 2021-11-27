@@ -7,6 +7,7 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,6 +20,7 @@ var globalVars = map[string]interface{}{
 	constants.UserNameVariable:         "evg4b",
 	constants.FishermanVersionVariable: constants.Version,
 	constants.CwdVariable:              "~/project",
+	constants.OsVariable:               runtime.GOOS,
 }
 
 func getCtx(t *testing.T) *appcontext.ApplicationContext {

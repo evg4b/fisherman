@@ -34,9 +34,10 @@ For example: for branch `refs/heads/N1-do-something` and regexp `^refs\/heads\/(
 
 The following variables are defined by default:
 
-| Variable name    | Description                                            |
-|------------------|--------------------------------------------------------|
-| FishermanVersion | The version of fisherman on which the hook is launched |
-| CWD              | Full path to current working directory                 |
-| UserName         | User name from git configuration                       |
-| Email            | User email from git configuration                      |
+| Variable name    | Description                                                         |
+|------------------|---------------------------------------------------------------------|
+| FishermanVersion | The version of fisherman on which the hook is launched              |
+| CWD              | Full path to current working directory                              |
+| UserName         | User name from git configuration                                    |
+| Email            | User email from git configuration                                   |
+| OS               | Name of current operation system (linux, windows, or darwin(macos)) |

@@ -70,3 +70,28 @@ Related links:
 
 <!-- TODO: Add correct links -->
 - [run-program rule](./configuration/rules.md#run-program)
+
+
+## I want create difference rules for each operation system.
+
+Can be used for creation shell scripts specified for os or run program with different params.
+
+```yaml
+hooks:
+  commit-msg:
+    rules:
+      - type: commit-message
+        when: IsWindows()
+        suffix: ' (Committed on windows)'
+      - type: commit-message
+        when: IsLinux()
+        suffix: ' (Committed on linux)'
+      - type: commit-message
+        when: IsMac()
+        suffix: ' (Committed on mac)'
+```
+
+Related links:
+
+<!-- TODO: Add correct links -->
+- [run-program rule](./configuration/rules.md#run-program)

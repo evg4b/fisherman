@@ -10,6 +10,7 @@ import (
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -257,6 +258,7 @@ func TestContext_GlobalVariables(t *testing.T) {
 				constants.CwdVariable:              "~/project",
 				constants.BranchNameVariable:       "refs/head/develop",
 				constants.TagVariable:              "1.0.0",
+				constants.OsVariable:               runtime.GOOS,
 			},
 		},
 	}

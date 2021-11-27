@@ -1,6 +1,7 @@
 package expression
 
 import (
+	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 
 	"github.com/antonmedv/expr"
@@ -11,28 +12,20 @@ type Engine interface {
 	Eval(expression string, vars map[string]interface{}) (bool, error)
 }
 
-type GoExpressionEngine struct {
-	functions map[string]interface{}
-}
+type GoExpressionEngine struct{}
 
 func NewGoExpressionEngine() *GoExpressionEngine {
-	return &GoExpressionEngine{
-		functions: map[string]interface{}{
-			"IsEmpty": utils.IsEmpty,
-		},
-	}
+	return &GoExpressionEngine{}
 }
 
-func (engine *GoExpressionEngine) Eval(expString string, vars map[string]interface{}) (bool, error) {
+func (*GoExpressionEngine) Eval(expString string, vars map[string]interface{}) (bool, error) {
 	env := map[string]interface{}{}
 
-	err := mergo.Merge(&env, engine.functions)
-	if err != nil {
+	if err := mergo.Merge(&env, resolveFunctions(vars)); err != nil {
 		return false, err
 	}
 
-	err = mergo.Merge(&env, vars)
-	if err != nil {
+	if err := mergo.Merge(&env, vars); err != nil {
 		return false, err
 	}
 
@@ -47,4 +40,13 @@ func (engine *GoExpressionEngine) Eval(expString string, vars map[string]interfa
 	}
 
 	return output.(bool), nil
+}
+
+func resolveFunctions(vars map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"IsEmpty":   utils.IsEmpty,
+		"IsWindows": func() bool { return vars[constants.OsVariable] == "windows" },
+		"IsLinux":   func() bool { return vars[constants.OsVariable] == "linux" },
+		"IsMac":     func() bool { return vars[constants.OsVariable] == "darwin" },
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"fisherman/internal/utils"
 	"fisherman/pkg/guards"
 	"io"
+	"runtime"
 	"time"
 
 	"github.com/evg4b/linebyline"
@@ -138,6 +139,7 @@ func (ctx *ApplicationContext) GlobalVariables() (map[string]interface{}, error)
 		constants.CwdVariable:              ctx.cwd,
 		constants.BranchNameVariable:       currentBranch,
 		constants.TagVariable:              lastTag,
+		constants.OsVariable:               runtime.GOOS,
 	}, nil
 }
 

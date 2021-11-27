@@ -13,4 +13,6 @@ const (
 	BranchNameVariable = "BranchName"
 	// TagVariable is global TagName constant name.
 	TagVariable = "TagName"
+	// OsVariable is global operation system constant name.
+	OsVariable = "OS"
 )
