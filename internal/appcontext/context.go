@@ -4,7 +4,6 @@ import (
 	"context"
 	"fisherman/internal"
 	"fisherman/internal/constants"
-	"fisherman/internal/utils"
 	"fisherman/pkg/guards"
 	"io"
 	"runtime"
@@ -13,6 +12,7 @@ import (
 	"github.com/evg4b/linebyline"
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/util"
 )
 
 type ApplicationContext struct {
@@ -91,12 +91,12 @@ func (ctx *ApplicationContext) Message() (string, error) {
 		return "", err
 	}
 
-	message, err := utils.ReadFileAsString(ctx.fs, messageFilePath)
+	message, err := util.ReadFile(ctx.fs, messageFilePath)
 	if err != nil {
 		return "", err
 	}
 
-	return message, nil
+	return string(message), nil
 }
 
 // Cwd returns current working directory.

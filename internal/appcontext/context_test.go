@@ -143,7 +143,7 @@ func TestContext_Message(t *testing.T) {
 			name:        "return message from file",
 			files:       map[string]string{},
 			expected:    "",
-			expectedErr: "open filepath: file does not exist",
+			expectedErr: "file does not exist",
 			args:        []string{"handle", "--hook", "commit-msg", "filepath"},
 		},
 	}
