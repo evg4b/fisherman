@@ -13,6 +13,7 @@
 - Added ability to check rules by condition.
 - (shell-script rule) Added correct cross-platform exit code checking
 - Added `suppress-text` rule for suppress file content
+- Added `exec` rule to run cli programs without shell overhead.
 
 ### Fixed
 

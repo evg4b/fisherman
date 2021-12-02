@@ -1,7 +1,7 @@
 package rules_test
 
 import (
-	"fisherman/internal/rules"
+	. "fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"io"
@@ -13,13 +13,13 @@ import (
 )
 
 func TestExec_GetPosition(t *testing.T) {
-	rule := rules.Exec{
-		BaseRule: rules.BaseRule{Type: rules.ExecType},
+	rule := Exec{
+		BaseRule: BaseRule{Type: ExecType},
 	}
 
 	actual := rule.GetPosition()
 
-	assert.Equal(t, actual, rules.Scripts)
+	assert.Equal(t, actual, Scripts)
 }
 
 func TestExec_GetPrefix(t *testing.T) {
@@ -29,12 +29,12 @@ func TestExec_GetPrefix(t *testing.T) {
 		expected string
 	}{
 		{name: "user defined name", ruleName: "Prefix", expected: "Prefix"},
-		{name: "default prefix", expected: rules.ExecType},
+		{name: "default prefix", expected: ExecType},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := rules.Exec{
-				BaseRule: rules.BaseRule{Type: rules.ExecType},
+			rule := Exec{
+				BaseRule: BaseRule{Type: ExecType},
 				Name:     tt.ruleName,
 			}
 
@@ -48,31 +48,31 @@ func TestExec_GetPrefix(t *testing.T) {
 func TestExec_Check(t *testing.T) {
 	fakeCommandContext, envWrapper := testutils.ConfigureFakeExec("TestExec_CheckHelper")
 
-	rules.CommandContext = fakeCommandContext
-	defer func() { rules.CommandContext = exec.CommandContext }()
+	CommandContext = fakeCommandContext
+	defer func() { CommandContext = exec.CommandContext }()
 
 	tests := []struct {
 		name     string
 		expected string
-		commands []rules.CommandDef
+		commands []CommandDef
 		env      map[string]string
 	}{
 		{
 			name: "successfully command execution",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./valid"}},
 			},
 		},
 		{
 			name:     "command finished with code 2",
 			expected: "1 error occurred:\n\t* exit status 2\n\n",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 			},
 		},
 		{
 			name: "successfully finished list of commands",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./valid"}},
 				{Program: "go", Args: []string{"test", "./another-valid"}},
 			},
@@ -80,7 +80,7 @@ func TestExec_Check(t *testing.T) {
 		{
 			name:     "failed one command from list",
 			expected: "1 error occurred:\n\t* exit status 2\n\n",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 				{Program: "go", Args: []string{"test", "./valid"}},
 				{Program: "go", Args: []string{"test", "./another-valid"}},
@@ -89,14 +89,14 @@ func TestExec_Check(t *testing.T) {
 		{
 			name:     "failed two command from list",
 			expected: "2 errors occurred:\n\t* exit status 2\n\t* exit status 33\n\n",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 				{Program: "make", Args: []string{"build"}},
 			},
 		},
 		{
 			name: "successfully passed global env",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "env-global"}},
 			},
 		},
@@ -105,7 +105,7 @@ func TestExec_Check(t *testing.T) {
 			env: map[string]string{
 				"RULE_ENV": "This is rule env",
 			},
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "env-rule"}},
 			},
 		},
@@ -114,13 +114,13 @@ func TestExec_Check(t *testing.T) {
 			env: map[string]string{
 				"RULE_ENV": "This is rule env",
 			},
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "env-rule"}},
 			},
 		},
 		{
 			name: "successfully passed command env",
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{
 					Program: "go",
 					Args:    []string{"test", "env-command"},
@@ -137,7 +137,7 @@ func TestExec_Check(t *testing.T) {
 				"VAR_2":    "Rule value 2",
 				"VAR_3":    "Rule value 3",
 			},
-			commands: []rules.CommandDef{
+			commands: []CommandDef{
 				{
 					Program: "go",
 					Args:    []string{"test", "env-oweride"},
@@ -150,8 +150,8 @@ func TestExec_Check(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := rules.Exec{
-				BaseRule: rules.BaseRule{Type: rules.ExecType},
+			rule := Exec{
+				BaseRule: BaseRule{Type: ExecType},
 				Commands: tt.commands,
 				Env:      tt.env,
 			}
@@ -170,7 +170,7 @@ func TestExec_Check(t *testing.T) {
 
 			actual := rule.Check(ctx, io.Discard)
 
-			testutils.CheckError(t, tt.expected, actual)
+			testutils.AssertError(t, tt.expected, actual)
 		})
 	}
 }
@@ -200,9 +200,9 @@ func TestExec_CheckHelper(t *testing.T) {
 }
 
 func TestExec_Compile(t *testing.T) {
-	rule := rules.Exec{
-		BaseRule: rules.BaseRule{
-			Type:      rules.ExecType,
+	rule := Exec{
+		BaseRule: BaseRule{
+			Type:      ExecType,
 			Condition: "{{VAR1}}=\"TEST\"",
 		},
 		Name: "{{VAR1}}-{{VAR2}}",
@@ -211,7 +211,7 @@ func TestExec_Compile(t *testing.T) {
 		},
 		Output: false,
 		Dir:    "/user/{{VAR2}}/test",
-		Commands: []rules.CommandDef{
+		Commands: []CommandDef{
 			{
 				Program: "app-{{Version}}",
 				Args: []string{
@@ -233,9 +233,9 @@ func TestExec_Compile(t *testing.T) {
 		"Version": "3-5-17",
 	})
 
-	assert.Equal(t, rules.Exec{
-		BaseRule: rules.BaseRule{
-			Type:      rules.ExecType,
+	assert.Equal(t, Exec{
+		BaseRule: BaseRule{
+			Type:      ExecType,
 			Condition: "TEST=\"TEST\"",
 		},
 		Name: "TEST-DEMO",
@@ -244,7 +244,7 @@ func TestExec_Compile(t *testing.T) {
 		},
 		Output: false,
 		Dir:    "/user/DEMO/test",
-		Commands: []rules.CommandDef{
+		Commands: []CommandDef{
 			{
 				Program: "app-3-5-17",
 				Args: []string{

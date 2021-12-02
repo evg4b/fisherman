@@ -1,7 +1,7 @@
 package utils_test
 
 import (
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"strings"
 	"testing"
 
@@ -21,7 +21,7 @@ func TestFilter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filtered := utils.Filter(tt.source, func(value string) bool {
+			filtered := Filter(tt.source, func(value string) bool {
 				return strings.Contains(value, "#")
 			})
 
@@ -64,7 +64,7 @@ func TestContains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := utils.Contains(tt.collection, tt.value)
+			actual := Contains(tt.collection, tt.value)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}

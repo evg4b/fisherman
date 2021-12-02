@@ -3,7 +3,7 @@ package utils_test
 import (
 	"bytes"
 	"errors"
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"fisherman/pkg/log"
 	"testing"
 
@@ -24,7 +24,7 @@ func TestPanicInterceptor(t *testing.T) {
 			called := false
 
 			assert.NotPanics(t, func() {
-				defer utils.PanicInterceptor(func(code int) {
+				defer PanicInterceptor(func(code int) {
 					assert.Equal(t, tt.exitCode, code)
 					called = true
 				}, tt.exitCode)
@@ -45,7 +45,7 @@ func TestPanicInterceptorWithErrorDump(t *testing.T) {
 	exitCode := 3
 
 	assert.NotPanics(t, func() {
-		defer utils.PanicInterceptor(func(code int) {
+		defer PanicInterceptor(func(code int) {
 			exitCode = code
 			called = true
 		}, 3)

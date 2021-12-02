@@ -1,7 +1,7 @@
 package vcs_test
 
 import (
-	"fisherman/pkg/vcs"
+	. "fisherman/pkg/vcs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,78 +9,78 @@ import (
 
 var tests = []struct {
 	name       string
-	changes    vcs.Changes
-	added      vcs.Changes
-	deleted    vcs.Changes
-	unmodified vcs.Changes
+	changes    Changes
+	added      Changes
+	deleted    Changes
+	unmodified Changes
 }{
 	{
 		name:       "empty collection",
-		changes:    vcs.Changes{},
-		added:      vcs.Changes{},
-		deleted:    vcs.Changes{},
-		unmodified: vcs.Changes{},
+		changes:    Changes{},
+		added:      Changes{},
+		deleted:    Changes{},
+		unmodified: Changes{},
 	},
 	{
 		name: "collection 1",
-		changes: vcs.Changes{
-			vcs.Change{vcs.Added, "test"},
-			vcs.Change{vcs.Added, "data"},
-			vcs.Change{vcs.Added, "diff"},
+		changes: Changes{
+			Change{Added, "test"},
+			Change{Added, "data"},
+			Change{Added, "diff"},
 		},
-		added: vcs.Changes{
-			vcs.Change{vcs.Added, "test"},
-			vcs.Change{vcs.Added, "data"},
-			vcs.Change{vcs.Added, "diff"},
+		added: Changes{
+			Change{Added, "test"},
+			Change{Added, "data"},
+			Change{Added, "diff"},
 		},
-		deleted:    vcs.Changes{},
-		unmodified: vcs.Changes{},
+		deleted:    Changes{},
+		unmodified: Changes{},
 	},
 	{
 		name: "collection 2",
-		changes: vcs.Changes{
-			vcs.Change{vcs.Deleted, "test"},
-			vcs.Change{vcs.Deleted, "data"},
-			vcs.Change{vcs.Deleted, "diff"},
+		changes: Changes{
+			Change{Deleted, "test"},
+			Change{Deleted, "data"},
+			Change{Deleted, "diff"},
 		},
-		deleted: vcs.Changes{
-			vcs.Change{vcs.Deleted, "test"},
-			vcs.Change{vcs.Deleted, "data"},
-			vcs.Change{vcs.Deleted, "diff"},
+		deleted: Changes{
+			Change{Deleted, "test"},
+			Change{Deleted, "data"},
+			Change{Deleted, "diff"},
 		},
-		added:      vcs.Changes{},
-		unmodified: vcs.Changes{},
+		added:      Changes{},
+		unmodified: Changes{},
 	},
 	{
 		name: "collection 3",
-		changes: vcs.Changes{
-			vcs.Change{vcs.Unmodified, "test"},
-			vcs.Change{vcs.Unmodified, "data"},
-			vcs.Change{vcs.Unmodified, "diff"},
+		changes: Changes{
+			Change{Unmodified, "test"},
+			Change{Unmodified, "data"},
+			Change{Unmodified, "diff"},
 		},
-		unmodified: vcs.Changes{
-			vcs.Change{vcs.Unmodified, "test"},
-			vcs.Change{vcs.Unmodified, "data"},
-			vcs.Change{vcs.Unmodified, "diff"},
+		unmodified: Changes{
+			Change{Unmodified, "test"},
+			Change{Unmodified, "data"},
+			Change{Unmodified, "diff"},
 		},
-		added:   vcs.Changes{},
-		deleted: vcs.Changes{},
+		added:   Changes{},
+		deleted: Changes{},
 	},
 	{
 		name: "collection 4",
-		changes: vcs.Changes{
-			vcs.Change{vcs.Unmodified, "test"},
-			vcs.Change{vcs.Added, "data"},
-			vcs.Change{vcs.Deleted, "diff"},
+		changes: Changes{
+			Change{Unmodified, "test"},
+			Change{Added, "data"},
+			Change{Deleted, "diff"},
 		},
-		unmodified: vcs.Changes{
-			vcs.Change{vcs.Unmodified, "test"},
+		unmodified: Changes{
+			Change{Unmodified, "test"},
 		},
-		added: vcs.Changes{
-			vcs.Change{vcs.Added, "data"},
+		added: Changes{
+			Change{Added, "data"},
 		},
-		deleted: vcs.Changes{
-			vcs.Change{vcs.Deleted, "diff"},
+		deleted: Changes{
+			Change{Deleted, "diff"},
 		},
 	},
 }

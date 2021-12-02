@@ -16,28 +16,14 @@ import (
 
 const gitDir = ".git"
 
-type ConfigLoader struct {
-	usr *user.User
-	cwd string
-	fs  billy.Filesystem
-}
-
-func NewLoader(usr *user.User, cwd string, fs billy.Filesystem) *ConfigLoader {
-	return &ConfigLoader{
-		usr: usr,
-		cwd: cwd,
-		fs:  fs,
-	}
-}
-
-func (loader *ConfigLoader) FindConfigFiles() (map[string]string, error) {
+func FindConfigFiles(usr *user.User, cwd string, fs billy.Filesystem) (map[string]string, error) {
 	configs := map[string]string{}
 	for _, mode := range ModeOptions {
-		folder := GetConfigFolder(loader.usr, loader.cwd, mode)
+		folder := GetConfigFolder(usr, cwd, mode)
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
-			exist, err := utils.Exists(loader.fs, configPath)
+			exist, err := utils.Exists(fs, configPath)
 			if err != nil {
 				return nil, err
 			}
@@ -72,7 +58,7 @@ func GetConfigFolder(usr *user.User, cwd, mode string) string {
 	}
 }
 
-func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, error) {
+func Load(fs billy.Filesystem, files map[string]string) (*FishermanConfig, error) {
 	config := FishermanConfig{
 		Output:       log.DefaultOutputConfig,
 		DefaultShell: shell.PlatformDefaultShell,
@@ -81,7 +67,7 @@ func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, err
 	for _, mode := range ModeOptions {
 		file, ok := files[mode]
 		if ok {
-			loadedConfig, err := loader.unmarshlFile(file)
+			loadedConfig, err := unmarshlFile(fs, file)
 			if err != nil {
 				return &config, err
 			}
@@ -96,10 +82,10 @@ func (loader *ConfigLoader) Load(files map[string]string) (*FishermanConfig, err
 	return &config, nil
 }
 
-func (loader *ConfigLoader) unmarshlFile(path string) (*FishermanConfig, error) {
+func unmarshlFile(fs billy.Filesystem, path string) (*FishermanConfig, error) {
 	var config FishermanConfig
 
-	file, err := loader.fs.Open(path)
+	file, err := fs.Open(path)
 	if err != nil {
 		return nil, errors.Errorf("open %s: %w", path, err)
 	}

@@ -3,7 +3,7 @@ package rules_test
 import (
 	"errors"
 	"fisherman/internal"
-	"fisherman/internal/rules"
+	. "fisherman/internal/rules"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"io"
@@ -135,8 +135,8 @@ func TestSuppressedText_Check(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(tt.repo)
 
-			rule := rules.SuppressedText{
-				BaseRule:   rules.BaseRule{Type: rules.SuppressedTextType},
+			rule := SuppressedText{
+				BaseRule:   BaseRule{Type: SuppressedTextType},
 				Substrings: tt.substrings,
 			}
 
@@ -193,8 +193,8 @@ func TestSuppressedText_Check_Excluded(t *testing.T) {
 
 			ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-			rule := rules.SuppressedText{
-				BaseRule:      rules.BaseRule{Type: rules.SuppressedTextType},
+			rule := SuppressedText{
+				BaseRule:      BaseRule{Type: SuppressedTextType},
 				Substrings:    []string{"suppressed text"},
 				ExcludedGlobs: tt.exclude,
 			}
@@ -207,19 +207,19 @@ func TestSuppressedText_Check_Excluded(t *testing.T) {
 }
 
 func TestSuppressedText_GetPosition(t *testing.T) {
-	rule := rules.SuppressedText{
-		BaseRule:   rules.BaseRule{Type: rules.SuppressedTextType},
+	rule := SuppressedText{
+		BaseRule:   BaseRule{Type: SuppressedTextType},
 		Substrings: []string{"suppressed text"},
 	}
 
 	actual := rule.GetPosition()
 
-	assert.Equal(t, actual, rules.PostScripts)
+	assert.Equal(t, actual, PostScripts)
 }
 
 func TestSuppressedText_Compile(t *testing.T) {
-	rule := rules.SuppressedText{
-		BaseRule:   rules.BaseRule{Type: rules.ShellScriptType},
+	rule := SuppressedText{
+		BaseRule:   BaseRule{Type: ShellScriptType},
 		Substrings: []string{"DEMO {{var1}}"},
 		ExcludedGlobs: []string{
 			"Glob1 {{var1}}",
@@ -229,8 +229,8 @@ func TestSuppressedText_Compile(t *testing.T) {
 
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
-	assert.Equal(t, rules.SuppressedText{
-		BaseRule:   rules.BaseRule{Type: rules.ShellScriptType},
+	assert.Equal(t, SuppressedText{
+		BaseRule:   BaseRule{Type: ShellScriptType},
 		Substrings: []string{"DEMO VALUE"},
 		ExcludedGlobs: []string{
 			"Glob1 VALUE",

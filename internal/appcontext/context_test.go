@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fisherman/internal"
-	"fisherman/internal/appcontext"
+	. "fisherman/internal/appcontext"
 	"fisherman/internal/constants"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
@@ -19,9 +19,9 @@ import (
 
 func TestContext_Files(t *testing.T) {
 	expectedFs := mocks.NewFilesystemMock(t)
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(expectedFs),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	ctx := NewContext(
+		WithFileSystem(expectedFs),
+		WithRepository(mocks.NewRepositoryMock(t)),
 	)
 
 	actualFs := ctx.Files()
@@ -31,9 +31,9 @@ func TestContext_Files(t *testing.T) {
 
 func TestContext_Repository(t *testing.T) {
 	expectedRepo := mocks.NewRepositoryMock(t)
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(expectedRepo),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(expectedRepo),
 	)
 
 	actualRepo := ctx.Repository()
@@ -43,10 +43,10 @@ func TestContext_Repository(t *testing.T) {
 
 func TestContext_Args(t *testing.T) {
 	expectedArgs := []string{"param"}
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		appcontext.WithArgs(expectedArgs),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
+		WithArgs(expectedArgs),
 	)
 
 	actualArgs := ctx.Args()
@@ -57,10 +57,10 @@ func TestContext_Args(t *testing.T) {
 func TestContext_Cwd(t *testing.T) {
 	expectedCwd := "/usr/root/home"
 
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		appcontext.WithCwd(expectedCwd),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
+		WithCwd(expectedCwd),
 	)
 
 	actualCwd := ctx.Cwd()
@@ -69,10 +69,10 @@ func TestContext_Cwd(t *testing.T) {
 }
 
 func TestContext_Arg(t *testing.T) {
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		appcontext.WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
+		WithArgs([]string{"fisherman", "handle", "--hook", "commit-msg", "/user/home/MESSAGE"}),
 	)
 
 	tests := []struct {
@@ -94,7 +94,7 @@ func TestContext_Arg(t *testing.T) {
 			value, err := ctx.Arg(tt.index)
 
 			assert.Equal(t, tt.expected, value)
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }
@@ -103,10 +103,10 @@ func TestContext_Output(t *testing.T) {
 	expectedString := ""
 
 	buffer := bytes.NewBufferString("")
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		appcontext.WithOutput(buffer),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
+		WithOutput(buffer),
 	)
 
 	actualOutput := ctx.Output()
@@ -149,24 +149,24 @@ func TestContext_Message(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := appcontext.NewContext(
-				appcontext.WithFileSystem(testutils.FsFromMap(t, tt.files)),
-				appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-				appcontext.WithArgs(tt.args),
+			ctx := NewContext(
+				WithFileSystem(testutils.FsFromMap(t, tt.files)),
+				WithRepository(mocks.NewRepositoryMock(t)),
+				WithArgs(tt.args),
 			)
 
 			actual, err := ctx.Message()
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }
 
 func TestContext_Stop(t *testing.T) {
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
 	)
 
 	ctx.Cancel()
@@ -178,10 +178,10 @@ func TestContext_Value(t *testing.T) {
 	key := "this-is-key"
 	expected := "this-is-value"
 
-	ctx := appcontext.NewContext(
-		appcontext.WithBaseContext(context.WithValue(context.Background(), key, expected)), //nolint
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	ctx := NewContext(
+		WithBaseContext(context.WithValue(context.Background(), key, expected)), //nolint
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
 	)
 
 	data := ctx.Value(key)
@@ -190,10 +190,10 @@ func TestContext_Value(t *testing.T) {
 }
 
 func TestContext_Deadline(t *testing.T) {
-	ctx := appcontext.NewContext(
-		appcontext.WithBaseContext(context.Background()),
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	ctx := NewContext(
+		WithBaseContext(context.Background()),
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
 	)
 
 	data, ok := ctx.Deadline()
@@ -203,10 +203,10 @@ func TestContext_Deadline(t *testing.T) {
 }
 
 func TestContext_Done(t *testing.T) {
-	ctx := appcontext.NewContext(
-		appcontext.WithBaseContext(context.Background()),
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+	ctx := NewContext(
+		WithBaseContext(context.Background()),
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
 	)
 
 	chanell := ctx.Done()
@@ -264,26 +264,26 @@ func TestContext_GlobalVariables(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := appcontext.NewContext(
-				appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-				appcontext.WithRepository(tt.repository),
-				appcontext.WithCwd("~/project"),
+			ctx := NewContext(
+				WithFileSystem(mocks.NewFilesystemMock(t)),
+				WithRepository(tt.repository),
+				WithCwd("~/project"),
 			)
 
 			actual, err := ctx.GlobalVariables()
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }
 
 func TestApplicationContext_Envs(t *testing.T) {
 	expectedEnvs := []string{"VALUE1=123", "VALUE4=234234"}
-	ctx := appcontext.NewContext(
-		appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-		appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		appcontext.WithEnv(expectedEnvs),
+	ctx := NewContext(
+		WithFileSystem(mocks.NewFilesystemMock(t)),
+		WithRepository(mocks.NewRepositoryMock(t)),
+		WithEnv(expectedEnvs),
 	)
 
 	actualEnvs := ctx.Env()

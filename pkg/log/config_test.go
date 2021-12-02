@@ -1,7 +1,7 @@
 package log_test
 
 import (
-	"fisherman/pkg/log"
+	. "fisherman/pkg/log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,17 +13,17 @@ func TestOutputConfig_UnmarshalYAML(t *testing.T) {
 		name   string
 		config string
 		colors bool
-		level  log.Level
+		level  Level
 	}{
-		{name: "", config: "level: debug\ncolors: true", colors: true, level: log.DebugLevel},
-		{name: "", config: "level: error\ncolors: true", colors: true, level: log.ErrorLevel},
-		{name: "", config: "level: none\ncolors: true", colors: true, level: log.NoneLevel},
-		{name: "", config: "level: info\ncolors: false", colors: false, level: log.InfoLevel},
+		{name: "", config: "level: debug\ncolors: true", colors: true, level: DebugLevel},
+		{name: "", config: "level: error\ncolors: true", colors: true, level: ErrorLevel},
+		{name: "", config: "level: none\ncolors: true", colors: true, level: NoneLevel},
+		{name: "", config: "level: info\ncolors: false", colors: false, level: InfoLevel},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var config log.OutputConfig
+			var config OutputConfig
 			err := yaml.Unmarshal([]byte(tt.config), &config)
 
 			assert.NoError(t, err)
@@ -58,7 +58,7 @@ func TestOutputConfig_UnmarshalYAMLFail(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var config log.OutputConfig
+			var config OutputConfig
 			err := yaml.Unmarshal([]byte(tt.config), &config)
 			assert.EqualError(t, err, tt.expectedErr)
 		})

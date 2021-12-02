@@ -3,7 +3,7 @@ package vcs_test
 import (
 	"errors"
 	"fisherman/pkg/guards"
-	"fisherman/pkg/vcs"
+	. "fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"fmt"
 	"testing"
@@ -79,7 +79,7 @@ func TestGitRepository_GetUser(t *testing.T) {
 	user, err := repo.GetUser()
 
 	assert.NoError(t, err)
-	assert.Equal(t, vcs.User{
+	assert.Equal(t, User{
 		UserName: expectedUserName,
 		Email:    expectedEmail,
 	}, user)
@@ -88,23 +88,23 @@ func TestGitRepository_GetUser(t *testing.T) {
 func TestLazyInitialization(t *testing.T) {
 	test := []struct {
 		name   string
-		action func(repo *vcs.GitRepository) error
+		action func(repo *GitRepository) error
 	}{
 		{
 			name: "AddGlob initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				return repo.AddGlob("demo.ts")
 			},
 		},
 		{
 			name: "AddRemoveGlobGlob initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				return repo.RemoveGlob("demo.ts")
 			},
 		},
 		{
 			name: "GetUser initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				_, err := repo.GetUser()
 
 				return err
@@ -112,7 +112,7 @@ func TestLazyInitialization(t *testing.T) {
 		},
 		{
 			name: "GetCurrentBranch initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				_, err := repo.GetCurrentBranch()
 
 				return err
@@ -120,7 +120,7 @@ func TestLazyInitialization(t *testing.T) {
 		},
 		{
 			name: "GetLastTag initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				_, err := repo.GetLastTag()
 
 				return err
@@ -128,7 +128,7 @@ func TestLazyInitialization(t *testing.T) {
 		},
 		{
 			name: "GetIndexChanges initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				_, err := repo.GetIndexChanges()
 
 				return err
@@ -136,7 +136,7 @@ func TestLazyInitialization(t *testing.T) {
 		},
 		{
 			name: "GetFilesInIndex initialize git repository",
-			action: func(repo *vcs.GitRepository) error {
+			action: func(repo *GitRepository) error {
 				_, err := repo.GetFilesInIndex()
 
 				return err
@@ -146,7 +146,7 @@ func TestLazyInitialization(t *testing.T) {
 
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := vcs.NewRepository(vcs.WithFactoryMethod(func() (vcs.GoGitRepository, storage.Storer, error) {
+			repo := NewRepository(WithFactoryMethod(func() (GoGitRepository, storage.Storer, error) {
 				return nil, nil, errors.New("Initialization error")
 			}))
 

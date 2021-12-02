@@ -3,7 +3,7 @@ package vcs_test
 import (
 	"errors"
 	"fisherman/pkg/guards"
-	"fisherman/pkg/vcs"
+	. "fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
@@ -69,7 +69,7 @@ func TestGitRepository_GetFilesInIndex_Worktree_Error(t *testing.T) {
 	expectedError := errors.New("worktree error")
 	gitMock := mocks.NewGoGitRepositoryMock(t).WorktreeMock.Return(nil, expectedError)
 
-	repo := vcs.NewRepository(vcs.WithFactoryMethod(func() (vcs.GoGitRepository, storage.Storer, error) {
+	repo := NewRepository(WithFactoryMethod(func() (GoGitRepository, storage.Storer, error) {
 		return gitMock, nil, nil
 	}))
 

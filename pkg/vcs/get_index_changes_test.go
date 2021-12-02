@@ -3,7 +3,7 @@ package vcs_test
 
 import (
 	"fisherman/pkg/guards"
-	"fisherman/pkg/vcs"
+	. "fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"testing"
 
@@ -34,13 +34,13 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 	changes, err := repo.GetIndexChanges()
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]vcs.Changes{
+	assert.Equal(t, map[string]Changes{
 		"new": {
-			{Status: vcs.Added, Change: "new file"},
+			{Status: Added, Change: "new file"},
 		},
 		"tracked": {
-			{Status: vcs.Deleted, Change: "this is test file"},
-			{Status: vcs.Added, Change: "this is test file\nadded new content"},
+			{Status: Deleted, Change: "this is test file"},
+			{Status: Added, Change: "this is test file\nadded new content"},
 		},
 	}, changes)
 }
@@ -69,13 +69,13 @@ func TestGitRepository_GetIndexChanges_Subfolders(t *testing.T) {
 	changes, err := repo.GetIndexChanges()
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]vcs.Changes{
+	assert.Equal(t, map[string]Changes{
 		"folder1/added": {
-			{Status: vcs.Added, Change: "added content"},
+			{Status: Added, Change: "added content"},
 		},
 		"folder1/existing": {
-			{Status: vcs.Deleted, Change: "this is test file"},
-			{Status: vcs.Added, Change: "this is test file\nadded new content"},
+			{Status: Deleted, Change: "this is test file"},
+			{Status: Added, Change: "this is test file\nadded new content"},
 		},
 	}, changes)
 }
@@ -90,7 +90,7 @@ func TestGitRepository_GetIndexChanges_Empty(t *testing.T) {
 	changes, err := repo.GetIndexChanges()
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]vcs.Changes{}, changes)
+	assert.Equal(t, map[string]Changes{}, changes)
 }
 
 func TestGitRepository_GetIndexChanges_EmptyWithUnstagedFiles(t *testing.T) {
@@ -107,5 +107,5 @@ func TestGitRepository_GetIndexChanges_EmptyWithUnstagedFiles(t *testing.T) {
 	changes, err := repo.GetIndexChanges()
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]vcs.Changes{}, changes)
+	assert.Equal(t, map[string]Changes{}, changes)
 }

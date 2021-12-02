@@ -1,7 +1,7 @@
 package utils_test
 
 import (
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,7 +13,7 @@ func TestStringMapToInterfaceMap(t *testing.T) {
 		"2": "11111",
 	}
 
-	actual := utils.StringMapToInterfaceMap(data)
+	actual := StringMapToInterfaceMap(data)
 
 	assert.IsType(t, map[string]interface{}{}, actual)
 	assert.Equal(t, len(data), len(actual))

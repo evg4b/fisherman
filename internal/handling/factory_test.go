@@ -3,7 +3,7 @@ package handling_test
 import (
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
-	"fisherman/internal/handling"
+	. "fisherman/internal/handling"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -13,7 +13,7 @@ import (
 var globalVars = map[string]interface{}{}
 
 func TestFactory_GetHook(t *testing.T) {
-	factory := handling.NewHookHandlerFactory(
+	factory := NewHookHandlerFactory(
 		mocks.NewEngineMock(t).EvalMock.Return(false, nil),
 		configuration.HooksConfig{
 			ApplyPatchMsgHook:     &configuration.HookConfig{},
@@ -41,7 +41,7 @@ func TestFactory_GetHook(t *testing.T) {
 }
 
 func TestFactory_GetHook_NotConfigured(t *testing.T) {
-	factory := handling.NewHookHandlerFactory(
+	factory := NewHookHandlerFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)
@@ -51,13 +51,13 @@ func TestFactory_GetHook_NotConfigured(t *testing.T) {
 			hook, err := factory.GetHook(tt, globalVars)
 
 			assert.Nil(t, hook)
-			assert.Equal(t, handling.ErrNotPresented, err)
+			assert.Equal(t, ErrNotPresented, err)
 		})
 	}
 }
 
 func TestFactory_GetHook_UnknownHook(t *testing.T) {
-	factory := handling.NewHookHandlerFactory(
+	factory := NewHookHandlerFactory(
 		mocks.NewEngineMock(t),
 		configuration.HooksConfig{},
 	)

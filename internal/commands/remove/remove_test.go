@@ -3,7 +3,7 @@ package remove_test
 import (
 	"errors"
 	"fisherman/internal"
-	"fisherman/internal/commands/remove"
+	. "fisherman/internal/commands/remove"
 	"fisherman/internal/configuration"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
@@ -23,7 +23,7 @@ func TestCommand_Run(t *testing.T) {
 		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
 	})
 
-	command := remove.NewCommand(
+	command := NewCommand(
 		fs,
 		internal.AppInfo{
 			Cwd:        filepath.Join("usr", "home"),
@@ -68,7 +68,7 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := remove.NewCommand(tt.files, appInfo, &user.User{
+			c := NewCommand(tt.files, appInfo, &user.User{
 				HomeDir: filepath.Join("usr", "home"),
 			})
 
@@ -77,13 +77,13 @@ func TestCommand_Run_WithError(t *testing.T) {
 
 			err = c.Run(mocks.NewExecutionContextMock(t))
 
-			testutils.CheckError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedError, err)
 		})
 	}
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := remove.NewCommand(
+	command := NewCommand(
 		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,
 		&testutils.TestUser,
@@ -93,7 +93,7 @@ func TestCommand_Name(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
-	command := remove.NewCommand(
+	command := NewCommand(
 		mocks.NewFilesystemMock(t),
 		mocks.AppInfoStub,
 		&testutils.TestUser,

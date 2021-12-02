@@ -1,7 +1,7 @@
 package utils_test
 
 import (
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +27,7 @@ func TestIsEmpty(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, utils.IsEmpty(tt.value))
+			assert.Equal(t, tt.expected, IsEmpty(tt.value))
 		})
 	}
 }
@@ -51,7 +51,7 @@ func TestOriginalOrNA(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, utils.OriginalOrNA(tt.value))
+			assert.Equal(t, tt.expected, OriginalOrNA(tt.value))
 		})
 	}
 }
@@ -79,7 +79,7 @@ func TestFirstNotEmpty(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := utils.FirstNotEmpty(tt.values...)
+			actual := FirstNotEmpty(tt.values...)
 
 			assert.Equal(t, tt.expected, actual)
 		})
@@ -88,6 +88,6 @@ func TestFirstNotEmpty(t *testing.T) {
 
 func TestFirstNotEmptyPanic(t *testing.T) {
 	assert.PanicsWithError(t, "sequence contains no elements", func() {
-		utils.FirstNotEmpty()
+		FirstNotEmpty()
 	})
 }

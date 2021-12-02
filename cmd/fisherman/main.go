@@ -37,12 +37,10 @@ func main() {
 
 	fs := osfs.New("")
 
-	configLoader := configuration.NewLoader(usr, cwd, fs)
-
-	configs, err := configLoader.FindConfigFiles()
+	configs, err := configuration.FindConfigFiles(usr, cwd, fs)
 	guards.NoError(err)
 
-	config, err := configLoader.Load(configs)
+	config, err := configuration.Load(fs, configs)
 	guards.NoError(err)
 
 	log.Configure(config.Output)

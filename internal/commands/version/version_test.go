@@ -2,7 +2,7 @@ package version_test
 
 import (
 	"bytes"
-	"fisherman/internal/commands/version"
+	. "fisherman/internal/commands/version"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"testing"
@@ -14,7 +14,7 @@ func TestCommand_Run(t *testing.T) {
 	output := bytes.NewBufferString("")
 	log.SetOutput(output)
 
-	command := version.NewCommand()
+	command := NewCommand()
 	err := command.Init([]string{})
 
 	assert.NoError(t, err)
@@ -26,7 +26,7 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
-	command := version.NewCommand()
+	command := NewCommand()
 	err := command.Init([]string{})
 
 	assert.NoError(t, err)
@@ -34,7 +34,7 @@ func TestCommand_Description(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := version.NewCommand()
+	command := NewCommand()
 	err := command.Init([]string{})
 
 	assert.NoError(t, err)

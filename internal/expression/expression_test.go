@@ -1,7 +1,7 @@
 package expression_test
 
 import (
-	"fisherman/internal/expression"
+	. "fisherman/internal/expression"
 	"fisherman/testing/testutils"
 	"testing"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func TestExpressionEngine_Eval(t *testing.T) {
-	engine := expression.NewGoExpressionEngine()
+	engine := NewGoExpressionEngine()
 
 	tests := []struct {
 		name        string
@@ -48,7 +48,7 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			})
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }

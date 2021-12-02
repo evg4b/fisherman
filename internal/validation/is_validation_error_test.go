@@ -2,7 +2,7 @@ package validation_test
 
 import (
 	"errors"
-	"fisherman/internal/validation"
+	. "fisherman/internal/validation"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestIsValidationError(t *testing.T) {
-	validationError := validation.Errorf("test", "test")
+	validationError := Errorf("test", "test")
 	notValidationError := errors.New("test")
 
 	var singleNotValidationError *multierror.Error
@@ -41,7 +41,7 @@ func TestIsValidationError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := validation.IsValidationError(tt.err)
+			actual := IsValidationError(tt.err)
 
 			assert.Equal(t, tt.expected, actual)
 		})

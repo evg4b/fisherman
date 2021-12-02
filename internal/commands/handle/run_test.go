@@ -3,7 +3,7 @@ package handle_test
 import (
 	"errors"
 	"fisherman/internal/appcontext"
-	"fisherman/internal/commands/handle"
+	. "fisherman/internal/commands/handle"
 	"fisherman/internal/constants"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
@@ -38,7 +38,7 @@ func getCtx(t *testing.T) *appcontext.ApplicationContext {
 }
 
 func TestCommand_Run_UnknownHook(t *testing.T) {
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("test", globalVars).Return(nil, errors.New("'test' is not valid hook name")),
 		&mocks.HooksConfigStub,
@@ -54,7 +54,7 @@ func TestCommand_Run_UnknownHook(t *testing.T) {
 }
 
 func TestCommand_Run(t *testing.T) {
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("pre-commit", globalVars).
 			Return(mocks.NewHandlerMock(t).HandleMock.Return(nil), nil),
@@ -73,7 +73,7 @@ func TestCommand_Run(t *testing.T) {
 func TestCommand_Run_Hander(t *testing.T) {
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(errors.New("test error"))
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("pre-commit", globalVars).Return(handler, nil),
 		&mocks.HooksConfigStub,
@@ -91,7 +91,7 @@ func TestCommand_Run_Hander(t *testing.T) {
 func TestCommand_Run_GlobalVarsGettingFail(t *testing.T) {
 	handler := mocks.NewHandlerMock(t).
 		HandleMock.Return(nil)
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t).
 			GetHookMock.Expect("pre-commit", globalVars).Return(handler, nil),
 		&mocks.HooksConfigStub,

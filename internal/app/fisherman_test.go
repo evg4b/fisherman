@@ -3,7 +3,7 @@ package app_test
 import (
 	"context"
 	"fisherman/internal"
-	"fisherman/internal/app"
+	. "fisherman/internal/app"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
@@ -70,17 +70,17 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			appInstance := app.NewFishermanApp(
-				app.WithCommands(tt.commands),
-				app.WithFs(mocks.NewFilesystemMock(t)),
-				app.WithRepository(mocks.NewRepositoryMock(t)),
-				app.WithCwd("/"),
-				app.WithOutput(io.Discard),
+			appInstance := NewFishermanApp(
+				WithCommands(tt.commands),
+				WithFs(mocks.NewFilesystemMock(t)),
+				WithRepository(mocks.NewRepositoryMock(t)),
+				WithCwd("/"),
+				WithOutput(io.Discard),
 			)
 
 			assert.NotPanics(t, func() {
 				err := appInstance.Run(context.TODO(), tt.args)
-				testutils.CheckError(t, tt.expectedError, err)
+				testutils.AssertError(t, tt.expectedError, err)
 			})
 		})
 	}

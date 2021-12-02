@@ -2,7 +2,7 @@ package handling_test
 
 import (
 	"fisherman/internal/configuration"
-	"fisherman/internal/handling"
+	. "fisherman/internal/handling"
 	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
@@ -20,12 +20,12 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		handler     handling.HookHandler
+		handler     HookHandler
 		expectedErr string
 	}{
 		{
 			name: "positive case",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(true, nil),
 				Rules: []configuration.Rule{
@@ -50,7 +50,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		},
 		{
 			name: "negative case",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(false, validation.Errorf("test-rule", "test")),
 				Rules: []configuration.Rule{
@@ -73,7 +73,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		},
 		{
 			name: "rule returns error",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(true, nil),
 				Rules: []configuration.Rule{
@@ -99,7 +99,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		},
 		{
 			name: "rule returns error",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(true, nil),
 				Rules: []configuration.Rule{
@@ -117,7 +117,7 @@ func TestHookHandler_Handle_Rules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }
@@ -130,12 +130,12 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		handler     handling.HookHandler
+		handler     HookHandler
 		expectedErr string
 	}{
 		{
 			name: "positive case",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(true, nil),
 				PostScriptRules: []configuration.Rule{
@@ -160,7 +160,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		},
 		{
 			name: "negative case",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(false, validation.Errorf("test-rule", "test")),
 				PostScriptRules: []configuration.Rule{
@@ -183,7 +183,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		},
 		{
 			name: "rule returns error",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t).
 					EvalMock.Return(true, nil),
 				PostScriptRules: []configuration.Rule{
@@ -209,7 +209,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		},
 		{
 			name: "incorrect workers count",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t),
@@ -222,7 +222,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		},
 		{
 			name: "empty condition",
-			handler: handling.HookHandler{
+			handler: HookHandler{
 				Engine: mocks.NewEngineMock(t),
 				PostScriptRules: []configuration.Rule{
 					mocks.NewRuleMock(t).
@@ -250,7 +250,7 @@ func TestHookHandler_Handle_PostScriptRules(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.handler.Handle(ctx, []string{})
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 			print(tt.name)
 		})
 	}

@@ -1,7 +1,7 @@
 package handle_test
 
 import (
-	"fisherman/internal/commands/handle"
+	. "fisherman/internal/commands/handle"
 	"fisherman/testing/mocks"
 	"testing"
 
@@ -9,7 +9,7 @@ import (
 )
 
 func TestCommand_Name(t *testing.T) {
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t),
 		&mocks.HooksConfigStub,
 		mocks.AppInfoStub,
@@ -19,7 +19,7 @@ func TestCommand_Name(t *testing.T) {
 }
 
 func TestCommand_Description(t *testing.T) {
-	command := handle.NewCommand(
+	command := NewCommand(
 		mocks.NewFactoryMock(t),
 		&mocks.HooksConfigStub,
 		mocks.AppInfoStub,

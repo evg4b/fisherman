@@ -1,7 +1,7 @@
 package guards_test
 
 import (
-	"fisherman/pkg/guards"
+	. "fisherman/pkg/guards"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -47,11 +47,11 @@ func TestShouldBeDefined(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if len(tt.err) > 0 {
 				assert.PanicsWithError(t, tt.err, func() {
-					guards.ShouldBeDefined(tt.object, tt.message)
+					ShouldBeDefined(tt.object, tt.message)
 				})
 			} else {
 				assert.NotPanics(t, func() {
-					guards.ShouldBeDefined(tt.object, tt.message)
+					ShouldBeDefined(tt.object, tt.message)
 				})
 			}
 		})
@@ -61,12 +61,12 @@ func TestShouldBeDefined(t *testing.T) {
 func TestNoErrorPanicForError(t *testing.T) {
 	err := errors.New("Test err")
 	assert.PanicsWithError(t, err.Error(), func() {
-		guards.NoError(err)
+		NoError(err)
 	})
 }
 
 func TestNoErrorNotPanicForNil(t *testing.T) {
 	assert.NotPanics(t, func() {
-		guards.NoError(nil)
+		NoError(nil)
 	})
 }

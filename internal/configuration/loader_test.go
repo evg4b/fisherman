@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,11 +58,9 @@ func TestConfigLoader_FindConfigFiles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := testutils.FsFromSlice(t, tt.files)
-			loaded := NewLoader(&usr, cwd, fs)
+			actual, err := FindConfigFiles(&usr, cwd, fs)
 
-			actual, err := loaded.FindConfigFiles()
-
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
@@ -124,9 +123,6 @@ func TestGetConfigFolder(t *testing.T) {
 }
 
 func TestConfigLoader_Load(t *testing.T) {
-	usr := user.User{HomeDir: filepath.Join("/", "usr", "home")}
-	cwd := filepath.Join("/", "usr", "home", "documents", "repo")
-
 	config := `
 variables:
   name: value
@@ -147,31 +143,31 @@ hooks:
 
 	tests := []struct {
 		name        string
-		loader      *ConfigLoader
+		fs          billy.Filesystem
 		files       map[string]string
 		expected    *FishermanConfig
 		expectedErr string
 	}{
 		{
-			name:   "",
-			loader: NewLoader(&usr, cwd, mocks.NewFilesystemMock(t)),
-			files:  map[string]string{},
+			name:  "",
+			fs:    mocks.NewFilesystemMock(t),
+			files: map[string]string{},
 			expected: &FishermanConfig{
 				DefaultShell: shell.PlatformDefaultShell,
 				Output:       log.DefaultOutputConfig,
 			},
 		},
 		{
-			name:   "file reader error",
-			loader: NewLoader(&usr, cwd, fs),
+			name: "file reader error",
+			fs:   fs,
 			files: map[string]string{
 				GlobalMode: "GlobalConfig3",
 			},
 			expectedErr: "open GlobalConfig3: file does not exist",
 		},
 		{
-			name:   "correct decoding",
-			loader: NewLoader(&usr, cwd, fs),
+			name: "correct decoding",
+			fs:   fs,
 			files: map[string]string{
 				GlobalMode: "GlobalConfig",
 			},
@@ -202,8 +198,8 @@ hooks:
 			},
 		},
 		{
-			name:   "decoding error",
-			loader: NewLoader(&usr, cwd, fs),
+			name: "decoding error",
+			fs:   fs,
 			files: map[string]string{
 				GlobalMode: "GlobalConfigError",
 			},
@@ -213,9 +209,9 @@ hooks:
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := tt.loader.Load(tt.files)
+			actual, err := Load(tt.fs, tt.files)
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 			if tt.expectedErr == "" {
 				assert.Equal(t, tt.expected, actual)
 			}
@@ -224,9 +220,6 @@ hooks:
 }
 
 func TestConfigLoader_Load_Correct_Merging(t *testing.T) {
-	usr := user.User{HomeDir: filepath.Join("/", "usr", "home")}
-	cwd := filepath.Join("/", "usr", "home", "documents", "repo")
-
 	fs := testutils.FsFromMap(t, map[string]string{
 		"global.yaml": `
 variables:
@@ -244,15 +237,13 @@ variables:
   var3: local`,
 	})
 
-	loader := NewLoader(&usr, cwd, fs)
-
 	files := map[string]string{
 		GlobalMode: "global.yaml",
 		LocalMode:  "local.yaml",
 		RepoMode:   "repo.yaml",
 	}
 
-	actual, err := loader.Load(files)
+	actual, err := Load(fs, files)
 
 	assert.NoError(t, err)
 	assert.Equal(t, &FishermanConfig{

@@ -1,7 +1,7 @@
 package rules_test
 
 import (
-	"fisherman/internal/rules"
+	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"testing"
 
@@ -9,19 +9,19 @@ import (
 )
 
 func TestShellScript_GetPosition(t *testing.T) {
-	rule := rules.ShellScript{
-		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
+	rule := ShellScript{
+		BaseRule: BaseRule{Type: ShellScriptType},
 	}
 
 	actual := rule.GetPosition()
 
-	assert.Equal(t, actual, rules.Scripts)
+	assert.Equal(t, actual, Scripts)
 }
 
 func TestShellScript_Compile(t *testing.T) {
-	rule := rules.ShellScript{
-		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
-		BaseShell: rules.BaseShell{
+	rule := ShellScript{
+		BaseRule: BaseRule{Type: ShellScriptType},
+		BaseShell: BaseShell{
 			Name:     "{{var1}}",
 			Shell:    "{{var1}}",
 			Commands: []string{"{{var1}}1", "{{var1}}2"},
@@ -35,9 +35,9 @@ func TestShellScript_Compile(t *testing.T) {
 
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
-	assert.Equal(t, rules.ShellScript{
-		BaseRule: rules.BaseRule{Type: rules.ShellScriptType},
-		BaseShell: rules.BaseShell{
+	assert.Equal(t, ShellScript{
+		BaseRule: BaseRule{Type: ShellScriptType},
+		BaseShell: BaseShell{
 			Name:     "VALUE",
 			Shell:    "{{var1}}",
 			Commands: []string{"VALUE1", "VALUE2"},
@@ -52,9 +52,9 @@ func TestShellScript_Compile(t *testing.T) {
 
 func TestShellScript_GetPrefix(t *testing.T) {
 	expectedValue := "TestName"
-	rule := rules.ShellScript{
-		BaseRule:  rules.BaseRule{Type: rules.ShellScriptType},
-		BaseShell: rules.BaseShell{Name: expectedValue},
+	rule := ShellScript{
+		BaseRule:  BaseRule{Type: ShellScriptType},
+		BaseShell: BaseShell{Name: expectedValue},
 	}
 
 	actual := rule.GetPrefix()
@@ -66,7 +66,7 @@ func TestShellScript_UnmarshalYAML(t *testing.T) {
 	tests := []struct {
 		name        string
 		config      string
-		expected    *rules.ShellScript
+		expected    *ShellScript
 		expectedErr string
 	}{
 		{
@@ -76,12 +76,12 @@ type: shell-script
 when: 1=1
 name: TestName
 `,
-			expected: &rules.ShellScript{
-				BaseRule: rules.BaseRule{
-					Type:      rules.ShellScriptType,
+			expected: &ShellScript{
+				BaseRule: BaseRule{
+					Type:      ShellScriptType,
 					Condition: "1=1",
 				},
-				BaseShell: rules.BaseShell{
+				BaseShell: BaseShell{
 					Name: "TestName",
 				},
 			},
@@ -98,13 +98,13 @@ when: '
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var config rules.ShellScript
+			var config ShellScript
 
 			err := testutils.DecodeYaml(tt.config, &config)
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 			if len(tt.expectedErr) > 0 {
-				assert.Equal(t, config, rules.ShellScript{})
+				assert.Equal(t, config, ShellScript{})
 			} else {
 				assert.Equal(t, *tt.expected, config)
 			}

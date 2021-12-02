@@ -2,7 +2,7 @@ package utils_test
 
 import (
 	"errors"
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"fisherman/pkg/guards"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
@@ -47,10 +47,10 @@ func TestReadFileAsString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := testutils.FsFromMap(t, tt.files)
 
-			actual, err := utils.ReadFileAsString(fs, tt.filepath)
+			actual, err := ReadFileAsString(fs, tt.filepath)
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedError, err)
 		})
 	}
 }
@@ -106,10 +106,10 @@ func TestExists(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := utils.Exists(fs, tt.filepath)
+			actual, err := Exists(fs, tt.filepath)
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.CheckError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedError, err)
 		})
 	}
 }
@@ -120,7 +120,7 @@ func TestReadingFailed(t *testing.T) {
 	fs := mocks.NewFilesystemMock(t).
 		OpenMock.Return(fileMock, nil)
 
-	content, err := utils.ReadFileAsString(fs, "demo.txt")
+	content, err := ReadFileAsString(fs, "demo.txt")
 
 	assert.Empty(t, content)
 	assert.EqualError(t, err, "test error")

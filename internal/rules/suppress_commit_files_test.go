@@ -2,7 +2,7 @@ package rules_test
 
 import (
 	"errors"
-	"fisherman/internal/rules"
+	. "fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"io/ioutil"
 	"testing"
@@ -12,19 +12,19 @@ import (
 )
 
 func TestSuppressCommitFiles_GetPosition(t *testing.T) {
-	rule := rules.SuppressCommitFiles{
-		BaseRule:        rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule:        BaseRule{Type: SuppressCommitFilesType},
 		Globs:           []string{"glob1", "glob2", "glob3"},
 		RemoveFromIndex: true,
 	}
 
-	assert.Equal(t, rules.PostScripts, rule.GetPosition())
+	assert.Equal(t, PostScripts, rule.GetPosition())
 }
 
 func TestSuppresCommitFiles_NotConfigured(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t)
-	rule := rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule: BaseRule{Type: SuppressCommitFilesType},
 	}
 
 	err := rule.Check(ctx, ioutil.Discard)
@@ -39,8 +39,8 @@ func TestSuppresCommitFiles(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule: BaseRule{Type: SuppressCommitFilesType},
 		Globs:    []string{"glob1/*.go", "*.css", "mocks"},
 	}
 
@@ -57,8 +57,8 @@ func TestSuppresCommitFiles_WithRemoveFromIndex(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.SuppressCommitFiles{
-		BaseRule:        rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule:        BaseRule{Type: SuppressCommitFilesType},
 		Globs:           []string{"glob1/*.go", "*.css", "mocks"},
 		RemoveFromIndex: true,
 	}
@@ -74,8 +74,8 @@ func TestSuppresCommitFiles_GetFilesInIndexError(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule: BaseRule{Type: SuppressCommitFilesType},
 		Globs:    []string{"glob1/*.go", "*.css", "mocks"},
 	}
 
@@ -90,8 +90,8 @@ func TestSuppresCommitFiles_MatchingError(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule: BaseRule{Type: SuppressCommitFilesType},
 		Globs:    []string{"[/"},
 	}
 
@@ -107,8 +107,8 @@ func TestSuppresCommitFiles_RemoveGlobError(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.SuppressCommitFiles{
-		BaseRule:        rules.BaseRule{Type: rules.SuppressCommitFilesType},
+	rule := SuppressCommitFiles{
+		BaseRule:        BaseRule{Type: SuppressCommitFilesType},
 		Globs:           []string{"glob1/*.go", "*.css", "mocks"},
 		RemoveFromIndex: true,
 	}
@@ -119,9 +119,9 @@ func TestSuppresCommitFiles_RemoveGlobError(t *testing.T) {
 }
 
 func TestSuppressCommitFiles_Compile(t *testing.T) {
-	rule := rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{
-			Type:      rules.SuppressCommitFilesType,
+	rule := SuppressCommitFiles{
+		BaseRule: BaseRule{
+			Type:      SuppressCommitFilesType,
 			Condition: "{{var1}}",
 		},
 		Globs:           []string{"{{var1}}", "{{var1}}.css", "mocks"},
@@ -130,9 +130,9 @@ func TestSuppressCommitFiles_Compile(t *testing.T) {
 
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
-	assert.Equal(t, rules.SuppressCommitFiles{
-		BaseRule: rules.BaseRule{
-			Type:      rules.SuppressCommitFilesType,
+	assert.Equal(t, SuppressCommitFiles{
+		BaseRule: BaseRule{
+			Type:      SuppressCommitFilesType,
 			Condition: "VALUE",
 		},
 		Globs:           []string{"VALUE", "VALUE.css", "mocks"},

@@ -2,7 +2,7 @@ package rules_test
 
 import (
 	syserrors "errors"
-	"fisherman/internal/rules"
+	. "fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"io/ioutil"
@@ -15,7 +15,7 @@ import (
 )
 
 func TestAddToIndex_NotConfigured(t *testing.T) {
-	rule := rules.AddToIndex{BaseRule: rules.BaseRule{Type: rules.AddToIndexType}}
+	rule := AddToIndex{BaseRule: BaseRule{Type: AddToIndexType}}
 
 	err := rule.Check(mocks.NewExecutionContextMock(t), ioutil.Discard)
 
@@ -30,8 +30,8 @@ func TestAddToIndex_CorrectAddToIndex(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.AddToIndex{
-		Globs: []rules.Glob{
+	rule := AddToIndex{
+		Globs: []Glob{
 			{"glob1/*.go", true},
 			{"*.css", true},
 			{"mocks", true},
@@ -51,8 +51,8 @@ func TestAddToIndex_FailedAddToIndex(t *testing.T) {
 
 	ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
-	rule := rules.AddToIndex{
-		Globs: []rules.Glob{
+	rule := AddToIndex{
+		Globs: []Glob{
 			{"glob1/*.go", true},
 			{"*.css", true},
 			{"mocks", true},
@@ -82,9 +82,9 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := rules.AddToIndex{
-				BaseRule: rules.BaseRule{Type: rules.AddToIndexType},
-				Globs: []rules.Glob{
+			rule := AddToIndex{
+				BaseRule: BaseRule{Type: AddToIndexType},
+				Globs: []Glob{
 					{"glob1/*.go", tt.isRequired},
 					{"*.css", tt.isRequired},
 					{"mocks", tt.isRequired},
@@ -96,7 +96,7 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 			if !tt.isRequired {
 				assert.NoError(t, err)
 			} else {
-				assert.EqualError(t, err, errorMessage(rules.AddToIndexType, "can't add files matching pattern *.css"))
+				assert.EqualError(t, err, errorMessage(AddToIndexType, "can't add files matching pattern *.css"))
 				assert.IsType(t, &validation.Error{}, err)
 			}
 		})
@@ -104,14 +104,14 @@ func TestAddToIndex_FailedAddToIndexOptional(t *testing.T) {
 }
 
 func TestAddToIndex_GetPosition(t *testing.T) {
-	rule := rules.AddToIndex{}
+	rule := AddToIndex{}
 
-	assert.Equal(t, rules.PostScripts, rule.GetPosition())
+	assert.Equal(t, PostScripts, rule.GetPosition())
 }
 
 func TestAddToIndex_Compile(t *testing.T) {
-	rule := rules.AddToIndex{
-		Globs: []rules.Glob{
+	rule := AddToIndex{
+		Globs: []Glob{
 			{Pattern: "{{var1}}", IsRequired: false},
 			{Pattern: "data", IsRequired: false},
 		},
@@ -119,8 +119,8 @@ func TestAddToIndex_Compile(t *testing.T) {
 
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
-	assert.Equal(t, rules.AddToIndex{
-		Globs: []rules.Glob{
+	assert.Equal(t, AddToIndex{
+		Globs: []Glob{
 			{Pattern: "VALUE", IsRequired: false},
 			{Pattern: "data", IsRequired: false},
 		},

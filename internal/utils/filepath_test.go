@@ -1,7 +1,7 @@
 package utils_test
 
 import (
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"fisherman/testing/testutils"
 	"testing"
 
@@ -62,9 +62,9 @@ func TestMatchToGlobs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := utils.MatchToGlobs(tt.globs, tt.file)
+			actual, err := MatchToGlobs(tt.globs, tt.file)
 
-			testutils.CheckError(t, tt.expectedErr, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 			assert.Equal(t, tt.expected, actual)
 		})
 	}

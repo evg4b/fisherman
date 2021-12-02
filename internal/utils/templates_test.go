@@ -2,7 +2,7 @@ package utils_test
 
 import (
 	"bytes"
-	"fisherman/internal/utils"
+	. "fisherman/internal/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,7 +36,7 @@ func TestPrintGraphics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wr := &bytes.Buffer{}
-			utils.PrintGraphics(wr, tt.content, tt.data)
+			PrintGraphics(wr, tt.content, tt.data)
 			assert.Equal(t, tt.expectedOutput, wr.String())
 		})
 	}
@@ -55,7 +55,7 @@ func TestPrintGraphicsPanics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Panics(t, func() {
-				utils.PrintGraphics(nil, tt.content, tt.data)
+				PrintGraphics(nil, tt.content, tt.data)
 			})
 		})
 	}
@@ -99,7 +99,7 @@ func TestFillTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.NotPanics(t, func() {
-				utils.FillTemplate(&tt.template, tt.data)
+				FillTemplate(&tt.template, tt.data)
 
 				assert.Equal(t, tt.expected, tt.template)
 			})
@@ -151,7 +151,7 @@ func TestFillTemplatesArray(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.NotPanics(t, func() {
-				utils.FillTemplatesArray(tt.templates, tt.data)
+				FillTemplatesArray(tt.templates, tt.data)
 				assert.Equal(t, tt.expected, tt.templates)
 			})
 		})
@@ -210,7 +210,7 @@ func TestFillTemplatesMap(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.NotPanics(t, func() {
-				utils.FillTemplatesMap(tt.templates, tt.data)
+				FillTemplatesMap(tt.templates, tt.data)
 				assert.Equal(t, tt.expected, tt.templates)
 			})
 		})

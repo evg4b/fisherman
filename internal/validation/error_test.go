@@ -1,7 +1,7 @@
 package validation_test
 
 import (
-	"fisherman/internal/validation"
+	. "fisherman/internal/validation"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,22 +15,22 @@ func TestError_Error(t *testing.T) {
 	}{
 		{
 			name:     "Message with prefix",
-			err:      validation.Errorf("prefix1", "message"),
+			err:      Errorf("prefix1", "message"),
 			expected: "[prefix1] message",
 		},
 		{
 			name:     "Message with prefix and arguments",
-			err:      validation.Errorf("prefix2", "message %s %d", "test", 13),
+			err:      Errorf("prefix2", "message %s %d", "test", 13),
 			expected: "[prefix2] message test 13",
 		},
 		{
 			name:     "Message without prefix",
-			err:      validation.Errorf("", "message"),
+			err:      Errorf("", "message"),
 			expected: "message",
 		},
 		{
 			name:     "Message with prefix and arguments",
-			err:      validation.Errorf("", "message %s %d", "test", 13),
+			err:      Errorf("", "message %s %d", "test", 13),
 			expected: "message test 13",
 		},
 	}

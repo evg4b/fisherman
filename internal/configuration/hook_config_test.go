@@ -77,7 +77,7 @@ extract-variables:
 			err := testutils.DecodeYaml(tt.source, &section)
 
 			assert.ObjectsAreEqual(tt.expected, section)
-			testutils.CheckError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedError, err)
 		})
 	}
 }

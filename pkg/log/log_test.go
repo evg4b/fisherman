@@ -2,7 +2,7 @@ package log_test
 
 import (
 	"bytes"
-	"fisherman/pkg/log"
+	. "fisherman/pkg/log"
 	"fmt"
 	"testing"
 
@@ -18,21 +18,21 @@ func TestErrorWithLogLevel(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		level   log.Level
+		level   Level
 	}{
-		{message: "error", output: "error\n", level: log.DebugLevel},
-		{message: "error", output: "error\n", level: log.InfoLevel},
-		{message: "error", output: "error\n", level: log.ErrorLevel},
-		{message: "error", output: "", level: log.NoneLevel},
-		{message: "", output: "\n", level: log.ErrorLevel},
-		{message: "\n\n", output: "\n\n\n", level: log.ErrorLevel},
+		{message: "error", output: "error\n", level: DebugLevel},
+		{message: "error", output: "error\n", level: InfoLevel},
+		{message: "error", output: "error\n", level: ErrorLevel},
+		{message: "error", output: "", level: NoneLevel},
+		{message: "", output: "\n", level: ErrorLevel},
+		{message: "\n\n", output: "\n\n\n", level: ErrorLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Error message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output := mockLogModule()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Error(tt.message)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Error(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -46,27 +46,27 @@ func TestErrorfWithLogLevel(t *testing.T) {
 		message string
 		output  string
 		params  []interface{}
-		level   log.Level
+		level   Level
 	}{
-		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: log.ErrorLevel},
-		{message: "error", params: emptyParamas, output: "error\n", level: log.ErrorLevel},
-		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: log.ErrorLevel},
-		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: log.DebugLevel},
-		{message: "error", params: emptyParamas, output: "error\n", level: log.DebugLevel},
-		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: log.DebugLevel},
-		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: log.InfoLevel},
-		{message: "error", params: emptyParamas, output: "error\n", level: log.InfoLevel},
-		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: log.InfoLevel},
-		{message: "error %d %s %f", params: formattingParams, output: "", level: log.NoneLevel},
-		{message: "error", params: emptyParamas, output: "", level: log.NoneLevel},
-		{message: "error %s", params: emptyParamas, output: "", level: log.NoneLevel},
+		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: ErrorLevel},
+		{message: "error", params: emptyParamas, output: "error\n", level: ErrorLevel},
+		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: ErrorLevel},
+		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: DebugLevel},
+		{message: "error", params: emptyParamas, output: "error\n", level: DebugLevel},
+		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: DebugLevel},
+		{message: "error %d %s %f", params: formattingParams, output: "error 1 s 44.300000\n", level: InfoLevel},
+		{message: "error", params: emptyParamas, output: "error\n", level: InfoLevel},
+		{message: "error %s", params: emptyParamas, output: "error %!s(MISSING)\n", level: InfoLevel},
+		{message: "error %d %s %f", params: formattingParams, output: "", level: NoneLevel},
+		{message: "error", params: emptyParamas, output: "", level: NoneLevel},
+		{message: "error %s", params: emptyParamas, output: "", level: NoneLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Errorf message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Errorf(tt.message, tt.params...)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Errorf(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -78,21 +78,21 @@ func TestDebugWithLogLevel(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		level   log.Level
+		level   Level
 	}{
-		{message: "debug", output: "debug\n", level: log.DebugLevel},
-		{message: "debug", output: "", level: log.InfoLevel},
-		{message: "debug", output: "", level: log.ErrorLevel},
-		{message: "debug", output: "", level: log.NoneLevel},
-		{message: "", output: "\n", level: log.DebugLevel},
-		{message: "\n\n", output: "\n\n\n", level: log.DebugLevel},
+		{message: "debug", output: "debug\n", level: DebugLevel},
+		{message: "debug", output: "", level: InfoLevel},
+		{message: "debug", output: "", level: ErrorLevel},
+		{message: "debug", output: "", level: NoneLevel},
+		{message: "", output: "\n", level: DebugLevel},
+		{message: "\n\n", output: "\n\n\n", level: DebugLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Debug message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Debug(tt.message)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Debug(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -106,27 +106,27 @@ func TestDebugfWithLogLevel(t *testing.T) {
 		message string
 		output  string
 		params  []interface{}
-		level   log.Level
+		level   Level
 	}{
-		{message: "debug %d %s %f", params: formattingParams, output: "debug 1 s 44.300000\n", level: log.DebugLevel},
-		{message: "debug", params: emptyParamas, output: "debug\n", level: log.DebugLevel},
-		{message: "debug %s", params: emptyParamas, output: "debug %!s(MISSING)\n", level: log.DebugLevel},
-		{message: "debug %d %s %f", params: formattingParams, output: "", level: log.ErrorLevel},
-		{message: "debug", params: emptyParamas, output: "", level: log.ErrorLevel},
-		{message: "debug %s", params: emptyParamas, output: "", level: log.ErrorLevel},
-		{message: "debug %d %s %f", params: formattingParams, output: "", level: log.InfoLevel},
-		{message: "debug", params: emptyParamas, output: "", level: log.InfoLevel},
-		{message: "debug %s", params: emptyParamas, output: "", level: log.InfoLevel},
-		{message: "debug %d %s %f", params: formattingParams, output: "", level: log.NoneLevel},
-		{message: "debug", params: emptyParamas, output: "", level: log.NoneLevel},
-		{message: "debug %s", params: emptyParamas, output: "", level: log.NoneLevel},
+		{message: "debug %d %s %f", params: formattingParams, output: "debug 1 s 44.300000\n", level: DebugLevel},
+		{message: "debug", params: emptyParamas, output: "debug\n", level: DebugLevel},
+		{message: "debug %s", params: emptyParamas, output: "debug %!s(MISSING)\n", level: DebugLevel},
+		{message: "debug %d %s %f", params: formattingParams, output: "", level: ErrorLevel},
+		{message: "debug", params: emptyParamas, output: "", level: ErrorLevel},
+		{message: "debug %s", params: emptyParamas, output: "", level: ErrorLevel},
+		{message: "debug %d %s %f", params: formattingParams, output: "", level: InfoLevel},
+		{message: "debug", params: emptyParamas, output: "", level: InfoLevel},
+		{message: "debug %s", params: emptyParamas, output: "", level: InfoLevel},
+		{message: "debug %d %s %f", params: formattingParams, output: "", level: NoneLevel},
+		{message: "debug", params: emptyParamas, output: "", level: NoneLevel},
+		{message: "debug %s", params: emptyParamas, output: "", level: NoneLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Debugf message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Debugf(tt.message, tt.params...)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Debugf(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -138,21 +138,21 @@ func TestInfoWithLogLevel(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		level   log.Level
+		level   Level
 	}{
-		{message: "info", output: "info\n", level: log.DebugLevel},
-		{message: "info", output: "info\n", level: log.InfoLevel},
-		{message: "info", output: "", level: log.ErrorLevel},
-		{message: "info", output: "", level: log.NoneLevel},
-		{message: "", output: "\n", level: log.InfoLevel},
-		{message: "\n\n", output: "\n\n\n", level: log.InfoLevel},
+		{message: "info", output: "info\n", level: DebugLevel},
+		{message: "info", output: "info\n", level: InfoLevel},
+		{message: "info", output: "", level: ErrorLevel},
+		{message: "info", output: "", level: NoneLevel},
+		{message: "", output: "\n", level: InfoLevel},
+		{message: "\n\n", output: "\n\n\n", level: InfoLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Info message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Info(tt.message)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Info(tt.message)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -165,27 +165,27 @@ func TestInfofWithLogLevel(t *testing.T) {
 		message string
 		output  string
 		params  []interface{}
-		level   log.Level
+		level   Level
 	}{
-		{message: "info %d %s %f", params: formattingParams, output: "", level: log.ErrorLevel},
-		{message: "info", params: emptyParamas, output: "", level: log.ErrorLevel},
-		{message: "info %s", params: emptyParamas, output: "", level: log.ErrorLevel},
-		{message: "info %d %s %f", params: formattingParams, output: "info 1 s 44.300000\n", level: log.DebugLevel},
-		{message: "info", params: emptyParamas, output: "info\n", level: log.DebugLevel},
-		{message: "info %s", params: emptyParamas, output: "info %!s(MISSING)\n", level: log.DebugLevel},
-		{message: "info %d %s %f", params: formattingParams, output: "info 1 s 44.300000\n", level: log.InfoLevel},
-		{message: "info", params: emptyParamas, output: "info\n", level: log.InfoLevel},
-		{message: "info %s", params: emptyParamas, output: "info %!s(MISSING)\n", level: log.InfoLevel},
-		{message: "info %d %s %f", params: formattingParams, output: "", level: log.NoneLevel},
-		{message: "info", params: emptyParamas, output: "", level: log.NoneLevel},
-		{message: "info %s", params: emptyParamas, output: "", level: log.NoneLevel},
+		{message: "info %d %s %f", params: formattingParams, output: "", level: ErrorLevel},
+		{message: "info", params: emptyParamas, output: "", level: ErrorLevel},
+		{message: "info %s", params: emptyParamas, output: "", level: ErrorLevel},
+		{message: "info %d %s %f", params: formattingParams, output: "info 1 s 44.300000\n", level: DebugLevel},
+		{message: "info", params: emptyParamas, output: "info\n", level: DebugLevel},
+		{message: "info %s", params: emptyParamas, output: "info %!s(MISSING)\n", level: DebugLevel},
+		{message: "info %d %s %f", params: formattingParams, output: "info 1 s 44.300000\n", level: InfoLevel},
+		{message: "info", params: emptyParamas, output: "info\n", level: InfoLevel},
+		{message: "info %s", params: emptyParamas, output: "info %!s(MISSING)\n", level: InfoLevel},
+		{message: "info %d %s %f", params: formattingParams, output: "", level: NoneLevel},
+		{message: "info", params: emptyParamas, output: "", level: NoneLevel},
+		{message: "info %s", params: emptyParamas, output: "", level: NoneLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Infof message '%s' for level: %d", tt.message, tt.level), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			log.Infof(tt.message, tt.params...)
+			Configure(OutputConfig{LogLevel: tt.level})
+			Infof(tt.message, tt.params...)
 			assert.Equal(t, tt.output, output.String())
 		})
 	}
@@ -198,32 +198,32 @@ func TestRawWriter(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		level   log.Level
+		level   Level
 	}{
-		{message: "demo", output: "demo", level: log.DebugLevel},
+		{message: "demo", output: "demo", level: DebugLevel},
 		{
 			message: "multiline demo\nmultiline demo\nmultiline demo",
 			output:  "multiline demo\nmultiline demo\nmultiline demo",
-			level:   log.DebugLevel,
+			level:   DebugLevel,
 		},
 		{
 			message: "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
 			output:  "multiline demo win\r\nmultiline demo win\r\nmultiline demo win",
-			level:   log.DebugLevel,
+			level:   DebugLevel,
 		},
-		{message: "", output: "", level: log.DebugLevel},
-		{message: "\t\t\t", output: "\t\t\t", level: log.DebugLevel},
-		{message: "test1", output: "test1", level: log.ErrorLevel},
-		{message: "test2", output: "test2", level: log.InfoLevel},
-		{message: "test3", output: "test3", level: log.DebugLevel},
-		{message: "test4", output: "test4", level: log.NoneLevel},
+		{message: "", output: "", level: DebugLevel},
+		{message: "\t\t\t", output: "\t\t\t", level: DebugLevel},
+		{message: "test1", output: "test1", level: ErrorLevel},
+		{message: "test2", output: "test2", level: InfoLevel},
+		{message: "test3", output: "test3", level: DebugLevel},
+		{message: "test4", output: "test4", level: NoneLevel},
 	}
 
 	for _, tt := range testData {
 		t.Run(fmt.Sprintf("Write message '%s' correctly", tt.message), func(t *testing.T) {
 			output.Reset()
-			log.Configure(log.OutputConfig{LogLevel: tt.level})
-			bytesCount, err := log.Stdout().Write([]byte(tt.message))
+			Configure(OutputConfig{LogLevel: tt.level})
+			bytesCount, err := Stdout().Write([]byte(tt.message))
 			assert.Equal(t, tt.output, output.String())
 			assert.NoError(t, err)
 			assert.Equal(t, len([]byte(tt.message)), bytesCount)
@@ -233,7 +233,7 @@ func TestRawWriter(t *testing.T) {
 
 func mockLogModule() *bytes.Buffer {
 	output := bytes.NewBufferString("")
-	log.SetOutput(output)
+	SetOutput(output)
 
 	return output
 }
