@@ -37,7 +37,7 @@ func WithArgs(args []string) contextOption {
 
 func WithOutput(output io.Writer) contextOption {
 	return func(ac *ApplicationContext) {
-		ac.output = *linebyline.NewWriterGroup(output)
+		ac.output = linebyline.NewSafeWriter(output)
 	}
 }
 

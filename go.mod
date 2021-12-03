@@ -6,7 +6,7 @@ require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20211112122917-428f8eabeeb3 // indirect
 	github.com/antonmedv/expr v1.9.0
-	github.com/evg4b/linebyline v0.0.0-20210823123332-4f64dfebe8c7
+	github.com/evg4b/linebyline v0.0.0-20211203150623-8068520e80fa
 	github.com/fatih/color v1.13.0
 	github.com/go-errors/errors v1.4.1
 	github.com/go-git/go-billy/v5 v5.3.1
@@ -22,7 +22,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/valyala/fasttemplate v1.2.1
 	github.com/xanzy/ssh-agent v0.3.1 // indirect
-	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871 // indirect
+	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
 	golang.org/x/net v0.0.0-20211201190559-0a0e4e1bb54c // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b

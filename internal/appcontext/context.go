@@ -21,7 +21,7 @@ type ApplicationContext struct {
 	repo          internal.Repository
 	args          []string
 	env           []string
-	output        linebyline.WriterGroup
+	output        io.Writer
 	baseCtx       context.Context
 	cancelBaseCtx context.CancelFunc
 }
@@ -34,7 +34,7 @@ func NewContext(options ...contextOption) *ApplicationContext {
 		cwd:           "",
 		args:          []string{},
 		env:           []string{},
-		output:        *linebyline.NewWriterGroup(io.Discard),
+		output:        io.Discard,
 		baseCtx:       baseCtx,
 		cancelBaseCtx: cancelBaseCtx,
 	}
@@ -62,7 +62,7 @@ func (ctx *ApplicationContext) Args() []string {
 }
 
 func (ctx *ApplicationContext) Output() io.WriteCloser {
-	return ctx.output.CreateWriter()
+	return linebyline.NewByLineWriter(ctx.output)
 }
 
 func (ctx *ApplicationContext) Cancel() {
