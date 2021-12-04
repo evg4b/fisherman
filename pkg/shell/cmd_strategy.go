@@ -7,18 +7,20 @@ import (
 
 type CmdStrategy struct{}
 
+const cmdBin = "cmd"
+
 func Cmd() *CmdStrategy {
 	return &CmdStrategy{}
 }
 
 func (s *CmdStrategy) GetName() string {
-	return "cmd"
+	return cmdBin
 }
 
 func (s *CmdStrategy) GetCommand(ctx context.Context) *exec.Cmd {
 	args := s.ArgsWrapper([]string{})
 
-	return exec.CommandContext(ctx, "cmd", args...)
+	return exec.CommandContext(ctx, cmdBin, args...)
 }
 
 func (s *CmdStrategy) ArgsWrapper(args []string) []string {

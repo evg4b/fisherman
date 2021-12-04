@@ -178,7 +178,7 @@ func TestNewHost(t *testing.T) {
 func lookupPath(name string) string {
 	lp, err := exec.LookPath(name)
 	if err != nil {
-		return ""
+		return name
 	}
 
 	return lp

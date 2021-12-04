@@ -5,6 +5,8 @@ import (
 	"os/exec"
 )
 
+const powershellBin = "powershell"
+
 type PowershellStrategy struct{}
 
 func PowerShell() *PowershellStrategy {
@@ -12,13 +14,13 @@ func PowerShell() *PowershellStrategy {
 }
 
 func (s *PowershellStrategy) GetName() string {
-	return "powershell"
+	return powershellBin
 }
 
 func (s *PowershellStrategy) GetCommand(ctx context.Context) *exec.Cmd {
 	args := s.ArgsWrapper([]string{})
 
-	return exec.CommandContext(ctx, "powershell", args...)
+	return exec.CommandContext(ctx, powershellBin, args...)
 }
 
 func (s *PowershellStrategy) ArgsWrapper(args []string) []string {
