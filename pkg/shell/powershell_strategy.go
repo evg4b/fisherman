@@ -22,9 +22,7 @@ func (s *PowershellStrategy) GetCommand(ctx context.Context) *exec.Cmd {
 }
 
 func (s *PowershellStrategy) ArgsWrapper(args []string) []string {
-	defaultArgs := []string{"-NoProfile", "-NonInteractive", "-NoLogo"}
-
-	return append(defaultArgs, args...)
+	return append([]string{"-NoProfile", "-NonInteractive", "-NoLogo"}, args...)
 }
 
 func (s *PowershellStrategy) EnvWrapper(env []string) []string {

@@ -61,6 +61,10 @@ func (host *Host) Run(script string) error {
 		return err
 	}
 
+	if script[len(script)-1] != '\n' {
+		script += "\n"
+	}
+
 	if _, err := host.Write([]byte(script)); err != nil {
 		return err
 	}
