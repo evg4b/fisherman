@@ -153,7 +153,7 @@ hooks:
 			fs:    mocks.NewFilesystemMock(t),
 			files: map[string]string{},
 			expected: &FishermanConfig{
-				DefaultShell: shell.PlatformDefaultShell,
+				DefaultShell: shell.Default().GetName(),
 				Output:       log.DefaultOutputConfig,
 			},
 		},
@@ -172,7 +172,7 @@ hooks:
 				GlobalMode: "GlobalConfig",
 			},
 			expected: &FishermanConfig{
-				DefaultShell: shell.PlatformDefaultShell,
+				DefaultShell: shell.Default().GetName(),
 				Output:       log.DefaultOutputConfig,
 				GlobalVariables: map[string]interface{}{
 					"name": "value",
@@ -184,12 +184,10 @@ hooks:
 								BaseRule: rules.BaseRule{
 									Type: "shell-script",
 								},
-								BaseShell: rules.BaseShell{
-									Name: "Demo",
-									Commands: []string{
-										"echo '1213123' >> log.txt",
-										"exit 1",
-									},
+								Name: "Demo",
+								Commands: []string{
+									"echo '1213123' >> log.txt",
+									"exit 1",
 								},
 							},
 						},
@@ -248,7 +246,7 @@ variables:
 	assert.NoError(t, err)
 	assert.Equal(t, &FishermanConfig{
 		Output:       log.DefaultOutputConfig,
-		DefaultShell: shell.PlatformDefaultShell,
+		DefaultShell: shell.Default().GetName(),
 		GlobalVariables: map[string]interface{}{
 			"var1": "local",
 			"var2": "repo",

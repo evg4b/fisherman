@@ -15,18 +15,14 @@ import (
 
 const ShellScriptType = "shell-script"
 
-type BaseShell struct {
+type ShellScript struct {
+	BaseRule `yaml:",inline"`
 	Name     string            `yaml:"name"`
 	Shell    string            `yaml:"shell"`
 	Commands []string          `yaml:"commands"`
 	Env      map[string]string `yaml:"env"`
 	Output   bool              `yaml:"output"`
 	Dir      string            `yaml:"dir"`
-}
-
-type ShellScript struct {
-	BaseRule  `yaml:",inline"`
-	BaseShell `yaml:",inline"`
 }
 
 func (rule *ShellScript) GetPosition() byte {
@@ -39,10 +35,16 @@ func (rule *ShellScript) GetPrefix() string {
 
 func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
 	formatterOutput := formatOutput(output, rule)
+	env := pkgutils.MergeEnv(ctx.Env(), rule.Env)
+	strategy, err := getShellStrategy(rule.Shell)
+	if err != nil {
+		return errors.Errorf("failed to cheate shell host: %w", err)
+	}
+
 	host := shell.NewHost(
 		ctx,
-		shell.Cmd(), // TODO: Create factory method to resolve needed shell
-		shell.WithEnv(pkgutils.MergeEnv(ctx.Env(), rule.Env)),
+		strategy,
+		shell.WithEnv(env),
 		shell.WithStdout(formatterOutput),
 		shell.WithCwd(rule.Dir),
 	)
@@ -54,7 +56,7 @@ func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) 
 		}
 	}
 
-	err := host.Wait()
+	err = host.Wait()
 	if err != nil {
 		var exitCodeError *exec.ExitError
 		if errors.As(err, &exitCodeError) {
@@ -81,4 +83,21 @@ func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
 	}
 
 	return ioutil.Discard
+}
+
+func getShellStrategy(name string) (shell.ShellStrategy, error) {
+	if utils.IsEmpty(name) {
+		return shell.Default(), nil
+	}
+
+	switch name {
+	case "cmd":
+		return shell.Cmd(), nil
+	case "powershell":
+		return shell.PowerShell(), nil
+	case "bash":
+		return shell.PowerShell(), nil
+	default:
+		return nil, errors.New("unsupported shell")
+	}
 }

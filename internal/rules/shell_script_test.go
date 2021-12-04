@@ -21,40 +21,36 @@ func TestShellScript_GetPosition(t *testing.T) {
 func TestShellScript_Compile(t *testing.T) {
 	rule := ShellScript{
 		BaseRule: BaseRule{Type: ShellScriptType},
-		BaseShell: BaseShell{
-			Name:     "{{var1}}",
-			Shell:    "{{var1}}",
-			Commands: []string{"{{var1}}1", "{{var1}}2"},
-			Env: map[string]string{
-				"{{var1}}": "{{var1}}",
-			},
-			Dir:    "{{var1}}",
-			Output: true,
+		Name:     "{{var1}}",
+		Shell:    "{{var1}}",
+		Commands: []string{"{{var1}}1", "{{var1}}2"},
+		Env: map[string]string{
+			"{{var1}}": "{{var1}}",
 		},
+		Dir:    "{{var1}}",
+		Output: true,
 	}
 
 	rule.Compile(map[string]interface{}{"var1": "VALUE"})
 
 	assert.Equal(t, ShellScript{
 		BaseRule: BaseRule{Type: ShellScriptType},
-		BaseShell: BaseShell{
-			Name:     "VALUE",
-			Shell:    "{{var1}}",
-			Commands: []string{"VALUE1", "VALUE2"},
-			Env: map[string]string{
-				"{{var1}}": "VALUE",
-			},
-			Dir:    "VALUE",
-			Output: true,
+		Name:     "VALUE",
+		Shell:    "{{var1}}",
+		Commands: []string{"VALUE1", "VALUE2"},
+		Env: map[string]string{
+			"{{var1}}": "VALUE",
 		},
+		Dir:    "VALUE",
+		Output: true,
 	}, rule)
 }
 
 func TestShellScript_GetPrefix(t *testing.T) {
 	expectedValue := "TestName"
 	rule := ShellScript{
-		BaseRule:  BaseRule{Type: ShellScriptType},
-		BaseShell: BaseShell{Name: expectedValue},
+		BaseRule: BaseRule{Type: ShellScriptType},
+		Name:     expectedValue,
 	}
 
 	actual := rule.GetPrefix()
@@ -81,9 +77,7 @@ name: TestName
 					Type:      ShellScriptType,
 					Condition: "1=1",
 				},
-				BaseShell: BaseShell{
-					Name: "TestName",
-				},
+				Name: "TestName",
 			},
 		},
 		{

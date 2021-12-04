@@ -11,18 +11,22 @@ func PowerShell() *PowershellStrategy {
 	return &PowershellStrategy{}
 }
 
-func (c *PowershellStrategy) GetCommand(ctx context.Context) *exec.Cmd {
-	args := c.ArgsWrapper([]string{})
+func (s *PowershellStrategy) GetName() string {
+	return "powershell"
+}
+
+func (s *PowershellStrategy) GetCommand(ctx context.Context) *exec.Cmd {
+	args := s.ArgsWrapper([]string{})
 
 	return exec.CommandContext(ctx, "powershell", args...)
 }
 
-func (c *PowershellStrategy) ArgsWrapper(args []string) []string {
+func (s *PowershellStrategy) ArgsWrapper(args []string) []string {
 	defaultArgs := []string{"-NoProfile", "-NonInteractive", "-NoLogo"}
 
 	return append(defaultArgs, args...)
 }
 
-func (c *PowershellStrategy) EnvWrapper(env []string) []string {
+func (s *PowershellStrategy) EnvWrapper(env []string) []string {
 	return env
 }

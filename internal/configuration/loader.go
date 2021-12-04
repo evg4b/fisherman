@@ -4,7 +4,7 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
-	"fisherman/pkg/shell"
+	"fisherman/pkg/shell" // TODO: remove this dependency
 	"os/user"
 	"path/filepath"
 
@@ -61,7 +61,7 @@ func GetConfigFolder(usr *user.User, cwd, mode string) string {
 func Load(fs billy.Filesystem, files map[string]string) (*FishermanConfig, error) {
 	config := FishermanConfig{
 		Output:       log.DefaultOutputConfig,
-		DefaultShell: shell.PlatformDefaultShell,
+		DefaultShell: shell.Default().GetName(),
 	}
 
 	for _, mode := range ModeOptions {

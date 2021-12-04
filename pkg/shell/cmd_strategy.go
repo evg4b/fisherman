@@ -11,18 +11,20 @@ func Cmd() *CmdStrategy {
 	return &CmdStrategy{}
 }
 
-func (c *CmdStrategy) GetCommand(ctx context.Context) *exec.Cmd {
-	args := c.ArgsWrapper([]string{})
+func (s *CmdStrategy) GetName() string {
+	return "cmd"
+}
+
+func (s *CmdStrategy) GetCommand(ctx context.Context) *exec.Cmd {
+	args := s.ArgsWrapper([]string{})
 
 	return exec.CommandContext(ctx, "cmd", args...)
 }
 
-func (c *CmdStrategy) ArgsWrapper(args []string) []string {
-	defaultArgs := []string{"/Q", "/D", "/K"}
-
-	return append(defaultArgs, args...)
+func (s *CmdStrategy) ArgsWrapper(args []string) []string {
+	return append([]string{"/Q", "/D", "/K"}, args...)
 }
 
-func (c *CmdStrategy) EnvWrapper(env []string) []string {
+func (s *CmdStrategy) EnvWrapper(env []string) []string {
 	return env
 }

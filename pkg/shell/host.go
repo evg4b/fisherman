@@ -3,7 +3,6 @@ package shell
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os/exec"
 	"sync"
@@ -11,6 +10,7 @@ import (
 
 // ShellStrategy is interface to describe base concrete shell command.
 type ShellStrategy interface { // nolint: revive
+	GetName() string
 	GetCommand(context.Context) *exec.Cmd
 	ArgsWrapper([]string) []string
 	EnvWrapper([]string) []string
@@ -25,29 +25,23 @@ type Host struct {
 }
 
 // NewHost creates new shell host based on passed strategy.
-func NewHost(ctx context.Context, shellStr ShellStrategy, options ...hostOption) *Host {
-	command := shellStr.GetCommand(ctx)
+func NewHost(ctx context.Context, strategy ShellStrategy, options ...hostOption) *Host {
 	host := &Host{
-		command: command,
-		mu:      sync.Mutex{},
+		command:     strategy.GetCommand(ctx),
+		stdin:       nil,
+		stdinClosed: false,
+		mu:          sync.Mutex{},
 	}
 
 	for _, option := range options {
-		option(shellStr, host)
+		option(strategy, host)
 	}
 
 	return host
 }
 
 // Write is io.Writer interface implementation.
-//
-// Write writes len(payload) bytes from payload to shell porecess's Stdin.
-// It returns the number of bytes written from payload (0 <= n <= len(payload))
-// and any error encountered that caused the write to stop early.
 // Write automatically starts shell process if it has not been started before.
-// Write returns a non-nil error if it returns n < len(payload).
-// Write does not modify the slice data, even temporarily.
-// Write does not retain payload.
 func (host *Host) Write(payload []byte) (int, error) {
 	host.mu.Lock()
 	defer host.mu.Unlock()
@@ -67,7 +61,7 @@ func (host *Host) Run(script string) error {
 		return err
 	}
 
-	if _, err := fmt.Fprintln(host, script); err != nil {
+	if _, err := host.Write([]byte(script)); err != nil {
 		return err
 	}
 
@@ -85,19 +79,7 @@ func (host *Host) Start() error {
 	return errors.New("shell host: already started")
 }
 
-// Wait waits for the shell to exit and waits for any copying to
-// stdin or copying from stdout or stderr to complete.
-//
-// The command must have been started by Start.
-//
-// The returned error is nil if the shell runs, has no problems
-// copying stdin, stdout, and stderr, and exits with a zero exit
-// status.
-//
-// If the shell script fails to run or doesn't complete successfully, the
-// error is of type *ExitError. Other error types may be
-// returned for I/O problems.
-//
+// Wait waits for the shell to exit and waits for any copying from stdout or stderr to complete.
 // Wait automatically closes stdin pipe, and writing will be unavailable after the call.
 func (host *Host) Wait() error {
 	if err := host.Close(); err != nil {
