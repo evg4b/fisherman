@@ -3,6 +3,7 @@ package shell
 import (
 	"context"
 	"errors"
+	"fisherman/internal/utils"
 	"io"
 	"os/exec"
 	"sync"
@@ -57,6 +58,10 @@ func (host *Host) Write(payload []byte) (int, error) {
 
 // Run runs new shell host based on passed strategy.
 func (host *Host) Run(script string) error {
+	if utils.IsEmpty(script) {
+		return errors.New("script can not be empty")
+	}
+
 	if err := host.Start(); err != nil {
 		return err
 	}
@@ -72,15 +77,16 @@ func (host *Host) Run(script string) error {
 	return host.Wait()
 }
 
+// Start starts shell host.
 func (host *Host) Start() error {
 	host.mu.Lock()
 	defer host.mu.Unlock()
 
-	if !host.isStarted() {
-		return host.startUnsave()
+	if host.isStarted() {
+		return errors.New("host already started")
 	}
 
-	return errors.New("shell host: already started")
+	return host.startUnsave()
 }
 
 // Wait waits for the shell to exit and waits for any copying from stdout or stderr to complete.
@@ -104,11 +110,11 @@ func (host *Host) Close() error {
 }
 
 func (host *Host) Terminate() error {
-	if host.stdin != nil {
-		return host.command.Process.Kill()
+	if !host.isStarted() {
+		return errors.New("host is not started")
 	}
 
-	return nil
+	return host.command.Process.Kill()
 }
 
 func (host *Host) isStarted() bool {
