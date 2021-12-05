@@ -9,58 +9,80 @@ import (
 )
 
 func TestOutputConfig_UnmarshalYAML(t *testing.T) {
-	tests := []struct {
-		name   string
-		config string
-		colors bool
-		level  Level
-	}{
-		{name: "", config: "level: debug\ncolors: true", colors: true, level: DebugLevel},
-		{name: "", config: "level: error\ncolors: true", colors: true, level: ErrorLevel},
-		{name: "", config: "level: none\ncolors: true", colors: true, level: NoneLevel},
-		{name: "", config: "level: info\ncolors: false", colors: false, level: InfoLevel},
-	}
+	t.Run("successful", func(t *testing.T) {
+		tests := []struct {
+			name   string
+			config string
+			colors bool
+			level  Level
+		}{
+			{
+				name:   "level is debug and colors is true",
+				config: "level: debug\ncolors: true",
+				colors: true,
+				level:  DebugLevel,
+			},
+			{
+				name:   "level is error and colors is true",
+				config: "level: error\ncolors: true",
+				colors: true,
+				level:  ErrorLevel,
+			},
+			{
+				name:   "level is none and colors is true",
+				config: "level: none\ncolors: true",
+				colors: true,
+				level:  NoneLevel,
+			},
+			{
+				name:   "level is info and colors is false",
+				config: "level: info\ncolors: false",
+				colors: false,
+				level:  InfoLevel,
+			},
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var config OutputConfig
-			err := yaml.Unmarshal([]byte(tt.config), &config)
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				var config OutputConfig
+				err := yaml.Unmarshal([]byte(tt.config), &config)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.colors, config.Colors)
-			assert.Equal(t, tt.level, config.LogLevel)
-		})
-	}
-}
+				assert.NoError(t, err)
+				assert.Equal(t, tt.colors, config.Colors)
+				assert.Equal(t, tt.level, config.LogLevel)
+			})
+		}
+	})
 
-func TestOutputConfig_UnmarshalYAMLFail(t *testing.T) {
-	tests := []struct {
-		name        string
-		config      string
-		expectedErr string
-	}{
-		{
-			name:        "",
-			config:      "level: debug\ncolor",
-			expectedErr: "yaml: line 2: could not find expected ':'",
-		},
-		{
-			name:        "",
-			config:      "level: test",
-			expectedErr: "incorrect log level",
-		},
-		{
-			name:        "",
-			config:      "level: info\ncolors: 'test'",
-			expectedErr: "yaml: unmarshal errors:\n  line 2: cannot unmarshal !!str `test` into bool",
-		},
-	}
+	t.Run("with errors", func(t *testing.T) {
+		tests := []struct {
+			name        string
+			config      string
+			expectedErr string
+		}{
+			{
+				name:        "syntax error",
+				config:      "level: debug\ncolor",
+				expectedErr: "yaml: line 2: could not find expected ':'",
+			},
+			{
+				name:        "incorrect log level constant",
+				config:      "level: test",
+				expectedErr: "incorrect log level",
+			},
+			{
+				name:        "incrrect type",
+				config:      "level: info\ncolors: 'test'",
+				expectedErr: "yaml: unmarshal errors:\n  line 2: cannot unmarshal !!str `test` into bool",
+			},
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var config OutputConfig
-			err := yaml.Unmarshal([]byte(tt.config), &config)
-			assert.EqualError(t, err, tt.expectedErr)
-		})
-	}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				var config OutputConfig
+				err := yaml.Unmarshal([]byte(tt.config), &config)
+				assert.EqualError(t, err, tt.expectedErr)
+			})
+		}
+	})
 }

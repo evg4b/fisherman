@@ -15,9 +15,11 @@ func TestCliCommands_GetCommand(t *testing.T) {
 	command1 := mocks.NewCliCommandMock(t).
 		NameMock.Return("test").
 		InitMock.Return(nil)
+
 	command2 := mocks.NewCliCommandMock(t).
 		NameMock.Return("demo").
 		InitMock.When([]string{"arg1", "arg2"}).Then(nil)
+
 	command3 := mocks.NewCliCommandMock(t).
 		NameMock.Return("fail").
 		InitMock.Return(errors.New("init failed"))

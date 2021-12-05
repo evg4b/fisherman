@@ -4,179 +4,13 @@ package rules_test
 import (
 	"errors"
 	. "fisherman/internal/rules"
-	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
+	"fisherman/testing/testutils"
 	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestCommitMessage_NotEmpty(t *testing.T) {
-	tests := []struct {
-		name     string
-		message  string
-		notEmpty bool
-		hasError bool
-	}{
-		{name: "Active with empty string", hasError: true, message: "", notEmpty: true},
-		{name: "Inactive with empty string", hasError: false, message: "", notEmpty: false},
-		{name: "Active with not empty string", hasError: false, message: "message", notEmpty: true},
-		{name: "Active with not empty string", hasError: false, message: "message", notEmpty: false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
-
-			rule := CommitMessage{
-				BaseRule: BaseRule{Type: CommitMessageType},
-				NotEmpty: tt.notEmpty,
-			}
-
-			err := rule.Check(ctx, ioutil.Discard)
-
-			if tt.hasError {
-				assert.EqualError(t, err, errorMessage(CommitMessageType, "commit message should not be empty"))
-				assert.IsType(t, &validation.Error{}, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCommitMessage_HasPrefix(t *testing.T) {
-	tests := []struct {
-		name     string
-		message  string
-		prefix   string
-		hasError bool
-	}{
-		{name: "Active with empty string", hasError: true, message: "", prefix: "prefix-"},
-		{name: "Inactive with empty string", hasError: false, message: "", prefix: ""},
-		{name: "Active with string and prefix", hasError: false, message: "prefix-message", prefix: "prefix-"},
-		{name: "Inactive with string and prefix", hasError: false, message: "prefix-message", prefix: ""},
-		{name: "Active with string and other prefix", hasError: true, message: "other-prefix-message", prefix: "prefix-"},
-		{name: "Inactive with string and other prefix", hasError: false, message: "other-prefix-message", prefix: ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
-
-			rule := CommitMessage{
-				BaseRule: BaseRule{Type: CommitMessageType},
-				Prefix:   tt.prefix,
-			}
-
-			err := rule.Check(ctx, ioutil.Discard)
-
-			if tt.hasError {
-				assert.EqualError(t, err, errorMessage(CommitMessageType, "commit message should have prefix 'prefix-'"))
-				assert.IsType(t, &validation.Error{}, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCommitMessage_HasSuffix(t *testing.T) {
-	tests := []struct {
-		name     string
-		message  string
-		suffix   string
-		hasError bool
-	}{
-		{name: "Active with empty string", hasError: true, message: "", suffix: "-suffix"},
-		{name: "Inactive with empty string", hasError: false, message: "", suffix: ""},
-		{name: "Active with string and suffix", hasError: false, message: "message-suffix", suffix: "-suffix"},
-		{name: "Inactive with string and suffix", hasError: false, message: "message-suffix", suffix: ""},
-		{name: "Active with string and other suffix", hasError: true, message: "message-suffix-other", suffix: "-suffix"},
-		{name: "Inactive with string and other suffix", hasError: false, message: "message-suffix-other", suffix: ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
-
-			rule := CommitMessage{
-				BaseRule: BaseRule{Type: CommitMessageType},
-				Suffix:   tt.suffix,
-			}
-
-			err := rule.Check(ctx, ioutil.Discard)
-
-			if tt.hasError {
-				assert.EqualError(t, err, errorMessage(CommitMessageType, "commit message should have suffix '-suffix'"))
-				assert.IsType(t, &validation.Error{}, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCommitMessage_TestMessageRegexp(t *testing.T) {
-	tests := []struct {
-		name       string
-		message    string
-		expression string
-		hasError   bool
-	}{
-		{name: "Inactive with empty string", hasError: false, message: "", expression: ""},
-		{name: "Active with empty string", hasError: true, message: "", expression: "^[a-z]{5}$"},
-		{name: "Active with correct matching", hasError: true, message: "message", expression: "^[a-z]{5}$"},
-		{name: "Active with correct matching", hasError: false, message: "message", expression: "^[a-z]{7}$"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).MessageMock.Return(tt.message, nil)
-
-			rule := CommitMessage{
-				BaseRule: BaseRule{Type: CommitMessageType},
-				Regexp:   tt.expression,
-			}
-
-			err := rule.Check(ctx, ioutil.Discard)
-
-			if tt.hasError {
-				assert.Error(t, err)
-				assert.IsType(t, &validation.Error{}, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCommitMessage_TestMessageRegexp_MachingError(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t).MessageMock.Return("message", nil)
-
-	rule := CommitMessage{
-		BaseRule: BaseRule{Type: CommitMessageType},
-		Regexp:   "[a-z]($",
-	}
-
-	err := rule.Check(ctx, ioutil.Discard)
-
-	assert.Error(t, err)
-}
-
-func TestCommitMessage_MessageReadingError(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t).MessageMock.Return("", errors.New("message cannot be read"))
-
-	rule := CommitMessage{
-		BaseRule: BaseRule{Type: CommitMessageType},
-		Regexp:   "[a-z]($",
-	}
-
-	err := rule.Check(ctx, ioutil.Discard)
-
-	assert.EqualError(t, err, "message cannot be read")
-}
 
 func TestCommitMessage_Compile(t *testing.T) {
 	rule := CommitMessage{
@@ -196,4 +30,238 @@ func TestCommitMessage_Compile(t *testing.T) {
 		Regexp:   "RegexpVALUE",
 		NotEmpty: true,
 	}, rule)
+}
+
+func TestCommitMessage_Check(t *testing.T) {
+	t.Run("not-empty field", func(t *testing.T) {
+		tests := []struct {
+			name        string
+			message     string
+			notEmpty    bool
+			expectedErr string
+		}{
+			{
+				name:        "Active with empty string",
+				notEmpty:    true,
+				expectedErr: "[commit-message] commit message should not be empty",
+			},
+			{
+				name:     "Inactive with empty string",
+				notEmpty: false,
+			},
+			{
+				name:     "Active with not empty string",
+				message:  "message",
+				notEmpty: true,
+			},
+			{
+				name:     "Active with not empty string",
+				message:  "message",
+				notEmpty: false,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				ctx := mocks.NewExecutionContextMock(t).
+					MessageMock.Return(tt.message, nil)
+
+				rule := CommitMessage{
+					BaseRule: BaseRule{Type: CommitMessageType},
+					NotEmpty: tt.notEmpty,
+				}
+
+				err := rule.Check(ctx, ioutil.Discard)
+
+				testutils.AssertError(t, tt.expectedErr, err)
+			})
+		}
+	})
+
+	t.Run("prefix field", func(t *testing.T) {
+		tests := []struct {
+			name        string
+			message     string
+			prefix      string
+			expectedErr string
+		}{
+			{
+				name:        "active with empty string",
+				expectedErr: "[commit-message] commit message should have prefix 'prefix-'",
+				prefix:      "prefix-",
+			},
+			{
+				name:   "inactive with empty string",
+				prefix: "",
+			},
+			{
+				name:    "active with string and prefix",
+				message: "prefix-message",
+				prefix:  "prefix-",
+			},
+			{
+				name:    "inactive with string and prefix",
+				message: "prefix-message",
+			},
+			{
+				name:        "active with string and other prefix",
+				expectedErr: "[commit-message] commit message should have prefix 'prefix-'",
+				message:     "other-prefix-message",
+				prefix:      "prefix-",
+			},
+			{
+				name:    "inactive with string and other prefix",
+				message: "other-prefix-message",
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				ctx := mocks.NewExecutionContextMock(t).
+					MessageMock.Return(tt.message, nil)
+
+				rule := CommitMessage{
+					BaseRule: BaseRule{Type: CommitMessageType},
+					Prefix:   tt.prefix,
+				}
+
+				err := rule.Check(ctx, ioutil.Discard)
+
+				testutils.AssertError(t, tt.expectedErr, err)
+			})
+		}
+	})
+
+	t.Run("suffix field", func(t *testing.T) {
+		tests := []struct {
+			name        string
+			message     string
+			suffix      string
+			expectedErr string
+		}{
+			{
+				name:        "active with empty string",
+				expectedErr: "[commit-message] commit message should have suffix '-suffix'",
+				message:     "",
+				suffix:      "-suffix",
+			},
+			{
+				name:   "inactive with empty string",
+				suffix: "",
+			},
+			{
+				name:    "active with string and suffix",
+				message: "message-suffix",
+				suffix:  "-suffix",
+			},
+			{
+				name:    "inactive with string and suffix",
+				message: "message-suffix",
+				suffix:  "",
+			},
+			{
+				name:        "active with string and other suffix",
+				expectedErr: "[commit-message] commit message should have suffix '-suffix'",
+				message:     "message-suffix-other",
+				suffix:      "-suffix",
+			},
+			{
+				name:    "inactive with string and other suffix",
+				message: "message-suffix-other",
+				suffix:  "",
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				ctx := mocks.NewExecutionContextMock(t).
+					MessageMock.Return(tt.message, nil)
+
+				rule := CommitMessage{
+					BaseRule: BaseRule{Type: CommitMessageType},
+					Suffix:   tt.suffix,
+				}
+
+				err := rule.Check(ctx, ioutil.Discard)
+
+				testutils.AssertError(t, tt.expectedErr, err)
+			})
+		}
+	})
+
+	t.Run("regexp field", func(t *testing.T) {
+		t.Run("correct mattching", func(t *testing.T) {
+			tests := []struct {
+				name        string
+				message     string
+				expression  string
+				expectedErr string
+			}{
+				{
+					name:       "inactive with empty string",
+					expression: "",
+				},
+				{
+					name:        "active with empty string",
+					expectedErr: "[commit-message] commit message should be matched regular expression '^[a-z]{5}$'",
+					expression:  "^[a-z]{5}$",
+				},
+				{
+					name:        "active with correct matching",
+					expectedErr: "[commit-message] commit message should be matched regular expression '^[a-z]{5}$'",
+					message:     "message",
+					expression:  "^[a-z]{5}$",
+				},
+				{
+					name:       "active with correct matching",
+					message:    "message",
+					expression: "^[a-z]{7}$",
+				},
+			}
+
+			for _, tt := range tests {
+				t.Run(tt.name, func(t *testing.T) {
+					ctx := mocks.NewExecutionContextMock(t).
+						MessageMock.Return(tt.message, nil)
+
+					rule := CommitMessage{
+						BaseRule: BaseRule{Type: CommitMessageType},
+						Regexp:   tt.expression,
+					}
+
+					err := rule.Check(ctx, ioutil.Discard)
+
+					testutils.AssertError(t, tt.expectedErr, err)
+				})
+			}
+		})
+
+		t.Run("regexp parsing error", func(t *testing.T) {
+			ctx := mocks.NewExecutionContextMock(t).
+				MessageMock.Return("message", nil)
+
+			rule := CommitMessage{
+				BaseRule: BaseRule{Type: CommitMessageType},
+				Regexp:   "[a-z]($",
+			}
+
+			err := rule.Check(ctx, ioutil.Discard)
+
+			assert.Error(t, err)
+		})
+	})
+
+	t.Run("message reading error", func(t *testing.T) {
+		ctx := mocks.NewExecutionContextMock(t).
+			MessageMock.Return("", errors.New("message cannot be read"))
+
+		rule := CommitMessage{
+			BaseRule: BaseRule{Type: CommitMessageType},
+			Regexp:   "[a-z]($",
+		}
+
+		err := rule.Check(ctx, ioutil.Discard)
+
+		assert.EqualError(t, err, "message cannot be read")
+	})
 }

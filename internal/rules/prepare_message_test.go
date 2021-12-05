@@ -22,20 +22,21 @@ func TestPrepareMessage_Check(t *testing.T) {
 		ArgsMock.Return([]string{messageFilePath}).
 		FilesMock.Return(fs)
 
-	rule := PrepareMessage{Message: message}
+	t.Run("not configured rule", func(t *testing.T) {
+		rule := PrepareMessage{}
 
-	err := rule.Check(ctx, ioutil.Discard)
+		err := rule.Check(ctx, ioutil.Discard)
 
-	assert.NoError(t, err)
-}
+		assert.NoError(t, err)
+	})
 
-func TestPrepareMessage_Check_NotConfigured(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t)
-	rule := PrepareMessage{}
+	t.Run("succeeded check ", func(t *testing.T) {
+		rule := PrepareMessage{Message: message}
 
-	err := rule.Check(ctx, ioutil.Discard)
+		err := rule.Check(ctx, ioutil.Discard)
 
-	assert.NoError(t, err)
+		assert.NoError(t, err)
+	})
 }
 
 func TestPrepareMessage_Compile(t *testing.T) {

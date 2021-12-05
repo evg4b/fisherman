@@ -44,10 +44,10 @@ func TestHookConfig_VariablesSections_Compile(t *testing.T) {
 
 func TestHookConfig_VariablesSections_UnmarshalYAML(t *testing.T) {
 	tests := []struct {
-		name          string
-		source        string
-		expected      HookConfig
-		expectedError string
+		name        string
+		source      string
+		expected    HookConfig
+		expectedErr string
 	}{
 		{
 			name: "test1",
@@ -77,7 +77,7 @@ extract-variables:
 			err := testutils.DecodeYaml(tt.source, &section)
 
 			assert.ObjectsAreEqual(tt.expected, section)
-			testutils.AssertError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }

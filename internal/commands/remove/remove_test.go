@@ -16,29 +16,6 @@ import (
 )
 
 func TestCommand_Run(t *testing.T) {
-	fs := testutils.FsFromMap(t, map[string]string{
-		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
-		filepath.Join("usr", "home", ".fisherman.yaml"):             "content",
-		filepath.Join("usr", "home", ".git", "hooks", "commit-msg"): "content",
-		filepath.Join("usr", "home", ".fisherman.yml"):              "content",
-	})
-
-	command := NewCommand(
-		fs,
-		internal.AppInfo{
-			Cwd:        filepath.Join("usr", "home"),
-			Executable: filepath.Join("bin", "fisherman.exe"),
-		},
-		&testutils.TestUser,
-	)
-	err := command.Init([]string{})
-	assert.NoError(t, err)
-
-	err = command.Run(mocks.NewExecutionContextMock(t))
-	assert.NoError(t, err)
-}
-
-func TestCommand_Run_WithError(t *testing.T) {
 	appInfo := internal.AppInfo{
 		Cwd:        filepath.Join("usr", "home"),
 		Executable: filepath.Join("bin", "fisherman.exe"),
@@ -48,36 +25,46 @@ func TestCommand_Run_WithError(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		files         billy.Filesystem
-		expectedError string
+		name        string
+		fs          billy.Filesystem
+		expectedErr string
 	}{
 		{
-			name:          "exist errors",
-			files:         mocks.NewFilesystemMock(t).StatMock.Return(nil, errors.New("Test error")),
-			expectedError: "Test error",
+			name: "executed successful",
+			fs: testutils.FsFromMap(t, map[string]string{
+				filepath.Join("usr", "home", ".fisherman.yml"):              "content",
+				filepath.Join("usr", "home", ".fisherman.yaml"):             "content",
+				filepath.Join("usr", "home", ".git", "hooks", "commit-msg"): "content",
+				filepath.Join("usr", "home", ".fisherman.yml"):              "content",
+			}),
+		},
+		{
+			name: "exist errors",
+			fs: mocks.NewFilesystemMock(t).
+				StatMock.Return(nil, errors.New("test error")),
+			expectedErr: "test error",
 		},
 		{
 			name: "delete error",
-			files: mocks.NewFilesystemMock(t).
+			fs: mocks.NewFilesystemMock(t).
 				StatMock.Return(nil, nil).
 				RemoveMock.Return(errors.New("delete error")),
-			expectedError: "delete error",
+			expectedErr: "delete error",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := NewCommand(tt.files, appInfo, &user.User{
+			command := NewCommand(tt.fs, appInfo, &user.User{
 				HomeDir: filepath.Join("usr", "home"),
 			})
 
-			err := c.Init([]string{})
+			err := command.Init([]string{})
 			assert.NoError(t, err)
 
-			err = c.Run(mocks.NewExecutionContextMock(t))
+			err = command.Run(mocks.NewExecutionContextMock(t))
 
-			testutils.AssertError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }

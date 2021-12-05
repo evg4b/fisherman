@@ -103,6 +103,14 @@ func (host *Host) Close() error {
 	return nil
 }
 
+func (host *Host) Terminate() error {
+	if host.stdin != nil {
+		return host.command.Process.Kill()
+	}
+
+	return nil
+}
+
 func (host *Host) isStarted() bool {
 	return host.command.Process != nil
 }

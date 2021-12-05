@@ -12,68 +12,70 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGitRepository_GetFilesInIndex_Empty(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo(t)
-
-	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
-		"init commit": {"LICENSE": "MIT"},
-		"test commit": {"demo": "this is test file"},
-	})
-
-	files, err := repo.GetFilesInIndex()
-
-	assert.NoError(t, err)
-	assert.Empty(t, files)
-}
-
-func TestGitRepository_GetFilesInIndex_UntrackedFiles(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo(t)
-
-	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
-		"init commit": {"LICENSE": "MIT"},
-		"test commit": {"demo": "this is test file"},
-	})
-
-	testutils.MakeFiles(t, fs, map[string]string{
-		"untracked": "untracked content",
-	})
-
-	files, err := repo.GetFilesInIndex()
-
-	assert.NoError(t, err)
-	assert.Empty(t, files)
-}
-
 func TestGitRepository_GetFilesInIndex(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo(t)
+	t.Run("no files", func(t *testing.T) {
+		repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
-		"init commit": {"LICENSE": "MIT"},
-		"test commit": {"demo": "this is test file"},
+		testutils.MakeCommits(t, w, fs, map[string]map[string]string{
+			"init commit": {"LICENSE": "MIT"},
+			"test commit": {"demo": "this is test file"},
+		})
+
+		files, err := repo.GetFilesInIndex()
+
+		assert.NoError(t, err)
+		assert.Empty(t, files)
 	})
 
-	testutils.MakeFiles(t, fs, map[string]string{
-		"tracked": "tracked content",
+	t.Run("excluded untracked files", func(t *testing.T) {
+		repo, _, fs, w := testutils.CreateRepo(t)
+
+		testutils.MakeCommits(t, w, fs, map[string]map[string]string{
+			"init commit": {"LICENSE": "MIT"},
+			"test commit": {"demo": "this is test file"},
+		})
+
+		testutils.MakeFiles(t, fs, map[string]string{
+			"untracked": "untracked content",
+		})
+
+		files, err := repo.GetFilesInIndex()
+
+		assert.NoError(t, err)
+		assert.Empty(t, files)
 	})
 
-	err := w.AddGlob(".")
-	guards.NoError(err)
+	t.Run("added files successfully", func(t *testing.T) {
+		repo, _, fs, w := testutils.CreateRepo(t)
 
-	files, err := repo.GetFilesInIndex()
+		testutils.MakeCommits(t, w, fs, map[string]map[string]string{
+			"init commit": {"LICENSE": "MIT"},
+			"test commit": {"demo": "this is test file"},
+		})
 
-	assert.NoError(t, err)
-	assert.Equal(t, []string{"tracked"}, files)
-}
+		testutils.MakeFiles(t, fs, map[string]string{
+			"tracked": "tracked content",
+		})
 
-func TestGitRepository_GetFilesInIndex_Worktree_Error(t *testing.T) {
-	expectedError := errors.New("worktree error")
-	gitMock := mocks.NewGoGitRepositoryMock(t).WorktreeMock.Return(nil, expectedError)
+		err := w.AddGlob(".")
+		guards.NoError(err)
 
-	repo := NewRepository(WithFactoryMethod(func() (GoGitRepository, storage.Storer, error) {
-		return gitMock, nil, nil
-	}))
+		files, err := repo.GetFilesInIndex()
 
-	_, err := repo.GetFilesInIndex()
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"tracked"}, files)
+	})
 
-	assert.EqualError(t, err, expectedError.Error())
+	t.Run("workdree error", func(t *testing.T) {
+		expectedErr := errors.New("worktree error")
+		gitMock := mocks.NewGoGitRepositoryMock(t).WorktreeMock.Return(nil, expectedErr)
+
+		repo := NewRepository(WithFactoryMethod(func() (GoGitRepository, storage.Storer, error) {
+			return gitMock, nil, nil
+		}))
+
+		_, err := repo.GetFilesInIndex()
+
+		assert.EqualError(t, err, expectedErr.Error())
+	})
 }

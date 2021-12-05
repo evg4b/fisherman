@@ -17,10 +17,10 @@ import (
 
 func TestRunner_Run(t *testing.T) {
 	tests := []struct {
-		name          string
-		args          []string
-		commands      []internal.CliCommand
-		expectedError string
+		name        string
+		args        []string
+		commands    []internal.CliCommand
+		expectedErr string
 	}{
 		{
 			name: "should run called commnad and return its error",
@@ -30,7 +30,7 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeExpectedCommand(t, "init", errors.New("expected error")),
 			},
-			expectedError: "expected error",
+			expectedErr: "expected error",
 		},
 		{
 			name: "should run called commnad and return nil when command executed witout error",
@@ -49,13 +49,13 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, "remove"),
 				makeCommand(t, "init"),
 			},
-			expectedError: "unknown command: not",
+			expectedErr: "unknown command: not",
 		},
 		{
-			name:          "Should return error when command not registered",
-			args:          []string{"not"},
-			commands:      []internal.CliCommand{},
-			expectedError: "unknown command: not",
+			name:        "Should return error when command not registered",
+			args:        []string{"not"},
+			commands:    []internal.CliCommand{},
+			expectedErr: "unknown command: not",
 		},
 		{
 			name: "should not return error when commnad not specified",
@@ -80,7 +80,7 @@ func TestRunner_Run(t *testing.T) {
 
 			assert.NotPanics(t, func() {
 				err := appInstance.Run(context.TODO(), tt.args)
-				testutils.AssertError(t, tt.expectedError, err)
+				testutils.AssertError(t, tt.expectedErr, err)
 			})
 		})
 	}

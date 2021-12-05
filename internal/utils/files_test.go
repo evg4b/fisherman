@@ -32,10 +32,10 @@ func TestExists(t *testing.T) {
 	}()
 
 	tests := []struct {
-		name          string
-		filepath      string
-		expected      bool
-		expectedError string
+		name        string
+		filepath    string
+		expected    bool
+		expectedErr string
 	}{
 		{
 			name:     "file exists",
@@ -53,10 +53,10 @@ func TestExists(t *testing.T) {
 			expected: false,
 		},
 		{
-			name:          "not exist file",
-			filepath:      ".." + string(filepath.Separator) + "demo",
-			expected:      false,
-			expectedError: "chroot boundary crossed",
+			name:        "not exist file",
+			filepath:    ".." + string(filepath.Separator) + "demo",
+			expected:    false,
+			expectedErr: "chroot boundary crossed",
 		},
 	}
 	for _, tt := range tests {
@@ -64,7 +64,7 @@ func TestExists(t *testing.T) {
 			actual, err := Exists(fs, tt.filepath)
 
 			assert.Equal(t, tt.expected, actual)
-			testutils.AssertError(t, tt.expectedError, err)
+			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
 }

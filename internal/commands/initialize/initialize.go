@@ -104,9 +104,12 @@ func (command *Command) Description() string {
 }
 
 func (command *Command) writeConfig() error {
-	configFolder := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
-	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
+	configFolder, err := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
+	if err != nil {
+		return err
+	}
 
+	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
 	exist, err := utils.Exists(command.files, configPath)
 	if err != nil {
 		return err

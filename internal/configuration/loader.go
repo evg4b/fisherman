@@ -19,7 +19,11 @@ const gitDir = ".git"
 func FindConfigFiles(usr *user.User, cwd string, fs billy.Filesystem) (map[string]string, error) {
 	configs := map[string]string{}
 	for _, mode := range ModeOptions {
-		folder := GetConfigFolder(usr, cwd, mode)
+		folder, err := GetConfigFolder(usr, cwd, mode)
+		if err != nil {
+			return nil, err
+		}
+
 		files := []string{}
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
@@ -45,16 +49,16 @@ func FindConfigFiles(usr *user.User, cwd string, fs billy.Filesystem) (map[strin
 	return configs, nil
 }
 
-func GetConfigFolder(usr *user.User, cwd, mode string) string {
+func GetConfigFolder(usr *user.User, cwd, mode string) (string, error) {
 	switch mode {
 	case LocalMode:
-		return filepath.Join(cwd, gitDir)
+		return filepath.Join(cwd, gitDir), nil
 	case RepoMode:
-		return filepath.Join(cwd)
+		return filepath.Join(cwd), nil
 	case GlobalMode:
-		return filepath.Join(usr.HomeDir)
+		return filepath.Join(usr.HomeDir), nil
 	default:
-		panic("unknown config mode")
+		return "", errors.New("unknown config mode")
 	}
 }
 

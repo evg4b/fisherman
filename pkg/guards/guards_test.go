@@ -58,15 +58,16 @@ func TestShouldBeDefined(t *testing.T) {
 	}
 }
 
-func TestNoErrorPanicForError(t *testing.T) {
-	err := errors.New("Test err")
-	assert.PanicsWithError(t, err.Error(), func() {
-		NoError(err)
+func TestNoError(t *testing.T) {
+	t.Run("panic for error", func(t *testing.T) {
+		err := errors.New("Test err")
+		assert.PanicsWithError(t, err.Error(), func() {
+			NoError(err)
+		})
 	})
-}
-
-func TestNoErrorNotPanicForNil(t *testing.T) {
-	assert.NotPanics(t, func() {
-		NoError(nil)
+	t.Run("does not panic for nil", func(t *testing.T) {
+		assert.NotPanics(t, func() {
+			NoError(nil)
+		})
 	})
 }

@@ -12,37 +12,56 @@ import (
 func TestPrefixWriter_Write(t *testing.T) {
 	prefix := "prefix: "
 
-	testData := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{"should add prefix for each line", "foo\nbar", "prefix: foo\nprefix: bar"},
-		{"should don't add prefix for empty line ", "", ""},
-		{"should add prefix for empty line with newline symbol", "\n", "prefix: \n"},
-		{"should add prefix for first line", "foo", "prefix: foo"},
-		{"should not add prefix for second empty line", "foo\n", "prefix: foo\n"},
-	}
+	t.Run("write full line", func(t *testing.T) {
+		testData := []struct {
+			name     string
+			input    string
+			expected string
+		}{
+			{
+				name:     "should add prefix for each line",
+				input:    "foo\nbar",
+				expected: "prefix: foo\nprefix: bar",
+			},
+			{
+				name:     "should don't add prefix for empty line ",
+				input:    "",
+				expected: ""},
+			{
+				name:     "should add prefix for empty line with newline symbol",
+				input:    "\n",
+				expected: "prefix: \n",
+			},
+			{
+				name:     "should add prefix for first line",
+				input:    "foo",
+				expected: "prefix: foo",
+			},
+			{
+				name:     "should not add prefix for second empty line",
+				input:    "foo\n",
+				expected: "prefix: foo\n",
+			},
+		}
 
-	for _, dd := range testData {
-		t.Run(dd.name, func(t *testing.T) {
-			var buf bytes.Buffer
-			fmt.Fprintf(NewWriter(&buf, prefix), dd.input)
+		for _, dd := range testData {
+			t.Run(dd.name, func(t *testing.T) {
+				var buf bytes.Buffer
+				fmt.Fprintf(NewWriter(&buf, prefix), dd.input)
 
-			assert.Equal(t, dd.expected, buf.String())
-		})
-	}
-}
+				assert.Equal(t, dd.expected, buf.String())
+			})
+		}
+	})
 
-func TestPrefixWriter_Write_AppendMode(t *testing.T) {
-	prefix := "prefix: "
+	t.Run("write partial", func(t *testing.T) {
+		var buf bytes.Buffer
+		prefixwriter := NewWriter(&buf, prefix)
 
-	var buf bytes.Buffer
-	prefixwriter := NewWriter(&buf, prefix)
+		fmt.Fprintln(prefixwriter, "input 1")
+		fmt.Fprint(prefixwriter, "input 2")
+		fmt.Fprint(prefixwriter, " with additional string")
 
-	fmt.Fprintln(prefixwriter, "input 1")
-	fmt.Fprint(prefixwriter, "input 2")
-	fmt.Fprint(prefixwriter, " with additional string")
-
-	assert.Equal(t, "prefix: input 1\nprefix: input 2 with additional string", buf.String())
+		assert.Equal(t, "prefix: input 1\nprefix: input 2 with additional string", buf.String())
+	})
 }

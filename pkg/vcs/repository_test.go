@@ -16,47 +16,49 @@ import (
 )
 
 func TestGitRepository_GetCurrentBranch(t *testing.T) {
-	branchName := "test-branch"
-	expectedBranchName := fmt.Sprintf("refs/heads/%s", branchName)
+	t.Run("returns currect branch name", func(t *testing.T) {
+		branchName := "test-branch"
+		expectedBranchName := fmt.Sprintf("refs/heads/%s", branchName)
 
-	repo, _, fs, w := testutils.CreateRepo(t)
+		repo, _, fs, w := testutils.CreateRepo(t)
 
-	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
-		"test commit": {"demo": "this is test file"},
+		testutils.MakeCommits(t, w, fs, map[string]map[string]string{
+			"test commit": {"demo": "this is test file"},
+		})
+
+		err := w.Checkout(&git.CheckoutOptions{
+			Create: true,
+			Branch: plumbing.NewBranchReferenceName(branchName),
+		})
+		guards.NoError(err)
+
+		branch, err := repo.GetCurrentBranch()
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBranchName, branch)
 	})
 
-	err := w.Checkout(&git.CheckoutOptions{
-		Create: true,
-		Branch: plumbing.NewBranchReferenceName(branchName),
-	})
-	guards.NoError(err)
+	t.Run("no branches", func(t *testing.T) {
+		repo, _, fs, w := testutils.CreateRepo(t)
 
-	branch, err := repo.GetCurrentBranch()
+		testutils.MakeCommits(t, w, fs, map[string]map[string]string{
+			"test commit": {"demo": "this is test file"},
+		})
 
-	assert.NoError(t, err)
-	assert.Equal(t, expectedBranchName, branch)
-}
+		branch, err := repo.GetCurrentBranch()
 
-func TestGitRepository_GetCurrentBranch_NoBranches(t *testing.T) {
-	repo, _, fs, w := testutils.CreateRepo(t)
-
-	testutils.MakeCommits(t, w, fs, map[string]map[string]string{
-		"test commit": {"demo": "this is test file"},
+		assert.NoError(t, err)
+		assert.Equal(t, "refs/heads/master", branch)
 	})
 
-	branch, err := repo.GetCurrentBranch()
+	t.Run("no commits in branch", func(t *testing.T) {
+		repo, _, _, _ := testutils.CreateRepo(t)
 
-	assert.NoError(t, err)
-	assert.Equal(t, "refs/heads/master", branch)
-}
+		branch, err := repo.GetCurrentBranch()
 
-func TestGitRepository_GetCurrentBranch_NoCommits(t *testing.T) {
-	repo, _, _, _ := testutils.CreateRepo(t)
-
-	branch, err := repo.GetCurrentBranch()
-
-	assert.NoError(t, err)
-	assert.Equal(t, "", branch)
+		assert.NoError(t, err)
+		assert.Equal(t, "", branch)
+	})
 }
 
 func TestGitRepository_GetUser(t *testing.T) {

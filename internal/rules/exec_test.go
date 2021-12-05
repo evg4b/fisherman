@@ -13,9 +13,7 @@ import (
 )
 
 func TestExec_GetPosition(t *testing.T) {
-	rule := Exec{
-		BaseRule: BaseRule{Type: ExecType},
-	}
+	rule := Exec{BaseRule: BaseRule{Type: ExecType}}
 
 	actual := rule.GetPosition()
 
@@ -175,30 +173,6 @@ func TestExec_Check(t *testing.T) {
 	}
 }
 
-func TestExec_CheckHelper(t *testing.T) {
-	testutils.ExecTestHandler(t, map[string]func(){
-		"go test ./...":           func() { os.Exit(2) },
-		"go test ./valid":         func() { os.Exit(0) },
-		"go test ./another-valid": func() { os.Exit(0) },
-		"make build":              func() { os.Exit(33) },
-		"go test env-global": func() {
-			assert.Equal(t, "6482376487", os.Getenv("GLOBAL_ENV"))
-			assert.Equal(t, "Overwritten variable", os.Getenv("PATH"))
-		},
-		"go test env-rule": func() {
-			assert.Equal(t, "This is rule env", os.Getenv("RULE_ENV"))
-		},
-		"go test env-command": func() {
-			assert.Equal(t, "This is command env", os.Getenv("COMMAND_ENV"))
-		},
-		"go test env-oweride": func() {
-			assert.Equal(t, "Global value 1", os.Getenv("VAR_1"))
-			assert.Equal(t, "Rule value 2", os.Getenv("VAR_2"))
-			assert.Equal(t, "Command value 3", os.Getenv("VAR_3"))
-		},
-	})
-}
-
 func TestExec_Compile(t *testing.T) {
 	rule := Exec{
 		BaseRule: BaseRule{
@@ -214,10 +188,7 @@ func TestExec_Compile(t *testing.T) {
 		Commands: []CommandDef{
 			{
 				Program: "app-{{Version}}",
-				Args: []string{
-					"build",
-					"--value={{VAR2}}",
-				},
+				Args:    []string{"build", "--value={{VAR2}}"},
 				Env: map[string]string{
 					"VAR1": "[{{VAR1}}]",
 				},
@@ -247,10 +218,7 @@ func TestExec_Compile(t *testing.T) {
 		Commands: []CommandDef{
 			{
 				Program: "app-3-5-17",
-				Args: []string{
-					"build",
-					"--value=DEMO",
-				},
+				Args:    []string{"build", "--value=DEMO"},
 				Env: map[string]string{
 					"VAR1": "[TEST]",
 				},
@@ -259,4 +227,28 @@ func TestExec_Compile(t *testing.T) {
 			},
 		},
 	}, rule)
+}
+
+func TestExec_CheckHelper(t *testing.T) {
+	testutils.ExecTestHandler(t, map[string]func(){
+		"go test ./...":           func() { os.Exit(2) },
+		"go test ./valid":         func() { os.Exit(0) },
+		"go test ./another-valid": func() { os.Exit(0) },
+		"make build":              func() { os.Exit(33) },
+		"go test env-global": func() {
+			assert.Equal(t, "6482376487", os.Getenv("GLOBAL_ENV"))
+			assert.Equal(t, "Overwritten variable", os.Getenv("PATH"))
+		},
+		"go test env-rule": func() {
+			assert.Equal(t, "This is rule env", os.Getenv("RULE_ENV"))
+		},
+		"go test env-command": func() {
+			assert.Equal(t, "This is command env", os.Getenv("COMMAND_ENV"))
+		},
+		"go test env-oweride": func() {
+			assert.Equal(t, "Global value 1", os.Getenv("VAR_1"))
+			assert.Equal(t, "Rule value 2", os.Getenv("VAR_2"))
+			assert.Equal(t, "Command value 3", os.Getenv("VAR_3"))
+		},
+	})
 }
