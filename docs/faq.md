@@ -46,7 +46,7 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
-- [suppressed-text rule](./configuration/rules.md#suppressed-text)
+- [suppressed-text rule](./configuration/rules/suppressed-text.md)
 
 ## I want run tests or lint before push changes to remote repo
 
@@ -69,7 +69,7 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
-- [run-program rule](./configuration/rules.md#run-program)
+- [run-program rule](./configuration/rules/run-program.md)
 
 
 ## I want create difference rules for each operation system.
@@ -94,4 +94,4 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
-- [run-program rule](./configuration/rules.md#run-program)
+- [run-program rule](./configuration/rules/run-program.md)
