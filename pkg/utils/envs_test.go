@@ -2,9 +2,8 @@ package utils_test
 
 import (
 	. "fisherman/pkg/utils"
+	"fisherman/testing/testutils"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMergeEnv(t *testing.T) {
@@ -92,7 +91,7 @@ func TestMergeEnv(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			actual := MergeEnv(tt.env, tt.vars)
 
-			assert.Equal(t, tt.expected, actual)
+			testutils.AssertSlice(t, tt.expected, actual)
 		})
 	}
 }
