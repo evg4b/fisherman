@@ -9,7 +9,6 @@ Shell script can be configured using the following structure:
 
 ``` yaml
 - type: commit-suffix
-  when: 1 == 1
   env:
     var1: value1
     var2: value2

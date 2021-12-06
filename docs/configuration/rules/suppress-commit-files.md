@@ -7,7 +7,6 @@ title: suppress-commit-files
 
 ``` yaml
 - type: suppress-commit-files
-  when: 1 == 1
   globs: [ 'mocks/**/*', 'go.sum', 'go.mod' ]
   remove-from-index: false
 ```
