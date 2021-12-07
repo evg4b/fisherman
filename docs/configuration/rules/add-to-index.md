@@ -3,7 +3,7 @@ id: add-to-index
 title: add-to-index
 ---
 
-The rule is used to automatically add files to the index after rules or previous scripts.
+This rule filters files according to passed pattern and adds matching files to index.
 This rule can be used for adding auto-generated files (mocks, styles, and others) in the index.
 
 ## Syntax
