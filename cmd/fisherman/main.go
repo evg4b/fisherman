@@ -70,6 +70,7 @@ func main() {
 			vcs.WithFsRepo(cwd),
 		)),
 		app.WithEnv(os.Environ()),
+		app.WithSistemInterruptSignals(),
 	)
 
 	// TODO: Add interrupt event hadling (stopping)

@@ -4,10 +4,12 @@ import (
 	"context"
 	"fisherman/internal"
 	. "fisherman/internal/app"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
 	"io"
+	"os"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -84,6 +86,39 @@ func TestRunner_Run(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestRunner_Interrupt(t *testing.T) {
+	chanel := make(chan os.Signal, 1)
+	chanel <- os.Interrupt
+
+	commandMock := mocks.NewCliCommandMock(t).
+		InitMock.Return(nil).
+		NameMock.Return("test-command").
+		RunMock.Set(func(ctx internal.ExecutionContext) error {
+		<-ctx.Done()
+
+		return ctx.Err()
+	})
+
+	appInstance := NewFishermanApp(
+		WithCommands([]internal.CliCommand{commandMock}),
+		WithOutput(io.Discard),
+		WithFs(mocks.NewFilesystemMock(t)),
+		WithRepository(
+			mocks.NewRepositoryMock(t).
+				GetLastTagMock.Return("tag1", nil).
+				GetCurrentBranchMock.Return("master", nil).
+				GetUserMock.Return(vcs.User{}, nil),
+		),
+		WithCwd("/"),
+		WithOutput(io.Discard),
+		WithInterruptChanel(chanel),
+	)
+
+	err := appInstance.Run(context.Background(), []string{"test-command"})
+
+	assert.EqualError(t, err, context.Canceled.Error())
 }
 
 func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {

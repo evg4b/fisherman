@@ -3,6 +3,8 @@ package app
 import (
 	"fisherman/internal"
 	"io"
+	"os"
+	"os/signal"
 
 	"github.com/go-git/go-billy/v5"
 )
@@ -48,5 +50,18 @@ func WithRepository(repo internal.Repository) appOption {
 func WithEnv(env []string) appOption {
 	return func(ac *FishermanApp) {
 		ac.env = env
+	}
+}
+
+func WithSistemInterruptSignals() appOption {
+	return func(app *FishermanApp) {
+		app.interaption = make(chan os.Signal, 1)
+		signal.Notify(app.interaption, os.Interrupt)
+	}
+}
+
+func WithInterruptChanel(chanel chan os.Signal) appOption {
+	return func(app *FishermanApp) {
+		app.interaption = chanel
 	}
 }
