@@ -119,7 +119,7 @@ func TestHookHandler_Handle(t *testing.T) {
 					WorkersCount: tt.workersCount,
 				}
 
-				err := handler.Handle(ctx, []string{})
+				err := handler.Handle(ctx)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -135,7 +135,7 @@ func TestHookHandler_Handle(t *testing.T) {
 					WorkersCount: tt.workersCount,
 				}
 
-				err := handler.Handle(ctx, []string{})
+				err := handler.Handle(ctx)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -151,7 +151,7 @@ func TestHookHandler_Handle(t *testing.T) {
 					WorkersCount:    tt.workersCount,
 				}
 
-				err := handler.Handle(ctx, []string{})
+				err := handler.Handle(ctx)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 				print(tt.name)
@@ -193,7 +193,7 @@ func TestHookHandler_Handle(t *testing.T) {
 			WorkersCount: 10,
 		}
 
-		err := handler.Handle(ctx, []string{})
+		err := handler.Handle(ctx)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"rule", "script", "post-script"}, order)

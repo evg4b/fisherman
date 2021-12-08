@@ -8,7 +8,7 @@ import (
 )
 
 type Handler interface {
-	Handle(ctx internal.ExecutionContext, args []string) error
+	Handle(ctx internal.ExecutionContext) error
 }
 
 type Action = func(internal.ExecutionContext) (bool, error)
@@ -22,7 +22,7 @@ type HookHandler struct {
 	WorkersCount    int
 }
 
-func (h *HookHandler) Handle(ctx internal.ExecutionContext, args []string) error {
+func (h *HookHandler) Handle(ctx internal.ExecutionContext) error {
 	filterRules, err := h.filterRules(h.Rules)
 	if err != nil {
 		return err

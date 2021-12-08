@@ -43,5 +43,5 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 		constants.FishermanVersionVariable: constants.Version,
 	})
 
-	return handler.Handle(ctx, command.flagSet.Args())
+	return handler.Handle(ctx)
 }
