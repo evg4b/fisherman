@@ -83,6 +83,7 @@ func Load(fs billy.Filesystem, files map[string]string) (*FishermanConfig, error
 		}
 	}
 
+	// TODO: incorrect log level marging
 	return &config, nil
 }
 

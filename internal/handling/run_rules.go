@@ -22,32 +22,20 @@ type (
 )
 
 func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
+	if h.WorkersCount == 0 {
+		return errors.New("incorrect workers count")
+	}
+
+	if len(rules) == 0 {
+		log.Debugf("no rules founded")
+
+		return nil
+	}
+
 	input := make(chan configuration.Rule)
-	output, err := startWorkers(ctx, input, h.WorkersCount)
-	if err != nil {
-		return err
-	}
+	output := startWorkers(ctx, input, utils.Min(h.WorkersCount, len(rules)))
 
-	filteredRules := []configuration.Rule{}
 	for _, rule := range rules {
-		shouldAdd := true
-
-		condition := rule.GetContition()
-		if !utils.IsEmpty(condition) {
-			shouldAdd, err = h.Engine.Eval(condition, h.GlobalVariables)
-			if err != nil {
-				close(input)
-
-				return err
-			}
-		}
-
-		if shouldAdd {
-			filteredRules = append(filteredRules, rule)
-		}
-	}
-
-	for _, rule := range filteredRules {
 		input <- rule
 	}
 
@@ -62,27 +50,24 @@ func (h *HookHandler) runRules(ctx coxtext, rules []configuration.Rule) error {
 	return multierr.ErrorOrNil()
 }
 
-func startWorkers(ctx coxtext, input in, count int) (chan error, error) {
+func startWorkers(ctx coxtext, input in, count int) chan error {
 	wg := sync.WaitGroup{}
-
-	if count <= 0 {
-		return nil, errors.New("incorrect workers count")
-	}
 
 	output := make(chan error)
 
 	wg.Add(count)
-	// TODO: suppress spawn unused workers
+
 	for i := 0; i < count; i++ {
 		go worker(i, &wg, ctx, input, output)
 	}
 
 	go func() {
 		wg.Wait()
+		log.Debug("all workers finished")
 		close(output)
 	}()
 
-	return output, nil
+	return output
 }
 
 // TODO: Add panic interceptor.
@@ -92,10 +77,12 @@ func worker(id int, wg *sync.WaitGroup, ctx coxtext, input in, output out) {
 	defer wg.Done()
 
 	for rule := range input {
+		log.Debugf("workder %d received rules %s", id, rule.GetPrefix())
 		err := checkRule(ctx, rule)
 		// TODO: Move canclation to workers run method
 		if err != nil {
 			if !validation.IsValidationError(err) {
+				log.Debugf("workder %d check rule with error %s", id, err)
 				ctx.Cancel()
 			}
 

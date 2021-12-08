@@ -91,7 +91,7 @@ func configure(engine expression.Engine, name string, config *configuration.Hook
 			Scripts:         getScriptRules(config.Rules),
 			PostScriptRules: getPostScriptRules(config.Rules),
 			WorkersCount:    workersCount,
-			GlobalVariables: compiledVars,
+			GlobalVars:      compiledVars,
 		}, nil
 	}
 }

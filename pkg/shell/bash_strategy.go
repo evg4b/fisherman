@@ -18,13 +18,11 @@ func (s *BashStrategy) GetName() string {
 }
 
 func (s *BashStrategy) GetCommand(ctx context.Context) *exec.Cmd {
-	args := s.ArgsWrapper([]string{})
-
-	return exec.CommandContext(ctx, bashBin, args...)
+	return exec.CommandContext(ctx, bashBin)
 }
 
 func (s *BashStrategy) ArgsWrapper(args []string) []string {
-	return append([]string{"-i"}, args...)
+	return args
 }
 
 func (s *BashStrategy) EnvWrapper(env []string) []string {

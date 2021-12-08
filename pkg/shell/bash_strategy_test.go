@@ -42,12 +42,12 @@ func TestBashStrategy_ArgsWrapper(t *testing.T) {
 		{
 			name:     "empty slice",
 			args:     []string{},
-			expected: []string{"-i"},
+			expected: []string{},
 		},
 		{
 			name:     "additional arguments",
 			args:     []string{"arg1", "arg2"},
-			expected: []string{"-i", "arg1", "arg2"},
+			expected: []string{"arg1", "arg2"},
 		},
 	}
 	for _, tt := range tests {

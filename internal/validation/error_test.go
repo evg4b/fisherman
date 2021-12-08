@@ -29,7 +29,7 @@ func TestError_Error(t *testing.T) {
 			expected: "message",
 		},
 		{
-			name:     "Message with prefix and arguments",
+			name:     "Message without prefix but with arguments",
 			err:      Errorf("", "message %s %d", "test", 13),
 			expected: "message test 13",
 		},
