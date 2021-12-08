@@ -14,9 +14,26 @@ func TestFilter(t *testing.T) {
 		source   []string
 		expected []string
 	}{
-		{name: "", source: []string{"#1", "2", "#3", "4"}, expected: []string{"#1", "#3"}},
-		{name: "", source: []string{"1", "2", "3", "4"}, expected: []string{}},
-		{name: "", source: []string{"#1", "#2", "#3", "#4"}, expected: []string{"#1", "#2", "#3", "#4"}},
+		{
+			name:     "empty slice",
+			source:   []string{},
+			expected: []string{},
+		},
+		{
+			name:     "two elements are matched",
+			source:   []string{"#1", "2", "#3", "4"},
+			expected: []string{"#1", "#3"},
+		},
+		{
+			name:     "no matched elements",
+			source:   []string{"1", "2", "3", "4"},
+			expected: []string{},
+		},
+		{
+			name:     "all elements are matched",
+			source:   []string{"#1", "#2", "#3", "#4"},
+			expected: []string{"#1", "#2", "#3", "#4"},
+		},
 	}
 
 	for _, tt := range tests {

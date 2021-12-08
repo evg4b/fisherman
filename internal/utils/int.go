@@ -1,8 +1,10 @@
 package utils
 
+import "errors"
+
 func Min(values ...int) int {
 	if len(values) == 0 {
-		panic("fail")
+		panic(errors.New("min: no arguments"))
 	}
 
 	minValue := values[0]
@@ -17,7 +19,7 @@ func Min(values ...int) int {
 
 func Max(values ...int) int {
 	if len(values) == 0 {
-		panic("fail")
+		panic(errors.New("max: no arguments"))
 	}
 
 	maxValue := values[0]
