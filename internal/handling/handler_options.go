@@ -22,7 +22,7 @@ func WithHooksConfig(configs *configuration.HooksConfig) handlerOptions {
 	}
 }
 
-func WithGlobalVars(globalVars Variables) handlerOptions {
+func WithGlobalVars(globalVars map[string]interface{}) handlerOptions {
 	return func(h *HookHandler) {
 		h.globalVars = globalVars
 	}

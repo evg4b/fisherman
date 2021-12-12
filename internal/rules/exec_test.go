@@ -2,7 +2,6 @@ package rules_test
 
 import (
 	"context"
-	"fisherman/internal/rules"
 	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"io"
@@ -149,15 +148,14 @@ func TestExec_Check(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rule := Exec{
-				BaseRule: BaseRule{Type: ExecType},
-				Commands: tt.commands,
-				Env:      tt.env,
-			}
-
-			rule.Init(
-				rules.WithCwd("/"),
-				rules.WithEnv(envWrapper([]string{
+			rule := makeRule(
+				&Exec{
+					BaseRule: BaseRule{Type: ExecType},
+					Commands: tt.commands,
+					Env:      tt.env,
+				},
+				WithCwd("/"),
+				WithEnv(envWrapper([]string{
 					"GLOBAL_ENV=6482376487",
 					"PATH=Overwritten variable",
 					"VAR_1=Global value 1",

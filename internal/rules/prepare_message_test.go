@@ -3,7 +3,6 @@ package rules_test
 import (
 	"context"
 	"fisherman/internal/configuration"
-	"fisherman/internal/rules"
 	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"io/ioutil"
@@ -23,8 +22,8 @@ func TestPrepareMessage_Check(t *testing.T) {
 	t.Run("not configured rule", func(t *testing.T) {
 		rule := makeRule(
 			&PrepareMessage{},
-			rules.WithArgs([]string{messageFilePath}),
-			rules.WithFileSystem(fs),
+			WithArgs([]string{messageFilePath}),
+			WithFileSystem(fs),
 		)
 
 		err := rule.Check(context.TODO(), ioutil.Discard)
@@ -35,8 +34,8 @@ func TestPrepareMessage_Check(t *testing.T) {
 	t.Run("succeeded check ", func(t *testing.T) {
 		rule := makeRule(
 			&PrepareMessage{Message: message},
-			rules.WithArgs([]string{messageFilePath}),
-			rules.WithFileSystem(fs),
+			WithArgs([]string{messageFilePath}),
+			WithFileSystem(fs),
 		)
 
 		err := rule.Check(context.TODO(), ioutil.Discard)

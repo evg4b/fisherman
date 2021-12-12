@@ -53,15 +53,16 @@ func TestAddToIndex_Check(t *testing.T) {
 			AddGlobMock.When("*.css").Then(nil).
 			AddGlobMock.When("mocks").Then(nil)
 
-		rule := AddToIndex{
-			Globs: []Glob{
-				{"glob1/*.go", true},
-				{"*.css", true},
-				{"mocks", true},
+		rule := makeRule(
+			&AddToIndex{
+				Globs: []Glob{
+					{"glob1/*.go", true},
+					{"*.css", true},
+					{"mocks", true},
+				},
 			},
-		}
-
-		rule.Init(WithRepository(repo))
+			WithRepository(repo),
+		)
 
 		err := rule.Check(context.TODO(), ioutil.Discard)
 
@@ -74,15 +75,16 @@ func TestAddToIndex_Check(t *testing.T) {
 			AddGlobMock.When("*.css").Then(syserrors.New("testError")).
 			AddGlobMock.When("mocks").Then(nil)
 
-		rule := AddToIndex{
-			Globs: []Glob{
-				{"glob1/*.go", true},
-				{"*.css", true},
-				{"mocks", true},
+		rule := makeRule(
+			&AddToIndex{
+				Globs: []Glob{
+					{"glob1/*.go", true},
+					{"*.css", true},
+					{"mocks", true},
+				},
 			},
-		}
-
-		rule.Init(WithRepository(repo))
+			WithRepository(repo),
+		)
 
 		err := rule.Check(context.TODO(), ioutil.Discard)
 
@@ -106,15 +108,17 @@ func TestAddToIndex_Check(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				rule := AddToIndex{
-					BaseRule: BaseRule{Type: AddToIndexType},
-					Globs: []Glob{
-						{"glob1/*.go", tt.isRequired},
-						{"*.css", tt.isRequired},
-						{"mocks", tt.isRequired},
+				rule := makeRule(
+					&AddToIndex{
+						BaseRule: BaseRule{Type: AddToIndexType},
+						Globs: []Glob{
+							{"glob1/*.go", tt.isRequired},
+							{"*.css", tt.isRequired},
+							{"mocks", tt.isRequired},
+						},
 					},
-				}
-				rule.Init(WithRepository(repo))
+					WithRepository(repo),
+				)
 
 				err := rule.Check(context.TODO(), ioutil.Discard)
 

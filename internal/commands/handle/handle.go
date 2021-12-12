@@ -15,7 +15,7 @@ type Command struct {
 	usage        string
 	engine       expression.Engine
 	config       *cnfg.HooksConfig
-	globalVars   cnfg.Variables
+	globalVars   map[string]interface{}
 	cwd          string
 	fs           billy.Filesystem
 	repo         internal.Repository
@@ -25,10 +25,13 @@ type Command struct {
 	configFiles  map[string]string
 }
 
+const defaultWorkerCount = 5
+
 func NewCommand(options ...commandOption) *Command {
 	command := &Command{
-		flagSet: flag.NewFlagSet("handle", flag.ExitOnError),
-		usage:   "starts hook processing based on the config file (for debugging only)",
+		flagSet:      flag.NewFlagSet("handle", flag.ExitOnError),
+		usage:        "starts hook processing based on the config file (for debugging only)",
+		workersCount: defaultWorkerCount,
 	}
 	command.flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 
@@ -39,10 +42,10 @@ func NewCommand(options ...commandOption) *Command {
 	return command
 }
 
-func (command *Command) Name() string {
-	return command.flagSet.Name()
+func (c *Command) Name() string {
+	return c.flagSet.Name()
 }
 
-func (command *Command) Description() string {
-	return command.usage
+func (c *Command) Description() string {
+	return c.usage
 }

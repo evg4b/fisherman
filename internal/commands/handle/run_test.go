@@ -6,6 +6,7 @@ import (
 	. "fisherman/internal/commands/handle"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
+	"fisherman/internal/rules"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"runtime"
@@ -30,16 +31,24 @@ func TestCommand_Run(t *testing.T) {
 		GetLastTagMock.Return("1.0.0", nil).
 		GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil)
 
+	validRule := mocks.NewRuleMock(t).
+		GetTypeMock.Return(rules.ExecType).
+		InitMock.Return().
+		GetPositionMock.Return(rules.Scripts).
+		CompileMock.Return().
+		GetContitionMock.Return("").
+		GetPrefixMock.Return("prefix-").
+		CheckMock.Return(nil)
+
 	t.Run("runs correctly", func(t *testing.T) {
 		command := NewCommand(
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
-					Rules: []configuration.Rule{
-						mocks.NewRuleMock(t),
-					},
+					Rules: []configuration.Rule{validRule},
 				},
 			}),
 			WithRepository(repoStub),
+			WithWorkersCount(5),
 		)
 
 		err := command.Init([]string{"--hook", "pre-commit"})
@@ -75,8 +84,7 @@ func TestCommand_Run(t *testing.T) {
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{
-						mocks.NewRuleMock(t).
-							CheckMock.Return(errors.New("test error")),
+						validRule.CheckMock.Return(errors.New("test error")),
 					},
 				},
 			}),
@@ -88,17 +96,14 @@ func TestCommand_Run(t *testing.T) {
 
 		err = command.Run(context.TODO())
 
-		assert.EqualError(t, err, "test error")
+		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})
 
 	t.Run("call handler with global variables", func(t *testing.T) {
 		command := NewCommand(
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
-					Rules: []configuration.Rule{
-						mocks.NewRuleMock(t).
-							CheckMock.Return(nil),
-					},
+					Rules: []configuration.Rule{validRule},
 				},
 			}),
 			WithGlobalVars(globalVars),
@@ -113,6 +118,6 @@ func TestCommand_Run(t *testing.T) {
 
 		err = command.Run(context.TODO())
 
-		assert.EqualError(t, err, "test error")
+		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})
 }

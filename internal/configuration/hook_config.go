@@ -27,8 +27,6 @@ type ExtractVariable struct {
 	Expression string `yaml:"expression"`
 }
 
-type Variables = map[string]interface{}
-
 type HookConfig struct {
 	StaticVariables  map[string]string
 	ExtractVariables []ExtractVariable
@@ -57,7 +55,7 @@ func (c *HookConfig) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (c *HookConfig) Compile(global Variables) (Variables, error) {
+func (c *HookConfig) Compile(global map[string]interface{}) (map[string]interface{}, error) {
 	variables := map[string]interface{}{}
 	err := mergo.MergeWithOverwrite(&variables, global)
 	if err != nil {

@@ -3,8 +3,8 @@ package handling_test
 import (
 	"context"
 	"fisherman/internal/configuration"
+	"fisherman/internal/constants"
 	"fisherman/internal/expression"
-	"fisherman/internal/handling"
 	. "fisherman/internal/handling"
 	"fisherman/internal/rules"
 	"fisherman/internal/validation"
@@ -20,31 +20,34 @@ import (
 func TestHookHandler_Handle(t *testing.T) {
 	engine := expression.NewGoExpressionEngine()
 
+	validRule := mocks.NewRuleMock(t).
+		GetTypeMock.Return(rules.ExecType).
+		InitMock.Return().
+		GetPositionMock.Return(rules.Scripts).
+		CompileMock.Return().
+		GetContitionMock.Return("").
+		GetPrefixMock.Return("prefix-").
+		CheckMock.Return(nil)
+
 	testCases := []struct {
 		name         string
 		engine       expression.Engine
-		rules        []configuration.Rule
+		rules        []*mocks.RuleMock
 		workersCount uint
 		expectedErr  string
 	}{
 		{
 			name:   "rules checked successfully",
 			engine: engine,
-			rules: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST1").
-					GetContitionMock.Return("").
-					GetTypeMock.Return("rule1").
+			rules: []*mocks.RuleMock{
+				ruleMock(t, "TEST1", "", rules.ShellScriptType).
+					InitMock.Return().
 					CheckMock.Return(nil),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST2").
-					GetContitionMock.Return("1 == 1").
-					GetTypeMock.Return("rule2").
+				ruleMock(t, "TEST2", "1 == 1", rules.ExecType).
+					InitMock.Return().
 					CheckMock.Return(nil),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST3").
-					GetContitionMock.Return("1 == 3").
-					GetTypeMock.Return("rule3").
+				ruleMock(t, "TEST3", "1 == 3", rules.SuppressCommitFilesType).
+					InitMock.Return().
 					CheckMock.Return(nil),
 			},
 			workersCount: 2,
@@ -53,20 +56,16 @@ func TestHookHandler_Handle(t *testing.T) {
 			name: "expression engin returns error",
 			engine: mocks.NewEngineMock(t).
 				EvalMock.Return(false, validation.Errorf("test-rule", "test")),
-			rules: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("").
-					GetTypeMock.Return("rule1").
+			rules: []*mocks.RuleMock{
+				ruleMock(t, "TEST1", "", rules.ShellScriptType).
+					InitMock.Return().
 					CheckMock.Return(nil),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("1 == 1").
-					GetTypeMock.Return("rule2"),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("1 == 2").
-					GetTypeMock.Return("rule3"),
+				ruleMock(t, "TEST", "1 == 1", rules.ExecType).
+					InitMock.Return().
+					CheckMock.Return(nil),
+				ruleMock(t, "TEST", "1 == 2", rules.SuppressCommitFilesType).
+					InitMock.Return().
+					CheckMock.Return(nil),
 			},
 			workersCount: 2,
 			expectedErr:  "[test-rule] test",
@@ -74,33 +73,27 @@ func TestHookHandler_Handle(t *testing.T) {
 		{
 			name:   "rule returns error",
 			engine: engine,
-			rules: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("").
-					GetTypeMock.Return("rule1").
+			rules: []*mocks.RuleMock{
+				ruleMock(t, "TEST", "", rules.ShellScriptType).
+					InitMock.Return().
 					CheckMock.Return(nil),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("1 == 1").
-					GetTypeMock.Return("rule2").
+				ruleMock(t, "TEST", "1 == 1", rules.ExecType).
+					InitMock.Return().
 					CheckMock.Return(validation.Errorf("test-rule", "test")),
-				mocks.NewRuleMock(t).
-					GetPrefixMock.Return("TEST").
-					GetContitionMock.Return("1 == 3").
-					GetTypeMock.Return("rule3").
+				ruleMock(t, "TEST", "1 == 3", rules.SuppressCommitFilesType).
+					InitMock.Return().
 					CheckMock.Return(nil),
 			},
 			workersCount: 2,
-			expectedErr:  "1 error occurred:\n\t* [rule2] [test-rule] test\n\n",
+			expectedErr:  "1 error occurred:\n\t* [exec] [test-rule] test\n\n",
 		},
 		{
 			name:   "configuration error",
 			engine: engine,
-			rules: []configuration.Rule{
-				mocks.NewRuleMock(t).GetContitionMock.Return(""),
-				mocks.NewRuleMock(t).GetContitionMock.Return(""),
-				mocks.NewRuleMock(t).GetContitionMock.Return(""),
+			rules: []*mocks.RuleMock{
+				ruleMock(t, "TEST", "", rules.ShellScriptType),
+				ruleMock(t, "TEST", "", rules.ShellScriptType),
+				ruleMock(t, "TEST", "", rules.ShellScriptType),
 			},
 			workersCount: 0,
 			expectedErr:  "incorrect workers count",
@@ -110,13 +103,12 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs rules", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-
-				handler, err := handling.NewHookHandler(
+				handler, err := NewHookHandler(
 					"pre-commit",
-					WithExpressionEngine(engine),
+					WithExpressionEngine(tt.engine),
 					WithHooksConfig(&configuration.HooksConfig{
 						PreCommitHook: &configuration.HookConfig{
-							Rules: tt.rules,
+							Rules: applyPosition(tt.rules, rules.PreScripts),
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
@@ -134,12 +126,12 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs scripts", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-				handler, err := handling.NewHookHandler(
+				handler, err := NewHookHandler(
 					"pre-commit",
 					WithExpressionEngine(tt.engine),
 					WithHooksConfig(&configuration.HooksConfig{
 						PreCommitHook: &configuration.HookConfig{
-							Rules: tt.rules,
+							Rules: applyPosition(tt.rules, rules.Scripts),
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
@@ -157,12 +149,12 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs post scripts", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-				handler, err := handling.NewHookHandler(
+				handler, err := NewHookHandler(
 					"pre-commit",
 					WithExpressionEngine(tt.engine),
 					WithHooksConfig(&configuration.HooksConfig{
 						PreCommitHook: &configuration.HookConfig{
-							Rules: tt.rules,
+							Rules: applyPosition(tt.rules, rules.PostScripts),
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
@@ -180,39 +172,37 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("run rules in correct orders", func(t *testing.T) {
 		order := []string{}
 
-		checkHandler := func(ruleType string) func(context.Context, io.Writer) error {
-			return func(ec context.Context, w io.Writer) error {
-				order = append(order, ruleType)
+		ruleDef := func(ruleType string, position byte) configuration.Rule {
+			checkHandler := func() func(context.Context, io.Writer) error {
+				return func(ec context.Context, w io.Writer) error {
+					order = append(order, ruleType)
 
-				return nil
+					return nil
+				}
 			}
+
+			return mocks.NewRuleMock(t).
+				GetTypeMock.Return(rules.ExecType).
+				InitMock.Return().
+				CompileMock.Return().
+				GetContitionMock.Return("").
+				GetPrefixMock.Return("prefix-").
+				CheckMock.Set(checkHandler()).
+				GetPositionMock.Return(position)
 		}
 
-		handler, err := handling.NewHookHandler(
+		handler, err := NewHookHandler(
 			"pre-commit",
 			WithExpressionEngine(mocks.NewEngineMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{
-						mocks.NewRuleMock(t).
-							GetContitionMock.Return("").
-							GetPrefixMock.Return("rule").
-							CheckMock.Set(checkHandler("rule")).
-							GetPositionMock.Return(rules.PreScripts),
-						mocks.NewRuleMock(t).
-							GetContitionMock.Return("").
-							GetPrefixMock.Return("script").
-							CheckMock.Set(checkHandler("script")).
-							GetPositionMock.Return(rules.Scripts),
-						mocks.NewRuleMock(t).
-							GetContitionMock.Return("").
-							GetPrefixMock.Return("post-script").
-							CheckMock.Set(checkHandler("post-script")).
-							GetPositionMock.Return(rules.PostScripts),
+						ruleDef("rule", rules.PreScripts),
+						ruleDef("script", rules.Scripts),
+						ruleDef("post-script", rules.PostScripts),
 					},
 				},
 			}),
-			WithWorkersCount(10),
 		)
 
 		guards.NoError(err)
@@ -224,22 +214,13 @@ func TestHookHandler_Handle(t *testing.T) {
 	})
 
 	t.Run("canceled context", func(t *testing.T) {
-		randomRule := func() configuration.Rule {
-			return mocks.NewRuleMock(t).
-				GetContitionMock.Return("").
-				GetPrefixMock.Return("test-").
-				GetPositionMock.Return(rules.Scripts)
-		}
-
-		handler, err := handling.NewHookHandler(
+		handler, err := NewHookHandler(
 			"pre-commit",
 			WithExpressionEngine(mocks.NewEngineMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{
-						randomRule(),
-						randomRule(),
-						randomRule(),
+						validRule,
 					},
 				},
 			}),
@@ -258,4 +239,47 @@ func TestHookHandler_Handle(t *testing.T) {
 
 		assert.EqualError(t, err, "1 error occurred:\n\t* context canceled\n\n")
 	})
+
+	t.Run("hook config is not presented", func(t *testing.T) {
+		_, err := NewHookHandler(
+			constants.PreCommitHook,
+			WithHooksConfig(&configuration.HooksConfig{
+				PreCommitHook: nil,
+			}),
+		)
+
+		assert.Error(t, err, ErrNotPresented.Error())
+	})
+
+	t.Run("invalid hook name", func(t *testing.T) {
+		_, err := NewHookHandler(
+			"unknown-hook",
+			WithHooksConfig(&configuration.HooksConfig{
+				PreCommitHook: nil,
+			}),
+		)
+
+		assert.Error(t, err, "'unknown-hook' is not valid hook name")
+	})
+}
+
+func ruleMock(t *testing.T, prefix, condition, ruleType string) *mocks.RuleMock {
+	t.Helper()
+
+	return mocks.NewRuleMock(t).
+		GetPrefixMock.Return(prefix).
+		GetContitionMock.Return(condition).
+		GetTypeMock.Return(ruleType).
+		CompileMock.Return().
+		InitMock.Return()
+}
+
+func applyPosition(rules []*mocks.RuleMock, position byte) []configuration.Rule {
+	updatedRules := []configuration.Rule{}
+	for _, rule := range rules {
+		rule.GetPositionMock.Return(position)
+		updatedRules = append(updatedRules, rule)
+	}
+
+	return updatedRules
 }

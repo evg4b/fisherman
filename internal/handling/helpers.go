@@ -3,33 +3,35 @@ package handling
 import (
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
+	"fmt"
 )
 
-func getConfig(name string, config *configuration.HooksConfig) *configuration.HookConfig {
+// nolint: cyclop
+func getConfig(name string, config *configuration.HooksConfig) (*configuration.HookConfig, error) {
 	switch name {
 	case constants.ApplyPatchMsgHook:
-		return config.ApplyPatchMsgHook
+		return config.ApplyPatchMsgHook, nil
 	case constants.CommitMsgHook:
-		return config.CommitMsgHook
+		return config.CommitMsgHook, nil
 	case constants.FsMonitorWatchmanHook:
-		return config.FsMonitorWatchmanHook
+		return config.FsMonitorWatchmanHook, nil
 	case constants.PostUpdateHook:
-		return config.PostUpdateHook
+		return config.PostUpdateHook, nil
 	case constants.PreApplyPatchHook:
-		return config.PreApplyPatchHook
+		return config.PreApplyPatchHook, nil
 	case constants.PreCommitHook:
-		return config.PreCommitHook
+		return config.PreCommitHook, nil
 	case constants.PrePushHook:
-		return config.PrePushHook
+		return config.PrePushHook, nil
 	case constants.PreRebaseHook:
-		return config.PreRebaseHook
+		return config.PreRebaseHook, nil
 	case constants.PreReceiveHook:
-		return config.PreReceiveHook
+		return config.PreReceiveHook, nil
 	case constants.PrepareCommitMsgHook:
-		return config.PrepareCommitMsgHook
+		return config.PrepareCommitMsgHook, nil
 	case constants.UpdateHook:
-		return config.UpdateHook
+		return config.UpdateHook, nil
 	}
 
-	panic("incorrect hook name")
+	return nil, fmt.Errorf("'%s' is not valid hook name", name)
 }

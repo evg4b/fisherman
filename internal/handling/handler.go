@@ -13,6 +13,12 @@ import (
 	"github.com/hashicorp/go-multierror"
 )
 
+var ErrNotPresented = errors.New("configuration for hook is not presented")
+
+type CompilableConfig interface {
+	Compile(engine expression.Engine, global map[string]interface{}) (map[string]interface{}, error)
+}
+
 type Handler interface {
 	Handle(ctx context.Context) error
 }
@@ -20,7 +26,7 @@ type Handler interface {
 type HookHandler struct {
 	engine       expression.Engine
 	configs      *configuration.HooksConfig
-	globalVars   Variables
+	globalVars   map[string]interface{}
 	cwd          string
 	fs           billy.Filesystem
 	repo         internal.Repository
@@ -49,7 +55,11 @@ func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error
 		option(h)
 	}
 
-	config := getConfig(hook, h.configs)
+	config, err := getConfig(hook, h.configs)
+	if err != nil {
+		return nil, err
+	}
+
 	if config == nil {
 		return nil, ErrNotPresented
 	}
@@ -71,7 +81,7 @@ func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error
 		)
 	}
 
-	err := multiError.ErrorOrNil()
+	err = multiError.ErrorOrNil()
 	if err != nil {
 		return nil, errors.Errorf("%s hook: %v", hook, err)
 	}

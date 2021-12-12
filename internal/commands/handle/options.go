@@ -22,7 +22,7 @@ func WithHooksConfig(config *configuration.HooksConfig) commandOption {
 	}
 }
 
-func WithGlobalVars(globalVars configuration.Variables) commandOption {
+func WithGlobalVars(globalVars map[string]interface{}) commandOption {
 	return func(h *Command) {
 		h.globalVars = globalVars
 	}
