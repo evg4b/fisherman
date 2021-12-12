@@ -32,30 +32,6 @@ func TestIsEmpty(t *testing.T) {
 	}
 }
 
-func TestOriginalOrNA(t *testing.T) {
-	tests := []struct {
-		name     string
-		value    string
-		expected string
-	}{
-		{name: "return 'N/A' for empty string", value: "", expected: "N/A"},
-		{name: "return 'N/A' for spaces only", value: "  ", expected: "N/A"},
-		{name: "return 'N/A' for tabs only", value: "\t\t", expected: "N/A"},
-		{name: "return 'N/A' for newline charsets only", value: "\n\n", expected: "N/A"},
-		{name: "return 'N/A' for mixed witespace string", value: "\t\n ", expected: "N/A"},
-		{name: "return original string for string without space", value: "2", expected: "2"},
-		{name: "return original for not empty string with space", value: " 2", expected: " 2"},
-		{name: "return original for not empty string with tab", value: "\t2", expected: "\t2"},
-		{name: "return original for not empty string with newline", value: "\n2", expected: "\n2"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, OriginalOrNA(tt.value))
-		})
-	}
-}
-
 func TestFirstNotEmpty(t *testing.T) {
 	defaultValue := "default-value"
 

@@ -10,6 +10,8 @@ import (
 	"fisherman/pkg/log"
 )
 
+const noFilesLabel = "N/A"
+
 func (c *Command) Init(args []string) error {
 	return c.flagSet.Parse(args)
 }
@@ -41,11 +43,12 @@ func (c *Command) Run(ctx context.Context) error {
 
 	log.Debugf("handler for '%s' hook founded", c.hook)
 
+	files := c.configFiles
 	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
 		constants.HookName:                 c.hook,
-		constants.GlobalConfigPath:         utils.OriginalOrNA(c.configFiles[configuration.GlobalMode]),
-		constants.RepoConfigPath:           utils.OriginalOrNA(c.configFiles[configuration.RepoMode]),
-		constants.LocalConfigPath:          utils.OriginalOrNA(c.configFiles[configuration.LocalMode]),
+		constants.GlobalConfigPath:         utils.FirstNotEmpty(files[configuration.GlobalMode], noFilesLabel),
+		constants.RepoConfigPath:           utils.FirstNotEmpty(files[configuration.RepoMode], noFilesLabel),
+		constants.LocalConfigPath:          utils.FirstNotEmpty(files[configuration.LocalMode], noFilesLabel),
 		constants.FishermanVersionVariable: constants.Version,
 	})
 
