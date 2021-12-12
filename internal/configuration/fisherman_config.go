@@ -11,7 +11,8 @@ type FishermanConfig struct {
 	DefaultShell    string                 `yaml:"default-shell,omitempty"`
 }
 
-var DefaultConfig = `
+var DefaultConfig = `# Documentation {{URL}}
+
 hooks:
   commit-msg:
     rules:

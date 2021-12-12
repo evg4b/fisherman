@@ -117,7 +117,12 @@ func (command *Command) writeConfig() error {
 	}
 
 	if !exist {
-		err := util.WriteFile(command.files, configPath, []byte(configuration.DefaultConfig), os.ModePerm)
+		content := configuration.DefaultConfig
+		utils.FillTemplate(&content, map[string]interface{}{
+			"URL": constants.ConfigurationFilesDocksURL,
+		})
+
+		err := util.WriteFile(command.files, configPath, []byte(content), os.ModePerm)
 		if err != nil {
 			return err
 		}
