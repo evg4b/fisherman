@@ -51,10 +51,7 @@ func TestCommand_Run(t *testing.T) {
 			WithWorkersCount(5),
 		)
 
-		err := command.Init([]string{"--hook", "pre-commit"})
-		assert.NoError(t, err)
-
-		err = command.Run(context.TODO())
+		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
 		assert.NoError(t, err)
 	})
@@ -71,10 +68,7 @@ func TestCommand_Run(t *testing.T) {
 			WithRepository(repoStub),
 		)
 
-		err := command.Init([]string{"--hook", "test"})
-		assert.NoError(t, err)
-
-		err = command.Run(context.TODO())
+		err := command.Run(context.TODO(), []string{"--hook", "test"})
 
 		assert.EqualError(t, err, "'test' is not valid hook name")
 	})
@@ -91,10 +85,7 @@ func TestCommand_Run(t *testing.T) {
 			WithRepository(repoStub),
 		)
 
-		err := command.Init([]string{"--hook", "pre-commit"})
-		assert.NoError(t, err)
-
-		err = command.Run(context.TODO())
+		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
 		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})
@@ -113,10 +104,7 @@ func TestCommand_Run(t *testing.T) {
 				GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil)),
 		)
 
-		err := command.Init([]string{"--hook", "pre-commit"})
-		assert.NoError(t, err)
-
-		err = command.Run(context.TODO())
+		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
 		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})

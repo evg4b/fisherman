@@ -1,7 +1,6 @@
 package app_test
 
 import (
-	"errors"
 	"fisherman/internal"
 	. "fisherman/internal/app"
 	"fisherman/testing/mocks"
@@ -13,54 +12,38 @@ import (
 
 func TestCliCommands_GetCommand(t *testing.T) {
 	command1 := mocks.NewCliCommandMock(t).
-		NameMock.Return("test").
-		InitMock.Return(nil)
+		NameMock.Return("test")
 
 	command2 := mocks.NewCliCommandMock(t).
-		NameMock.Return("demo").
-		InitMock.When([]string{"arg1", "arg2"}).Then(nil)
+		NameMock.Return("demo")
 
 	command3 := mocks.NewCliCommandMock(t).
-		NameMock.Return("fail").
-		InitMock.Return(errors.New("init failed"))
+		NameMock.Return("fail")
 
 	tests := []struct {
 		name        string
 		commands    CliCommands
-		args        []string
+		commandName string
 		expected    internal.CliCommand
 		expectedErr string
 	}{
 		{
-			name:     "returns target command correctly",
-			commands: CliCommands{command1, command2, command3},
-			expected: command1,
-			args:     []string{"test"},
-		},
-		{
-			name:     "returns target command correctly with arguments",
-			commands: CliCommands{command1, command2, command3},
-			expected: command2,
-			args:     []string{"demo", "arg1", "arg2"},
-		},
-		{
-			name:        "init returns error",
+			name:        "returns target command correctly",
 			commands:    CliCommands{command1, command2, command3},
-			expected:    nil,
-			args:        []string{"fail"},
-			expectedErr: "init failed",
+			expected:    command1,
+			commandName: "test",
 		},
 		{
 			name:        "unregistered command",
 			commands:    CliCommands{command1, command2, command3},
 			expected:    nil,
-			args:        []string{"unregistered-command"},
+			commandName: "unregistered-command",
 			expectedErr: "unknown command: unregistered-command",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := tt.commands.GetCommand(tt.args)
+			actual, err := tt.commands.GetCommand(tt.commandName)
 
 			testutils.AssertError(t, tt.expectedErr, err)
 			assert.Equal(t, tt.expected, actual)

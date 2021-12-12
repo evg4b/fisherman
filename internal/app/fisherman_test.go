@@ -93,9 +93,8 @@ func TestRunner_Interrupt(t *testing.T) {
 	chanel <- os.Interrupt
 
 	commandMock := mocks.NewCliCommandMock(t).
-		InitMock.Return(nil).
 		NameMock.Return("test-command").
-		RunMock.Set(func(ctx context.Context) error {
+		RunMock.Set(func(ctx context.Context, _ []string) error {
 		<-ctx.Done()
 
 		return ctx.Err()
@@ -126,7 +125,6 @@ func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {
 
 	return mocks.NewCliCommandMock(t).
 		NameMock.Return(name).
-		InitMock.Return(nil).
 		DescriptionMock.Return(fmt.Sprintf("This is %s command", name))
 }
 

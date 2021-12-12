@@ -15,11 +15,8 @@ func TestCommand_Run(t *testing.T) {
 	log.SetOutput(output)
 
 	command := NewCommand()
-	err := command.Init([]string{})
 
-	assert.NoError(t, err)
-
-	err = command.Run(context.TODO())
+	err := command.Run(context.TODO(), []string{})
 
 	assert.NoError(t, err)
 	assert.Equal(t, "fisherman@x.x.x", output.String())
@@ -27,16 +24,12 @@ func TestCommand_Run(t *testing.T) {
 
 func TestCommand_Description(t *testing.T) {
 	command := NewCommand()
-	err := command.Init([]string{})
 
-	assert.NoError(t, err)
 	assert.NotEmpty(t, command.Description())
 }
 
 func TestCommand_Name(t *testing.T) {
 	command := NewCommand()
-	err := command.Init([]string{})
 
-	assert.NoError(t, err)
 	assert.Equal(t, "version", command.Name())
 }

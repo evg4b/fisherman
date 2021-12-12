@@ -25,8 +25,7 @@ type Repository interface {
 
 // CliCommand is interface to define cli command.
 type CliCommand interface {
-	Init(args []string) error
-	Run(ctx context.Context) error
+	Run(ctx context.Context, args []string) error
 	Name() string
 	Description() string
 }

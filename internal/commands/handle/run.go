@@ -12,11 +12,12 @@ import (
 
 const noFilesLabel = "N/A"
 
-func (c *Command) Init(args []string) error {
-	return c.flagSet.Parse(args)
-}
+func (c *Command) Run(ctx context.Context, args []string) error {
+	err := c.flagSet.Parse(args)
+	if err != nil {
+		return err
+	}
 
-func (c *Command) Run(ctx context.Context) error {
 	handler, err := handling.NewHookHandler(
 		c.hook,
 		handling.WithExpressionEngine(c.engine),

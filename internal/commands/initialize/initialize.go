@@ -54,18 +54,19 @@ func NewCommand(files billy.Filesystem, app internal.AppInfo, user *user.User) *
 	return command
 }
 
-func (command *Command) Init(args []string) error {
-	return command.flagSet.Parse(args)
-}
+func (c *Command) Run(ctx context.Context, args []string) error {
+	err := c.flagSet.Parse(args)
+	if err != nil {
+		return err
+	}
 
-func (command *Command) Run(ctx context.Context) error {
-	log.Debugf("Statring initialization (force = %t)", command.force)
-	if !command.force {
+	log.Debugf("Statring initialization (force = %t)", c.force)
+	if !c.force {
 		var result *multierror.Error
 		for _, hookName := range constants.HooksNames {
-			hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
+			hookPath := filepath.Join(c.app.Cwd, ".git", "hooks", hookName)
 			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
-			exist, err := utils.Exists(command.files, hookPath)
+			exist, err := utils.Exists(c.files, hookPath)
 			if err != nil {
 				return err
 			}
@@ -83,9 +84,9 @@ func (command *Command) Run(ctx context.Context) error {
 	}
 
 	for _, hookName := range constants.HooksNames {
-		hookPath := filepath.Join(command.app.Cwd, ".git", "hooks", hookName)
+		hookPath := filepath.Join(c.app.Cwd, ".git", "hooks", hookName)
 
-		err := util.WriteFile(command.files, hookPath, buildHook(hookName, command.getBinaryPath(), command.absolute), os.ModePerm)
+		err := util.WriteFile(c.files, hookPath, buildHook(hookName, c.getBinaryPath(), c.absolute), os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -93,25 +94,25 @@ func (command *Command) Run(ctx context.Context) error {
 		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
 	}
 
-	return command.writeConfig()
+	return c.writeConfig()
 }
 
-func (command *Command) Name() string {
-	return command.flagSet.Name()
+func (c *Command) Name() string {
+	return c.flagSet.Name()
 }
 
-func (command *Command) Description() string {
-	return command.usage
+func (c *Command) Description() string {
+	return c.usage
 }
 
-func (command *Command) writeConfig() error {
-	configFolder, err := configuration.GetConfigFolder(command.user, command.app.Cwd, command.mode)
+func (c *Command) writeConfig() error {
+	configFolder, err := configuration.GetConfigFolder(c.user, c.app.Cwd, c.mode)
 	if err != nil {
 		return err
 	}
 
 	configPath := filepath.Join(configFolder, constants.AppConfigNames[0])
-	exist, err := utils.Exists(command.files, configPath)
+	exist, err := utils.Exists(c.files, configPath)
 	if err != nil {
 		return err
 	}
@@ -122,7 +123,7 @@ func (command *Command) writeConfig() error {
 			"URL": constants.ConfigurationFilesDocksURL,
 		})
 
-		err := util.WriteFile(command.files, configPath, []byte(content), os.ModePerm)
+		err := util.WriteFile(c.files, configPath, []byte(content), os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -131,9 +132,9 @@ func (command *Command) writeConfig() error {
 	return nil
 }
 
-func (command *Command) getBinaryPath() string {
-	if command.absolute {
-		return command.app.Executable
+func (c *Command) getBinaryPath() string {
+	if c.absolute {
+		return c.app.Executable
 	}
 
 	return constants.AppName

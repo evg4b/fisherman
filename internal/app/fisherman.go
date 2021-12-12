@@ -58,12 +58,13 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		return nil
 	}
 
-	command, err := r.commands.GetCommand(args)
+	commandName, commandArgs := splitArgs(args)
+	command, err := r.commands.GetCommand(commandName)
 	if err != nil {
 		return err
 	}
 
-	if err := command.Run(ctx); err != nil {
+	if err := command.Run(ctx, commandArgs); err != nil {
 		log.Debugf("Command '%s' finished with error, %v", command.Name(), err)
 
 		return err
@@ -79,4 +80,8 @@ func subscribeInteruption(interaption chan os.Signal, action func()) {
 		<-interaption
 		action()
 	}()
+}
+
+func splitArgs(args []string) (string, []string) {
+	return args[0], args[1:]
 }

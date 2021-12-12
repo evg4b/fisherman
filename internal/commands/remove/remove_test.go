@@ -60,10 +60,7 @@ func TestCommand_Run(t *testing.T) {
 				HomeDir: filepath.Join("usr", "home"),
 			})
 
-			err := command.Init([]string{})
-			assert.NoError(t, err)
-
-			err = command.Run(context.TODO())
+			err := command.Run(context.TODO(), []string{})
 
 			testutils.AssertError(t, tt.expectedErr, err)
 		})

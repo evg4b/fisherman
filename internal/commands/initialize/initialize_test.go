@@ -28,9 +28,7 @@ func TestCommand_Run(t *testing.T) {
 
 		command := NewCommand(fs, internal.AppInfo{Cwd: cwd}, &testutils.TestUser)
 
-		err := command.Init([]string{"--force"})
-		assert.NoError(t, err)
-		err = command.Run(context.TODO())
+		err := command.Run(context.TODO(), []string{"--force"})
 		assert.NoError(t, err)
 	})
 }
