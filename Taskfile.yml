@@ -26,12 +26,12 @@ tasks:
   test:
     desc: Runs all tests
     cmds:
-      - go test -cover ./...
+      - go test -timeout 1m -cover ./...
 
   test:ci:
     desc: '[For CI] Run all tests with coverage and race detection'
     cmds:
-      - go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+      - go test -timeout 1m -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
 
   test:docker:
     desc: ' Run all tests in docker container'
@@ -41,7 +41,7 @@ tasks:
   test:docker-cover:
     desc: ' Run all tests with coverage and race detection in docker container'
     cmds:
-      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
+      - docker run --rm -v $PWD:/usr/src/fisherman -w /usr/src/fisherman golang go test -timeout 1m -race -cover -coverprofile='coverage.xml' -covermode=atomic -v ./...
 
   lint:
     desc: Lints all code

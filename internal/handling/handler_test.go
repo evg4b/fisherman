@@ -1,7 +1,9 @@
 package handling_test
 
 import (
+	"context"
 	"fisherman/internal"
+	"fisherman/internal/appcontext"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
 	. "fisherman/internal/handling"
@@ -14,12 +16,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO: Add test for ctx Cancel
-
 func TestHookHandler_Handle(t *testing.T) {
 	ctx := mocks.NewExecutionContextMock(t).
 		OutputMock.Return(testutils.NopCloser(io.Discard)).
-		GlobalVariablesMock.Return(map[string]interface{}{}, nil)
+		GlobalVariablesMock.Return(map[string]interface{}{}, nil).
+		ValueMock.Return(nil).
+		DoneMock.Return(make(<-chan struct{})).
+		ErrMock.Return(nil)
 
 	engine := expression.NewGoExpressionEngine()
 
@@ -154,7 +157,6 @@ func TestHookHandler_Handle(t *testing.T) {
 				err := handler.Handle(ctx)
 
 				testutils.AssertError(t, tt.expectedErr, err)
-				print(tt.name)
 			})
 		}
 	})
@@ -197,5 +199,36 @@ func TestHookHandler_Handle(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"rule", "script", "post-script"}, order)
+	})
+
+	t.Run("canceled context", func(t *testing.T) {
+		randomRules := func() []configuration.Rule {
+			return []configuration.Rule{
+				mocks.NewRuleMock(t).
+					GetContitionMock.Return("").
+					GetPrefixMock.Return("test-"),
+			}
+		}
+
+		handler := HookHandler{
+			Engine:          engine,
+			Rules:           randomRules(),
+			Scripts:         randomRules(),
+			PostScriptRules: randomRules(),
+			WorkersCount:    4,
+		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		appCtx := appcontext.NewContext(
+			appcontext.WithBaseContext(ctx),
+			appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
+			appcontext.WithRepository(mocks.NewRepositoryMock(t)),
+		)
+
+		cancel()
+
+		err := handler.Handle(appCtx)
+
+		assert.EqualError(t, err, "1 error occurred:\n\t* context canceled\n\n")
 	})
 }

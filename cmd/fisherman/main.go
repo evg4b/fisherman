@@ -45,7 +45,6 @@ func main() {
 
 	log.Configure(config.Output)
 
-	// TODO: Add Signal Interrupt handler
 	ctx := context.Background()
 	engine := expression.NewGoExpressionEngine()
 
@@ -73,7 +72,6 @@ func main() {
 		app.WithSistemInterruptSignals(),
 	)
 
-	// TODO: Add interrupt event hadling (stopping)
 	if err = fishermanApp.Run(ctx, os.Args[1:]); err != nil {
 		panic(err)
 	}

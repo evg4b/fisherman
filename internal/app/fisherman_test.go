@@ -72,7 +72,7 @@ func TestRunner_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			appInstance := NewFishermanApp(
+			app := NewFishermanApp(
 				WithCommands(tt.commands),
 				WithFs(mocks.NewFilesystemMock(t)),
 				WithRepository(mocks.NewRepositoryMock(t)),
@@ -81,7 +81,7 @@ func TestRunner_Run(t *testing.T) {
 			)
 
 			assert.NotPanics(t, func() {
-				err := appInstance.Run(context.TODO(), tt.args)
+				err := app.Run(context.TODO(), tt.args)
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
 		})
@@ -101,7 +101,7 @@ func TestRunner_Interrupt(t *testing.T) {
 		return ctx.Err()
 	})
 
-	appInstance := NewFishermanApp(
+	app := NewFishermanApp(
 		WithCommands([]internal.CliCommand{commandMock}),
 		WithOutput(io.Discard),
 		WithFs(mocks.NewFilesystemMock(t)),
@@ -116,7 +116,7 @@ func TestRunner_Interrupt(t *testing.T) {
 		WithInterruptChanel(chanel),
 	)
 
-	err := appInstance.Run(context.Background(), []string{"test-command"})
+	err := app.Run(context.Background(), []string{"test-command"})
 
 	assert.EqualError(t, err, context.Canceled.Error())
 }
