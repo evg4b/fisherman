@@ -33,7 +33,7 @@ func TestCommand_Run(t *testing.T) {
 
 	validRule := mocks.NewRuleMock(t).
 		GetTypeMock.Return(rules.ExecType).
-		InitMock.Return().
+		ConfigureMock.Return().
 		GetPositionMock.Return(rules.Scripts).
 		CompileMock.Return().
 		GetContitionMock.Return("").

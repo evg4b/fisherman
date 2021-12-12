@@ -52,13 +52,13 @@ func (rule *BaseRule) errorf(message string, a ...interface{}) error {
 	return validation.Errorf(rule.GetPrefix(), message, a...)
 }
 
-func (rule *BaseRule) Init(options ...RuleOption) {
+func (rule *BaseRule) Configure(options ...RuleOption) {
 	for _, option := range options {
 		option(rule)
 	}
 }
 
-func (rule *BaseRule) Arg(index int) (string, error) {
+func (rule *BaseRule) arg(index int) (string, error) {
 	if index < 0 {
 		return "", errors.New("incorrect argument index")
 	}

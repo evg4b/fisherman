@@ -31,6 +31,12 @@ type RuleMock struct {
 	beforeCompileCounter uint64
 	CompileMock          mRuleMockCompile
 
+	funcConfigure          func(options ...rules.RuleOption)
+	inspectFuncConfigure   func(options ...rules.RuleOption)
+	afterConfigureCounter  uint64
+	beforeConfigureCounter uint64
+	ConfigureMock          mRuleMockConfigure
+
 	funcGetContition          func() (s1 string)
 	inspectFuncGetContition   func()
 	afterGetContitionCounter  uint64
@@ -54,12 +60,6 @@ type RuleMock struct {
 	afterGetTypeCounter  uint64
 	beforeGetTypeCounter uint64
 	GetTypeMock          mRuleMockGetType
-
-	funcInit          func(options ...rules.RuleOption)
-	inspectFuncInit   func(options ...rules.RuleOption)
-	afterInitCounter  uint64
-	beforeInitCounter uint64
-	InitMock          mRuleMockInit
 }
 
 // NewRuleMock returns a mock for configuration.Rule
@@ -75,6 +75,9 @@ func NewRuleMock(t minimock.Tester) *RuleMock {
 	m.CompileMock = mRuleMockCompile{mock: m}
 	m.CompileMock.callArgs = []*RuleMockCompileParams{}
 
+	m.ConfigureMock = mRuleMockConfigure{mock: m}
+	m.ConfigureMock.callArgs = []*RuleMockConfigureParams{}
+
 	m.GetContitionMock = mRuleMockGetContition{mock: m}
 
 	m.GetPositionMock = mRuleMockGetPosition{mock: m}
@@ -82,9 +85,6 @@ func NewRuleMock(t minimock.Tester) *RuleMock {
 	m.GetPrefixMock = mRuleMockGetPrefix{mock: m}
 
 	m.GetTypeMock = mRuleMockGetType{mock: m}
-
-	m.InitMock = mRuleMockInit{mock: m}
-	m.InitMock.callArgs = []*RuleMockInitParams{}
 
 	return m
 }
@@ -489,6 +489,193 @@ func (m *RuleMock) MinimockCompileInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcCompile != nil && mm_atomic.LoadUint64(&m.afterCompileCounter) < 1 {
 		m.t.Error("Expected call to RuleMock.Compile")
+	}
+}
+
+type mRuleMockConfigure struct {
+	mock               *RuleMock
+	defaultExpectation *RuleMockConfigureExpectation
+	expectations       []*RuleMockConfigureExpectation
+
+	callArgs []*RuleMockConfigureParams
+	mutex    sync.RWMutex
+}
+
+// RuleMockConfigureExpectation specifies expectation struct of the Rule.Configure
+type RuleMockConfigureExpectation struct {
+	mock   *RuleMock
+	params *RuleMockConfigureParams
+
+	Counter uint64
+}
+
+// RuleMockConfigureParams contains parameters of the Rule.Configure
+type RuleMockConfigureParams struct {
+	options []rules.RuleOption
+}
+
+// Expect sets up expected params for Rule.Configure
+func (mmConfigure *mRuleMockConfigure) Expect(options ...rules.RuleOption) *mRuleMockConfigure {
+	if mmConfigure.mock.funcConfigure != nil {
+		mmConfigure.mock.t.Fatalf("RuleMock.Configure mock is already set by Set")
+	}
+
+	if mmConfigure.defaultExpectation == nil {
+		mmConfigure.defaultExpectation = &RuleMockConfigureExpectation{}
+	}
+
+	mmConfigure.defaultExpectation.params = &RuleMockConfigureParams{options}
+	for _, e := range mmConfigure.expectations {
+		if minimock.Equal(e.params, mmConfigure.defaultExpectation.params) {
+			mmConfigure.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmConfigure.defaultExpectation.params)
+		}
+	}
+
+	return mmConfigure
+}
+
+// Inspect accepts an inspector function that has same arguments as the Rule.Configure
+func (mmConfigure *mRuleMockConfigure) Inspect(f func(options ...rules.RuleOption)) *mRuleMockConfigure {
+	if mmConfigure.mock.inspectFuncConfigure != nil {
+		mmConfigure.mock.t.Fatalf("Inspect function is already set for RuleMock.Configure")
+	}
+
+	mmConfigure.mock.inspectFuncConfigure = f
+
+	return mmConfigure
+}
+
+// Return sets up results that will be returned by Rule.Configure
+func (mmConfigure *mRuleMockConfigure) Return() *RuleMock {
+	if mmConfigure.mock.funcConfigure != nil {
+		mmConfigure.mock.t.Fatalf("RuleMock.Configure mock is already set by Set")
+	}
+
+	if mmConfigure.defaultExpectation == nil {
+		mmConfigure.defaultExpectation = &RuleMockConfigureExpectation{mock: mmConfigure.mock}
+	}
+
+	return mmConfigure.mock
+}
+
+//Set uses given function f to mock the Rule.Configure method
+func (mmConfigure *mRuleMockConfigure) Set(f func(options ...rules.RuleOption)) *RuleMock {
+	if mmConfigure.defaultExpectation != nil {
+		mmConfigure.mock.t.Fatalf("Default expectation is already set for the Rule.Configure method")
+	}
+
+	if len(mmConfigure.expectations) > 0 {
+		mmConfigure.mock.t.Fatalf("Some expectations are already set for the Rule.Configure method")
+	}
+
+	mmConfigure.mock.funcConfigure = f
+	return mmConfigure.mock
+}
+
+// Configure implements configuration.Rule
+func (mmConfigure *RuleMock) Configure(options ...rules.RuleOption) {
+	mm_atomic.AddUint64(&mmConfigure.beforeConfigureCounter, 1)
+	defer mm_atomic.AddUint64(&mmConfigure.afterConfigureCounter, 1)
+
+	if mmConfigure.inspectFuncConfigure != nil {
+		mmConfigure.inspectFuncConfigure(options...)
+	}
+
+	mm_params := &RuleMockConfigureParams{options}
+
+	// Record call args
+	mmConfigure.ConfigureMock.mutex.Lock()
+	mmConfigure.ConfigureMock.callArgs = append(mmConfigure.ConfigureMock.callArgs, mm_params)
+	mmConfigure.ConfigureMock.mutex.Unlock()
+
+	for _, e := range mmConfigure.ConfigureMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return
+		}
+	}
+
+	if mmConfigure.ConfigureMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmConfigure.ConfigureMock.defaultExpectation.Counter, 1)
+		mm_want := mmConfigure.ConfigureMock.defaultExpectation.params
+		mm_got := RuleMockConfigureParams{options}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmConfigure.t.Errorf("RuleMock.Configure got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		return
+
+	}
+	if mmConfigure.funcConfigure != nil {
+		mmConfigure.funcConfigure(options...)
+		return
+	}
+	mmConfigure.t.Fatalf("Unexpected call to RuleMock.Configure. %v", options)
+
+}
+
+// ConfigureAfterCounter returns a count of finished RuleMock.Configure invocations
+func (mmConfigure *RuleMock) ConfigureAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmConfigure.afterConfigureCounter)
+}
+
+// ConfigureBeforeCounter returns a count of RuleMock.Configure invocations
+func (mmConfigure *RuleMock) ConfigureBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmConfigure.beforeConfigureCounter)
+}
+
+// Calls returns a list of arguments used in each call to RuleMock.Configure.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmConfigure *mRuleMockConfigure) Calls() []*RuleMockConfigureParams {
+	mmConfigure.mutex.RLock()
+
+	argCopy := make([]*RuleMockConfigureParams, len(mmConfigure.callArgs))
+	copy(argCopy, mmConfigure.callArgs)
+
+	mmConfigure.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockConfigureDone returns true if the count of the Configure invocations corresponds
+// the number of defined expectations
+func (m *RuleMock) MinimockConfigureDone() bool {
+	for _, e := range m.ConfigureMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ConfigureMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterConfigureCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcConfigure != nil && mm_atomic.LoadUint64(&m.afterConfigureCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockConfigureInspect logs each unmet expectation
+func (m *RuleMock) MinimockConfigureInspect() {
+	for _, e := range m.ConfigureMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RuleMock.Configure with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ConfigureMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterConfigureCounter) < 1 {
+		if m.ConfigureMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RuleMock.Configure")
+		} else {
+			m.t.Errorf("Expected call to RuleMock.Configure with params: %#v", *m.ConfigureMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcConfigure != nil && mm_atomic.LoadUint64(&m.afterConfigureCounter) < 1 {
+		m.t.Error("Expected call to RuleMock.Configure")
 	}
 }
 
@@ -1064,199 +1251,14 @@ func (m *RuleMock) MinimockGetTypeInspect() {
 	}
 }
 
-type mRuleMockInit struct {
-	mock               *RuleMock
-	defaultExpectation *RuleMockInitExpectation
-	expectations       []*RuleMockInitExpectation
-
-	callArgs []*RuleMockInitParams
-	mutex    sync.RWMutex
-}
-
-// RuleMockInitExpectation specifies expectation struct of the Rule.Init
-type RuleMockInitExpectation struct {
-	mock   *RuleMock
-	params *RuleMockInitParams
-
-	Counter uint64
-}
-
-// RuleMockInitParams contains parameters of the Rule.Init
-type RuleMockInitParams struct {
-	options []rules.RuleOption
-}
-
-// Expect sets up expected params for Rule.Init
-func (mmInit *mRuleMockInit) Expect(options ...rules.RuleOption) *mRuleMockInit {
-	if mmInit.mock.funcInit != nil {
-		mmInit.mock.t.Fatalf("RuleMock.Init mock is already set by Set")
-	}
-
-	if mmInit.defaultExpectation == nil {
-		mmInit.defaultExpectation = &RuleMockInitExpectation{}
-	}
-
-	mmInit.defaultExpectation.params = &RuleMockInitParams{options}
-	for _, e := range mmInit.expectations {
-		if minimock.Equal(e.params, mmInit.defaultExpectation.params) {
-			mmInit.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmInit.defaultExpectation.params)
-		}
-	}
-
-	return mmInit
-}
-
-// Inspect accepts an inspector function that has same arguments as the Rule.Init
-func (mmInit *mRuleMockInit) Inspect(f func(options ...rules.RuleOption)) *mRuleMockInit {
-	if mmInit.mock.inspectFuncInit != nil {
-		mmInit.mock.t.Fatalf("Inspect function is already set for RuleMock.Init")
-	}
-
-	mmInit.mock.inspectFuncInit = f
-
-	return mmInit
-}
-
-// Return sets up results that will be returned by Rule.Init
-func (mmInit *mRuleMockInit) Return() *RuleMock {
-	if mmInit.mock.funcInit != nil {
-		mmInit.mock.t.Fatalf("RuleMock.Init mock is already set by Set")
-	}
-
-	if mmInit.defaultExpectation == nil {
-		mmInit.defaultExpectation = &RuleMockInitExpectation{mock: mmInit.mock}
-	}
-
-	return mmInit.mock
-}
-
-//Set uses given function f to mock the Rule.Init method
-func (mmInit *mRuleMockInit) Set(f func(options ...rules.RuleOption)) *RuleMock {
-	if mmInit.defaultExpectation != nil {
-		mmInit.mock.t.Fatalf("Default expectation is already set for the Rule.Init method")
-	}
-
-	if len(mmInit.expectations) > 0 {
-		mmInit.mock.t.Fatalf("Some expectations are already set for the Rule.Init method")
-	}
-
-	mmInit.mock.funcInit = f
-	return mmInit.mock
-}
-
-// Init implements configuration.Rule
-func (mmInit *RuleMock) Init(options ...rules.RuleOption) {
-	mm_atomic.AddUint64(&mmInit.beforeInitCounter, 1)
-	defer mm_atomic.AddUint64(&mmInit.afterInitCounter, 1)
-
-	if mmInit.inspectFuncInit != nil {
-		mmInit.inspectFuncInit(options...)
-	}
-
-	mm_params := &RuleMockInitParams{options}
-
-	// Record call args
-	mmInit.InitMock.mutex.Lock()
-	mmInit.InitMock.callArgs = append(mmInit.InitMock.callArgs, mm_params)
-	mmInit.InitMock.mutex.Unlock()
-
-	for _, e := range mmInit.InitMock.expectations {
-		if minimock.Equal(e.params, mm_params) {
-			mm_atomic.AddUint64(&e.Counter, 1)
-			return
-		}
-	}
-
-	if mmInit.InitMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmInit.InitMock.defaultExpectation.Counter, 1)
-		mm_want := mmInit.InitMock.defaultExpectation.params
-		mm_got := RuleMockInitParams{options}
-		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmInit.t.Errorf("RuleMock.Init got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
-		}
-
-		return
-
-	}
-	if mmInit.funcInit != nil {
-		mmInit.funcInit(options...)
-		return
-	}
-	mmInit.t.Fatalf("Unexpected call to RuleMock.Init. %v", options)
-
-}
-
-// InitAfterCounter returns a count of finished RuleMock.Init invocations
-func (mmInit *RuleMock) InitAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmInit.afterInitCounter)
-}
-
-// InitBeforeCounter returns a count of RuleMock.Init invocations
-func (mmInit *RuleMock) InitBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmInit.beforeInitCounter)
-}
-
-// Calls returns a list of arguments used in each call to RuleMock.Init.
-// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
-func (mmInit *mRuleMockInit) Calls() []*RuleMockInitParams {
-	mmInit.mutex.RLock()
-
-	argCopy := make([]*RuleMockInitParams, len(mmInit.callArgs))
-	copy(argCopy, mmInit.callArgs)
-
-	mmInit.mutex.RUnlock()
-
-	return argCopy
-}
-
-// MinimockInitDone returns true if the count of the Init invocations corresponds
-// the number of defined expectations
-func (m *RuleMock) MinimockInitDone() bool {
-	for _, e := range m.InitMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.InitMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcInit != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockInitInspect logs each unmet expectation
-func (m *RuleMock) MinimockInitInspect() {
-	for _, e := range m.InitMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to RuleMock.Init with params: %#v", *e.params)
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.InitMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
-		if m.InitMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to RuleMock.Init")
-		} else {
-			m.t.Errorf("Expected call to RuleMock.Init with params: %#v", *m.InitMock.defaultExpectation.params)
-		}
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcInit != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
-		m.t.Error("Expected call to RuleMock.Init")
-	}
-}
-
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *RuleMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockCheckInspect()
 
 		m.MinimockCompileInspect()
+
+		m.MinimockConfigureInspect()
 
 		m.MinimockGetContitionInspect()
 
@@ -1265,8 +1267,6 @@ func (m *RuleMock) MinimockFinish() {
 		m.MinimockGetPrefixInspect()
 
 		m.MinimockGetTypeInspect()
-
-		m.MinimockInitInspect()
 		m.t.FailNow()
 	}
 }
@@ -1292,9 +1292,9 @@ func (m *RuleMock) minimockDone() bool {
 	return done &&
 		m.MinimockCheckDone() &&
 		m.MinimockCompileDone() &&
+		m.MinimockConfigureDone() &&
 		m.MinimockGetContitionDone() &&
 		m.MinimockGetPositionDone() &&
 		m.MinimockGetPrefixDone() &&
-		m.MinimockGetTypeDone() &&
-		m.MinimockInitDone()
+		m.MinimockGetTypeDone()
 }

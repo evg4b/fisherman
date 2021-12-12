@@ -74,7 +74,7 @@ func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error
 			continue
 		}
 
-		rule.Init(
+		rule.Configure(
 			rules.WithCwd(h.cwd),
 			rules.WithFileSystem(h.fs),
 			rules.WithRepository(h.repo),

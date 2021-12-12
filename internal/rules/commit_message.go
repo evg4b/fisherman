@@ -64,7 +64,7 @@ func (rule *CommitMessage) Compile(variables map[string]interface{}) {
 }
 
 func (rule *CommitMessage) Message() (string, error) {
-	messageFilePath, err := rule.Arg(filePathArgumentIndex)
+	messageFilePath, err := rule.arg(filePathArgumentIndex)
 	if err != nil {
 		return "", err
 	}

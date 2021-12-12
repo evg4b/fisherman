@@ -57,7 +57,7 @@ func TestPrepareMessage_Compile(t *testing.T) {
 }
 
 func makeRule(rule configuration.Rule, options ...RuleOption) configuration.Rule {
-	rule.Init(options...)
+	rule.Configure(options...)
 
 	return rule
 }

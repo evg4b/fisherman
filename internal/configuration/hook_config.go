@@ -19,7 +19,7 @@ type Rule interface {
 	GetPosition() byte
 	Check(context.Context, io.Writer) error
 	Compile(map[string]interface{})
-	Init(options ...rules.RuleOption)
+	Configure(options ...rules.RuleOption)
 }
 
 type ExtractVariable struct {

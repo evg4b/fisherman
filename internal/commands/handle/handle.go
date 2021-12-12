@@ -2,7 +2,7 @@ package handle
 
 import (
 	"fisherman/internal"
-	cnfg "fisherman/internal/configuration"
+	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
 	"flag"
 	"io"
@@ -15,7 +15,7 @@ type Command struct {
 	hook         string
 	usage        string
 	engine       expression.Engine
-	config       *cnfg.HooksConfig
+	config       *configuration.HooksConfig
 	globalVars   map[string]interface{}
 	cwd          string
 	fs           billy.Filesystem

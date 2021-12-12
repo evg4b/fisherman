@@ -21,7 +21,7 @@ func (rule PrepareMessage) Check(ctx context.Context, _ io.Writer) error {
 		return nil
 	}
 
-	arg, err := rule.Arg(0)
+	arg, err := rule.arg(0)
 	if err != nil {
 		return err
 	}

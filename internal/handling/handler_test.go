@@ -22,7 +22,7 @@ func TestHookHandler_Handle(t *testing.T) {
 
 	validRule := mocks.NewRuleMock(t).
 		GetTypeMock.Return(rules.ExecType).
-		InitMock.Return().
+		ConfigureMock.Return().
 		GetPositionMock.Return(rules.Scripts).
 		CompileMock.Return().
 		GetContitionMock.Return("").
@@ -41,13 +41,13 @@ func TestHookHandler_Handle(t *testing.T) {
 			engine: engine,
 			rules: []*mocks.RuleMock{
 				ruleMock(t, "TEST1", "", rules.ShellScriptType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 				ruleMock(t, "TEST2", "1 == 1", rules.ExecType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 				ruleMock(t, "TEST3", "1 == 3", rules.SuppressCommitFilesType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 			},
 			workersCount: 2,
@@ -58,13 +58,13 @@ func TestHookHandler_Handle(t *testing.T) {
 				EvalMock.Return(false, validation.Errorf("test-rule", "test")),
 			rules: []*mocks.RuleMock{
 				ruleMock(t, "TEST1", "", rules.ShellScriptType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 				ruleMock(t, "TEST", "1 == 1", rules.ExecType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 				ruleMock(t, "TEST", "1 == 2", rules.SuppressCommitFilesType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 			},
 			workersCount: 2,
@@ -75,13 +75,13 @@ func TestHookHandler_Handle(t *testing.T) {
 			engine: engine,
 			rules: []*mocks.RuleMock{
 				ruleMock(t, "TEST", "", rules.ShellScriptType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 				ruleMock(t, "TEST", "1 == 1", rules.ExecType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(validation.Errorf("test-rule", "test")),
 				ruleMock(t, "TEST", "1 == 3", rules.SuppressCommitFilesType).
-					InitMock.Return().
+					ConfigureMock.Return().
 					CheckMock.Return(nil),
 			},
 			workersCount: 2,
@@ -183,7 +183,7 @@ func TestHookHandler_Handle(t *testing.T) {
 
 			return mocks.NewRuleMock(t).
 				GetTypeMock.Return(rules.ExecType).
-				InitMock.Return().
+				ConfigureMock.Return().
 				CompileMock.Return().
 				GetContitionMock.Return("").
 				GetPrefixMock.Return("prefix-").
@@ -271,7 +271,7 @@ func ruleMock(t *testing.T, prefix, condition, ruleType string) *mocks.RuleMock 
 		GetContitionMock.Return(condition).
 		GetTypeMock.Return(ruleType).
 		CompileMock.Return().
-		InitMock.Return()
+		ConfigureMock.Return()
 }
 
 func applyPosition(rules []*mocks.RuleMock, position byte) []configuration.Rule {
