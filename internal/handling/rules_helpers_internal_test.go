@@ -1,9 +1,7 @@
-package handling_test
+package handling
 
 import (
 	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
-	. "fisherman/internal/handling"
 	"fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"testing"
@@ -42,17 +40,9 @@ func Test_getPreScripts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
-				PreCommitHook: &configuration.HookConfig{
-					Rules: tt.ruleCollection,
-				},
-			})
+			actual := getPreScriptRules(tt.ruleCollection)
 
-			actual, _ := factory.GetHook(constants.PreCommitHook, map[string]interface{}{})
-
-			handler := actual.(*HookHandler)
-
-			assert.EqualValues(t, tt.expected, handler.Rules)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }
@@ -88,17 +78,9 @@ func Test_getPostScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
-				PreCommitHook: &configuration.HookConfig{
-					Rules: tt.ruleCollection,
-				},
-			})
+			actual := getPostScriptRules(tt.ruleCollection)
 
-			actual, _ := factory.GetHook(constants.PreCommitHook, map[string]interface{}{})
-
-			handler := actual.(*HookHandler)
-
-			assert.EqualValues(t, tt.expected, handler.PostScriptRules)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }
@@ -134,17 +116,9 @@ func Test_getScriptRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			factory := NewHookHandlerFactory(mocks.NewEngineMock(t), configuration.HooksConfig{
-				PreCommitHook: &configuration.HookConfig{
-					Rules: tt.ruleCollection,
-				},
-			})
+			actual := getScriptRules(tt.ruleCollection)
 
-			actual, _ := factory.GetHook(constants.PreCommitHook, map[string]interface{}{})
-
-			handler := actual.(*HookHandler)
-
-			assert.EqualValues(t, tt.expected, handler.Scripts)
+			assert.EqualValues(t, tt.expected, actual)
 		})
 	}
 }

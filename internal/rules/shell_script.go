@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	"fisherman/pkg/shell"
 	pkgutils "fisherman/pkg/utils"
@@ -33,9 +33,9 @@ func (rule *ShellScript) GetPrefix() string {
 	return utils.FirstNotEmpty(rule.Name, rule.Type)
 }
 
-func (rule *ShellScript) Check(ctx internal.ExecutionContext, output io.Writer) error {
+func (rule *ShellScript) Check(ctx context.Context, output io.Writer) error {
 	formatterOutput := formatOutput(output, rule)
-	env := pkgutils.MergeEnv(ctx.Env(), rule.Env)
+	env := pkgutils.MergeEnv(rule.BaseRule.env, rule.Env)
 	strategy, err := getShellStrategy(rule.Shell)
 	if err != nil {
 		return errors.Errorf("failed to cheate shell host: %w", err)

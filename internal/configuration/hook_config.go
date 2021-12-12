@@ -1,7 +1,8 @@
 package configuration
 
 import (
-	"fisherman/internal"
+	"context"
+	"fisherman/internal/rules"
 	"fisherman/internal/utils"
 	"io"
 	"regexp"
@@ -16,8 +17,9 @@ type Rule interface {
 	GetPrefix() string
 	GetContition() string
 	GetPosition() byte
-	Check(internal.ExecutionContext, io.Writer) error
+	Check(context.Context, io.Writer) error
 	Compile(map[string]interface{})
+	Init(options ...rules.RuleOption)
 }
 
 type ExtractVariable struct {

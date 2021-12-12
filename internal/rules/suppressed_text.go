@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	"fmt"
 	"io"
@@ -18,8 +18,8 @@ type SuppressedText struct {
 	ExcludedGlobs []string `yaml:"exclude"`
 }
 
-func (rule *SuppressedText) Check(ctx internal.ExecutionContext, _ io.Writer) error {
-	repo := ctx.Repository()
+func (rule *SuppressedText) Check(ctx context.Context, _ io.Writer) error {
+	repo := rule.BaseRule.repo
 	changes, err := repo.GetIndexChanges()
 	if err != nil {
 		return err

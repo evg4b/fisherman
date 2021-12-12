@@ -1,30 +1,36 @@
 package handle
 
 import (
-	"fisherman/internal"
+	"context"
+	"errors"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/handling"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
-
-	"github.com/go-errors/errors"
 )
 
-func (command *Command) Init(args []string) error {
-	return command.flagSet.Parse(args)
+func (c *Command) Init(args []string) error {
+	return c.flagSet.Parse(args)
 }
 
-func (command *Command) Run(ctx internal.ExecutionContext) error {
-	global, err := ctx.GlobalVariables()
-	if err != nil {
-		return err
-	}
+func (c *Command) Run(ctx context.Context) error {
+	handler, err := handling.NewHookHandler(
+		c.hook,
+		handling.WithExpressionEngine(c.engine),
+		handling.WithHooksConfig(c.config),
+		handling.WithGlobalVars(c.globalVars),
+		handling.WithCwd(c.cwd),
+		handling.WithFileSystem(c.fs),
+		handling.WithRepository(c.repo),
+		handling.WithArgs(c.args),
+		handling.WithEnv(c.env),
+		handling.WithWorkersCount(c.workersCount),
+	)
 
-	handler, err := command.hookFactory.GetHook(command.hook, global)
 	if err != nil {
 		if errors.Is(err, handling.ErrNotPresented) {
-			log.Debugf("hook %s not presented", command.hook)
+			log.Debugf("hook %s not presented", c.hook)
 
 			return nil
 		}
@@ -32,14 +38,13 @@ func (command *Command) Run(ctx internal.ExecutionContext) error {
 		return err
 	}
 
-	log.Debugf("handler for '%s' hook founded", command.hook)
+	log.Debugf("handler for '%s' hook founded", c.hook)
 
-	files := command.app.Configs
 	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
-		constants.HookName:                 command.hook,
-		constants.GlobalConfigPath:         utils.OriginalOrNA(files[configuration.GlobalMode]),
-		constants.RepoConfigPath:           utils.OriginalOrNA(files[configuration.RepoMode]),
-		constants.LocalConfigPath:          utils.OriginalOrNA(files[configuration.LocalMode]),
+		constants.HookName:                 c.hook,
+		constants.GlobalConfigPath:         utils.OriginalOrNA(c.configFiles[configuration.GlobalMode]),
+		constants.RepoConfigPath:           utils.OriginalOrNA(c.configFiles[configuration.RepoMode]),
+		constants.LocalConfigPath:          utils.OriginalOrNA(c.configFiles[configuration.LocalMode]),
 		constants.FishermanVersionVariable: constants.Version,
 	})
 

@@ -1,16 +1,7 @@
 package utils
 
-import (
-	"fisherman/pkg/log"
-)
-
-func PanicInterceptor(exit func(code int), exitCode int) {
+func PanicInterceptor(action func(interface{})) {
 	if recovered := recover(); recovered != nil {
-		log.Errorf("Fatal error: %s", recovered)
-		if err, ok := recovered.(error); ok {
-			log.DumpError(err)
-		}
-
-		exit(exitCode)
+		action(recovered)
 	}
 }

@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	pkgutils "fisherman/pkg/utils"
 	"io"
@@ -51,14 +51,14 @@ func (rule *Exec) GetPrefix() string {
 	return rule.Name
 }
 
-func (rule *Exec) Check(ctx internal.ExecutionContext, output io.Writer) error {
-	env := pkgutils.MergeEnv(ctx.Env(), rule.Env)
+func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
+	env := pkgutils.MergeEnv(rule.BaseRule.env, rule.Env)
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
 		command := CommandContext(ctx, commandDef.Program, commandDef.Args...)
 		command.Env = pkgutils.MergeEnv(env, commandDef.Env)
-		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, ctx.Cwd())
+		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, rule.BaseRule.cwd)
 		// TODO: Add custom encoding for different shell
 		command.Stdout = output
 		command.Stderr = output

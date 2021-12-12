@@ -1,6 +1,7 @@
 package remove
 
 import (
+	"context"
 	"fisherman/internal"
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
@@ -35,7 +36,7 @@ func (command *Command) Init(args []string) error {
 	return command.flagSet.Parse(args)
 }
 
-func (command *Command) Run(ctx internal.ExecutionContext) error {
+func (command *Command) Run(ctx context.Context) error {
 	filesToDelete := []string{}
 	for _, config := range command.app.Configs {
 		filesToDelete = append(filesToDelete, config)

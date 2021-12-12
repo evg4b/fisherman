@@ -5,7 +5,8 @@ package mocks
 //go:generate minimock -i fisherman/internal/configuration.Rule -o ./testing/mocks/rule_mock.go -n RuleMock
 
 import (
-	"fisherman/internal"
+	"context"
+	"fisherman/internal/rules"
 	"io"
 	"sync"
 	mm_atomic "sync/atomic"
@@ -18,8 +19,8 @@ import (
 type RuleMock struct {
 	t minimock.Tester
 
-	funcCheck          func(e1 internal.ExecutionContext, w1 io.Writer) (err error)
-	inspectFuncCheck   func(e1 internal.ExecutionContext, w1 io.Writer)
+	funcCheck          func(ctx context.Context, w1 io.Writer) (err error)
+	inspectFuncCheck   func(ctx context.Context, w1 io.Writer)
 	afterCheckCounter  uint64
 	beforeCheckCounter uint64
 	CheckMock          mRuleMockCheck
@@ -53,6 +54,12 @@ type RuleMock struct {
 	afterGetTypeCounter  uint64
 	beforeGetTypeCounter uint64
 	GetTypeMock          mRuleMockGetType
+
+	funcInit          func(options ...rules.RuleOption)
+	inspectFuncInit   func(options ...rules.RuleOption)
+	afterInitCounter  uint64
+	beforeInitCounter uint64
+	InitMock          mRuleMockInit
 }
 
 // NewRuleMock returns a mock for configuration.Rule
@@ -76,6 +83,9 @@ func NewRuleMock(t minimock.Tester) *RuleMock {
 
 	m.GetTypeMock = mRuleMockGetType{mock: m}
 
+	m.InitMock = mRuleMockInit{mock: m}
+	m.InitMock.callArgs = []*RuleMockInitParams{}
+
 	return m
 }
 
@@ -98,8 +108,8 @@ type RuleMockCheckExpectation struct {
 
 // RuleMockCheckParams contains parameters of the Rule.Check
 type RuleMockCheckParams struct {
-	e1 internal.ExecutionContext
-	w1 io.Writer
+	ctx context.Context
+	w1  io.Writer
 }
 
 // RuleMockCheckResults contains results of the Rule.Check
@@ -108,7 +118,7 @@ type RuleMockCheckResults struct {
 }
 
 // Expect sets up expected params for Rule.Check
-func (mmCheck *mRuleMockCheck) Expect(e1 internal.ExecutionContext, w1 io.Writer) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Expect(ctx context.Context, w1 io.Writer) *mRuleMockCheck {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
@@ -117,7 +127,7 @@ func (mmCheck *mRuleMockCheck) Expect(e1 internal.ExecutionContext, w1 io.Writer
 		mmCheck.defaultExpectation = &RuleMockCheckExpectation{}
 	}
 
-	mmCheck.defaultExpectation.params = &RuleMockCheckParams{e1, w1}
+	mmCheck.defaultExpectation.params = &RuleMockCheckParams{ctx, w1}
 	for _, e := range mmCheck.expectations {
 		if minimock.Equal(e.params, mmCheck.defaultExpectation.params) {
 			mmCheck.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCheck.defaultExpectation.params)
@@ -128,7 +138,7 @@ func (mmCheck *mRuleMockCheck) Expect(e1 internal.ExecutionContext, w1 io.Writer
 }
 
 // Inspect accepts an inspector function that has same arguments as the Rule.Check
-func (mmCheck *mRuleMockCheck) Inspect(f func(e1 internal.ExecutionContext, w1 io.Writer)) *mRuleMockCheck {
+func (mmCheck *mRuleMockCheck) Inspect(f func(ctx context.Context, w1 io.Writer)) *mRuleMockCheck {
 	if mmCheck.mock.inspectFuncCheck != nil {
 		mmCheck.mock.t.Fatalf("Inspect function is already set for RuleMock.Check")
 	}
@@ -152,7 +162,7 @@ func (mmCheck *mRuleMockCheck) Return(err error) *RuleMock {
 }
 
 //Set uses given function f to mock the Rule.Check method
-func (mmCheck *mRuleMockCheck) Set(f func(e1 internal.ExecutionContext, w1 io.Writer) (err error)) *RuleMock {
+func (mmCheck *mRuleMockCheck) Set(f func(ctx context.Context, w1 io.Writer) (err error)) *RuleMock {
 	if mmCheck.defaultExpectation != nil {
 		mmCheck.mock.t.Fatalf("Default expectation is already set for the Rule.Check method")
 	}
@@ -167,14 +177,14 @@ func (mmCheck *mRuleMockCheck) Set(f func(e1 internal.ExecutionContext, w1 io.Wr
 
 // When sets expectation for the Rule.Check which will trigger the result defined by the following
 // Then helper
-func (mmCheck *mRuleMockCheck) When(e1 internal.ExecutionContext, w1 io.Writer) *RuleMockCheckExpectation {
+func (mmCheck *mRuleMockCheck) When(ctx context.Context, w1 io.Writer) *RuleMockCheckExpectation {
 	if mmCheck.mock.funcCheck != nil {
 		mmCheck.mock.t.Fatalf("RuleMock.Check mock is already set by Set")
 	}
 
 	expectation := &RuleMockCheckExpectation{
 		mock:   mmCheck.mock,
-		params: &RuleMockCheckParams{e1, w1},
+		params: &RuleMockCheckParams{ctx, w1},
 	}
 	mmCheck.expectations = append(mmCheck.expectations, expectation)
 	return expectation
@@ -187,15 +197,15 @@ func (e *RuleMockCheckExpectation) Then(err error) *RuleMock {
 }
 
 // Check implements configuration.Rule
-func (mmCheck *RuleMock) Check(e1 internal.ExecutionContext, w1 io.Writer) (err error) {
+func (mmCheck *RuleMock) Check(ctx context.Context, w1 io.Writer) (err error) {
 	mm_atomic.AddUint64(&mmCheck.beforeCheckCounter, 1)
 	defer mm_atomic.AddUint64(&mmCheck.afterCheckCounter, 1)
 
 	if mmCheck.inspectFuncCheck != nil {
-		mmCheck.inspectFuncCheck(e1, w1)
+		mmCheck.inspectFuncCheck(ctx, w1)
 	}
 
-	mm_params := &RuleMockCheckParams{e1, w1}
+	mm_params := &RuleMockCheckParams{ctx, w1}
 
 	// Record call args
 	mmCheck.CheckMock.mutex.Lock()
@@ -212,7 +222,7 @@ func (mmCheck *RuleMock) Check(e1 internal.ExecutionContext, w1 io.Writer) (err 
 	if mmCheck.CheckMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCheck.CheckMock.defaultExpectation.Counter, 1)
 		mm_want := mmCheck.CheckMock.defaultExpectation.params
-		mm_got := RuleMockCheckParams{e1, w1}
+		mm_got := RuleMockCheckParams{ctx, w1}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCheck.t.Errorf("RuleMock.Check got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -224,9 +234,9 @@ func (mmCheck *RuleMock) Check(e1 internal.ExecutionContext, w1 io.Writer) (err 
 		return (*mm_results).err
 	}
 	if mmCheck.funcCheck != nil {
-		return mmCheck.funcCheck(e1, w1)
+		return mmCheck.funcCheck(ctx, w1)
 	}
-	mmCheck.t.Fatalf("Unexpected call to RuleMock.Check. %v %v", e1, w1)
+	mmCheck.t.Fatalf("Unexpected call to RuleMock.Check. %v %v", ctx, w1)
 	return
 }
 
@@ -1054,6 +1064,193 @@ func (m *RuleMock) MinimockGetTypeInspect() {
 	}
 }
 
+type mRuleMockInit struct {
+	mock               *RuleMock
+	defaultExpectation *RuleMockInitExpectation
+	expectations       []*RuleMockInitExpectation
+
+	callArgs []*RuleMockInitParams
+	mutex    sync.RWMutex
+}
+
+// RuleMockInitExpectation specifies expectation struct of the Rule.Init
+type RuleMockInitExpectation struct {
+	mock   *RuleMock
+	params *RuleMockInitParams
+
+	Counter uint64
+}
+
+// RuleMockInitParams contains parameters of the Rule.Init
+type RuleMockInitParams struct {
+	options []rules.RuleOption
+}
+
+// Expect sets up expected params for Rule.Init
+func (mmInit *mRuleMockInit) Expect(options ...rules.RuleOption) *mRuleMockInit {
+	if mmInit.mock.funcInit != nil {
+		mmInit.mock.t.Fatalf("RuleMock.Init mock is already set by Set")
+	}
+
+	if mmInit.defaultExpectation == nil {
+		mmInit.defaultExpectation = &RuleMockInitExpectation{}
+	}
+
+	mmInit.defaultExpectation.params = &RuleMockInitParams{options}
+	for _, e := range mmInit.expectations {
+		if minimock.Equal(e.params, mmInit.defaultExpectation.params) {
+			mmInit.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmInit.defaultExpectation.params)
+		}
+	}
+
+	return mmInit
+}
+
+// Inspect accepts an inspector function that has same arguments as the Rule.Init
+func (mmInit *mRuleMockInit) Inspect(f func(options ...rules.RuleOption)) *mRuleMockInit {
+	if mmInit.mock.inspectFuncInit != nil {
+		mmInit.mock.t.Fatalf("Inspect function is already set for RuleMock.Init")
+	}
+
+	mmInit.mock.inspectFuncInit = f
+
+	return mmInit
+}
+
+// Return sets up results that will be returned by Rule.Init
+func (mmInit *mRuleMockInit) Return() *RuleMock {
+	if mmInit.mock.funcInit != nil {
+		mmInit.mock.t.Fatalf("RuleMock.Init mock is already set by Set")
+	}
+
+	if mmInit.defaultExpectation == nil {
+		mmInit.defaultExpectation = &RuleMockInitExpectation{mock: mmInit.mock}
+	}
+
+	return mmInit.mock
+}
+
+//Set uses given function f to mock the Rule.Init method
+func (mmInit *mRuleMockInit) Set(f func(options ...rules.RuleOption)) *RuleMock {
+	if mmInit.defaultExpectation != nil {
+		mmInit.mock.t.Fatalf("Default expectation is already set for the Rule.Init method")
+	}
+
+	if len(mmInit.expectations) > 0 {
+		mmInit.mock.t.Fatalf("Some expectations are already set for the Rule.Init method")
+	}
+
+	mmInit.mock.funcInit = f
+	return mmInit.mock
+}
+
+// Init implements configuration.Rule
+func (mmInit *RuleMock) Init(options ...rules.RuleOption) {
+	mm_atomic.AddUint64(&mmInit.beforeInitCounter, 1)
+	defer mm_atomic.AddUint64(&mmInit.afterInitCounter, 1)
+
+	if mmInit.inspectFuncInit != nil {
+		mmInit.inspectFuncInit(options...)
+	}
+
+	mm_params := &RuleMockInitParams{options}
+
+	// Record call args
+	mmInit.InitMock.mutex.Lock()
+	mmInit.InitMock.callArgs = append(mmInit.InitMock.callArgs, mm_params)
+	mmInit.InitMock.mutex.Unlock()
+
+	for _, e := range mmInit.InitMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return
+		}
+	}
+
+	if mmInit.InitMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmInit.InitMock.defaultExpectation.Counter, 1)
+		mm_want := mmInit.InitMock.defaultExpectation.params
+		mm_got := RuleMockInitParams{options}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmInit.t.Errorf("RuleMock.Init got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		return
+
+	}
+	if mmInit.funcInit != nil {
+		mmInit.funcInit(options...)
+		return
+	}
+	mmInit.t.Fatalf("Unexpected call to RuleMock.Init. %v", options)
+
+}
+
+// InitAfterCounter returns a count of finished RuleMock.Init invocations
+func (mmInit *RuleMock) InitAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmInit.afterInitCounter)
+}
+
+// InitBeforeCounter returns a count of RuleMock.Init invocations
+func (mmInit *RuleMock) InitBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmInit.beforeInitCounter)
+}
+
+// Calls returns a list of arguments used in each call to RuleMock.Init.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmInit *mRuleMockInit) Calls() []*RuleMockInitParams {
+	mmInit.mutex.RLock()
+
+	argCopy := make([]*RuleMockInitParams, len(mmInit.callArgs))
+	copy(argCopy, mmInit.callArgs)
+
+	mmInit.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockInitDone returns true if the count of the Init invocations corresponds
+// the number of defined expectations
+func (m *RuleMock) MinimockInitDone() bool {
+	for _, e := range m.InitMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.InitMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcInit != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockInitInspect logs each unmet expectation
+func (m *RuleMock) MinimockInitInspect() {
+	for _, e := range m.InitMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to RuleMock.Init with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.InitMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
+		if m.InitMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to RuleMock.Init")
+		} else {
+			m.t.Errorf("Expected call to RuleMock.Init with params: %#v", *m.InitMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcInit != nil && mm_atomic.LoadUint64(&m.afterInitCounter) < 1 {
+		m.t.Error("Expected call to RuleMock.Init")
+	}
+}
+
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *RuleMock) MinimockFinish() {
 	if !m.minimockDone() {
@@ -1068,6 +1265,8 @@ func (m *RuleMock) MinimockFinish() {
 		m.MinimockGetPrefixInspect()
 
 		m.MinimockGetTypeInspect()
+
+		m.MinimockInitInspect()
 		m.t.FailNow()
 	}
 }
@@ -1096,5 +1295,6 @@ func (m *RuleMock) minimockDone() bool {
 		m.MinimockGetContitionDone() &&
 		m.MinimockGetPositionDone() &&
 		m.MinimockGetPrefixDone() &&
-		m.MinimockGetTypeDone()
+		m.MinimockGetTypeDone() &&
+		m.MinimockInitDone()
 }

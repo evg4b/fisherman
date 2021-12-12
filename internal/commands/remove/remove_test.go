@@ -1,6 +1,7 @@
 package remove_test
 
 import (
+	"context"
 	"errors"
 	"fisherman/internal"
 	. "fisherman/internal/commands/remove"
@@ -62,7 +63,7 @@ func TestCommand_Run(t *testing.T) {
 			err := command.Init([]string{})
 			assert.NoError(t, err)
 
-			err = command.Run(mocks.NewExecutionContextMock(t))
+			err = command.Run(context.TODO())
 
 			testutils.AssertError(t, tt.expectedErr, err)
 		})

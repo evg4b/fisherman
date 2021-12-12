@@ -2,12 +2,13 @@ package handling_test
 
 import (
 	"context"
-	"fisherman/internal"
-	"fisherman/internal/appcontext"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
+	"fisherman/internal/handling"
 	. "fisherman/internal/handling"
+	"fisherman/internal/rules"
 	"fisherman/internal/validation"
+	"fisherman/pkg/guards"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"io"
@@ -17,20 +18,13 @@ import (
 )
 
 func TestHookHandler_Handle(t *testing.T) {
-	ctx := mocks.NewExecutionContextMock(t).
-		OutputMock.Return(testutils.NopCloser(io.Discard)).
-		GlobalVariablesMock.Return(map[string]interface{}{}, nil).
-		ValueMock.Return(nil).
-		DoneMock.Return(make(<-chan struct{})).
-		ErrMock.Return(nil)
-
 	engine := expression.NewGoExpressionEngine()
 
 	testCases := []struct {
 		name         string
 		engine       expression.Engine
 		rules        []configuration.Rule
-		workersCount int
+		workersCount uint
 		expectedErr  string
 	}{
 		{
@@ -116,13 +110,21 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs rules", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-				handler := HookHandler{
-					Engine:       tt.engine,
-					Rules:        tt.rules,
-					WorkersCount: tt.workersCount,
-				}
 
-				err := handler.Handle(ctx)
+				handler, err := handling.NewHookHandler(
+					"pre-commit",
+					WithExpressionEngine(engine),
+					WithHooksConfig(&configuration.HooksConfig{
+						PreCommitHook: &configuration.HookConfig{
+							Rules: tt.rules,
+						},
+					}),
+					WithWorkersCount(tt.workersCount),
+				)
+
+				guards.NoError(err)
+
+				err = handler.Handle(context.TODO())
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -132,13 +134,20 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs scripts", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-				handler := HookHandler{
-					Engine:       tt.engine,
-					Scripts:      tt.rules,
-					WorkersCount: tt.workersCount,
-				}
+				handler, err := handling.NewHookHandler(
+					"pre-commit",
+					WithExpressionEngine(tt.engine),
+					WithHooksConfig(&configuration.HooksConfig{
+						PreCommitHook: &configuration.HookConfig{
+							Rules: tt.rules,
+						},
+					}),
+					WithWorkersCount(tt.workersCount),
+				)
 
-				err := handler.Handle(ctx)
+				guards.NoError(err)
+
+				err = handler.Handle(context.TODO())
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -148,13 +157,20 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("runs post scripts", func(t *testing.T) {
 		for _, tt := range testCases {
 			t.Run(tt.name, func(t *testing.T) {
-				handler := HookHandler{
-					Engine:          tt.engine,
-					PostScriptRules: tt.rules,
-					WorkersCount:    tt.workersCount,
-				}
+				handler, err := handling.NewHookHandler(
+					"pre-commit",
+					WithExpressionEngine(tt.engine),
+					WithHooksConfig(&configuration.HooksConfig{
+						PreCommitHook: &configuration.HookConfig{
+							Rules: tt.rules,
+						},
+					}),
+					WithWorkersCount(tt.workersCount),
+				)
 
-				err := handler.Handle(ctx)
+				guards.NoError(err)
+
+				err = handler.Handle(context.TODO())
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -164,70 +180,81 @@ func TestHookHandler_Handle(t *testing.T) {
 	t.Run("run rules in correct orders", func(t *testing.T) {
 		order := []string{}
 
-		checkHandler := func(ruleType string) func(internal.ExecutionContext, io.Writer) error {
-			return func(ec internal.ExecutionContext, w io.Writer) error {
+		checkHandler := func(ruleType string) func(context.Context, io.Writer) error {
+			return func(ec context.Context, w io.Writer) error {
 				order = append(order, ruleType)
 
 				return nil
 			}
 		}
 
-		handler := HookHandler{
-			Engine: mocks.NewEngineMock(t),
-			Rules: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetContitionMock.Return("").
-					GetPrefixMock.Return("rule").
-					CheckMock.Set(checkHandler("rule")),
-			},
-			Scripts: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetContitionMock.Return("").
-					GetPrefixMock.Return("script").
-					CheckMock.Set(checkHandler("script")),
-			},
-			PostScriptRules: []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetContitionMock.Return("").
-					GetPrefixMock.Return("post-script").
-					CheckMock.Set(checkHandler("post-script")),
-			},
-			WorkersCount: 10,
-		}
+		handler, err := handling.NewHookHandler(
+			"pre-commit",
+			WithExpressionEngine(mocks.NewEngineMock(t)),
+			WithHooksConfig(&configuration.HooksConfig{
+				PreCommitHook: &configuration.HookConfig{
+					Rules: []configuration.Rule{
+						mocks.NewRuleMock(t).
+							GetContitionMock.Return("").
+							GetPrefixMock.Return("rule").
+							CheckMock.Set(checkHandler("rule")).
+							GetPositionMock.Return(rules.PreScripts),
+						mocks.NewRuleMock(t).
+							GetContitionMock.Return("").
+							GetPrefixMock.Return("script").
+							CheckMock.Set(checkHandler("script")).
+							GetPositionMock.Return(rules.Scripts),
+						mocks.NewRuleMock(t).
+							GetContitionMock.Return("").
+							GetPrefixMock.Return("post-script").
+							CheckMock.Set(checkHandler("post-script")).
+							GetPositionMock.Return(rules.PostScripts),
+					},
+				},
+			}),
+			WithWorkersCount(10),
+		)
 
-		err := handler.Handle(ctx)
+		guards.NoError(err)
+
+		err = handler.Handle(context.TODO())
 
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"rule", "script", "post-script"}, order)
 	})
 
 	t.Run("canceled context", func(t *testing.T) {
-		randomRules := func() []configuration.Rule {
-			return []configuration.Rule{
-				mocks.NewRuleMock(t).
-					GetContitionMock.Return("").
-					GetPrefixMock.Return("test-"),
-			}
+		randomRule := func() configuration.Rule {
+			return mocks.NewRuleMock(t).
+				GetContitionMock.Return("").
+				GetPrefixMock.Return("test-").
+				GetPositionMock.Return(rules.Scripts)
 		}
 
-		handler := HookHandler{
-			Engine:          engine,
-			Rules:           randomRules(),
-			Scripts:         randomRules(),
-			PostScriptRules: randomRules(),
-			WorkersCount:    4,
-		}
+		handler, err := handling.NewHookHandler(
+			"pre-commit",
+			WithExpressionEngine(mocks.NewEngineMock(t)),
+			WithHooksConfig(&configuration.HooksConfig{
+				PreCommitHook: &configuration.HookConfig{
+					Rules: []configuration.Rule{
+						randomRule(),
+						randomRule(),
+						randomRule(),
+					},
+				},
+			}),
+			WithWorkersCount(4),
+			WithFileSystem(mocks.NewFilesystemMock(t)),
+			WithRepository(mocks.NewRepositoryMock(t)),
+		)
+
+		guards.NoError(err)
 
 		ctx, cancel := context.WithCancel(context.Background())
-		appCtx := appcontext.NewContext(
-			appcontext.WithBaseContext(ctx),
-			appcontext.WithFileSystem(mocks.NewFilesystemMock(t)),
-			appcontext.WithRepository(mocks.NewRepositoryMock(t)),
-		)
 
 		cancel()
 
-		err := handler.Handle(appCtx)
+		err = handler.Handle(ctx)
 
 		assert.EqualError(t, err, "1 error occurred:\n\t* context canceled\n\n")
 	})

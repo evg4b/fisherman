@@ -10,13 +10,13 @@ import (
 	"fisherman/internal/commands/version"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
-	"fisherman/internal/handling"
 	"fisherman/internal/utils"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
 	"fisherman/pkg/vcs"
 	"os"
 	"os/user"
+	"runtime"
 
 	"github.com/go-git/go-billy/v5/osfs"
 )
@@ -24,7 +24,14 @@ import (
 const fatalExitCode = 1
 
 func main() {
-	defer utils.PanicInterceptor(os.Exit, fatalExitCode)
+	defer utils.PanicInterceptor(func(recovered interface{}) {
+		log.Errorf("Fatal error: %s", recovered)
+		if err, ok := recovered.(error); ok {
+			log.DumpError(err)
+		}
+
+		os.Exit(fatalExitCode)
+	})
 
 	usr, err := user.Current()
 	guards.NoError(err)
@@ -48,26 +55,37 @@ func main() {
 	ctx := context.Background()
 	engine := expression.NewGoExpressionEngine()
 
-	hookFactory := handling.NewHookHandlerFactory(engine, config.Hooks)
-
 	appInfo := internal.AppInfo{
 		Executable: executablePath,
 		Cwd:        cwd,
 		Configs:    configs,
 	}
 
+	repo := vcs.NewRepository(vcs.WithFsRepo(cwd))
+
 	fishermanApp := app.NewFishermanApp(
 		app.WithCommands([]internal.CliCommand{
 			initialize.NewCommand(fs, appInfo, usr),
-			handle.NewCommand(hookFactory, &config.Hooks, appInfo),
+			handle.NewCommand(
+				handle.WithExpressionEngine(engine),
+				handle.WithHooksConfig(&config.Hooks),
+				handle.WithGlobalVars(map[string]interface{}{
+					// TODO: provide variables
+				}),
+				handle.WithCwd(cwd),
+				handle.WithFileSystem(fs),
+				handle.WithRepository(repo),
+				handle.WithArgs(os.Args[1:]),
+				handle.WithEnv(os.Environ()),
+				handle.WithWorkersCount(uint(runtime.NumCPU())),
+				handle.WithConfigFiles(configs),
+			),
 			remove.NewCommand(fs, appInfo, usr),
 			version.NewCommand(),
 		}),
 		app.WithFs(fs),
 		app.WithOutput(os.Stdout),
-		app.WithRepository(vcs.NewRepository(
-			vcs.WithFsRepo(cwd),
-		)),
+		app.WithRepository(repo),
 		app.WithEnv(os.Environ()),
 		app.WithSistemInterruptSignals(),
 	)

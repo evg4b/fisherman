@@ -1,7 +1,7 @@
 package version
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
 	"flag"
@@ -24,7 +24,7 @@ func (command *Command) Init(args []string) error {
 	return command.flagSet.Parse(args)
 }
 
-func (command *Command) Run(ctx internal.ExecutionContext) error {
+func (command *Command) Run(ctx context.Context) error {
 	_, err := fmt.Fprintf(log.Stdout(), "%s@%s", constants.AppName, constants.Version)
 
 	return err

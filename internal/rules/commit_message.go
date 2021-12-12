@@ -1,14 +1,19 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/go-git/go-billy/v5/util"
 )
 
 const CommitMessageType = "commit-message"
+
+const filePathArgumentIndex = 3
 
 type CommitMessage struct {
 	BaseRule `yaml:",inline"`
@@ -19,8 +24,8 @@ type CommitMessage struct {
 }
 
 // nolint: cyclop
-func (rule CommitMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
-	message, err := ctx.Message()
+func (rule CommitMessage) Check(ctx context.Context, _ io.Writer) error {
+	message, err := rule.Message()
 	if err != nil {
 		return err
 	}
@@ -56,4 +61,18 @@ func (rule *CommitMessage) Compile(variables map[string]interface{}) {
 	utils.FillTemplate(&rule.Prefix, variables)
 	utils.FillTemplate(&rule.Suffix, variables)
 	utils.FillTemplate(&rule.Regexp, variables)
+}
+
+func (rule *CommitMessage) Message() (string, error) {
+	messageFilePath, err := rule.Arg(filePathArgumentIndex)
+	if err != nil {
+		return "", err
+	}
+
+	message, err := util.ReadFile(rule.BaseRule.fs, messageFilePath)
+	if err != nil {
+		return "", fmt.Errorf("message cannot be read: %w", err)
+	}
+
+	return string(message), nil
 }

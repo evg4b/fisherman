@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	"io"
 	"io/fs"
@@ -16,14 +16,17 @@ type PrepareMessage struct {
 	Message  string `yaml:"message"`
 }
 
-func (rule PrepareMessage) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+func (rule PrepareMessage) Check(ctx context.Context, _ io.Writer) error {
 	if utils.IsEmpty(rule.Message) {
 		return nil
 	}
 
-	args := ctx.Args()
+	arg, err := rule.Arg(0)
+	if err != nil {
+		return err
+	}
 
-	return util.WriteFile(ctx.Files(), args[0], []byte(rule.Message), fs.ModePerm)
+	return util.WriteFile(rule.BaseRule.fs, arg, []byte(rule.Message), fs.ModePerm)
 }
 
 func (rule *PrepareMessage) Compile(variables map[string]interface{}) {

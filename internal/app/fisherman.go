@@ -3,10 +3,8 @@ package app
 import (
 	"context"
 	"fisherman/internal"
-	"fisherman/internal/appcontext"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
-	pkgutils "fisherman/pkg/utils"
 	"io"
 	"os"
 
@@ -65,19 +63,7 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		return err
 	}
 
-	appCtx := appcontext.NewContext(
-		appcontext.WithCwd(r.cwd),
-		appcontext.WithBaseContext(ctx),
-		appcontext.WithFileSystem(r.fs),
-		appcontext.WithRepository(r.repo),
-		appcontext.WithArgs(args),
-		appcontext.WithOutput(log.InfoOutput),
-		appcontext.WithEnv(pkgutils.MergeEnv(r.env, map[string]string{
-			// TODO: Privide cistom environment variables from
-		})),
-	)
-
-	if err := command.Run(appCtx); err != nil {
+	if err := command.Run(ctx); err != nil {
 		log.Debugf("Command '%s' finished with error, %v", command.Name(), err)
 
 		return err

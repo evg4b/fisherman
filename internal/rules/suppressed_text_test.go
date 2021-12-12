@@ -1,6 +1,7 @@
 package rules_test
 
 import (
+	"context"
 	"errors"
 	"fisherman/internal"
 	. "fisherman/internal/rules"
@@ -143,15 +144,15 @@ func TestSuppressedText_Check(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				ctx := mocks.NewExecutionContextMock(t).
-					RepositoryMock.Return(tt.repo)
+				rule := makeRule(
+					&SuppressedText{
+						BaseRule:   BaseRule{Type: SuppressedTextType},
+						Substrings: tt.substrings,
+					},
+					WithRepository(tt.repo),
+				)
 
-				rule := SuppressedText{
-					BaseRule:   BaseRule{Type: SuppressedTextType},
-					Substrings: tt.substrings,
-				}
-
-				err := rule.Check(ctx, io.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				assertFlatMultiError(t, tt.expectedErr, err)
 			})
@@ -202,15 +203,16 @@ func TestSuppressedText_Check(t *testing.T) {
 						},
 					}, nil)
 
-				ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
+				rule := makeRule(
+					&SuppressedText{
+						BaseRule:      BaseRule{Type: SuppressedTextType},
+						Substrings:    []string{"suppressed text"},
+						ExcludedGlobs: tt.exclude,
+					},
+					WithRepository(repo),
+				)
 
-				rule := SuppressedText{
-					BaseRule:      BaseRule{Type: SuppressedTextType},
-					Substrings:    []string{"suppressed text"},
-					ExcludedGlobs: tt.exclude,
-				}
-
-				err := rule.Check(ctx, io.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				assertFlatMultiError(t, tt.expectedErr, err)
 			})

@@ -1,6 +1,7 @@
 package handling
 
 import (
+	"context"
 	"sync"
 
 	"github.com/hashicorp/go-multierror"
@@ -8,12 +9,12 @@ import (
 
 type workersGroup struct {
 	wg  sync.WaitGroup
-	ctx coxtext
+	ctx context.Context
 	mu  sync.Mutex
 	err *multierror.Error
 }
 
-func workersGroupWithContext(ctx coxtext) *workersGroup {
+func workersGroupWithContext(ctx context.Context) *workersGroup {
 	return &workersGroup{ctx: ctx}
 }
 
@@ -23,7 +24,7 @@ func (g *workersGroup) Wait() error {
 	return g.err.ErrorOrNil()
 }
 
-func (g *workersGroup) Go(f func(coxtext) error) {
+func (g *workersGroup) Go(f func(context.Context) error) {
 	g.wg.Add(1)
 
 	go func() {

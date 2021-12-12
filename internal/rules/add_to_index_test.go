@@ -1,6 +1,7 @@
 package rules_test
 
 import (
+	"context"
 	syserrors "errors"
 	. "fisherman/internal/rules"
 	"fisherman/internal/validation"
@@ -41,7 +42,7 @@ func TestAddToIndex_Check(t *testing.T) {
 	t.Run("not configured rules", func(t *testing.T) {
 		rule := AddToIndex{BaseRule: BaseRule{Type: AddToIndexType}}
 
-		err := rule.Check(mocks.NewExecutionContextMock(t), ioutil.Discard)
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -52,8 +53,6 @@ func TestAddToIndex_Check(t *testing.T) {
 			AddGlobMock.When("*.css").Then(nil).
 			AddGlobMock.When("mocks").Then(nil)
 
-		ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
-
 		rule := AddToIndex{
 			Globs: []Glob{
 				{"glob1/*.go", true},
@@ -62,7 +61,9 @@ func TestAddToIndex_Check(t *testing.T) {
 			},
 		}
 
-		err := rule.Check(ctx, ioutil.Discard)
+		rule.Init(WithRepository(repo))
+
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -73,8 +74,6 @@ func TestAddToIndex_Check(t *testing.T) {
 			AddGlobMock.When("*.css").Then(syserrors.New("testError")).
 			AddGlobMock.When("mocks").Then(nil)
 
-		ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
-
 		rule := AddToIndex{
 			Globs: []Glob{
 				{"glob1/*.go", true},
@@ -82,7 +81,10 @@ func TestAddToIndex_Check(t *testing.T) {
 				{"mocks", true},
 			},
 		}
-		err := rule.Check(ctx, ioutil.Discard)
+
+		rule.Init(WithRepository(repo))
+
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
 		assert.EqualError(t, err, "failed to add files matching pattern '*.css' to the index: testError")
 		assert.IsType(t, &errors.Error{}, err)
@@ -93,8 +95,6 @@ func TestAddToIndex_Check(t *testing.T) {
 			AddGlobMock.When("glob1/*.go").Then(nil).
 			AddGlobMock.When("*.css").Then(git.ErrGlobNoMatches).
 			AddGlobMock.When("mocks").Then(nil)
-
-		ctx := mocks.NewExecutionContextMock(t).RepositoryMock.Return(repo)
 
 		tests := []struct {
 			name       string
@@ -114,8 +114,9 @@ func TestAddToIndex_Check(t *testing.T) {
 						{"mocks", tt.isRequired},
 					},
 				}
+				rule.Init(WithRepository(repo))
 
-				err := rule.Check(ctx, ioutil.Discard)
+				err := rule.Check(context.TODO(), ioutil.Discard)
 
 				if !tt.isRequired {
 					assert.NoError(t, err)

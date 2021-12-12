@@ -2,9 +2,9 @@ package version_test
 
 import (
 	"bytes"
+	"context"
 	. "fisherman/internal/commands/version"
 	"fisherman/pkg/log"
-	"fisherman/testing/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,7 +19,7 @@ func TestCommand_Run(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	err = command.Run(mocks.NewExecutionContextMock(t))
+	err = command.Run(context.TODO())
 
 	assert.NoError(t, err)
 	assert.Equal(t, "fisherman@x.x.x", output.String())

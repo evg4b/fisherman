@@ -1,6 +1,7 @@
 package initialize_test
 
 import (
+	"context"
 	"fisherman/internal"
 	. "fisherman/internal/commands/initialize"
 	"fisherman/internal/constants"
@@ -29,7 +30,7 @@ func TestCommand_Run(t *testing.T) {
 
 		err := command.Init([]string{"--force"})
 		assert.NoError(t, err)
-		err = command.Run(mocks.NewExecutionContextMock(t))
+		err = command.Run(context.TODO())
 		assert.NoError(t, err)
 	})
 }

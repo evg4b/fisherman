@@ -5,7 +5,7 @@ package mocks
 //go:generate minimock -i fisherman/internal.CliCommand -o ./testing/mocks/cli_command_mock.go -n CliCommandMock
 
 import (
-	mm_internal "fisherman/internal"
+	"context"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -35,8 +35,8 @@ type CliCommandMock struct {
 	beforeNameCounter uint64
 	NameMock          mCliCommandMockName
 
-	funcRun          func(ctx mm_internal.ExecutionContext) (err error)
-	inspectFuncRun   func(ctx mm_internal.ExecutionContext)
+	funcRun          func(ctx context.Context) (err error)
+	inspectFuncRun   func(ctx context.Context)
 	afterRunCounter  uint64
 	beforeRunCounter uint64
 	RunMock          mCliCommandMockRun
@@ -582,7 +582,7 @@ type CliCommandMockRunExpectation struct {
 
 // CliCommandMockRunParams contains parameters of the CliCommand.Run
 type CliCommandMockRunParams struct {
-	ctx mm_internal.ExecutionContext
+	ctx context.Context
 }
 
 // CliCommandMockRunResults contains results of the CliCommand.Run
@@ -591,7 +591,7 @@ type CliCommandMockRunResults struct {
 }
 
 // Expect sets up expected params for CliCommand.Run
-func (mmRun *mCliCommandMockRun) Expect(ctx mm_internal.ExecutionContext) *mCliCommandMockRun {
+func (mmRun *mCliCommandMockRun) Expect(ctx context.Context) *mCliCommandMockRun {
 	if mmRun.mock.funcRun != nil {
 		mmRun.mock.t.Fatalf("CliCommandMock.Run mock is already set by Set")
 	}
@@ -611,7 +611,7 @@ func (mmRun *mCliCommandMockRun) Expect(ctx mm_internal.ExecutionContext) *mCliC
 }
 
 // Inspect accepts an inspector function that has same arguments as the CliCommand.Run
-func (mmRun *mCliCommandMockRun) Inspect(f func(ctx mm_internal.ExecutionContext)) *mCliCommandMockRun {
+func (mmRun *mCliCommandMockRun) Inspect(f func(ctx context.Context)) *mCliCommandMockRun {
 	if mmRun.mock.inspectFuncRun != nil {
 		mmRun.mock.t.Fatalf("Inspect function is already set for CliCommandMock.Run")
 	}
@@ -635,7 +635,7 @@ func (mmRun *mCliCommandMockRun) Return(err error) *CliCommandMock {
 }
 
 //Set uses given function f to mock the CliCommand.Run method
-func (mmRun *mCliCommandMockRun) Set(f func(ctx mm_internal.ExecutionContext) (err error)) *CliCommandMock {
+func (mmRun *mCliCommandMockRun) Set(f func(ctx context.Context) (err error)) *CliCommandMock {
 	if mmRun.defaultExpectation != nil {
 		mmRun.mock.t.Fatalf("Default expectation is already set for the CliCommand.Run method")
 	}
@@ -650,7 +650,7 @@ func (mmRun *mCliCommandMockRun) Set(f func(ctx mm_internal.ExecutionContext) (e
 
 // When sets expectation for the CliCommand.Run which will trigger the result defined by the following
 // Then helper
-func (mmRun *mCliCommandMockRun) When(ctx mm_internal.ExecutionContext) *CliCommandMockRunExpectation {
+func (mmRun *mCliCommandMockRun) When(ctx context.Context) *CliCommandMockRunExpectation {
 	if mmRun.mock.funcRun != nil {
 		mmRun.mock.t.Fatalf("CliCommandMock.Run mock is already set by Set")
 	}
@@ -670,7 +670,7 @@ func (e *CliCommandMockRunExpectation) Then(err error) *CliCommandMock {
 }
 
 // Run implements internal.CliCommand
-func (mmRun *CliCommandMock) Run(ctx mm_internal.ExecutionContext) (err error) {
+func (mmRun *CliCommandMock) Run(ctx context.Context) (err error) {
 	mm_atomic.AddUint64(&mmRun.beforeRunCounter, 1)
 	defer mm_atomic.AddUint64(&mmRun.afterRunCounter, 1)
 

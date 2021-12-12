@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	"io"
 	"path/filepath"
@@ -21,12 +21,12 @@ type SuppressCommitFiles struct {
 }
 
 // nolint: cyclop
-func (rule *SuppressCommitFiles) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+func (rule *SuppressCommitFiles) Check(ctx context.Context, _ io.Writer) error {
 	if len(rule.Globs) == 0 {
 		return nil
 	}
 
-	repo := ctx.Repository()
+	repo := rule.BaseRule.repo
 	files, err := repo.GetFilesInIndex()
 	if err != nil {
 		return err

@@ -95,7 +95,7 @@ func TestRunner_Interrupt(t *testing.T) {
 	commandMock := mocks.NewCliCommandMock(t).
 		InitMock.Return(nil).
 		NameMock.Return("test-command").
-		RunMock.Set(func(ctx internal.ExecutionContext) error {
+		RunMock.Set(func(ctx context.Context) error {
 		<-ctx.Done()
 
 		return ctx.Err()

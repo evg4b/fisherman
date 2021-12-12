@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"context"
 	"fisherman/internal/utils"
 	"io"
 
@@ -26,15 +26,14 @@ func (rule *AddToIndex) GetPosition() byte {
 	return PostScripts
 }
 
-func (rule *AddToIndex) Check(ctx internal.ExecutionContext, _ io.Writer) error {
+func (rule *AddToIndex) Check(ctx context.Context, _ io.Writer) error {
 	if len(rule.Globs) < 1 {
 		return nil
 	}
 
-	repo := ctx.Repository()
+	repo := rule.BaseRule.repo
 	for _, glob := range rule.Globs {
-		err := repo.AddGlob(glob.Pattern)
-		if err != nil {
+		if err := repo.AddGlob(glob.Pattern); err != nil {
 			if errors.Is(err, git.ErrGlobNoMatches) {
 				if !glob.IsRequired {
 					continue

@@ -1,8 +1,12 @@
 package rules
 
 import (
+	"fisherman/internal"
 	"fisherman/internal/utils"
 	"fisherman/internal/validation"
+
+	"github.com/go-errors/errors"
+	"github.com/go-git/go-billy/v5"
 )
 
 var (
@@ -11,9 +15,17 @@ var (
 	PostScripts byte = 3
 )
 
+type RuleOption = func(rule *BaseRule)
+
 type BaseRule struct {
 	Type      string `yaml:"type,omitempty"`
 	Condition string `yaml:"when,omitempty"`
+
+	cwd  string
+	fs   billy.Filesystem
+	repo internal.Repository
+	args []string
+	env  []string
 }
 
 func (rule *BaseRule) GetType() string {
@@ -38,4 +50,22 @@ func (rule *BaseRule) Compile(variables map[string]interface{}) {
 
 func (rule *BaseRule) errorf(message string, a ...interface{}) error {
 	return validation.Errorf(rule.GetPrefix(), message, a...)
+}
+
+func (rule *BaseRule) Init(options ...RuleOption) {
+	for _, option := range options {
+		option(rule)
+	}
+}
+
+func (rule *BaseRule) Arg(index int) (string, error) {
+	if index < 0 {
+		return "", errors.New("incorrect argument index")
+	}
+
+	if rule.args == nil || len(rule.args) <= index {
+		return "", errors.Errorf("argument at index %d is not provided", index)
+	}
+
+	return rule.args[index], nil
 }

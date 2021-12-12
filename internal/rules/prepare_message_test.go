@@ -1,8 +1,10 @@
 package rules_test
 
 import (
+	"context"
+	"fisherman/internal/configuration"
+	"fisherman/internal/rules"
 	. "fisherman/internal/rules"
-	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"io/ioutil"
 	"testing"
@@ -18,22 +20,26 @@ func TestPrepareMessage_Check(t *testing.T) {
 		messageFilePath: message,
 	})
 
-	ctx := mocks.NewExecutionContextMock(t).
-		ArgsMock.Return([]string{messageFilePath}).
-		FilesMock.Return(fs)
-
 	t.Run("not configured rule", func(t *testing.T) {
-		rule := PrepareMessage{}
+		rule := makeRule(
+			&PrepareMessage{},
+			rules.WithArgs([]string{messageFilePath}),
+			rules.WithFileSystem(fs),
+		)
 
-		err := rule.Check(ctx, ioutil.Discard)
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
 		assert.NoError(t, err)
 	})
 
 	t.Run("succeeded check ", func(t *testing.T) {
-		rule := PrepareMessage{Message: message}
+		rule := makeRule(
+			&PrepareMessage{Message: message},
+			rules.WithArgs([]string{messageFilePath}),
+			rules.WithFileSystem(fs),
+		)
 
-		err := rule.Check(ctx, ioutil.Discard)
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -49,4 +55,10 @@ func TestPrepareMessage_Compile(t *testing.T) {
 	assert.Equal(t, PrepareMessage{
 		Message: "VALUE",
 	}, rule)
+}
+
+func makeRule(rule configuration.Rule, options ...RuleOption) configuration.Rule {
+	rule.Init(options...)
+
+	return rule
 }

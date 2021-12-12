@@ -2,13 +2,13 @@
 package rules_test
 
 import (
-	"errors"
+	"context"
 	. "fisherman/internal/rules"
-	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"io/ioutil"
 	"testing"
 
+	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -63,15 +63,18 @@ func TestCommitMessage_Check(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				ctx := mocks.NewExecutionContextMock(t).
-					MessageMock.Return(tt.message, nil)
+				rule := makeRule(
+					&CommitMessage{
+						BaseRule: BaseRule{Type: CommitMessageType},
+						NotEmpty: tt.notEmpty,
+					},
+					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithFileSystem(testutils.FsFromMap(t, map[string]string{
+						"massage": tt.message,
+					})),
+				)
 
-				rule := CommitMessage{
-					BaseRule: BaseRule{Type: CommitMessageType},
-					NotEmpty: tt.notEmpty,
-				}
-
-				err := rule.Check(ctx, ioutil.Discard)
+				err := rule.Check(context.TODO(), ioutil.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -117,15 +120,18 @@ func TestCommitMessage_Check(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				ctx := mocks.NewExecutionContextMock(t).
-					MessageMock.Return(tt.message, nil)
+				rule := makeRule(
+					&CommitMessage{
+						BaseRule: BaseRule{Type: CommitMessageType},
+						Prefix:   tt.prefix,
+					},
+					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithFileSystem(testutils.FsFromMap(t, map[string]string{
+						"massage": tt.message,
+					})),
+				)
 
-				rule := CommitMessage{
-					BaseRule: BaseRule{Type: CommitMessageType},
-					Prefix:   tt.prefix,
-				}
-
-				err := rule.Check(ctx, ioutil.Discard)
+				err := rule.Check(context.TODO(), ioutil.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -174,15 +180,18 @@ func TestCommitMessage_Check(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				ctx := mocks.NewExecutionContextMock(t).
-					MessageMock.Return(tt.message, nil)
+				rule := makeRule(
+					&CommitMessage{
+						BaseRule: BaseRule{Type: CommitMessageType},
+						Suffix:   tt.suffix,
+					},
+					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithFileSystem(testutils.FsFromMap(t, map[string]string{
+						"massage": tt.message,
+					})),
+				)
 
-				rule := CommitMessage{
-					BaseRule: BaseRule{Type: CommitMessageType},
-					Suffix:   tt.suffix,
-				}
-
-				err := rule.Check(ctx, ioutil.Discard)
+				err := rule.Check(context.TODO(), ioutil.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -221,15 +230,18 @@ func TestCommitMessage_Check(t *testing.T) {
 
 			for _, tt := range tests {
 				t.Run(tt.name, func(t *testing.T) {
-					ctx := mocks.NewExecutionContextMock(t).
-						MessageMock.Return(tt.message, nil)
+					rule := makeRule(
+						&CommitMessage{
+							BaseRule: BaseRule{Type: CommitMessageType},
+							Regexp:   tt.expression,
+						},
+						WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+						WithFileSystem(testutils.FsFromMap(t, map[string]string{
+							"massage": tt.message,
+						})),
+					)
 
-					rule := CommitMessage{
-						BaseRule: BaseRule{Type: CommitMessageType},
-						Regexp:   tt.expression,
-					}
-
-					err := rule.Check(ctx, ioutil.Discard)
+					err := rule.Check(context.TODO(), ioutil.Discard)
 
 					testutils.AssertError(t, tt.expectedErr, err)
 				})
@@ -237,31 +249,29 @@ func TestCommitMessage_Check(t *testing.T) {
 		})
 
 		t.Run("regexp parsing error", func(t *testing.T) {
-			ctx := mocks.NewExecutionContextMock(t).
-				MessageMock.Return("message", nil)
-
 			rule := CommitMessage{
 				BaseRule: BaseRule{Type: CommitMessageType},
 				Regexp:   "[a-z]($",
 			}
 
-			err := rule.Check(ctx, ioutil.Discard)
+			err := rule.Check(context.TODO(), ioutil.Discard)
 
 			assert.Error(t, err)
 		})
 	})
 
 	t.Run("message reading error", func(t *testing.T) {
-		ctx := mocks.NewExecutionContextMock(t).
-			MessageMock.Return("", errors.New("message cannot be read"))
+		rule := makeRule(
+			&CommitMessage{
+				BaseRule: BaseRule{Type: CommitMessageType},
+				Regexp:   "[a-z]($",
+			},
+			WithArgs([]string{"handle", "--hook", "pre-coomit", "unknow/file"}),
+			WithFileSystem(memfs.New()),
+		)
 
-		rule := CommitMessage{
-			BaseRule: BaseRule{Type: CommitMessageType},
-			Regexp:   "[a-z]($",
-		}
+		err := rule.Check(context.TODO(), ioutil.Discard)
 
-		err := rule.Check(ctx, ioutil.Discard)
-
-		assert.EqualError(t, err, "message cannot be read")
+		assert.EqualError(t, err, "message cannot be read: file does not exist")
 	})
 }
