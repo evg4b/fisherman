@@ -7,6 +7,7 @@ import (
 	"fisherman/internal/expression"
 	"fisherman/internal/rules"
 	"fisherman/internal/utils"
+	"io"
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"
@@ -33,6 +34,7 @@ type HookHandler struct {
 	args         []string
 	env          []string
 	workersCount uint
+	output       io.Writer
 
 	rules           []configuration.Rule
 	scripts         []configuration.Rule

@@ -79,6 +79,7 @@ func main() {
 				handle.WithEnv(os.Environ()),
 				handle.WithWorkersCount(uint(runtime.NumCPU())),
 				handle.WithConfigFiles(configs),
+				handle.WithOutput(os.Stdout),
 			),
 			remove.NewCommand(fs, appInfo, usr),
 			version.NewCommand(),

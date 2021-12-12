@@ -26,6 +26,7 @@ func (c *Command) Run(ctx context.Context) error {
 		handling.WithArgs(c.args),
 		handling.WithEnv(c.env),
 		handling.WithWorkersCount(c.workersCount),
+		handling.WithOutput(c.output),
 	)
 
 	if err != nil {

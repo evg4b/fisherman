@@ -5,6 +5,7 @@ import (
 	cnfg "fisherman/internal/configuration"
 	"fisherman/internal/expression"
 	"flag"
+	"io"
 
 	"github.com/go-git/go-billy/v5"
 )
@@ -23,6 +24,7 @@ type Command struct {
 	env          []string
 	workersCount uint
 	configFiles  map[string]string
+	output       io.Writer
 }
 
 const defaultWorkerCount = 5
@@ -32,6 +34,7 @@ func NewCommand(options ...commandOption) *Command {
 		flagSet:      flag.NewFlagSet("handle", flag.ExitOnError),
 		usage:        "starts hook processing based on the config file (for debugging only)",
 		workersCount: defaultWorkerCount,
+		output:       io.Discard,
 	}
 	command.flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 

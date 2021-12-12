@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/evg4b/linebyline"
 	"github.com/go-errors/errors"
 )
 
@@ -31,7 +32,7 @@ func (h *HookHandler) runRules(ctx context.Context, rules []configuration.Rule) 
 
 	g := workersGroupWithContext(ctx)
 	for i := 0; i < utils.Min(int(h.workersCount), len(rules)); i++ {
-		g.Go(worker(i, input))
+		g.Go(worker(i, input, h.output))
 	}
 
 	return g.Wait()
@@ -55,14 +56,16 @@ func rulesReduser(ctx context.Context, rules []configuration.Rule) chan configur
 }
 
 // TODO: Add panic interceptor.
-func worker(id int, input in) func(context.Context) error {
+func worker(id int, input in, output io.Writer) func(context.Context) error {
+	outputWriter := linebyline.NewByLineWriter(output)
+
 	return func(ctx context.Context) error {
 		log.Debugf("workder %d started", id)
 		defer log.Debugf("workder %d finished", id)
 
 		for rule := range input {
 			log.Debugf("workder %d received rules %s", id, rule.GetPrefix())
-			err := checkRule(ctx, rule)
+			err := checkRule(ctx, rule, outputWriter)
 			// TODO: Move canclation to workers run method
 			if err != nil {
 				return errors.Errorf("[%s] %s", rule.GetType(), err)
@@ -74,14 +77,9 @@ func worker(id int, input in) func(context.Context) error {
 }
 
 // TODO: Add more detailed validation result.
-func checkRule(ctx context.Context, rule configuration.Rule) error {
-	// writer := ctx.Output()
-	// defer writer.Close()
-
-	writer := io.Discard
-
+func checkRule(ctx context.Context, rule configuration.Rule, output io.Writer) error {
 	prefix := fmt.Sprintf("%s | ", rule.GetPrefix())
-	prefixedWriter := prefixwriter.NewWriter(writer, prefix)
+	prefixedWriter := prefixwriter.NewWriter(output, prefix)
 
 	return rule.Check(ctx, prefixedWriter)
 }

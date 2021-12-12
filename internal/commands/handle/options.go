@@ -4,6 +4,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
+	"io"
 
 	"github.com/go-git/go-billy/v5"
 )
@@ -67,5 +68,11 @@ func WithWorkersCount(workersCount uint) commandOption {
 func WithConfigFiles(configFiles map[string]string) commandOption {
 	return func(h *Command) {
 		h.configFiles = configFiles
+	}
+}
+
+func WithOutput(output io.Writer) commandOption {
+	return func(h *Command) {
+		h.output = output
 	}
 }

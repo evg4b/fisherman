@@ -4,6 +4,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
+	"io"
 
 	"github.com/go-git/go-billy/v5"
 )
@@ -61,5 +62,10 @@ func WithEnv(env []string) handlerOptions {
 func WithWorkersCount(workersCount uint) handlerOptions {
 	return func(h *HookHandler) {
 		h.workersCount = workersCount
+	}
+}
+func WithOutput(output io.Writer) handlerOptions {
+	return func(h *HookHandler) {
+		h.output = output
 	}
 }
