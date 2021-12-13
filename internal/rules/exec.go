@@ -3,7 +3,7 @@ package rules
 import (
 	"context"
 	"fisherman/internal/utils"
-	pkgutils "fisherman/pkg/utils"
+	"fisherman/pkg/shell/helpers"
 	"io"
 	"os/exec"
 
@@ -52,12 +52,12 @@ func (rule *Exec) GetPrefix() string {
 }
 
 func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
-	env := pkgutils.MergeEnv(rule.BaseRule.env, rule.Env)
+	env := helpers.MergeEnv(rule.BaseRule.env, rule.Env)
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
 		command := CommandContext(ctx, commandDef.Program, commandDef.Args...)
-		command.Env = pkgutils.MergeEnv(env, commandDef.Env)
+		command.Env = helpers.MergeEnv(env, commandDef.Env)
 		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, rule.BaseRule.cwd)
 		// TODO: Add custom encoding for different shell
 		command.Stdout = output

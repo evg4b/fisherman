@@ -4,7 +4,7 @@ import (
 	"context"
 	"fisherman/internal/utils"
 	"fisherman/pkg/shell"
-	pkgutils "fisherman/pkg/utils"
+	"fisherman/pkg/shell/helpers"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -35,7 +35,7 @@ func (rule *ShellScript) GetPrefix() string {
 
 func (rule *ShellScript) Check(ctx context.Context, output io.Writer) error {
 	formatterOutput := formatOutput(output, rule)
-	env := pkgutils.MergeEnv(rule.BaseRule.env, rule.Env)
+	env := helpers.MergeEnv(rule.BaseRule.env, rule.Env)
 	strategy, err := getShellStrategy(rule.Shell)
 	if err != nil {
 		return errors.Errorf("failed to cheate shell host: %w", err)

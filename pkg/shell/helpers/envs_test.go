@@ -1,7 +1,7 @@
-package utils_test
+package helpers_test
 
 import (
-	. "fisherman/pkg/utils"
+	. "fisherman/pkg/shell/helpers"
 	"fisherman/testing/testutils"
 	"testing"
 )
