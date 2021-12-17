@@ -20,6 +20,7 @@ type ShellScript struct {
 	Name     string            `yaml:"name"`
 	Shell    string            `yaml:"shell"`
 	Commands []string          `yaml:"commands"`
+	Encoding string            `yaml:"encoding"`
 	Env      map[string]string `yaml:"env"`
 	Output   bool              `yaml:"output"`
 	Dir      string            `yaml:"dir"`
@@ -41,12 +42,18 @@ func (rule *ShellScript) Check(ctx context.Context, output io.Writer) error {
 		return errors.Errorf("failed to cheate shell host: %w", err)
 	}
 
+	encoding, err := getEncoding(rule.Encoding)
+	if err != nil {
+		return errors.Errorf("failed to cheate shell host: %w", err)
+	}
+
 	host := shell.NewHost(
 		ctx,
 		strategy,
 		shell.WithEnv(env),
 		shell.WithStdout(formatterOutput),
 		shell.WithCwd(rule.Dir),
+		shell.WithEncoding(encoding),
 	)
 
 	for _, command := range rule.Commands {

@@ -174,14 +174,6 @@ func windowsEncoding() encoding.Encoding {
 		if enc, err := ianaindex.IANA.Encoding(encodingName); err == nil {
 			return enc
 		}
-
-		if enc, err := ianaindex.MIB.Encoding(encodingName); err == nil {
-			return enc
-		}
-
-		if enc, err := ianaindex.MIME.Encoding(encodingName); err == nil {
-			return enc
-		}
 	}
 
 	// TODO: add warning about details to handle encoding

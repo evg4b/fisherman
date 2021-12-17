@@ -8,6 +8,7 @@ import (
 	"os/exec"
 
 	"github.com/hashicorp/go-multierror"
+	"golang.org/x/text/transform"
 )
 
 var CommandContext = exec.CommandContext
@@ -25,11 +26,12 @@ type Exec struct {
 
 // TODO: Add custom YAML unmarshalling.
 type CommandDef struct {
-	Program string            `yaml:"program"`
-	Args    []string          `yaml:"args"`
-	Env     map[string]string `yaml:"env"`
-	Output  bool              `yaml:"output"`
-	Dir     string            `yaml:"dir"`
+	Program  string            `yaml:"program"`
+	Args     []string          `yaml:"args"`
+	Env      map[string]string `yaml:"env"`
+	Output   bool              `yaml:"output"`
+	Encoding string            `yaml:"encoding"`
+	Dir      string            `yaml:"dir"`
 }
 
 func (command *CommandDef) Compile(variables map[string]interface{}) {
@@ -56,12 +58,16 @@ func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
 
 	var resultError *multierror.Error
 	for _, commandDef := range rule.Commands {
+		encoding, err := getEncoding(commandDef.Encoding)
+		if err != nil {
+			return err
+		}
+
 		command := CommandContext(ctx, commandDef.Program, commandDef.Args...)
 		command.Env = helpers.MergeEnv(env, commandDef.Env)
 		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, rule.BaseRule.cwd)
-		// TODO: Add custom encoding for different shell
-		command.Stdout = output
-		command.Stderr = output
+		command.Stdout = transform.NewWriter(output, encoding.NewDecoder())
+		command.Stderr = transform.NewWriter(output, encoding.NewDecoder())
 
 		if err := command.Run(); err != nil {
 			resultError = multierror.Append(resultError, err)

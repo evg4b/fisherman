@@ -29,6 +29,7 @@ shell e.p. `cp`, `rm`, `mkdir` and others. For more details, see the information
         VAR1: new value
       dir: program-directory
       output: true
+      encoding: cp866
     - program: executable2
       args: [arg1, arg2, arg3]
 ```
@@ -45,6 +46,7 @@ shell e.p. `cp`, `rm`, `mkdir` and others. For more details, see the information
   - **dir** - Sets current working directory for program.
   - **output** - Indicates whether to print the command output. By default false. To display parallel output,
     use a prefix with script name before each output line.
+  - **encoding** - Setup program output encoding (UTF-8) by default.
 
 ``` yaml
 - type: run-program

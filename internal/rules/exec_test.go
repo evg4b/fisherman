@@ -50,11 +50,24 @@ func TestExec_Check(t *testing.T) {
 	defer func() { CommandContext = exec.CommandContext }()
 
 	tests := []struct {
-		name     string
-		expected string
-		commands []CommandDef
-		env      map[string]string
+		name        string
+		commands    []CommandDef
+		env         map[string]string
+		expectedErr string
 	}{
+		{
+			name: "unknown encoding",
+			commands: []CommandDef{
+				{Program: "go", Args: []string{"test", "./valid"}, Encoding: "unknown"},
+			},
+			expectedErr: "'unknown' is unknown encoding",
+		},
+		{
+			name: "correct apply encoding by name",
+			commands: []CommandDef{
+				{Program: "go", Args: []string{"test", "./valid"}, Encoding: "cp862"},
+			},
+		},
 		{
 			name: "successfully command execution",
 			commands: []CommandDef{
@@ -62,8 +75,8 @@ func TestExec_Check(t *testing.T) {
 			},
 		},
 		{
-			name:     "command finished with code 2",
-			expected: "1 error occurred:\n\t* exit status 2\n\n",
+			name:        "command finished with code 2",
+			expectedErr: "1 error occurred:\n\t* exit status 2\n\n",
 			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 			},
@@ -76,8 +89,8 @@ func TestExec_Check(t *testing.T) {
 			},
 		},
 		{
-			name:     "failed one command from list",
-			expected: "1 error occurred:\n\t* exit status 2\n\n",
+			name:        "failed one command from list",
+			expectedErr: "1 error occurred:\n\t* exit status 2\n\n",
 			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 				{Program: "go", Args: []string{"test", "./valid"}},
@@ -85,8 +98,8 @@ func TestExec_Check(t *testing.T) {
 			},
 		},
 		{
-			name:     "failed two command from list",
-			expected: "2 errors occurred:\n\t* exit status 2\n\t* exit status 33\n\n",
+			name:        "failed two command from list",
+			expectedErr: "2 errors occurred:\n\t* exit status 2\n\t* exit status 33\n\n",
 			commands: []CommandDef{
 				{Program: "go", Args: []string{"test", "./..."}},
 				{Program: "make", Args: []string{"build"}},
@@ -166,7 +179,7 @@ func TestExec_Check(t *testing.T) {
 
 			actual := rule.Check(context.TODO(), io.Discard)
 
-			testutils.AssertError(t, tt.expected, actual)
+			testutils.AssertError(t, tt.expectedErr, actual)
 		})
 	}
 }

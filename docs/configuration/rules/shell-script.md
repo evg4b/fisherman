@@ -15,6 +15,7 @@ Shell script can be configured using the following structure:
   commands:
     - command1
     - command2
+  encoding: cp866
   output: true
 ```
 
@@ -24,6 +25,7 @@ You can create as many scripts to validation. Scripts will be executed on the [s
 - **when** - An expression on C like language. It allows you to define a condition for executing a script. See more in section [Condition expressions](../expressions.md).
 - **env** - Sets additional environment variables (system environment variables also will be included)  for the command.
 - **output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
+- **encoding** - Setup shell output encoding (UTF-8) by default.
 
 Example:
 
