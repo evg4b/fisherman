@@ -1,4 +1,5 @@
 // nolint: dupl
+
 package shell_test
 
 import (
@@ -9,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/encoding"
 )
 
 func TestBashStrategy(t *testing.T) {
@@ -67,4 +69,10 @@ func TestBashStrategy_EnvWrapper(t *testing.T) {
 			assert.Equal(t, tt.expected, actual)
 		})
 	}
+}
+
+func TestBashStrategy_GetEncoding(t *testing.T) {
+	actual := Bash().GetEncoding()
+
+	assert.EqualValues(t, encoding.Nop, actual)
 }

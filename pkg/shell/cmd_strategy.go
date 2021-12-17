@@ -3,6 +3,8 @@ package shell
 import (
 	"context"
 	"os/exec"
+
+	"golang.org/x/text/encoding"
 )
 
 type CmdStrategy struct{}
@@ -29,4 +31,8 @@ func (s *CmdStrategy) ArgsWrapper(args []string) []string {
 
 func (s *CmdStrategy) EnvWrapper(env []string) []string {
 	return env
+}
+
+func (s *CmdStrategy) GetEncoding() encoding.Encoding {
+	return windowsEncoding()
 }

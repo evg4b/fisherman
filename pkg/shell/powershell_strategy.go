@@ -3,6 +3,8 @@ package shell
 import (
 	"context"
 	"os/exec"
+
+	"golang.org/x/text/encoding"
 )
 
 const powershellBin = "powershell"
@@ -29,4 +31,8 @@ func (s *PowershellStrategy) ArgsWrapper(args []string) []string {
 
 func (s *PowershellStrategy) EnvWrapper(env []string) []string {
 	return env
+}
+
+func (s *PowershellStrategy) GetEncoding() encoding.Encoding {
+	return windowsEncoding()
 }

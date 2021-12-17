@@ -68,3 +68,11 @@ func TestPowerShellStrategy_EnvWrapper(t *testing.T) {
 		})
 	}
 }
+
+func TestPowerShellStrategy_GetEncoding(t *testing.T) {
+	assert.NotPanics(t, func() {
+		actual := PowerShell().GetEncoding()
+
+		assert.NotNil(t, actual)
+	})
+}

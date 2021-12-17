@@ -23,30 +23,7 @@ Features:
 - **shell.WithRawEnv(env)** - specifies the environment of the shell process (without the shell strategy provided variables).
 - **shell.WithArgs(args)** - holds command line arguments (including the shell strategy provided args)
 - **shell.WithRawArgs(args)** - holds command line arguments (without the shell strategy provided args)
-
-# Encoding:
-This wrapper does not work with the shell encodings. To execute commands in a different encoding, you can wrap the host in Encoder and Stdout in Decoder from packages `golang.org/x/text/encoding/charmap` and `golang.org/x/text/transform` like this:
-
-``` GO
-cp := charmap.CodePage866 // Your encoding
-buffer := bytes.NewBufferString("")
-
-host := shell.NewHost(ctx, shell.Cmd(), shell.WithStdout(buffer))
-convertedHost := transform.NewWriter(host, cp.NewEncoder())
-
-fmt.Fprintln(convertedHost, "chcp")
-
-if err := host.Wait(); err != nil {
-  panic(err)
-}
-
-output, _, err := transform.String(cp.NewDecoder(), buff.String())
-if err != nil {
-  panic(err)
-}
-
-fmt.Print(output)
-```
+- **shell.WithEncoding(encoding)** - overwrite encoding for shell. (To setup utf-8 encoding pass `encoding.Nop`)
 
 # Examples:
 
@@ -94,6 +71,28 @@ if err := host.Run("ping -n 10 google.com"); err != nil {
 fmt.Print(buffer.String())
 ```
 
+### Custom encoding
+
+``` golang
+buffer := bytes.NewBuffer([]byte{})
+
+host := shell.NewHost(
+  ctx,
+  shell.Cmd(),
+  shell.WithStdout(buffer),
+  shell.WithEncoding(charmap.Windows1251),
+)
+
+fmt.Fprintln(host, "chcp 1251 > nul")
+fmt.Fprintln(host, "echo проверка русского текста")
+
+if err := host.Wait(); err != nil {
+  panic(err)
+}
+
+fmt.Print(buffer.String())
+```
+
 ## Helpers
 
 Also, the package contains helpers functions in `fisherman/pkg/shell/helpers`. These functions can be useful when working with shell host.
@@ -102,3 +101,7 @@ Also, the package contains helpers functions in `fisherman/pkg/shell/helpers`. T
 
 - **helpers.MergeEnv** - Merges a slice of environment variables (for example `os.Environ()`) with a map of custom variables.
   In case when variable already defined in slice, it will replaced from map.
+
+## Known issues
+
+There is a problem with rendering utf8 output on windows. This is related to the problem with UTF-8 support in Windows. ReadConsoleA and ReadFile just silently fail with the code page set to 65001. Read more [here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/6db367e1-6b39-4c91-bd08-e3779ae5fc23/problems-with-readingwriting-utf8-characters-to-console?forum=vcgeneral).

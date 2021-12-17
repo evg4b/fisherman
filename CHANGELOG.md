@@ -14,6 +14,7 @@
 - (shell-script rule) Added correct cross-platform exit code checking
 - Added `suppress-text` rule for suppress file content
 - Added `exec` rule to run cli programs without shell overhead.
+- Implemented correct encoding handling for `shell-script` rule.
 
 ### Fixed
 

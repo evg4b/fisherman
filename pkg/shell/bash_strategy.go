@@ -3,6 +3,8 @@ package shell
 import (
 	"context"
 	"os/exec"
+
+	"golang.org/x/text/encoding"
 )
 
 type BashStrategy struct{}
@@ -27,4 +29,8 @@ func (s *BashStrategy) ArgsWrapper(args []string) []string {
 
 func (s *BashStrategy) EnvWrapper(env []string) []string {
 	return env
+}
+
+func (s *BashStrategy) GetEncoding() encoding.Encoding {
+	return encoding.Nop
 }

@@ -54,9 +54,9 @@ func GetConfigFolder(usr *user.User, cwd, mode string) (string, error) {
 	case LocalMode:
 		return filepath.Join(cwd, gitDir), nil
 	case RepoMode:
-		return filepath.Join(cwd), nil
+		return cwd, nil
 	case GlobalMode:
-		return filepath.Join(usr.HomeDir), nil
+		return usr.HomeDir, nil
 	default:
 		return "", errors.New("unknown config mode")
 	}

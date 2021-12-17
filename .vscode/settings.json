@@ -40,6 +40,7 @@
         "govaluate",
         "govet",
         "hashicorp",
+        "ianaindex",
         "ifshort",
         "imdario",
         "importas",

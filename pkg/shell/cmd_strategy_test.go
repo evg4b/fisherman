@@ -68,3 +68,11 @@ func TestCmdStrategy_EnvWrapper(t *testing.T) {
 		})
 	}
 }
+
+func TestCmdStrategy_GetEncoding(t *testing.T) {
+	assert.NotPanics(t, func() {
+		actual := Cmd().GetEncoding()
+
+		assert.NotNil(t, actual)
+	})
+}

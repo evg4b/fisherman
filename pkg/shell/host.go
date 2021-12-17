@@ -7,6 +7,9 @@ import (
 	"io"
 	"os/exec"
 	"sync"
+
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/transform"
 )
 
 // ShellStrategy is interface to describe base concrete shell command.
@@ -15,23 +18,26 @@ type ShellStrategy interface { // nolint: revive
 	GetCommand(context.Context) *exec.Cmd
 	ArgsWrapper([]string) []string
 	EnvWrapper([]string) []string
+	GetEncoding() encoding.Encoding
 }
 
 // Host is shell host structure to comunicate with shell process.
 type Host struct {
-	command     *exec.Cmd
-	stdin       io.WriteCloser
-	stdinClosed bool
-	mu          sync.Mutex
+	command    *exec.Cmd
+	stdin      io.Writer
+	closeStdin func() error
+	closeOnce  sync.Once
+	mu         sync.Mutex
+	encoding   encoding.Encoding
 }
 
 // NewHost creates new shell host based on passed strategy.
 func NewHost(ctx context.Context, strategy ShellStrategy, options ...hostOption) *Host {
 	host := &Host{
-		command:     strategy.GetCommand(ctx),
-		stdin:       nil,
-		stdinClosed: false,
-		mu:          sync.Mutex{},
+		command:    strategy.GetCommand(ctx),
+		encoding:   strategy.GetEncoding(),
+		mu:         sync.Mutex{},
+		closeStdin: func() error { return nil },
 	}
 
 	for _, option := range options {
@@ -99,14 +105,12 @@ func (host *Host) Wait() error {
 	return host.command.Wait()
 }
 
-func (host *Host) Close() error {
-	host.stdinClosed = true
+func (host *Host) Close() (err error) {
+	host.closeOnce.Do(func() {
+		err = host.closeStdin()
+	})
 
-	if host.stdin != nil {
-		return host.stdin.Close()
-	}
-
-	return nil
+	return err
 }
 
 func (host *Host) Terminate() error {
@@ -122,13 +126,37 @@ func (host *Host) isStarted() bool {
 }
 
 func (host *Host) startUnsave() error {
-	stdin, err := host.command.StdinPipe()
+	originStdin, err := host.command.StdinPipe()
 	if err != nil {
 		return err
 	}
 
+	decoder := host.encoding.NewDecoder()
+	encoder := host.encoding.NewEncoder()
+
+	host.command.Stdout = wrapWriter(host.command.Stdout, decoder)
+	host.command.Stderr = wrapWriter(host.command.Stderr, decoder)
+	stdin := wrapWriter(originStdin, encoder)
+
 	host.stdin = stdin
-	host.stdinClosed = false
+	host.closeStdin = func() error {
+		encodingWrapperErr := stdin.Close()
+		stdinErr := originStdin.Close()
+
+		if encodingWrapperErr != nil {
+			return encodingWrapperErr
+		}
+
+		return stdinErr
+	}
 
 	return host.command.Start()
+}
+
+func wrapWriter(w io.Writer, t transform.Transformer) io.WriteCloser {
+	if w != nil {
+		return transform.NewWriter(w, t)
+	}
+
+	return nil
 }

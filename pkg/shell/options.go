@@ -1,6 +1,10 @@
 package shell
 
-import "io"
+import (
+	"io"
+
+	"golang.org/x/text/encoding"
+)
 
 type hostOption = func(str ShellStrategy, host *Host)
 
@@ -50,5 +54,14 @@ func WithRawArgs(args []string) hostOption {
 func WithCwd(dir string) hostOption {
 	return func(strategy ShellStrategy, host *Host) {
 		host.command.Dir = dir
+	}
+}
+
+// WithEncoding setups shell input/output encoding.
+func WithEncoding(encoding encoding.Encoding) hostOption {
+	return func(strategy ShellStrategy, host *Host) {
+		if encoding != nil {
+			host.encoding = encoding
+		}
 	}
 }

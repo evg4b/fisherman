@@ -12,6 +12,7 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
+	"golang.org/x/text/encoding"
 )
 
 // ShellStrategyMock implements shell.ShellStrategy
@@ -36,6 +37,12 @@ type ShellStrategyMock struct {
 	beforeGetCommandCounter uint64
 	GetCommandMock          mShellStrategyMockGetCommand
 
+	funcGetEncoding          func() (e1 encoding.Encoding)
+	inspectFuncGetEncoding   func()
+	afterGetEncodingCounter  uint64
+	beforeGetEncodingCounter uint64
+	GetEncodingMock          mShellStrategyMockGetEncoding
+
 	funcGetName          func() (s1 string)
 	inspectFuncGetName   func()
 	afterGetNameCounter  uint64
@@ -58,6 +65,8 @@ func NewShellStrategyMock(t minimock.Tester) *ShellStrategyMock {
 
 	m.GetCommandMock = mShellStrategyMockGetCommand{mock: m}
 	m.GetCommandMock.callArgs = []*ShellStrategyMockGetCommandParams{}
+
+	m.GetEncodingMock = mShellStrategyMockGetEncoding{mock: m}
 
 	m.GetNameMock = mShellStrategyMockGetName{mock: m}
 
@@ -709,6 +718,149 @@ func (m *ShellStrategyMock) MinimockGetCommandInspect() {
 	}
 }
 
+type mShellStrategyMockGetEncoding struct {
+	mock               *ShellStrategyMock
+	defaultExpectation *ShellStrategyMockGetEncodingExpectation
+	expectations       []*ShellStrategyMockGetEncodingExpectation
+}
+
+// ShellStrategyMockGetEncodingExpectation specifies expectation struct of the ShellStrategy.GetEncoding
+type ShellStrategyMockGetEncodingExpectation struct {
+	mock *ShellStrategyMock
+
+	results *ShellStrategyMockGetEncodingResults
+	Counter uint64
+}
+
+// ShellStrategyMockGetEncodingResults contains results of the ShellStrategy.GetEncoding
+type ShellStrategyMockGetEncodingResults struct {
+	e1 encoding.Encoding
+}
+
+// Expect sets up expected params for ShellStrategy.GetEncoding
+func (mmGetEncoding *mShellStrategyMockGetEncoding) Expect() *mShellStrategyMockGetEncoding {
+	if mmGetEncoding.mock.funcGetEncoding != nil {
+		mmGetEncoding.mock.t.Fatalf("ShellStrategyMock.GetEncoding mock is already set by Set")
+	}
+
+	if mmGetEncoding.defaultExpectation == nil {
+		mmGetEncoding.defaultExpectation = &ShellStrategyMockGetEncodingExpectation{}
+	}
+
+	return mmGetEncoding
+}
+
+// Inspect accepts an inspector function that has same arguments as the ShellStrategy.GetEncoding
+func (mmGetEncoding *mShellStrategyMockGetEncoding) Inspect(f func()) *mShellStrategyMockGetEncoding {
+	if mmGetEncoding.mock.inspectFuncGetEncoding != nil {
+		mmGetEncoding.mock.t.Fatalf("Inspect function is already set for ShellStrategyMock.GetEncoding")
+	}
+
+	mmGetEncoding.mock.inspectFuncGetEncoding = f
+
+	return mmGetEncoding
+}
+
+// Return sets up results that will be returned by ShellStrategy.GetEncoding
+func (mmGetEncoding *mShellStrategyMockGetEncoding) Return(e1 encoding.Encoding) *ShellStrategyMock {
+	if mmGetEncoding.mock.funcGetEncoding != nil {
+		mmGetEncoding.mock.t.Fatalf("ShellStrategyMock.GetEncoding mock is already set by Set")
+	}
+
+	if mmGetEncoding.defaultExpectation == nil {
+		mmGetEncoding.defaultExpectation = &ShellStrategyMockGetEncodingExpectation{mock: mmGetEncoding.mock}
+	}
+	mmGetEncoding.defaultExpectation.results = &ShellStrategyMockGetEncodingResults{e1}
+	return mmGetEncoding.mock
+}
+
+//Set uses given function f to mock the ShellStrategy.GetEncoding method
+func (mmGetEncoding *mShellStrategyMockGetEncoding) Set(f func() (e1 encoding.Encoding)) *ShellStrategyMock {
+	if mmGetEncoding.defaultExpectation != nil {
+		mmGetEncoding.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.GetEncoding method")
+	}
+
+	if len(mmGetEncoding.expectations) > 0 {
+		mmGetEncoding.mock.t.Fatalf("Some expectations are already set for the ShellStrategy.GetEncoding method")
+	}
+
+	mmGetEncoding.mock.funcGetEncoding = f
+	return mmGetEncoding.mock
+}
+
+// GetEncoding implements shell.ShellStrategy
+func (mmGetEncoding *ShellStrategyMock) GetEncoding() (e1 encoding.Encoding) {
+	mm_atomic.AddUint64(&mmGetEncoding.beforeGetEncodingCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetEncoding.afterGetEncodingCounter, 1)
+
+	if mmGetEncoding.inspectFuncGetEncoding != nil {
+		mmGetEncoding.inspectFuncGetEncoding()
+	}
+
+	if mmGetEncoding.GetEncodingMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetEncoding.GetEncodingMock.defaultExpectation.Counter, 1)
+
+		mm_results := mmGetEncoding.GetEncodingMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetEncoding.t.Fatal("No results are set for the ShellStrategyMock.GetEncoding")
+		}
+		return (*mm_results).e1
+	}
+	if mmGetEncoding.funcGetEncoding != nil {
+		return mmGetEncoding.funcGetEncoding()
+	}
+	mmGetEncoding.t.Fatalf("Unexpected call to ShellStrategyMock.GetEncoding.")
+	return
+}
+
+// GetEncodingAfterCounter returns a count of finished ShellStrategyMock.GetEncoding invocations
+func (mmGetEncoding *ShellStrategyMock) GetEncodingAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetEncoding.afterGetEncodingCounter)
+}
+
+// GetEncodingBeforeCounter returns a count of ShellStrategyMock.GetEncoding invocations
+func (mmGetEncoding *ShellStrategyMock) GetEncodingBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetEncoding.beforeGetEncodingCounter)
+}
+
+// MinimockGetEncodingDone returns true if the count of the GetEncoding invocations corresponds
+// the number of defined expectations
+func (m *ShellStrategyMock) MinimockGetEncodingDone() bool {
+	for _, e := range m.GetEncodingMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetEncodingMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetEncodingCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetEncoding != nil && mm_atomic.LoadUint64(&m.afterGetEncodingCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetEncodingInspect logs each unmet expectation
+func (m *ShellStrategyMock) MinimockGetEncodingInspect() {
+	for _, e := range m.GetEncodingMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Error("Expected call to ShellStrategyMock.GetEncoding")
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetEncodingMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetEncodingCounter) < 1 {
+		m.t.Error("Expected call to ShellStrategyMock.GetEncoding")
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetEncoding != nil && mm_atomic.LoadUint64(&m.afterGetEncodingCounter) < 1 {
+		m.t.Error("Expected call to ShellStrategyMock.GetEncoding")
+	}
+}
+
 type mShellStrategyMockGetName struct {
 	mock               *ShellStrategyMock
 	defaultExpectation *ShellStrategyMockGetNameExpectation
@@ -861,6 +1013,8 @@ func (m *ShellStrategyMock) MinimockFinish() {
 
 		m.MinimockGetCommandInspect()
 
+		m.MinimockGetEncodingInspect()
+
 		m.MinimockGetNameInspect()
 		m.t.FailNow()
 	}
@@ -888,5 +1042,6 @@ func (m *ShellStrategyMock) minimockDone() bool {
 		m.MinimockArgsWrapperDone() &&
 		m.MinimockEnvWrapperDone() &&
 		m.MinimockGetCommandDone() &&
+		m.MinimockGetEncodingDone() &&
 		m.MinimockGetNameDone()
 }
