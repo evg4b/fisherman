@@ -54,6 +54,7 @@ fmt.Print(output)
 ```golang
 ctx := context.Background()
 host := shell.NewHost(ctx, shell.Cmd())
+
 if err := host.Run("echo 'this is demo shell' >> log.txt"); err != nil {
   panic(err)
 }
@@ -92,3 +93,12 @@ if err := host.Run("ping -n 10 google.com"); err != nil {
 
 fmt.Print(buffer.String())
 ```
+
+## Helpers
+
+Also, the package contains helpers functions in `fisherman/pkg/shell/helpers`. These functions can be useful when working with shell host.
+
+### MergeEnv
+
+- **helpers.MergeEnv** - Merges a slice of environment variables (for example `os.Environ()`) with a map of custom variables.
+  In case when variable already defined in slice, it will replaced from map.
