@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/fatih/color"
 )
@@ -15,6 +16,8 @@ const (
 	ErrorLevel
 	NoneLevel
 )
+
+var generalOutput io.Writer = os.Stdout
 
 var (
 	err *color.Color = color.New(color.FgRed).Add(color.Bold)

@@ -7,8 +7,10 @@ import (
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/rules"
+	"fisherman/pkg/log"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
+	"io"
 	"runtime"
 	"testing"
 
@@ -26,6 +28,8 @@ var globalVars = map[string]interface{}{
 }
 
 func TestCommand_Run(t *testing.T) {
+	log.SetOutput(io.Discard)
+
 	repoStub := mocks.NewRepositoryMock(t).
 		GetCurrentBranchMock.Return("/refs/head/develop", nil).
 		GetLastTagMock.Return("1.0.0", nil).

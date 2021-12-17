@@ -69,7 +69,7 @@ func TestFillTemplate(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "Should update template correctly",
+			name: "should update template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -78,7 +78,7 @@ func TestFillTemplate(t *testing.T) {
 			expected: "Template = Test value + Test value2",
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -87,7 +87,7 @@ func TestFillTemplate(t *testing.T) {
 			expected: "Template test",
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{
 				"Test": "[value]",
 			},
@@ -116,7 +116,7 @@ func TestFillTemplatesArray(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			name: "Should update template correctly",
+			name: "should update template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -131,7 +131,7 @@ func TestFillTemplatesArray(t *testing.T) {
 			},
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -140,7 +140,7 @@ func TestFillTemplatesArray(t *testing.T) {
 			expected:  []string{"Template test", "DATA"},
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{
 				"Test": "[value]",
 			},
@@ -167,7 +167,7 @@ func TestFillTemplatesMap(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			name: "Should update template correctly",
+			name: "should update template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -182,7 +182,7 @@ func TestFillTemplatesMap(t *testing.T) {
 			},
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{
 				"Test":  "Test value",
 				"Test2": "Test value2",
@@ -197,7 +197,7 @@ func TestFillTemplatesMap(t *testing.T) {
 			},
 		},
 		{
-			name: "Should skip template correctly",
+			name: "should skip template correctly",
 			data: map[string]interface{}{"Test": "[value]"},
 			templates: map[string]string{
 				"{{Test}}": "{{Test}}={{Test}}={{Test}}",

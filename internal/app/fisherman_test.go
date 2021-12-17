@@ -4,12 +4,15 @@ import (
 	"context"
 	"fisherman/internal"
 	. "fisherman/internal/app"
+	"fisherman/internal/constants"
+	"fisherman/pkg/log"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -18,6 +21,8 @@ import (
 )
 
 func TestRunner_Run(t *testing.T) {
+	log.SetOutput(io.Discard)
+
 	tests := []struct {
 		name        string
 		args        []string
@@ -54,7 +59,7 @@ func TestRunner_Run(t *testing.T) {
 			expectedErr: "unknown command: not",
 		},
 		{
-			name:        "Should return error when command not registered",
+			name:        "should return error when command not registered",
 			args:        []string{"not"},
 			commands:    []internal.CliCommand{},
 			expectedErr: "unknown command: not",
@@ -77,7 +82,6 @@ func TestRunner_Run(t *testing.T) {
 				WithFs(mocks.NewFilesystemMock(t)),
 				WithRepository(mocks.NewRepositoryMock(t)),
 				WithCwd("/"),
-				WithOutput(io.Discard),
 			)
 
 			assert.NotPanics(t, func() {
@@ -86,6 +90,42 @@ func TestRunner_Run(t *testing.T) {
 			})
 		})
 	}
+
+	t.Run("default print", func(t *testing.T) {
+		buffer := strings.Builder{}
+		log.SetOutput(&buffer)
+		defer log.SetOutput(io.Discard)
+
+		expectedCommand1 := "init"
+		expectedCommand2 := "version"
+		expectedCommand3 := "handle"
+		expectedCommand4 := "remove"
+
+		app := NewFishermanApp(
+			WithCommands([]internal.CliCommand{
+				makeCommand(t, expectedCommand1),
+				makeCommand(t, expectedCommand2),
+				makeCommand(t, expectedCommand3),
+				makeCommand(t, expectedCommand4),
+			}),
+			WithFs(mocks.NewFilesystemMock(t)),
+			WithRepository(mocks.NewRepositoryMock(t)),
+			WithCwd("/"),
+		)
+
+		err := app.Run(context.TODO(), []string{})
+
+		output := buffer.String()
+
+		assert.NoError(t, err)
+		assert.Contains(t, output, constants.AppName)
+		assert.Contains(t, output, constants.Version)
+		assert.Contains(t, output, expectedCommand1)
+		assert.Contains(t, output, expectedCommand2)
+		assert.Contains(t, output, expectedCommand3)
+		assert.Contains(t, output, expectedCommand4)
+		assert.Contains(t, output, "Small git hook management tool for developer.")
+	})
 }
 
 func TestRunner_Interrupt(t *testing.T) {

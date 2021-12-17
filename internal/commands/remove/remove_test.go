@@ -6,8 +6,10 @@ import (
 	"fisherman/internal"
 	. "fisherman/internal/commands/remove"
 	"fisherman/internal/configuration"
+	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
+	"io"
 	"os/user"
 	"path/filepath"
 	"testing"
@@ -15,6 +17,11 @@ import (
 	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"
 )
+
+// nolint: gochecknoinits
+func init() {
+	log.SetOutput(io.Discard)
+}
 
 func TestCommand_Run(t *testing.T) {
 	appInfo := internal.AppInfo{

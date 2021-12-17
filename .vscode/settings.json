@@ -3,6 +3,7 @@
         "afero",
         "applypatch",
         "asciicheck",
+        "charmap",
         "clicontext",
         "cmds",
         "covermode",

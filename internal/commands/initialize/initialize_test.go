@@ -5,13 +5,20 @@ import (
 	"fisherman/internal"
 	. "fisherman/internal/commands/initialize"
 	"fisherman/internal/constants"
+	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
+	"io"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// nolint: gochecknoinits
+func init() {
+	log.SetOutput(io.Discard)
+}
 
 func TestNewCommand(t *testing.T) {
 	command := NewCommand(mocks.NewFilesystemMock(t), mocks.AppInfoStub, &testutils.TestUser)
