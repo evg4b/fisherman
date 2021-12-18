@@ -3,26 +3,28 @@ id: expressions
 title: Condition expressions
 ---
 
-Fisherman uses expressions to define a condition for executing a rule. In this document, you can find all supported syntaxes.
+Fisherman uses expressions to define a condition for executing a rule. In this
+document, you can find all supported syntaxes.
 
 ### Supported Literals
 
 The expression supports:
 
-* **strings** - single and double quotes (e.g. `"hello"`, `'hello'`)
-* **numbers** - e.g. `103`, `2.5`, `.5`
-* **arrays** - e.g. `[1, 2, 3]`
-* **maps** - e.g. `{foo: "bar"}`
-* **booleans** - `true` and `false`
-* **nil** - `nil`
+- **strings** - single and double quotes (e.g. `"hello"`, `'hello'`)
+- **numbers** - e.g. `103`, `2.5`, `.5`
+- **arrays** - e.g. `[1, 2, 3]`
+- **maps** - e.g. `{foo: "bar"}`
+- **booleans** - `true` and `false`
+- **nil** - `nil`
 
 ### Digit separators
 
-Integer literals may contain digit separators to allow digit grouping into more legible forms.
+Integer literals may contain digit separators to allow digit grouping into more
+legible forms.
 
 Example:
 
-```
+``` js
 10_000_000_000
 ```
 
@@ -31,15 +33,16 @@ Example:
 Public properties on structs can be accessed by using the `.` syntax.
 If you pass an array into an expression, use the `[]` syntax to access array keys.
 
-```js
+``` js
 foo.Array[0].Value
 ```
 
 ### Functions and Methods
 
-Functions may be called using `()` syntax. The `.` syntax can also be used to call methods on an struct.
+Functions may be called using `()` syntax. The `.` syntax can also be used to
+call methods on an struct.
 
-```js
+``` js
 price.String()
 ```
 
@@ -49,59 +52,61 @@ The package comes with a lot of operators:
 
 #### Arithmetic Operators
 
-* `+` (addition)
-* `-` (subtraction)
-* `*` (multiplication)
-* `/` (division)
-* `%` (modulus)
-* `**` (pow)
+- `+` (addition)
+- `-` (subtraction)
+- `*` (multiplication)
+- `/` (division)
+- `%` (modulus)
+- `**` (pow)
 
 Example:
 
-```js
+``` js
 life + universe + everything
 ```
 
 #### Comparison Operators
 
-* `==` (equal)
-* `!=` (not equal)
-* `<` (less than)
-* `>` (greater than)
-* `<=` (less than or equal to)
-* `>=` (greater than or equal to)
+- `==` (equal)
+- `!=` (not equal)
+- `<` (less than)
+- `>` (greater than)
+- `<=` (less than or equal to)
+- `>=` (greater than or equal to)
 
 #### Logical Operators
 
-* `not` or `!`
-* `and` or `&&`
-* `or` or `||`
+- `not` or `!`
+- `and` or `&&`
+- `or` or `||`
 
 Example:
 
-```
+``` js
 life < universe || life < everything
 ```
 
 #### String Operators
 
-* `+` (concatenation)
-* `matches` (regex match)
-* `contains` (string contains)
-* `startsWith` (has prefix)
-* `endsWith` (has suffix)
+- `+` (concatenation)
+- `matches` (regex match)
+- `contains` (string contains)
+- `startsWith` (has prefix)
+- `endsWith` (has suffix)
 
-To test if a string does *not* match a regex, use the logical `not` operator in combination with the `matches` operator:
+To test if a string does *not* match a regex, use the logical `not` operator in
+combination with the `matches` operator:
 
-```js
+``` js
 not ("foo" matches "^b.+")
 ```
 
-You must use parenthesis because the unary operator `not` has precedence over the binary operator `matches`.
+You must use parenthesis because the unary operator `not` has precedence over
+the binary operator `matches`.
 
 Example:
 
-```js
+``` js
 'Arthur' + ' ' + 'Dent'
 ```
 
@@ -109,42 +114,42 @@ Result will be set to `Arthur Dent`.
 
 #### Membership Operators
 
-* `in` (contain)
-* `not in` (does not contain)
+- `in` (contain)
+- `not in` (does not contain)
 
 Example:
 
-```js
+``` js
 user.Group in ["human_resources", "marketing"]
 ```
 
-```js
+``` js
 "foo" in {foo: 1, bar: 2}
 ```
 
 #### Numeric Operators
 
-* `..` (range)
+- `..` (range)
 
 Example:
 
-```js
+``` js
 user.Age in 18..45
 ```
 
 The range is inclusive:
 
-```js
+``` js
 1..3 == [1, 2, 3]
 ```
 
 #### Ternary Operators
 
-* `foo ? 'yes' : 'no'`
+- `foo ? 'yes' : 'no'`
 
 Example:
 
-```js
+``` js
 user.Age > 30 ? "mature" : "immature"
 ```
 
@@ -168,35 +173,36 @@ Examples:
 
 Ensure all tweets are less than 280 chars.
 
-```js
+``` js
 all(Tweets, {.Size < 280})
 ```
 
 Ensure there is exactly one winner.
 
-```js
+``` js
 one(Participants, {.Winner})
 ```
 
 ### Closures
 
-* `{...}` (closure)
+- `{...}` (closure)
 
 Closures allowed only with builtin functions. To access current item use `#` symbol.
 
-```js
+``` js
 map(0..9, {# / 2})
 ```
 
-If the item of array is struct, it's possible to access fields of struct with omitted `#` symbol (`#.Value` becomes `.Value`).
+If the item of array is struct, it's possible to access fields of struct with
+omitted `#` symbol (`#.Value` becomes `.Value`).
 
-```js
+``` js
 filter(Tweets, {len(.Value) > 280})
 ```
 
 ### Slices
 
-* `array[:]` (slice)
+- `array[:]` (slice)
 
 Slices can work with arrays or strings.
 
@@ -204,7 +210,7 @@ Example:
 
 Variable `array` is `[1,2,3,4,5]`.
 
-```js
+``` js
 array[1:5] == [2,3,4]
 array[3:] == [4,5]
 array[:4] == [1,2,3]

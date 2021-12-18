@@ -57,11 +57,20 @@ jobs:
             fisherman
             fisherman.exe
 
+  lint-docs:
+    name: Lint markdown documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: DavidAnson/markdownlint-cli2-action@v4
+        with:
+          globs: "**/*.md"
+
   realise:
     name: Realise application
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs: [build, lint-docs]
     steps:
       - name: Checkout
         uses: actions/checkout@v2

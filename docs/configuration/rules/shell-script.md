@@ -3,7 +3,8 @@ id: shell-script
 title: shell-script
 ---
 
-This rules sets shell scripts for validation (All scripts are executed in parallel at the moment the hook is triggered).
+This rules sets shell scripts for validation (All scripts are executed in parallel
+at the moment the hook is triggered).
 
 Shell script can be configured using the following structure:
 
@@ -19,12 +20,17 @@ Shell script can be configured using the following structure:
   output: true
 ```
 
-You can create as many scripts to validation. Scripts will be executed on the [shell for your system](#shell-for-system).
+You can create as many scripts to validation. Scripts will be executed on the
+[shell for your system](#shell-for-system).
 
-- **commands** - Array of strings with validation script commands. Is also supports tempesting based on hook variables.
-- **when** - An expression on C like language. It allows you to define a condition for executing a script. See more in section [Condition expressions](../expressions.md).
-- **env** - Sets additional environment variables (system environment variables also will be included)  for the command.
-- **output** - Indicates whether to print the command output. By default false. To display parallel output, use a prefix with script name before each output line.
+- **commands** - Array of strings with validation script commands. Is also supports
+  tempesting based on hook variables.
+- **when** - An expression on C like language. It allows you to define a condition
+  for executing a script. See more in section [Condition expressions](../expressions.md).
+- **env** - Sets additional environment variables (system environment variables
+  also will be included)  for the command.
+- **output** - Indicates whether to print the command output. By default false.
+  To display parallel output, use a prefix with script name before each output line.
 - **encoding** - Setup shell output encoding (UTF-8) by default.
 
 Example:
@@ -40,7 +46,8 @@ script1 | validation data set 3...
 
 ## Simple configuration
 
-Also, when script does not require additional configuration (output and env variables), it can be set with the following code:
+Also, when script does not require additional configuration (output and env variables),
+it can be set with the following code:
 
 ```yaml
 single-line: 'command2 arg1'
@@ -54,10 +61,12 @@ multilane-array:
 
 <!-- TODO: update this section -->
 
-In the case when it is not possible to specify a universal script for all systems, you can specify separated scripts for each system.
+In the case when it is not possible to specify a universal script for all systems,
+you can specify separated scripts for each system.
 
 :::caution Note
-Be sure to specify scripts for each system, otherwise the hook will be skipped for the system without configuration
+Be sure to specify scripts for each system, otherwise the hook will be skipped for
+the system without configuration
 :::
 
 ```yaml
@@ -74,7 +83,8 @@ shell:
 
 ## Shell for system
 
-Currently, only the following system shells are supported (They can be globally with field `default-shell` or with field `shell` fore each script directly):
+Currently, only the following system shells are supported (They can be globally
+with field `default-shell` or with field `shell` fore each script directly):
 
 - **Linux** - `bash`
 - **Mac OS** - `bash`

@@ -11,7 +11,8 @@ title: prepare-message
   message: 'Message draft'
 ```
 
-- **message** - This is [template](/). Users commit message will be replaced by a compilation result of this field.
+- **message** - This is [template](/). Users commit message will be replaced by
+  a compilation result of this field.
 
 :::caution Note
 When you commit with the `--no-verify` flag this action will not work.

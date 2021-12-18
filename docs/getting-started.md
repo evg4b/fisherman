@@ -5,16 +5,20 @@ slug: /getting-started
 ---
 ## Install
 
-Fisherman currently offers only two installation methods. Check out the available methods below.
+Fisherman currently offers only two installation methods. Check out the available
+methods below.
 
 ### Get the binary
 
 You can download the binary from [the releases page on GitHub](https://github.com/evg4b/fisherman/releases)
-and add to your `PATH`. The fisherman_checksums.txt file contains the SHA-256 checksum for each file.
+and add to your `PATH`. The fisherman_checksums.txt file contains
+the SHA-256 checksum for each file.
 
 ### Build from source
 
-First, make sure you have Go properly installed and setup. Fisherman requires Go Modules. Recommended used [task runner](https://taskfile.dev/).
+First, make sure you have Go properly installed and setup.
+Fisherman requires Go Modules.
+Recommended used [task runner](https://taskfile.dev/).
 Installing in another directory:
 
 ```bash

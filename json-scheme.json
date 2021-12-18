@@ -83,11 +83,11 @@
       },
       "required": [ "commands" ]
     },
-    "run-program": {
+    "exec": {
       "type": "object",
       "allOf": [{ "$ref": "#/definitions/base-rule" }],
       "properties": {
-        "type": { "enum": [ "run-program" ] },
+        "type": { "enum": [ "exec" ] },
         "variables": { "$ref": "#/definitions/variables" },
         "extract-variables": { "$ref": "#/definitions/extract-variables" },
         "program": {
@@ -251,11 +251,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program", "commit-message"] }
+                  "type": { "enum": ["shell-script", "exec", "commit-message"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" },
+                  { "$ref": "#/definitions/exec" },
                   { "$ref": "#/definitions/commit-message" }
                 ],
                 "required": ["type"]
@@ -273,11 +273,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -294,11 +294,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -315,11 +315,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -336,11 +336,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -357,11 +357,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program", "add-to-index", "suppress-commit-files"] }
+                  "type": { "enum": ["shell-script", "exec", "add-to-index", "suppress-commit-files"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" },
+                  { "$ref": "#/definitions/exec" },
                   { "$ref": "#/definitions/add-to-index" },
                   { "$ref": "#/definitions/suppress-commit-files" }
                 ],
@@ -380,11 +380,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -401,11 +401,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -422,11 +422,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }
@@ -443,11 +443,11 @@
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "run-program"] }
+                  "type": { "enum": ["shell-script", "exec"] }
                 },
                 "anyOf": [
                   { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/run-program" }
+                  { "$ref": "#/definitions/exec" }
                 ],
                 "required": ["type"]
               }

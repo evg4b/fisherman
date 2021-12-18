@@ -11,5 +11,7 @@ title: suppress-commit-files
   remove-from-index: false
 ```
 
-- **globs** - List of files to be checked in index before commit. Commit fill be rejected when file will be founded.
-- **remove-from-index** - When this flag is `true` then files founded in index will be removed from it and commit well be continued.
+- **globs** - List of files to be checked in index before commit.
+  Commit fill be rejected when file will be founded.
+- **remove-from-index** - When this flag is `true` then files founded in index
+  will be removed from it and commit well be continued.

@@ -54,11 +54,17 @@ tasks:
       - task: build
       - task: lint
       - task: test
+      - task: lint-docs
 
   install:
     desc: Installs applications on the local computer using GO.
     cmds:
       - go install -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
+
+  lint-docs:
+    desc: Installs applications on the local computer using GO.
+    cmds:
+      - markdownlint **/*.md
 
   generate:
     desc: Generates mocks

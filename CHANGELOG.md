@@ -25,14 +25,14 @@ ___
 
 ## [0.0.1-alpha.2 - [13 Nov 2020]](https://github.com/evg4b/fisherman/releases/tag/0.0.1-alpha.2)
 
-### Implemented
+### Implemented in 0.0.1-alpha.2
 
 - Pre-push and `pre-commit` hooks
 - Parallel shell script for `pre-push` and `pre-commit` hooks
 - Version command
 - Build for MacOS
 
-### Fixed
+### Fixed in 0.0.1-alpha.2
 
 - Problem to run outside the git repository.
 
@@ -40,7 +40,7 @@ ___
 
 ## [0.0.1-alpha.1 - [3 Oct 2020]](https://github.com/evg4b/fisherman/releases/tag/0.0.1-alpha.1)
 
-### Implemented
+### Implemented in 0.0.1-alpha.1
 
 - `init`, `remove`, `handler` commands.
 - `commit-msg` hook handling with rules:
