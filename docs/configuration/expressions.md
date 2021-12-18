@@ -3,126 +3,210 @@ id: expressions
 title: Condition expressions
 ---
 
-An expression on C link language. It allows you to define a condition for executing a script or validator.
-<!-- TODO: Add additional description -->
+Fisherman uses expressions to define a condition for executing a rule. In this document, you can find all supported syntaxes.
 
-## Operators
+### Supported Literals
 
-### Modifiers
+The expression supports:
 
-#### Addition, concatenation `+`
+* **strings** - single and double quotes (e.g. `"hello"`, `'hello'`)
+* **numbers** - e.g. `103`, `2.5`, `.5`
+* **arrays** - e.g. `[1, 2, 3]`
+* **maps** - e.g. `{foo: "bar"}`
+* **booleans** - `true` and `false`
+* **nil** - `nil`
 
-If either left or right sides of the `+` operator are a `string`, then this operator will perform string concatenation and return that result. If neither are string, then both must be numeric, and this will return a numeric result.
+### Digit separators
 
-Any other case is invalid.
+Integer literals may contain digit separators to allow digit grouping into more legible forms.
 
-#### Arithmetic `-` `*` `/` `**` `%`
+Example:
 
-`**` refers to "take to the power of". For instance, `3 ** 4` == 81.
+```
+10_000_000_000
+```
 
-* _Left side_: numeric
-* _Right side_: numeric
-* _Returns_: numeric
+### Accessing Public Properties
 
-#### Bitwise shifts, masks `>>` `<<` `|` `&` `^`
+Public properties on structs can be accessed by using the `.` syntax.
+If you pass an array into an expression, use the `[]` syntax to access array keys.
 
-All of these operators convert their `float64` left and right sides to `int64`, perform their operation, and then convert back.
-Given how this library assumes numeric are represented (as `float64`), it is unlikely that this behavior will change, even though it may cause havoc with extremely large or small numbers.
+```js
+foo.Array[0].Value
+```
 
-* _Left side_: numeric
-* _Right side_: numeric
-* _Returns_: numeric
+### Functions and Methods
 
-#### Negation `-`
+Functions may be called using `()` syntax. The `.` syntax can also be used to call methods on an struct.
 
-Prefix only. This can never have a left-hand value.
+```js
+price.String()
+```
 
-* _Right side_: numeric
-* _Returns_: numeric
+### Supported Operators
 
-#### Inversion `!`
+The package comes with a lot of operators:
 
-Prefix only. This can never have a left-hand value.
+#### Arithmetic Operators
 
-* _Right side_: bool
-* _Returns_: bool
+* `+` (addition)
+* `-` (subtraction)
+* `*` (multiplication)
+* `/` (division)
+* `%` (modulus)
+* `**` (pow)
 
-#### Bitwise NOT `~`
+Example:
 
-Prefix only. This can never have a left-hand value.
+```js
+life + universe + everything
+```
 
-* _Right side_: numeric
-* _Returns_: numeric
+#### Comparison Operators
 
-### Logical Operators
+* `==` (equal)
+* `!=` (not equal)
+* `<` (less than)
+* `>` (greater than)
+* `<=` (less than or equal to)
+* `>=` (greater than or equal to)
 
-For all logical operators, this library will short-circuit the operation if the left-hand side is sufficient to determine what to do. For instance, `true || expensiveOperation()` will not actually call `expensiveOperation()`, since it knows the left-hand side is `true`.
+#### Logical Operators
 
-#### Logical AND/OR `&&` `||`
+* `not` or `!`
+* `and` or `&&`
+* `or` or `||`
 
-* _Left side_: bool
-* _Right side_: bool
-* _Returns_: bool
+Example:
 
-#### Ternary true `?`
+```
+life < universe || life < everything
+```
 
-Checks if the left side is `true`. If so, returns the right side. If the left side is `false`, returns `nil`.
-In practice, this is commonly used with the other ternary operator.
+#### String Operators
 
-* _Left side_: bool
-* _Right side_: Any type.
-* _Returns_: Right side or `nil`
+* `+` (concatenation)
+* `matches` (regex match)
+* `contains` (string contains)
+* `startsWith` (has prefix)
+* `endsWith` (has suffix)
 
-#### Ternary false `:`
+To test if a string does *not* match a regex, use the logical `not` operator in combination with the `matches` operator:
 
-Checks if the left side is `nil`. If so, returns the right side. If the left side is non-nil, returns the left side.
-In practice, this is commonly used with the other ternary operator.
+```js
+not ("foo" matches "^b.+")
+```
 
-* _Left side_: Any type.
-* _Right side_: Any type.
-* _Returns_: Right side or `nil`
+You must use parenthesis because the unary operator `not` has precedence over the binary operator `matches`.
 
-#### Null coalescence `??`
+Example:
 
-Similar to the C# operator. If the left value is non-nil, it returns that. If not, then the right-value is returned.
+```js
+'Arthur' + ' ' + 'Dent'
+```
 
-* _Left side_: Any type.
-* _Right side_: Any type.
-* _Returns_: No specific type - whichever is passed to it.
+Result will be set to `Arthur Dent`.
 
-### Comparators
+#### Membership Operators
 
-#### Numeric/lexicographic comparators `>` `<` `>=` `<=`
+* `in` (contain)
+* `not in` (does not contain)
 
-If both sides are numeric, this returns the usual greater/lesser behavior that would be expected.
-If both sides are string, this returns the lexicographic comparison of the strings. This uses Go's standard lexicographic compare.
+Example:
 
-* _Accepts_: Left and right side must either be both string, or both numeric.
-* _Returns_: bool
+```js
+user.Group in ["human_resources", "marketing"]
+```
 
-#### Regex comparators `=~` `!~`
+```js
+"foo" in {foo: 1, bar: 2}
+```
 
-These use go's standard `regexp` flavor of regex. The left side is expected to be the candidate string, the right side is the pattern. `=~` returns whether or not the candidate string matches the regex pattern given on the right. `!~` is the inverted version of the same logic.
+#### Numeric Operators
 
-* _Left side_: string
-* _Right side_: string
-* _Returns_: bool
+* `..` (range)
 
-### Arrays
+Example:
 
-#### Separator `,`
+```js
+user.Age in 18..45
+```
 
-The separator, always paired with parenthesis, creates arrays. It must always have both a left and right-hand value, so for instance `(, 0)` and `(0,)` are invalid uses of it.
+The range is inclusive:
 
-Again, this should always be used with parenthesis; like `(1, 2, 3, 4)`.
+```js
+1..3 == [1, 2, 3]
+```
 
-#### Membership `IN`
+#### Ternary Operators
 
-The only operator with a text name, this operator checks the right-hand side array to see if it contains a value that is equal to the left-side value.
-Equality is determined by the use of the `==` operator, and this library doesn't check types between the values. Any two values, when cast to `interface{}`, and can still be checked for equality with `==` will act as expected.
+* `foo ? 'yes' : 'no'`
 
-Note that you can use a parameter for the array, but it must be an `[]interface{}`.
+Example:
 
-* _Left side_: Any type.
-* _Right side_: array
-* _Returns_: bool
+```js
+user.Age > 30 ? "mature" : "immature"
+```
+
+### Builtin functions
+
+- `len` length of array, map or string
+- `all` will return `true` if all element satisfies the predicate
+- `none` will return `true` if all element does NOT satisfies the predicate
+- `any` will return `true` if any element satisfies the predicate
+- `one` will return `true` if exactly ONE element satisfies the predicate
+- `filter` filter array by the predicate
+- `map` map all items with the closure
+- `count` returns number of elements what satisfies the predicate
+
+- `IsEmpty` will return `true` if a string is empty or contains only whitespace symbols.
+- `IsWindows` will return `true` if the fisherman is run on Windows.
+- `IsLinux` will return `true` if the fisherman is run on Linux.
+- `IsMacos` will return `true` if the fisherman is run on MacOs.
+
+Examples:
+
+Ensure all tweets are less than 280 chars.
+
+```js
+all(Tweets, {.Size < 280})
+```
+
+Ensure there is exactly one winner.
+
+```js
+one(Participants, {.Winner})
+```
+
+### Closures
+
+* `{...}` (closure)
+
+Closures allowed only with builtin functions. To access current item use `#` symbol.
+
+```js
+map(0..9, {# / 2})
+```
+
+If the item of array is struct, it's possible to access fields of struct with omitted `#` symbol (`#.Value` becomes `.Value`).
+
+```js
+filter(Tweets, {len(.Value) > 280})
+```
+
+### Slices
+
+* `array[:]` (slice)
+
+Slices can work with arrays or strings.
+
+Example:
+
+Variable `array` is `[1,2,3,4,5]`.
+
+```js
+array[1:5] == [2,3,4]
+array[3:] == [4,5]
+array[:4] == [1,2,3]
+array[:] == array
+```

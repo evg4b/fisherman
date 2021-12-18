@@ -1,6 +1,7 @@
 package expression_test
 
 import (
+	"errors"
 	. "fisherman/internal/expression"
 	"fisherman/testing/testutils"
 	"testing"
@@ -51,4 +52,12 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			testutils.AssertError(t, tt.expectedErr, err)
 		})
 	}
+
+	t.Run("panic in function", func(t *testing.T) {
+		_, err := engine.Eval("test()", map[string]interface{}{
+			"test": func() bool { panic(errors.New("test error")) },
+		})
+
+		assert.EqualError(t, err, "test error (1:1)\n | test()\n | ^")
+	})
 }
