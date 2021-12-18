@@ -62,9 +62,9 @@ tasks:
       - go install -ldflags="-X {{ .VERSION_PATH }}=dev-{{ .GIT_COMMIT | upper }}" {{ .ENTRY_POINT }}
 
   lint-docs:
-    desc: Installs applications on the local computer using GO.
+    desc: Lint all markdown files
     cmds:
-      - markdownlint **/*.md
+      - markdownlint-cli2
 
   generate:
     desc: Generates mocks

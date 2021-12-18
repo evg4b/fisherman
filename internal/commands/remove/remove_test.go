@@ -3,7 +3,6 @@ package remove_test
 import (
 	"context"
 	"errors"
-	"fisherman/internal"
 	. "fisherman/internal/commands/remove"
 	"fisherman/internal/configuration"
 	"fisherman/pkg/log"
@@ -24,12 +23,9 @@ func init() {
 }
 
 func TestCommand_Run(t *testing.T) {
-	appInfo := internal.AppInfo{
-		Cwd:        filepath.Join("usr", "home"),
-		Executable: filepath.Join("bin", "fisherman.exe"),
-		Configs: map[string]string{
-			configuration.GlobalMode: filepath.Join("usr", "home", ".fisherman.yml"),
-		},
+	cwd := filepath.Join("usr", "home")
+	configs := map[string]string{
+		configuration.GlobalMode: filepath.Join("usr", "home", ".fisherman.yml"),
 	}
 
 	tests := []struct {
@@ -63,9 +59,13 @@ func TestCommand_Run(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := NewCommand(tt.fs, appInfo, &user.User{
-				HomeDir: filepath.Join("usr", "home"),
-			})
+			command := NewCommand(
+				WithFilesystem(tt.fs),
+				WithConfigs(configs),
+				WithCwd(cwd),
+				WithUser(&user.User{HomeDir: filepath.Join("usr", "home")}),
+				WithConfigs(configs),
+			)
 
 			err := command.Run(context.TODO(), []string{})
 
@@ -75,21 +75,13 @@ func TestCommand_Run(t *testing.T) {
 }
 
 func TestCommand_Name(t *testing.T) {
-	command := NewCommand(
-		mocks.NewFilesystemMock(t),
-		mocks.AppInfoStub,
-		&testutils.TestUser,
-	)
+	command := NewCommand()
 
 	assert.Equal(t, "remove", command.Name())
 }
 
 func TestCommand_Description(t *testing.T) {
-	command := NewCommand(
-		mocks.NewFilesystemMock(t),
-		mocks.AppInfoStub,
-		&testutils.TestUser,
-	)
+	command := NewCommand()
 
 	assert.NotEmpty(t, command.Description())
 }
