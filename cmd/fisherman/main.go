@@ -69,9 +69,7 @@ func main() {
 			handle.NewCommand(
 				handle.WithExpressionEngine(engine),
 				handle.WithHooksConfig(&config.Hooks),
-				handle.WithGlobalVars(map[string]interface{}{
-					// TODO: provide variables
-				}),
+				handle.WithGlobalVars(config.GlobalVariables),
 				handle.WithCwd(cwd),
 				handle.WithFileSystem(fs),
 				handle.WithRepository(repo),
