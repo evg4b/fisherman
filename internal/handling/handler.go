@@ -74,13 +74,7 @@ func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error
 			continue
 		}
 
-		rule.Configure(
-			rules.WithCwd(h.cwd),
-			rules.WithFileSystem(h.fs),
-			rules.WithRepository(h.repo),
-			rules.WithArgs(h.args),
-			rules.WithEnv(h.env),
-		)
+		rule.Configure(h.ruleOptions()...)
 	}
 
 	err = multiError.ErrorOrNil()
@@ -133,4 +127,14 @@ func (h *HookHandler) run(ctx context.Context, rules []configuration.Rule) error
 	}
 
 	return h.runRules(ctx, filteredRules)
+}
+
+func (h *HookHandler) ruleOptions() []rules.RuleOption {
+	return []rules.RuleOption{
+		rules.WithCwd(h.cwd),
+		rules.WithFileSystem(h.fs),
+		rules.WithRepository(h.repo),
+		rules.WithArgs(h.args),
+		rules.WithEnv(h.env),
+	}
 }
