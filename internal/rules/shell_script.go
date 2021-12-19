@@ -20,8 +20,8 @@ type ShellScript struct {
 	Name     string            `yaml:"name"`
 	Shell    string            `yaml:"shell"`
 	Commands []string          `yaml:"commands"`
-	Encoding string            `yaml:"encoding"`
 	Env      map[string]string `yaml:"env"`
+	Encoding string            `yaml:"encoding"`
 	Output   bool              `yaml:"output"`
 	Dir      string            `yaml:"dir"`
 }

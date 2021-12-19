@@ -1,8 +1,10 @@
 package rules_test
 
 import (
+	"context"
 	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -104,4 +106,55 @@ when: '
 			}
 		})
 	}
+}
+
+func TestShellScript_Check(t *testing.T) {
+	t.Run("return error for unknown shell", func(t *testing.T) {
+		rule := ShellScript{
+			BaseRule: BaseRule{Type: ShellScriptType},
+			Shell:    "unknown-shell",
+		}
+
+		err := rule.Check(context.TODO(), io.Discard)
+
+		assert.EqualError(t, err, "failed to cheate shell host: unsupported shell")
+	})
+
+	t.Run("return error for incorrect encoding", func(t *testing.T) {
+		rule := ShellScript{
+			BaseRule: BaseRule{Type: ShellScriptType},
+			Shell:    "bash",
+			Encoding: "incorrect-encoding",
+		}
+
+		err := rule.Check(context.TODO(), io.Discard)
+
+		assert.EqualError(t, err, "failed to cheate shell host: 'incorrect-encoding' is unknown encoding")
+	})
+
+	t.Run("executed successful", func(t *testing.T) {
+		rule := ShellScript{
+			BaseRule: BaseRule{Type: ShellScriptType},
+			Commands: []string{
+				"echo test",
+			},
+		}
+
+		err := rule.Check(context.TODO(), io.Discard)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("executed with non zero exit code ", func(t *testing.T) {
+		rule := ShellScript{
+			BaseRule: BaseRule{Type: ShellScriptType},
+			Commands: []string{
+				"exit 33",
+			},
+		}
+
+		err := rule.Check(context.TODO(), io.Discard)
+
+		assert.EqualError(t, err, "[shell-script] script finished with exit code 33")
+	})
 }
