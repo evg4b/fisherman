@@ -14,9 +14,9 @@ func WithCwd(cwd string) initializeOption {
 	}
 }
 
-func WithFilesystem(files billy.Filesystem) initializeOption {
+func WithFilesystem(fs billy.Filesystem) initializeOption {
 	return func(c *Command) {
-		c.files = files
+		c.fs = fs
 	}
 }
 

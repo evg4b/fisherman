@@ -4,6 +4,7 @@ import (
 	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/expression"
+	"fisherman/pkg/guards"
 	"flag"
 	"io"
 
@@ -20,7 +21,6 @@ type Command struct {
 	cwd          string
 	fs           billy.Filesystem
 	repo         internal.Repository
-	args         []string
 	env          []string
 	workersCount uint
 	configFiles  map[string]string
@@ -35,12 +35,22 @@ func NewCommand(options ...commandOption) *Command {
 		usage:        "starts hook processing based on the config file (for debugging only)",
 		workersCount: defaultWorkerCount,
 		output:       io.Discard,
+		configFiles:  map[string]string{},
+		globalVars:   map[string]interface{}{},
+		env:          []string{},
 	}
-	command.flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 
 	for _, option := range options {
 		option(command)
 	}
+
+	guards.ShouldBeDefined(command.fs, "FileSystem should be configured")
+	guards.ShouldBeDefined(command.repo, "Repository should be configured")
+	guards.ShouldBeNotEmpty(command.cwd, "Cwd should be configured")
+	guards.ShouldBeDefined(command.engine, "ExpressionEngine should be configured")
+	guards.ShouldBeDefined(command.config, "HooksConfig should be configured")
+
+	command.flagSet.StringVar(&command.hook, "hook", "<empty>", "hook name")
 
 	return command
 }

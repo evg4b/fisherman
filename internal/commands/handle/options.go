@@ -46,13 +46,6 @@ func WithRepository(repo internal.Repository) commandOption {
 		h.repo = repo
 	}
 }
-
-func WithArgs(args []string) commandOption {
-	return func(h *Command) {
-		h.args = args
-	}
-}
-
 func WithEnv(env []string) commandOption {
 	return func(h *Command) {
 		h.env = env

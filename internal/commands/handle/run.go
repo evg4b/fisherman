@@ -26,7 +26,7 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 		handling.WithCwd(c.cwd),
 		handling.WithFileSystem(c.fs),
 		handling.WithRepository(c.repo),
-		handling.WithArgs(c.args),
+		handling.WithArgs(c.flagSet.Args()),
 		handling.WithEnv(c.env),
 		handling.WithWorkersCount(c.workersCount),
 		handling.WithOutput(c.output),

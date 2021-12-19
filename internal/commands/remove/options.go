@@ -1,8 +1,6 @@
 package remove
 
 import (
-	"os/user"
-
 	"github.com/go-git/go-billy/v5"
 )
 
@@ -14,20 +12,14 @@ func WithCwd(cwd string) removeOption {
 	}
 }
 
-func WithFilesystem(files billy.Filesystem) removeOption {
+func WithFileSystem(fs billy.Filesystem) removeOption {
 	return func(c *Command) {
-		c.files = files
+		c.fs = fs
 	}
 }
 
-func WithUser(user *user.User) removeOption {
+func WithConfigFiles(configs map[string]string) removeOption {
 	return func(c *Command) {
-		c.user = user
-	}
-}
-
-func WithConfigs(configs map[string]string) removeOption {
-	return func(c *Command) {
-		c.configs = configs
+		c.configFiles = configs
 	}
 }

@@ -46,6 +46,7 @@ func TestCommand_Run(t *testing.T) {
 
 	t.Run("runs correctly", func(t *testing.T) {
 		command := NewCommand(
+			WithFileSystem(mocks.NewFilesystemMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{validRule},
@@ -53,6 +54,9 @@ func TestCommand_Run(t *testing.T) {
 			}),
 			WithRepository(repoStub),
 			WithWorkersCount(5),
+			WithCwd("/"),
+			WithExpressionEngine(mocks.NewEngineMock(t)),
+			WithHooksConfig(&mocks.HooksConfigStub),
 		)
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
@@ -62,6 +66,7 @@ func TestCommand_Run(t *testing.T) {
 
 	t.Run("unknown hook", func(t *testing.T) {
 		command := NewCommand(
+			WithFileSystem(mocks.NewFilesystemMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{
@@ -70,6 +75,10 @@ func TestCommand_Run(t *testing.T) {
 				},
 			}),
 			WithRepository(repoStub),
+			WithWorkersCount(5),
+			WithCwd("/"),
+			WithExpressionEngine(mocks.NewEngineMock(t)),
+			WithHooksConfig(&mocks.HooksConfigStub),
 		)
 
 		err := command.Run(context.TODO(), []string{"--hook", "test"})
@@ -79,6 +88,7 @@ func TestCommand_Run(t *testing.T) {
 
 	t.Run("call handler and return error", func(t *testing.T) {
 		command := NewCommand(
+			WithFileSystem(mocks.NewFilesystemMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{
@@ -87,6 +97,9 @@ func TestCommand_Run(t *testing.T) {
 				},
 			}),
 			WithRepository(repoStub),
+			WithWorkersCount(5),
+			WithCwd("/"),
+			WithExpressionEngine(mocks.NewEngineMock(t)),
 		)
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
@@ -96,6 +109,7 @@ func TestCommand_Run(t *testing.T) {
 
 	t.Run("call handler with global variables", func(t *testing.T) {
 		command := NewCommand(
+			WithFileSystem(mocks.NewFilesystemMock(t)),
 			WithHooksConfig(&configuration.HooksConfig{
 				PreCommitHook: &configuration.HookConfig{
 					Rules: []configuration.Rule{validRule},
@@ -106,6 +120,8 @@ func TestCommand_Run(t *testing.T) {
 				GetCurrentBranchMock.Return("/refs/head/develop", nil).
 				GetLastTagMock.Return("1.0.0", errors.New("test error")).
 				GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil)),
+			WithCwd("/"),
+			WithExpressionEngine(mocks.NewEngineMock(t)),
 		)
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
