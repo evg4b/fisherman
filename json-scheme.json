@@ -306,27 +306,6 @@
           },
           "required": [ "rules" ]
         },
-        "post-update": {
-          "type": "object",
-          "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
-            "rules": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
-                },
-                "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
-                ],
-                "required": ["type"]
-              }
-            }
-          },
-          "required": [ "rules" ]
-        },
         "pre-apply-patch": {
           "type": "object",
           "properties": {
@@ -393,27 +372,6 @@
           "required": [ "rules" ]
         },
         "pre-rebase": {
-          "type": "object",
-          "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
-            "rules": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
-                },
-                "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
-                ],
-                "required": ["type"]
-              }
-            }
-          },
-          "required": [ "rules" ]
-        },
-        "pre-receive": {
           "type": "object",
           "properties": {
             "variables": { "$ref": "#/definitions/variables" },

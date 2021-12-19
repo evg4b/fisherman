@@ -34,13 +34,6 @@ This hook has following rules:
 - [shell-script](./rules/shell-script)
 - [exec](./rules/exec)
 
-## post-update
-
-This hook has following rules:
-
-- [shell-script](./rules/shell-script)
-- [exec](./rules/exec)
-
 ## pre-applypatch
 
 This hook has following rules:
@@ -79,23 +72,9 @@ This hook has following rules:
 - [shell-script](./rules/shell-script)
 - [exec](./rules/exec)
 
-## pre-receive
-
-This hook has following rules:
-
-- [shell-script](./rules/shell-script)
-- [exec](./rules/exec)
-
 ## prepare-commit-msg
 
 This hook is invoked by git-commit right after preparing the default log message,
 and before the editor is started. This hook has following rules:
 
 - [prepare-message](./rules/prepare-message)
-
-## update
-
-This hook has following rules:
-
-- [shell-script](./rules/shell-script)
-- [exec](./rules/exec)

@@ -19,10 +19,6 @@ var allowedHooks = map[string][]string{
 		rules.ShellScriptType,
 		rules.ExecType,
 	},
-	constants.PostUpdateHook: {
-		rules.ShellScriptType,
-		rules.ExecType,
-	},
 	constants.PreApplyPatchHook: {
 		rules.ShellScriptType,
 		rules.ExecType,
@@ -41,15 +37,7 @@ var allowedHooks = map[string][]string{
 		rules.ShellScriptType,
 		rules.ExecType,
 	},
-	constants.PreReceiveHook: {
-		rules.ShellScriptType,
-		rules.ExecType,
-	},
 	constants.PrepareCommitMsgHook: {
 		rules.PrepareMessageType,
-	},
-	constants.UpdateHook: {
-		rules.ShellScriptType,
-		rules.ExecType,
 	},
 }
