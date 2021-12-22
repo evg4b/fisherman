@@ -9,7 +9,7 @@ import (
 )
 
 func TestShouldBeDefined(t *testing.T) {
-	var nillPointer *struct{}
+	var nilPointer *struct{}
 
 	tests := []struct {
 		name    string
@@ -40,7 +40,7 @@ func TestShouldBeDefined(t *testing.T) {
 		{
 			name:    "should panic for defined pointer to struct",
 			message: "value is nil",
-			object:  nillPointer,
+			object:  nilPointer,
 			err:     "value is nil",
 		},
 		{
