@@ -263,3 +263,74 @@ func TestExec_CheckHelper(t *testing.T) {
 		},
 	})
 }
+
+func TestCommandDef_UnmarshalYAML(t *testing.T) {
+	tests := []struct {
+		name        string
+		value       string
+		expected    CommandDef
+		expectedErr string
+	}{
+		{
+			name: "full form",
+			value: `
+program: go
+args: [ build, main.go ]
+env:
+  GOOS: linux
+output: true
+encoding: utf8
+dir: '~'
+`,
+			expected: CommandDef{
+				Program: "go",
+				Args:    []string{"build", "main.go"},
+				Env: map[string]string{
+					"GOOS": "linux",
+				},
+				Output:   true,
+				Encoding: "utf8",
+				Dir:      "~",
+			},
+		},
+		{
+			name:  "one string form",
+			value: "go build main.go",
+			expected: CommandDef{
+				Program: "go",
+				Args:    []string{"build", "main.go"},
+			},
+		},
+		{
+			name:  "one string form with spaces in binary path",
+			value: "\"'/usr/test user/go' build main.go\"",
+			expected: CommandDef{
+				Program: "/usr/test user/go",
+				Args:    []string{"build", "main.go"},
+			},
+		},
+		{
+			name:  "one string form with spaces in args",
+			value: "\"go build main.go -ldflags '-s -w'\"",
+			expected: CommandDef{
+				Program: "go",
+				Args:    []string{"build", "main.go", "-ldflags", "-s -w"},
+			},
+		},
+		{
+			name:        "one string form with spaces in args",
+			value:       "\"go build main.go -ldflags '-s -w\"",
+			expectedErr: "Unterminated single-quoted string",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var def CommandDef
+
+			err := testutils.DecodeYaml(tt.value, &def)
+
+			assert.Equal(t, tt.expected, def)
+			testutils.AssertError(t, tt.expectedErr, err)
+		})
+	}
+}

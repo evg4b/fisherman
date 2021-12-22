@@ -8,7 +8,9 @@ import (
 	"os/exec"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/kballard/go-shellquote"
 	"golang.org/x/text/transform"
+	"gopkg.in/yaml.v3"
 )
 
 var CommandContext = exec.CommandContext
@@ -24,7 +26,6 @@ type Exec struct {
 	Commands []CommandDef      `yaml:"commands"`
 }
 
-// TODO: Add custom YAML unmarshalling.
 type CommandDef struct {
 	Program  string            `yaml:"program"`
 	Args     []string          `yaml:"args"`
@@ -34,30 +35,51 @@ type CommandDef struct {
 	Dir      string            `yaml:"dir"`
 }
 
-func (command *CommandDef) Compile(variables map[string]interface{}) {
-	utils.FillTemplate(&command.Program, variables)
-	utils.FillTemplatesArray(command.Args, variables)
-	utils.FillTemplatesMap(command.Env, variables)
-	utils.FillTemplate(&command.Dir, variables)
+func (c *CommandDef) UnmarshalYAML(value *yaml.Node) error {
+	(*c) = CommandDef{}
+
+	var shortForm string
+	if err := value.Decode(&shortForm); err == nil {
+		parts, err := shellquote.Split(shortForm)
+		if err != nil {
+			return err
+		}
+
+		c.Program = parts[0]
+		c.Args = parts[1:]
+
+		return nil
+	}
+
+	type plain CommandDef
+
+	return value.Decode((*plain)(c))
 }
 
-func (rule *Exec) GetPosition() byte {
+func (c *CommandDef) Compile(variables map[string]interface{}) {
+	utils.FillTemplate(&c.Program, variables)
+	utils.FillTemplatesArray(c.Args, variables)
+	utils.FillTemplatesMap(c.Env, variables)
+	utils.FillTemplate(&c.Dir, variables)
+}
+
+func (r *Exec) GetPosition() byte {
 	return Scripts
 }
 
-func (rule *Exec) GetPrefix() string {
-	if utils.IsEmpty(rule.Name) {
+func (r *Exec) GetPrefix() string {
+	if utils.IsEmpty(r.Name) {
 		return ExecType
 	}
 
-	return rule.Name
+	return r.Name
 }
 
-func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
-	env := helpers.MergeEnv(rule.BaseRule.env, rule.Env)
+func (r *Exec) Check(ctx context.Context, output io.Writer) error {
+	env := helpers.MergeEnv(r.BaseRule.env, r.Env)
 
 	var resultError *multierror.Error
-	for _, commandDef := range rule.Commands {
+	for _, commandDef := range r.Commands {
 		encoding, err := getEncoding(commandDef.Encoding)
 		if err != nil {
 			return err
@@ -65,7 +87,7 @@ func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
 
 		command := CommandContext(ctx, commandDef.Program, commandDef.Args...)
 		command.Env = helpers.MergeEnv(env, commandDef.Env)
-		command.Dir = utils.FirstNotEmpty(commandDef.Dir, rule.Dir, rule.BaseRule.cwd)
+		command.Dir = utils.FirstNotEmpty(commandDef.Dir, r.Dir, r.BaseRule.cwd)
 		command.Stdout = transform.NewWriter(output, encoding.NewDecoder())
 		command.Stderr = transform.NewWriter(output, encoding.NewDecoder())
 
@@ -77,12 +99,12 @@ func (rule *Exec) Check(ctx context.Context, output io.Writer) error {
 	return resultError.ErrorOrNil()
 }
 
-func (rule *Exec) Compile(variables map[string]interface{}) {
-	rule.BaseRule.Compile(variables)
-	utils.FillTemplate(&rule.Dir, variables)
-	utils.FillTemplate(&rule.Name, variables)
-	utils.FillTemplatesMap(rule.Env, variables)
-	for i := 0; i < len(rule.Commands); i++ {
-		rule.Commands[i].Compile(variables)
+func (r *Exec) Compile(variables map[string]interface{}) {
+	r.BaseRule.Compile(variables)
+	utils.FillTemplate(&r.Dir, variables)
+	utils.FillTemplate(&r.Name, variables)
+	utils.FillTemplatesMap(r.Env, variables)
+	for i := 0; i < len(r.Commands); i++ {
+		r.Commands[i].Compile(variables)
 	}
 }
