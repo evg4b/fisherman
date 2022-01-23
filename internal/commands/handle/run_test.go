@@ -118,7 +118,7 @@ func TestCommand_Run(t *testing.T) {
 			WithGlobalVars(globalVars),
 			WithRepository(mocks.NewRepositoryMock(t).
 				GetCurrentBranchMock.Return("/refs/head/develop", nil).
-				GetLastTagMock.Return("1.0.0", errors.New("test error")).
+				GetLastTagMock.Return("1.0.0", nil).
 				GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil)),
 			WithCwd("/"),
 			WithExpressionEngine(mocks.NewEngineMock(t)),

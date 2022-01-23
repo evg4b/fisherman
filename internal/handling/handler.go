@@ -4,14 +4,17 @@ import (
 	"context"
 	"fisherman/internal"
 	"fisherman/internal/configuration"
+	"fisherman/internal/constants"
 	"fisherman/internal/expression"
 	"fisherman/internal/rules"
 	"fisherman/internal/utils"
 	"io"
+	"runtime"
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"
 	"github.com/hashicorp/go-multierror"
+	"github.com/imdario/mergo"
 )
 
 var ErrNotPresented = errors.New("configuration for hook is not presented")
@@ -85,7 +88,18 @@ func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error
 	h.rules = getPreScriptRules(config.Rules)
 	h.scripts = getScriptRules(config.Rules)
 	h.postScriptRules = getPostScriptRules(config.Rules)
-	h.globalVars, err = config.Compile(h.globalVars)
+
+	vars, err := h.getPredefinedVariables()
+	if err != nil {
+		return nil, err
+	}
+
+	err = mergo.MergeWithOverwrite(&vars, h.globalVars)
+	if err != nil {
+		return nil, err
+	}
+
+	h.globalVars, err = config.Compile(vars)
 	if err != nil {
 		return nil, err
 	}
@@ -137,4 +151,31 @@ func (h *HookHandler) ruleOptions() []rules.RuleOption {
 		rules.WithArgs(h.args),
 		rules.WithEnv(h.env),
 	}
+}
+
+func (h *HookHandler) getPredefinedVariables() (map[string]interface{}, error) {
+	gitUser, err := h.repo.GetUser()
+	if err != nil {
+		return nil, err
+	}
+
+	branch, err := h.repo.GetCurrentBranch()
+	if err != nil {
+		return nil, err
+	}
+
+	tag, err := h.repo.GetLastTag()
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		constants.UserEmailVariable:        gitUser.Email,
+		constants.UserNameVariable:         gitUser.UserName,
+		constants.FishermanVersionVariable: constants.Version,
+		constants.CwdVariable:              h.cwd,
+		constants.BranchNameVariable:       branch,
+		constants.TagVariable:              tag,
+		constants.OsVariable:               runtime.GOOS,
+	}, nil
 }

@@ -2,6 +2,8 @@ package handling_test
 
 import (
 	"context"
+	"errors"
+	"fisherman/internal"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/expression"
@@ -9,6 +11,7 @@ import (
 	"fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/pkg/guards"
+	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"io"
@@ -28,6 +31,11 @@ func TestHookHandler_Handle(t *testing.T) {
 		GetContitionMock.Return("").
 		GetPrefixMock.Return("prefix-").
 		CheckMock.Return(nil)
+
+	repo := mocks.NewRepositoryMock(t).
+		GetUserMock.Return(vcs.User{UserName: "", Email: ""}, nil).
+		GetCurrentBranchMock.Return("main", nil).
+		GetLastTagMock.Return("0.0.1", nil)
 
 	testCases := []struct {
 		name         string
@@ -112,6 +120,7 @@ func TestHookHandler_Handle(t *testing.T) {
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
+					WithRepository(repo),
 				)
 
 				guards.NoError(err)
@@ -135,6 +144,7 @@ func TestHookHandler_Handle(t *testing.T) {
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
+					WithRepository(repo),
 				)
 
 				guards.NoError(err)
@@ -158,6 +168,7 @@ func TestHookHandler_Handle(t *testing.T) {
 						},
 					}),
 					WithWorkersCount(tt.workersCount),
+					WithRepository(repo),
 				)
 
 				guards.NoError(err)
@@ -203,6 +214,7 @@ func TestHookHandler_Handle(t *testing.T) {
 					},
 				},
 			}),
+			WithRepository(repo),
 		)
 
 		guards.NoError(err)
@@ -226,7 +238,7 @@ func TestHookHandler_Handle(t *testing.T) {
 			}),
 			WithWorkersCount(4),
 			WithFileSystem(mocks.NewFilesystemMock(t)),
-			WithRepository(mocks.NewRepositoryMock(t)),
+			WithRepository(repo),
 		)
 
 		guards.NoError(err)
@@ -260,6 +272,59 @@ func TestHookHandler_Handle(t *testing.T) {
 		)
 
 		assert.Error(t, err, "'unknown-hook' is not valid hook name")
+	})
+
+	t.Run("fails when get predefined variables", func(t *testing.T) {
+		predefinedVarsTestCases2 := []struct {
+			name        string
+			repo        internal.Repository
+			expectedErr string
+		}{
+			{
+				name: "get last tag error",
+				repo: mocks.NewRepositoryMock(t).
+					GetCurrentBranchMock.Return("/refs/head/develop", nil).
+					GetLastTagMock.Return("", errors.New("tag getting error")).
+					GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+				expectedErr: "tag getting error",
+			},
+			{
+				name: "get current branch error",
+				repo: mocks.NewRepositoryMock(t).
+					GetCurrentBranchMock.Return("", errors.New("branch getting error")).
+					GetLastTagMock.Return("1.0.0", nil).
+					GetUserMock.Return(vcs.User{UserName: "evg4b", Email: "evg4b@mail.com"}, nil),
+				expectedErr: "branch getting error",
+			},
+			{
+				name: "get git user error",
+				repo: mocks.NewRepositoryMock(t).
+					GetCurrentBranchMock.Return("/refs/head/develop", nil).
+					GetLastTagMock.Return("1.0.0", nil).
+					GetUserMock.Return(vcs.User{}, errors.New("user getting error")),
+				expectedErr: "user getting error",
+			},
+		}
+
+		for _, tt := range predefinedVarsTestCases2 {
+			t.Run(tt.name, func(t *testing.T) {
+				handler, err := NewHookHandler(
+					"pre-commit",
+					WithExpressionEngine(mocks.NewEngineMock(t)),
+					WithHooksConfig(&configuration.HooksConfig{
+						PreCommitHook: &configuration.HookConfig{
+							Rules: []configuration.Rule{validRule},
+						},
+					}),
+					WithWorkersCount(4),
+					WithFileSystem(mocks.NewFilesystemMock(t)),
+					WithRepository(tt.repo),
+				)
+
+				assert.Nil(t, handler)
+				assert.EqualError(t, err, tt.expectedErr)
+			})
+		}
 	})
 }
 
