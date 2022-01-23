@@ -19,7 +19,7 @@ func TestCommand_Run(t *testing.T) {
 	err := command.Run(context.TODO(), []string{})
 
 	assert.NoError(t, err)
-	assert.Equal(t, "fisherman@x.x.x", output.String())
+	assert.Equal(t, "fisherman@x.x.x\n", output.String())
 }
 
 func TestCommand_Description(t *testing.T) {
