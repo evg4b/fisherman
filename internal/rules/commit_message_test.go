@@ -68,7 +68,7 @@ func TestCommitMessage_Check(t *testing.T) {
 						BaseRule: BaseRule{Type: CommitMessageType},
 						NotEmpty: tt.notEmpty,
 					},
-					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithArgs([]string{"massage"}),
 					WithFileSystem(testutils.FsFromMap(t, map[string]string{
 						"massage": tt.message,
 					})),
@@ -125,7 +125,7 @@ func TestCommitMessage_Check(t *testing.T) {
 						BaseRule: BaseRule{Type: CommitMessageType},
 						Prefix:   tt.prefix,
 					},
-					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithArgs([]string{"massage"}),
 					WithFileSystem(testutils.FsFromMap(t, map[string]string{
 						"massage": tt.message,
 					})),
@@ -185,7 +185,7 @@ func TestCommitMessage_Check(t *testing.T) {
 						BaseRule: BaseRule{Type: CommitMessageType},
 						Suffix:   tt.suffix,
 					},
-					WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+					WithArgs([]string{"massage"}),
 					WithFileSystem(testutils.FsFromMap(t, map[string]string{
 						"massage": tt.message,
 					})),
@@ -235,7 +235,7 @@ func TestCommitMessage_Check(t *testing.T) {
 							BaseRule: BaseRule{Type: CommitMessageType},
 							Regexp:   tt.expression,
 						},
-						WithArgs([]string{"handle", "--hook", "pre-coomit", "massage"}),
+						WithArgs([]string{"massage"}),
 						WithFileSystem(testutils.FsFromMap(t, map[string]string{
 							"massage": tt.message,
 						})),
@@ -266,7 +266,7 @@ func TestCommitMessage_Check(t *testing.T) {
 				BaseRule: BaseRule{Type: CommitMessageType},
 				Regexp:   "[a-z]($",
 			},
-			WithArgs([]string{"handle", "--hook", "pre-coomit", "unknow/file"}),
+			WithArgs([]string{"unknow/file"}),
 			WithFileSystem(memfs.New()),
 		)
 

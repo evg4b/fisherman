@@ -13,7 +13,7 @@ import (
 
 const CommitMessageType = "commit-message"
 
-const filePathArgumentIndex = 3
+const filePathArgumentIndex = 0
 
 type CommitMessage struct {
 	BaseRule `yaml:",inline"`
