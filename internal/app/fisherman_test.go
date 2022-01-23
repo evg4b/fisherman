@@ -6,7 +6,6 @@ import (
 	. "fisherman/internal/app"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
-	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"fmt"
@@ -79,8 +78,6 @@ func TestRunner_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			app := NewFishermanApp(
 				WithCommands(tt.commands),
-				WithFs(mocks.NewFilesystemMock(t)),
-				WithRepository(mocks.NewRepositoryMock(t)),
 				WithCwd("/"),
 			)
 
@@ -108,8 +105,6 @@ func TestRunner_Run(t *testing.T) {
 				makeCommand(t, expectedCommand3),
 				makeCommand(t, expectedCommand4),
 			}),
-			WithFs(mocks.NewFilesystemMock(t)),
-			WithRepository(mocks.NewRepositoryMock(t)),
 			WithCwd("/"),
 		)
 
@@ -142,16 +137,7 @@ func TestRunner_Interrupt(t *testing.T) {
 
 	app := NewFishermanApp(
 		WithCommands([]internal.CliCommand{commandMock}),
-		WithOutput(io.Discard),
-		WithFs(mocks.NewFilesystemMock(t)),
-		WithRepository(
-			mocks.NewRepositoryMock(t).
-				GetLastTagMock.Return("tag1", nil).
-				GetCurrentBranchMock.Return("master", nil).
-				GetUserMock.Return(vcs.User{}, nil),
-		),
 		WithCwd("/"),
-		WithOutput(io.Discard),
 		WithInterruptChanel(chanel),
 	)
 

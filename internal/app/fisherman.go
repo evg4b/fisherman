@@ -2,33 +2,23 @@ package app
 
 import (
 	"context"
-	"fisherman/internal"
 	"fisherman/pkg/guards"
 	"fisherman/pkg/log"
-	"io"
 	"os"
-
-	"github.com/go-git/go-billy/v5"
 )
 
 // FishermanApp is main application structure.
 type FishermanApp struct {
 	cwd         string
-	fs          billy.Filesystem
-	repo        internal.Repository
-	output      io.Writer
 	commands    CliCommands
-	env         []string
 	interaption chan os.Signal
 }
 
 // NewFishermanApp is an fisherman application constructor.
 func NewFishermanApp(options ...appOption) *FishermanApp {
 	app := FishermanApp{
-		output:      io.Discard,
 		commands:    CliCommands{},
 		cwd:         "",
-		env:         []string{},
 		interaption: make(chan os.Signal),
 	}
 
@@ -36,8 +26,6 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 		option(&app)
 	}
 
-	guards.ShouldBeDefined(app.fs, "FileSystem should be configured")
-	guards.ShouldBeDefined(app.repo, "Repository should be configured")
 	guards.ShouldBeDefined(app.commands, "Commands should be configured")
 
 	return &app

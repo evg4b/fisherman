@@ -83,10 +83,6 @@ func main() {
 			),
 			version.NewCommand(),
 		}),
-		app.WithFs(fs),
-		app.WithOutput(os.Stdout),
-		app.WithRepository(repo),
-		app.WithEnv(os.Environ()),
 		app.WithSistemInterruptSignals(),
 	)
 
