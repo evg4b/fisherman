@@ -28,6 +28,7 @@ var allowedHooks = map[string][]string{
 		rules.ExecType,
 		rules.AddToIndexType,
 		rules.SuppressCommitFilesType,
+		rules.SuppressedTextType,
 	},
 	constants.PrePushHook: {
 		rules.ShellScriptType,
