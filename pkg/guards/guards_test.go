@@ -56,15 +56,16 @@ func TestShouldBeDefined(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if len(tt.err) > 0 {
-				assert.PanicsWithError(t, tt.err, func() {
-					ShouldBeDefined(tt.object, tt.message)
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			if len(testCase.err) > 0 {
+				assert.PanicsWithError(t, testCase.err, func() {
+					ShouldBeDefined(testCase.object, testCase.message)
 				})
 			} else {
 				assert.NotPanics(t, func() {
-					ShouldBeDefined(tt.object, tt.message)
+					ShouldBeDefined(testCase.object, testCase.message)
 				})
 			}
 		})
@@ -126,15 +127,16 @@ func TestShouldBeNotEmpty(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if len(tt.err) > 0 {
-				assert.PanicsWithError(t, tt.err, func() {
-					ShouldBeNotEmpty(tt.object, "string is empty")
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			if len(testCase.err) > 0 {
+				assert.PanicsWithError(t, testCase.err, func() {
+					ShouldBeNotEmpty(testCase.object, "string is empty")
 				})
 			} else {
 				assert.NotPanics(t, func() {
-					ShouldBeNotEmpty(tt.object, "string is empty")
+					ShouldBeNotEmpty(testCase.object, "string is empty")
 				})
 			}
 		})

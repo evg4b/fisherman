@@ -61,13 +61,13 @@ it can be set with the following code:
 
 # single line array
 - type: shell-script
-  commands: ['command1', 'command2']
+  commands: [ 'command1', 'command2' ]
 
 # multilane array
 - type: shell-script
   commands:
-  - 'command1 arg1 arg2'
-  - 'command2 arg1'
+    - 'command1 arg1 arg2'
+    - 'command2 arg1'
 ```
 
 ## System related script
@@ -97,7 +97,7 @@ Currently, only the following system shells are supported:
 - **cmd** - cmd.exe as shell host. Can be used only on Windows.
   It is also the default shell for Windows.
 - **bash** - bash as shell host. Available on Windows, Linux and
-  MacOs. It is the default  shell for Linux and MacOs. Note: for Windows bash available
+  MacOs. It is the default shell for Linux and MacOs. Note: for Windows bash available
   only in package [MSYS2](https://www.msys2.org/).
 - **powershell** - powershell as shell host. Can be used on Windows,
   Linux and MacOs.

@@ -74,16 +74,17 @@ func TestRunner_Run(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
 			app := NewFishermanApp(
-				WithCommands(tt.commands),
+				WithCommands(testCase.commands),
 				WithCwd("/"),
 			)
 
 			assert.NotPanics(t, func() {
-				err := app.Run(context.TODO(), tt.args)
-				testutils.AssertError(t, tt.expectedErr, err)
+				err := app.Run(context.TODO(), testCase.args)
+				testutils.AssertError(t, testCase.expectedErr, err)
 			})
 		})
 	}

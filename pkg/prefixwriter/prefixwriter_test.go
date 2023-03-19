@@ -26,7 +26,8 @@ func TestPrefixWriter_Write(t *testing.T) {
 			{
 				name:     "should don't add prefix for empty line ",
 				input:    "",
-				expected: ""},
+				expected: "",
+			},
 			{
 				name:     "should add prefix for empty line with newline symbol",
 				input:    "\n",
@@ -44,12 +45,13 @@ func TestPrefixWriter_Write(t *testing.T) {
 			},
 		}
 
-		for _, dd := range testData {
-			t.Run(dd.name, func(t *testing.T) {
+		for _, testCase := range testData {
+			testCase := testCase
+			t.Run(testCase.name, func(t *testing.T) {
 				var buf bytes.Buffer
-				fmt.Fprintf(NewWriter(&buf, prefix), dd.input)
+				fmt.Fprintf(NewWriter(&buf, prefix), testCase.input)
 
-				assert.Equal(t, dd.expected, buf.String())
+				assert.Equal(t, testCase.expected, buf.String())
 			})
 		}
 	})

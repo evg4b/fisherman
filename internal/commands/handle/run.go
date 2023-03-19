@@ -31,7 +31,6 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 		handling.WithWorkersCount(c.workersCount),
 		handling.WithOutput(c.output),
 	)
-
 	if err != nil {
 		if errors.Is(err, handling.ErrNotPresented) {
 			log.Debugf("hook %s not presented", c.hook)

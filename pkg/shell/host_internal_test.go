@@ -5,7 +5,6 @@ import (
 	"context"
 	"io"
 	"os/exec"
-
 	"testing"
 
 	"github.com/stretchr/testify/assert"

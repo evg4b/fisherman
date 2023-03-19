@@ -38,11 +38,12 @@ func Test_getPreScripts(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := getPreScriptRules(tt.ruleCollection)
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			actual := getPreScriptRules(testCase.ruleCollection)
 
-			assert.EqualValues(t, tt.expected, actual)
+			assert.EqualValues(t, testCase.expected, actual)
 		})
 	}
 }

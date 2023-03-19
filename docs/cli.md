@@ -6,7 +6,7 @@ slug: /cli
 
 ## Init
 
-This command initialize fisherman in git repository. Is can  be called only in
+This command initialize fisherman in git repository. Is can be called only in
 root on git repository.
 
 ```bash

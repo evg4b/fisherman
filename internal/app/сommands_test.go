@@ -41,12 +41,13 @@ func TestCliCommands_GetCommand(t *testing.T) {
 			expectedErr: "unknown command: unregistered-command",
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual, err := tt.commands.GetCommand(tt.commandName)
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			actual, err := testCase.commands.GetCommand(testCase.commandName)
 
-			testutils.AssertError(t, tt.expectedErr, err)
-			assert.Equal(t, tt.expected, actual)
+			testutils.AssertError(t, testCase.expectedErr, err)
+			assert.Equal(t, testCase.expected, actual)
 		})
 	}
 }

@@ -9,13 +9,11 @@ import (
 )
 
 func TestEnvVars_IsEmpty(t *testing.T) {
-	tests := []struct {
+	var tests []struct {
 		name     string
 		vars     EnvVars
 		value    string
 		expected bool
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

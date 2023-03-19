@@ -64,6 +64,7 @@ func WithWorkersCount(workersCount uint) handlerOptions {
 		h.workersCount = workersCount
 	}
 }
+
 func WithOutput(output io.Writer) handlerOptions {
 	return func(h *HookHandler) {
 		h.output = output

@@ -195,11 +195,11 @@ func TestHost_Close(t *testing.T) {
 			return 0, 0, errors.New("encoding error")
 		})
 
-		encoding := mocks.NewEncodingMock(t).
+		encodingMock := mocks.NewEncodingMock(t).
 			NewDecoderMock.Return(&encoding.Decoder{Transformer: transformer}).
 			NewEncoderMock.Return(&encoding.Encoder{Transformer: transformer})
 
-		host := NewHost(context.TODO(), Default(), WithEncoding(encoding))
+		host := NewHost(context.TODO(), Default(), WithEncoding(encodingMock))
 		defer host.Terminate()
 
 		_ = host.Start()

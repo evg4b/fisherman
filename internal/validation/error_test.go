@@ -34,11 +34,12 @@ func TestError_Error(t *testing.T) {
 			expected: "message test 13",
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := tt.err.Error()
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			actual := testCase.err.Error()
 
-			assert.Equal(t, tt.expected, actual)
+			assert.Equal(t, testCase.expected, actual)
 		})
 	}
 }

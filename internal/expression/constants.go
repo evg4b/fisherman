@@ -1,5 +1,7 @@
 package expression
 
-const Windows = "windows"
-const Linux = "linux"
-const Macos = "darwin"
+const (
+	Windows = "windows"
+	Linux   = "linux"
+	Macos   = "darwin"
+)

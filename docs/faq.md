@@ -29,6 +29,7 @@ Remove `when: IssueNumber != nil` to change it.
 Related links:
 
 <!-- TODO: Add correct links -->
+
 - [extract-variables](/)
 - [commit-message](/)
 
@@ -48,6 +49,7 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
+
 - [suppressed-text rule](./configuration/rules/suppressed-text.md)
 
 ## I want run tests or lint before push changes to remote repo
@@ -71,6 +73,7 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
+
 - [exec rule](./configuration/rules/exec)
 
 ## I want create difference rules for each operation system
@@ -96,6 +99,7 @@ hooks:
 Related links:
 
 <!-- TODO: Add correct links -->
+
 - [exec rule](./configuration/rules/exec)
 
 ## Difference between exec and shell-script

@@ -154,6 +154,6 @@
                 "prepare-commit-msg",
                 "${workspaceFolder}/.vscode/debug-data/message.txt"
             ]
-        },
+        }
     ]
 }

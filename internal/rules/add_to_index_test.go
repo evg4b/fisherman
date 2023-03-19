@@ -106,15 +106,16 @@ func TestAddToIndex_Check(t *testing.T) {
 			{name: "optional is false", isRequired: true},
 		}
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
+		for _, testCase := range tests {
+			testCase := testCase
+			t.Run(testCase.name, func(t *testing.T) {
 				rule := makeRule(
 					&AddToIndex{
 						BaseRule: BaseRule{Type: AddToIndexType},
 						Globs: []Glob{
-							{"glob1/*.go", tt.isRequired},
-							{"*.css", tt.isRequired},
-							{"mocks", tt.isRequired},
+							{"glob1/*.go", testCase.isRequired},
+							{"*.css", testCase.isRequired},
+							{"mocks", testCase.isRequired},
 						},
 					},
 					WithRepository(repo),
@@ -122,7 +123,7 @@ func TestAddToIndex_Check(t *testing.T) {
 
 				err := rule.Check(context.TODO(), ioutil.Discard)
 
-				if !tt.isRequired {
+				if !testCase.isRequired {
 					assert.NoError(t, err)
 				} else {
 					assert.EqualError(t, err, errorMessage(AddToIndexType, "can't add files matching pattern *.css"))

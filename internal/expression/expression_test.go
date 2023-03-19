@@ -37,7 +37,7 @@ func TestExpressionEngine_Eval(t *testing.T) {
 			name:        "IsEmpty with not empty value",
 			expression:  "IsEmpty()",
 			expected:    false,
-			expectedErr: "expected bool, but got interface {}",
+			expectedErr: "not enough arguments to call IsEmpty (1:1)\n | IsEmpty()\n | ^",
 		},
 	}
 

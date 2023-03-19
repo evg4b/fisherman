@@ -4,69 +4,37 @@ run:
   allow-parallel-runners: true
   timeout: 5m
 linters:
-  enable:
-    - deadcode
-    - errcheck
-    - gosimple
-    - govet
-    - gosec
-    - unconvert
-    - ineffassign
-    - staticcheck
-    - structcheck
-    - typecheck
-    - nlreturn
-    - nestif
-    - gomnd
-    - unused
-    - varcheck
-    - stylecheck
-    - gocyclo
-    - dupl
-    - misspell
-    - unparam
-    - whitespace
-    - goconst
-    - lll
-    - gocritic
-    - vet
-    - asciicheck
-    - cyclop
-    - depguard
-    - durationcheck
-    - errname
-    - errorlint
-    - exportloopref
-    - exhaustive
-    - gochecknoinits
-    - gocognit
-    - gocritic
-    - godot
-    - gomnd
-    - gomoddirectives
-    - gosec
+  enable-all: true
+  disable:
+    - wsl
+    - maligned
+    - gochecknoglobals
+    - nolintlint
+    - wrapcheck # Should be deleted
+    - varnamelen
+    - goerr113
+    - godox
+    - paralleltest
+    - nonamedreturns
+    - musttag # Should be deleted
+    - ireturn
+    - exhaustivestruct
+    - forcetypeassert # Should be deleted
+    - exhaustruct
     - ifshort
-    - importas
-    - makezero
-    - misspell
-    - nakedret
-    - nilerr
-    - nlreturn
-    - prealloc
-    - predeclared
-    - promlinter
-    - revive
-    - stylecheck
-    - tagliatelle
-    - testpackage
-    - thelper
-    - tparallel
-    - unconvert
-    - unparam
-    - wastedassign
-    - whitespace
-    # - wrapcheck
-
+    - gci
+    - funlen # Should be deleted
+    - maintidx
+    - containedctx
+    - gofmt
+    - scopelint # Should be deleted
+    # deplicated
+    - golint
+    - deadcode
+    - interfacer
+    - nosnakecase
+    - structcheck
+    - varcheck
 linters-settings:
   lll:
     line-length: 140
@@ -86,3 +54,16 @@ linters-settings:
   gosec:
     excludes:
       - G204
+presets:
+  - bugs
+  - comment
+  - complexity
+  - error
+  - format
+  - import
+  - metalinter
+  - module
+  - performance
+  - style
+  - test
+  - unused

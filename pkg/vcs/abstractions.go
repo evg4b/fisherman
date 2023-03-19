@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5/storage"
 )
 
+// nolint: interfacebloat
 type GoGitRepository interface {
 	BlobObject(h plumbing.Hash) (*object.Blob, error)
 	BlobObjects() (*object.BlobIter, error)

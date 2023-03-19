@@ -10,7 +10,10 @@
       "title": "Variables definition",
       "description": "TODO: add descriptions",
       "additionalProperties": {
-        "type": [ "string", "integer" ]
+        "type": [
+          "string",
+          "integer"
+        ]
       }
     },
     "extract-variables": {
@@ -21,10 +24,19 @@
       "items": {
         "type": "object",
         "properties": {
-          "variable": { "type": "string", "minLength": 1 },
-          "expression": { "type": "string", "minLength": 1 }
+          "variable": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expression": {
+            "type": "string",
+            "minLength": 1
+          }
         },
-        "required": [ "variable", "expression" ]
+        "required": [
+          "variable",
+          "expression"
+        ]
       }
     },
     "base-rule": {
@@ -38,21 +50,39 @@
           "type": "string",
           "minLength": 1,
           "title": "Rule condition",
-          "description":"An expression on C like language. It allows you to define a condition for executing a rule. See more https://cutt.ly/hWAG7pJ"
+          "description": "An expression on C like language. It allows you to define a condition for executing a rule. See more https://cutt.ly/hWAG7pJ"
         }
       },
-      "required": ["type"]
+      "required": [
+        "type"
+      ]
     },
     "shell-script": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "properties": {
-        "type": { "enum": [ "shell-script" ] },
-        "variables": { "$ref": "#/definitions/variables" },
-        "extract-variables": { "$ref": "#/definitions/extract-variables" },
+        "type": {
+          "enum": [
+            "shell-script"
+          ]
+        },
+        "variables": {
+          "$ref": "#/definitions/variables"
+        },
+        "extract-variables": {
+          "$ref": "#/definitions/extract-variables"
+        },
         "shell": {
           "title": "System shell name",
-          "enum": [ "bash", "cmd", "powershell" ]
+          "enum": [
+            "bash",
+            "cmd",
+            "powershell"
+          ]
         },
         "commands": {
           "type": "array",
@@ -65,7 +95,9 @@
         },
         "env": {
           "type": "object",
-          "additionalProperties": { "type": "string" },
+          "additionalProperties": {
+            "type": "string"
+          },
           "minProperties": 1,
           "title": "Environment variables for script",
           "description": "Sets additional environment variables (system environment variables also will be included) for the command"
@@ -81,15 +113,29 @@
           "title": "Working directory"
         }
       },
-      "required": [ "commands" ]
+      "required": [
+        "commands"
+      ]
     },
     "exec": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "properties": {
-        "type": { "enum": [ "exec" ] },
-        "variables": { "$ref": "#/definitions/variables" },
-        "extract-variables": { "$ref": "#/definitions/extract-variables" },
+        "type": {
+          "enum": [
+            "exec"
+          ]
+        },
+        "variables": {
+          "$ref": "#/definitions/variables"
+        },
+        "extract-variables": {
+          "$ref": "#/definitions/extract-variables"
+        },
         "program": {
           "type": "string",
           "title": "Program name",
@@ -106,7 +152,9 @@
         },
         "env": {
           "type": "object",
-          "additionalProperties": { "type": "string" },
+          "additionalProperties": {
+            "type": "string"
+          },
           "minProperties": 1,
           "title": "Environment variables for program",
           "description": "Sets additional environment variables (system environment variables also will be included) for the program"
@@ -122,11 +170,17 @@
           "title": "Working directory"
         }
       },
-      "required": [ "program" ]
+      "required": [
+        "program"
+      ]
     },
     "add-to-index": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "properties": {
         "glob": {
           "type": "string",
@@ -140,11 +194,17 @@
           "description": "This flag marks this action as an required or not. When glob masked as required and where there are no files matched to it, commit will be rejected."
         }
       },
-      "required": [ "glob" ]
+      "required": [
+        "glob"
+      ]
     },
     "commit-message": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "properties": {
         "prefix": {
           "type": "string",
@@ -173,15 +233,27 @@
     },
     "prepare-message": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "properties": {
-        "message": { "type": "string" }
+        "message": {
+          "type": "string"
+        }
       },
-      "required": ["message"]
+      "required": [
+        "message"
+      ]
     },
     "suppress-commit-files": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "minProperties": 1,
       "properties": {
         "globs": {
@@ -204,7 +276,11 @@
     },
     "suppress-text": {
       "type": "object",
-      "allOf": [{ "$ref": "#/definitions/base-rule" }],
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-rule"
+        }
+      ],
       "minProperties": 1,
       "properties": {
         "substrings": {
@@ -245,173 +321,318 @@
         "commit-msg": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec", "commit-message"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec",
+                      "commit-message"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" },
-                  { "$ref": "#/definitions/commit-message" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  },
+                  {
+                    "$ref": "#/definitions/commit-message"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "apply-patch-msg": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "fs-monitor-watchman": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "pre-apply-patch": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "pre-commit": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec", "add-to-index", "suppress-commit-files"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec",
+                      "add-to-index",
+                      "suppress-commit-files"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" },
-                  { "$ref": "#/definitions/add-to-index" },
-                  { "$ref": "#/definitions/suppress-commit-files" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  },
+                  {
+                    "$ref": "#/definitions/add-to-index"
+                  },
+                  {
+                    "$ref": "#/definitions/suppress-commit-files"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "pre-push": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "pre-rebase": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         },
         "prepare-commit-msg": {
           "type": "object",
           "properties": {
-            "variables": { "$ref": "#/definitions/variables" },
-            "extract-variables": { "$ref": "#/definitions/extract-variables" },
+            "variables": {
+              "$ref": "#/definitions/variables"
+            },
+            "extract-variables": {
+              "$ref": "#/definitions/extract-variables"
+            },
             "rules": {
               "type": "array",
               "items": {
                 "properties": {
-                  "type": { "enum": ["shell-script", "exec"] }
+                  "type": {
+                    "enum": [
+                      "shell-script",
+                      "exec"
+                    ]
+                  }
                 },
                 "anyOf": [
-                  { "$ref": "#/definitions/shell-script" },
-                  { "$ref": "#/definitions/exec" }
+                  {
+                    "$ref": "#/definitions/shell-script"
+                  },
+                  {
+                    "$ref": "#/definitions/exec"
+                  }
                 ],
-                "required": ["type"]
+                "required": [
+                  "type"
+                ]
               }
             }
           },
-          "required": [ "rules" ]
+          "required": [
+            "rules"
+          ]
         }
       }
     },
@@ -420,7 +641,12 @@
       "minProperties": 1,
       "properties": {
         "level": {
-          "enum": [ "error", "debug", "info", "none" ],
+          "enum": [
+            "error",
+            "debug",
+            "info",
+            "none"
+          ],
           "default": "info"
         },
         "colors": {
@@ -430,5 +656,7 @@
       }
     }
   },
-  "required": [ "hooks" ]
+  "required": [
+    "hooks"
+  ]
 }

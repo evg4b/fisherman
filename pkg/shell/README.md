@@ -11,14 +11,16 @@ Features:
 
 ## Available shell strategies
 
-- **shell.Cmd()** - Strategy to use [cmd.exe](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmd?ranMID=46131&ranEAID=a1LgFw09t88&ranSiteID=a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ&epi=a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ&irgwc=1&OCID=AID2200057_aff_7806_1243925&tduid=%28ir__tx9o062soskf6jneo33yzzo9bn2xoglw11jzryfe00%29%287806%29%281243925%29%28a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ%29%28%29&irclickid=_tx9o062soskf6jneo33yzzo9bn2xoglw11jzryfe00)
+- **shell.Cmd()** - Strategy to
+  use [cmd.exe](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/cmd?ranMID=46131&ranEAID=a1LgFw09t88&ranSiteID=a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ&epi=a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ&irgwc=1&OCID=AID2200057_aff_7806_1243925&tduid=%28ir__tx9o062soskf6jneo33yzzo9bn2xoglw11jzryfe00%29%287806%29%281243925%29%28a1LgFw09t88-GnIhyB.n9js83pQZuKa7oQ%29%28%29&irclickid=_tx9o062soskf6jneo33yzzo9bn2xoglw11jzryfe00)
   as shell host. Can be used only on `windows`. It is also the default
   shell for windows.
 - **shell.Bash()** - Strategy to use [bash](https://www.gnu.org/software/bash/)
   as shell host. Available on  `windows`, `linux` and `darwin`. It is the default
   shell for `linux` and `darwin`. **Note**: for windows `bash` available only
   in package [MSYS2](https://www.msys2.org/).
-- **shell.PowerShell()** - Strategy to use [powershell](https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2)
+- **shell.PowerShell()** - Strategy to
+  use [powershell](https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-7.2)
   as shell host. Can be used on `windows`, `linux` and `darwin`.
 
 ## Options
@@ -125,4 +127,5 @@ These functions can be useful when working with shell host.
 
 There is a problem with rendering utf8 output on windows. This is related to the
 problem with UTF-8 support in Windows. ReadConsoleA and ReadFile just silently
-fail with the code page set to 65001. Read more [here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/6db367e1-6b39-4c91-bd08-e3779ae5fc23/problems-with-readingwriting-utf8-characters-to-console?forum=vcgeneral).
+fail with the code page set to 65001. Read
+more [here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/6db367e1-6b39-4c91-bd08-e3779ae5fc23/problems-with-readingwriting-utf8-characters-to-console?forum=vcgeneral).

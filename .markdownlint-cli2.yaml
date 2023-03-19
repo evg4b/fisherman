@@ -7,5 +7,5 @@ config:
     tables: false
   MD033: false
   MD041: false
-globs: ["**/*.md"]
+globs: [ "**/*.md" ]
 noInlineConfig: true

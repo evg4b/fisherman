@@ -96,11 +96,12 @@ func TestChanges_Added(t *testing.T) {
 }
 
 func TestChanges_Deleted(t *testing.T) {
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := tt.changes.Deleted()
+	for _, testCase := range tests {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			actual := testCase.changes.Deleted()
 
-			assert.Equal(t, tt.deleted, actual)
+			assert.Equal(t, testCase.deleted, actual)
 		})
 	}
 }

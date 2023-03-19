@@ -3,6 +3,7 @@ id: getting-started
 title: Getting started
 slug: /getting-started
 ---
+
 ## Install
 
 Fisherman currently offers only two installation methods. Check out the available

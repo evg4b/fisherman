@@ -27,7 +27,7 @@ func TestIsValidationError(t *testing.T) {
 	multiValidationErrors = multierror.Append(multiValidationErrors, validationError)
 	multiValidationErrors = multierror.Append(multiValidationErrors, notValidationError)
 
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		err      error
 		expected bool
@@ -39,11 +39,12 @@ func TestIsValidationError(t *testing.T) {
 		{name: "Multierror with not validation error", err: multiNotValidationErrors, expected: true},
 		{name: "Multierror without not validation error", err: multiValidationErrors, expected: false},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			actual := IsValidationError(tt.err)
+	for _, testCase := range testCases {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			actual := IsValidationError(testCase.err)
 
-			assert.Equal(t, tt.expected, actual)
+			assert.Equal(t, testCase.expected, actual)
 		})
 	}
 }
