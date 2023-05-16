@@ -5,7 +5,7 @@ import (
 	"errors"
 	. "fisherman/internal/rules"
 	"fisherman/testing/mocks"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/go-git/go-git/v5"
@@ -50,7 +50,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			BaseRule: BaseRule{Type: SuppressCommitFilesType},
 		}
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -68,7 +68,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "1 error occurred:\n\t* [suppress-commit-files] file glob1/demo.go can not be committed\n\n")
 	})
@@ -88,7 +88,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -105,7 +105,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "test error")
 	})
@@ -122,7 +122,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "syntax error in pattern")
 	})
@@ -141,7 +141,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "test error")
 	})

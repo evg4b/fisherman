@@ -21,7 +21,7 @@ type SuppressCommitFiles struct {
 }
 
 // nolint: cyclop
-func (rule *SuppressCommitFiles) Check(ctx context.Context, _ io.Writer) error {
+func (rule *SuppressCommitFiles) Check(_ context.Context, _ io.Writer) error {
 	if len(rule.Globs) == 0 {
 		return nil
 	}

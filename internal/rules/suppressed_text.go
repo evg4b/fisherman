@@ -18,7 +18,7 @@ type SuppressedText struct {
 	ExcludedGlobs []string `yaml:"exclude"`
 }
 
-func (rule *SuppressedText) Check(ctx context.Context, _ io.Writer) error {
+func (rule *SuppressedText) Check(_ context.Context, _ io.Writer) error {
 	repo := rule.BaseRule.repo
 	changes, err := repo.GetIndexChanges()
 	if err != nil {

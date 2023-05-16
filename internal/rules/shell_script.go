@@ -7,7 +7,6 @@ import (
 	"fisherman/pkg/shell/helpers"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os/exec"
 
 	"github.com/go-errors/errors"
@@ -89,7 +88,7 @@ func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
 		return output
 	}
 
-	return ioutil.Discard
+	return io.Discard
 }
 
 func getShellStrategy(name string) (shell.ShellStrategy, error) {

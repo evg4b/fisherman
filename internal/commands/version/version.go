@@ -20,7 +20,7 @@ func NewCommand() *Command {
 	}
 }
 
-func (c *Command) Run(ctx context.Context, _ []string) error {
+func (c *Command) Run(_ context.Context, _ []string) error {
 	fishermanVersion := fmt.Sprintf("%s@%s", constants.AppName, constants.Version)
 
 	_, err := fmt.Fprintln(log.Stdout(), fishermanVersion)

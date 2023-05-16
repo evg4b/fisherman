@@ -5,7 +5,7 @@ import (
 	"fisherman/internal/configuration"
 	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestPrepareMessage_Check(t *testing.T) {
 			WithFileSystem(fs),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -38,7 +38,7 @@ func TestPrepareMessage_Check(t *testing.T) {
 			WithFileSystem(fs),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})

@@ -26,3 +26,4 @@ __debug_bin
 # goreleaser output
 dist
 coverage.xml
+fisherman

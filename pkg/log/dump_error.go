@@ -3,4 +3,4 @@
 
 package log
 
-func DumpError(err error) {}
+func DumpError(_ error) {}

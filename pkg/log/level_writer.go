@@ -2,7 +2,6 @@ package log
 
 import (
 	"io"
-	"io/ioutil"
 )
 
 type LevelWriter struct {
@@ -32,5 +31,5 @@ func (wr *LevelWriter) Write(p []byte) (n int, err error) {
 		return wr.output.Write(p)
 	}
 
-	return ioutil.Discard.Write(p)
+	return io.Discard.Write(p)
 }

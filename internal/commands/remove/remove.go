@@ -37,7 +37,7 @@ func NewCommand(options ...removeOption) *Command {
 	return command
 }
 
-func (c *Command) Run(ctx context.Context, args []string) error {
+func (c *Command) Run(_ context.Context, args []string) error {
 	err := c.flagSet.Parse(args)
 	if err != nil {
 		return err

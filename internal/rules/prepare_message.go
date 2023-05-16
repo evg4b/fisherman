@@ -16,7 +16,7 @@ type PrepareMessage struct {
 	Message  string `yaml:"message"`
 }
 
-func (rule PrepareMessage) Check(ctx context.Context, _ io.Writer) error {
+func (rule PrepareMessage) Check(_ context.Context, _ io.Writer) error {
 	if utils.IsEmpty(rule.Message) {
 		return nil
 	}

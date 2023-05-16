@@ -26,7 +26,7 @@ func (rule *AddToIndex) GetPosition() byte {
 	return PostScripts
 }
 
-func (rule *AddToIndex) Check(ctx context.Context, _ io.Writer) error {
+func (rule *AddToIndex) Check(_ context.Context, _ io.Writer) error {
 	if len(rule.Globs) < 1 {
 		return nil
 	}

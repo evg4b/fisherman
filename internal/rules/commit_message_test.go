@@ -5,7 +5,7 @@ import (
 	"context"
 	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/go-git/go-billy/v5/memfs"
@@ -74,7 +74,7 @@ func TestCommitMessage_Check(t *testing.T) {
 					})),
 				)
 
-				err := rule.Check(context.TODO(), ioutil.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -131,7 +131,7 @@ func TestCommitMessage_Check(t *testing.T) {
 					})),
 				)
 
-				err := rule.Check(context.TODO(), ioutil.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -191,7 +191,7 @@ func TestCommitMessage_Check(t *testing.T) {
 					})),
 				)
 
-				err := rule.Check(context.TODO(), ioutil.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				testutils.AssertError(t, tt.expectedErr, err)
 			})
@@ -241,7 +241,7 @@ func TestCommitMessage_Check(t *testing.T) {
 						})),
 					)
 
-					err := rule.Check(context.TODO(), ioutil.Discard)
+					err := rule.Check(context.TODO(), io.Discard)
 
 					testutils.AssertError(t, tt.expectedErr, err)
 				})
@@ -254,7 +254,7 @@ func TestCommitMessage_Check(t *testing.T) {
 				Regexp:   "[a-z]($",
 			}
 
-			err := rule.Check(context.TODO(), ioutil.Discard)
+			err := rule.Check(context.TODO(), io.Discard)
 
 			assert.Error(t, err)
 		})
@@ -270,7 +270,7 @@ func TestCommitMessage_Check(t *testing.T) {
 			WithFileSystem(memfs.New()),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "message cannot be read: file does not exist")
 	})

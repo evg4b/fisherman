@@ -6,7 +6,7 @@ import (
 	. "fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/go-errors/errors"
@@ -42,7 +42,7 @@ func TestAddToIndex_Check(t *testing.T) {
 	t.Run("not configured rules", func(t *testing.T) {
 		rule := AddToIndex{BaseRule: BaseRule{Type: AddToIndexType}}
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -64,7 +64,7 @@ func TestAddToIndex_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.NoError(t, err)
 	})
@@ -86,7 +86,7 @@ func TestAddToIndex_Check(t *testing.T) {
 			WithRepository(repo),
 		)
 
-		err := rule.Check(context.TODO(), ioutil.Discard)
+		err := rule.Check(context.TODO(), io.Discard)
 
 		assert.EqualError(t, err, "failed to add files matching pattern '*.css' to the index: testError")
 		assert.IsType(t, &errors.Error{}, err)
@@ -121,7 +121,7 @@ func TestAddToIndex_Check(t *testing.T) {
 					WithRepository(repo),
 				)
 
-				err := rule.Check(context.TODO(), ioutil.Discard)
+				err := rule.Check(context.TODO(), io.Discard)
 
 				if !testCase.isRequired {
 					assert.NoError(t, err)
