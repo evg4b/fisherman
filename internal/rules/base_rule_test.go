@@ -15,10 +15,10 @@ func TestBaseRule_GetType(t *testing.T) {
 	assert.Equal(t, "demo-rule", rule.GetType())
 }
 
-func TestBaseRule_GetContition(t *testing.T) {
+func TestBaseRule_GetCondition(t *testing.T) {
 	rule := BaseRule{Type: "demo-rule", Condition: "rule-condition"}
 
-	assert.Equal(t, "rule-condition", rule.GetContition())
+	assert.Equal(t, "rule-condition", rule.GetCondition())
 }
 
 func TestBaseRule_GetPosition(t *testing.T) {

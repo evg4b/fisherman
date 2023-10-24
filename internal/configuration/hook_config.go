@@ -15,7 +15,7 @@ import (
 type Rule interface {
 	GetType() string
 	GetPrefix() string
-	GetContition() string
+	GetCondition() string
 	GetPosition() byte
 	Check(ctx context.Context, writer io.Writer) error
 	Compile(variables map[string]any)

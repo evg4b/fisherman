@@ -54,7 +54,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 		assert.Equal(t, "refs/tags/tag2", tag)
 	})
 
-	t.Run("head is not last commint", func(t *testing.T) {
+	t.Run("head is not last commit", func(t *testing.T) {
 		repo, r, fs, w := testutils.CreateRepo(t)
 
 		testutils.MakeCommits(t, w, fs, map[string]map[string]string{

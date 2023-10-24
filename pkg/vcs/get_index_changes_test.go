@@ -48,7 +48,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 		}, changes)
 	})
 
-	t.Run("returns files include subfolders", func(t *testing.T) {
+	t.Run("returns files include sub-folders", func(t *testing.T) {
 		repo, _, fs, w := testutils.CreateRepo(t)
 
 		testutils.MakeCommits(t, w, fs, map[string]map[string]string{

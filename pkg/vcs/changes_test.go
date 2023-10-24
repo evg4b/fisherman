@@ -25,14 +25,14 @@ var tests = []struct {
 	{
 		name: "collection 1",
 		changes: Changes{
-			Change{Added, "test"},
-			Change{Added, "data"},
-			Change{Added, "diff"},
+			Change{Status: Added, Change: "test"},
+			Change{Status: Added, Change: "data"},
+			Change{Status: Added, Change: "diff"},
 		},
 		added: Changes{
-			Change{Added, "test"},
-			Change{Added, "data"},
-			Change{Added, "diff"},
+			Change{Status: Added, Change: "test"},
+			Change{Status: Added, Change: "data"},
+			Change{Status: Added, Change: "diff"},
 		},
 		deleted:    Changes{},
 		unmodified: Changes{},
@@ -40,14 +40,14 @@ var tests = []struct {
 	{
 		name: "collection 2",
 		changes: Changes{
-			Change{Deleted, "test"},
-			Change{Deleted, "data"},
-			Change{Deleted, "diff"},
+			Change{Status: Deleted, Change: "test"},
+			Change{Status: Deleted, Change: "data"},
+			Change{Status: Deleted, Change: "diff"},
 		},
 		deleted: Changes{
-			Change{Deleted, "test"},
-			Change{Deleted, "data"},
-			Change{Deleted, "diff"},
+			Change{Status: Deleted, Change: "test"},
+			Change{Status: Deleted, Change: "data"},
+			Change{Status: Deleted, Change: "diff"},
 		},
 		added:      Changes{},
 		unmodified: Changes{},
@@ -55,14 +55,14 @@ var tests = []struct {
 	{
 		name: "collection 3",
 		changes: Changes{
-			Change{Unmodified, "test"},
-			Change{Unmodified, "data"},
-			Change{Unmodified, "diff"},
+			Change{Status: Unmodified, Change: "test"},
+			Change{Status: Unmodified, Change: "data"},
+			Change{Status: Unmodified, Change: "diff"},
 		},
 		unmodified: Changes{
-			Change{Unmodified, "test"},
-			Change{Unmodified, "data"},
-			Change{Unmodified, "diff"},
+			Change{Status: Unmodified, Change: "test"},
+			Change{Status: Unmodified, Change: "data"},
+			Change{Status: Unmodified, Change: "diff"},
 		},
 		added:   Changes{},
 		deleted: Changes{},
@@ -70,18 +70,18 @@ var tests = []struct {
 	{
 		name: "collection 4",
 		changes: Changes{
-			Change{Unmodified, "test"},
-			Change{Added, "data"},
-			Change{Deleted, "diff"},
+			Change{Status: Unmodified, Change: "test"},
+			Change{Status: Added, Change: "data"},
+			Change{Status: Deleted, Change: "diff"},
 		},
 		unmodified: Changes{
-			Change{Unmodified, "test"},
+			Change{Status: Unmodified, Change: "test"},
 		},
 		added: Changes{
-			Change{Added, "data"},
+			Change{Status: Added, Change: "data"},
 		},
 		deleted: Changes{
-			Change{Deleted, "diff"},
+			Change{Status: Deleted, Change: "diff"},
 		},
 	},
 }

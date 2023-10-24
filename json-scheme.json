@@ -222,7 +222,7 @@
           "type": "string",
           "minLength": 1,
           "title": "Message validation regexp",
-          "description": "The regular expression to validation commit messuage."
+          "description": "The regular expression to validation commit message."
         },
         "not-empty": {
           "type": "boolean",

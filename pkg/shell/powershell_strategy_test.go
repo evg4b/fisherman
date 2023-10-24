@@ -14,7 +14,7 @@ import (
 
 func TestPowerShellStrategy(t *testing.T) {
 	if runtime.GOOS != windowsOS {
-		t.Skip("test can not be runned on linux or darwin")
+		t.Skip("test can not be run on linux or darwin")
 	}
 
 	for _, tt := range scriptTests {

@@ -67,12 +67,12 @@ func (c *Command) Run(_ context.Context, args []string) error {
 		return err
 	}
 
-	log.Debugf("Statring initialization (force = %t)", c.force)
+	log.Debugf("Stating initialization (force = %t)", c.force)
 	if !c.force {
 		var result *multierror.Error
 		for _, hookName := range constants.HooksNames {
 			hookPath := filepath.Join(c.cwd, ".git", "hooks", hookName)
-			log.Debugf("Cheking hook '%s' (%s)", hookName, hookPath)
+			log.Debugf("Checking hook '%s' (%s)", hookName, hookPath)
 			exist, err := utils.Exists(c.fs, hookPath)
 			if err != nil {
 				return err
@@ -98,7 +98,7 @@ func (c *Command) Run(_ context.Context, args []string) error {
 			return err
 		}
 
-		log.Infof("Hook '%s' (%s) was writted", hookName, hookPath)
+		log.Infof("Hook '%s' (%s) was written", hookName, hookPath)
 	}
 
 	return c.writeConfig()

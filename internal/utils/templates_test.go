@@ -49,7 +49,7 @@ func TestPrintGraphicsPanics(t *testing.T) {
 		content string
 		data    map[string]any
 	}{
-		{name: "Panics when template is brocken", content: "Template{{Demo", data: nil},
+		{name: "Panics when template is broken", content: "Template{{Demo", data: nil},
 		{name: "Panics when writer is nil", content: "Template", data: nil},
 	}
 

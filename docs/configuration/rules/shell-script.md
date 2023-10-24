@@ -63,7 +63,7 @@ it can be set with the following code:
 - type: shell-script
   commands: [ 'command1', 'command2' ]
 
-# multilane array
+# multiline array
 - type: shell-script
   commands:
     - 'command1 arg1 arg2'

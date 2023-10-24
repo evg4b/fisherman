@@ -15,7 +15,7 @@ func (r *GitRepository) GetFilesInIndex() ([]string, error) {
 		return nil, err
 	}
 
-	files := []string{}
+	var files []string
 	for key, status := range statusIndex {
 		if isModified(status.Staging) {
 			files = append(files, key)

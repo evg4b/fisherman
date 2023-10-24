@@ -19,7 +19,7 @@ func PrintGraphics(wr io.Writer, content string, data map[string]any) {
 }
 
 func FillTemplate(src *string, data map[string]any) {
-	(*src) = makeTemplate(*src).ExecuteString(data)
+	*src = makeTemplate(*src).ExecuteString(data)
 }
 
 func FillTemplatesArray(src []string, data map[string]any) {

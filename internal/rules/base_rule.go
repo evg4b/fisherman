@@ -36,7 +36,7 @@ func (rule *BaseRule) GetPrefix() string {
 	return rule.Type
 }
 
-func (rule *BaseRule) GetContition() string {
+func (rule *BaseRule) GetCondition() string {
 	return rule.Condition
 }
 

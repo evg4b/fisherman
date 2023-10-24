@@ -74,7 +74,7 @@ func TestContains(t *testing.T) {
 			expected:   true,
 		},
 		{
-			name:       "slice withot target value",
+			name:       "slice without target value",
 			collection: []string{"value1", "value2", "value3", "value4"},
 			value:      "value0",
 			expected:   false,

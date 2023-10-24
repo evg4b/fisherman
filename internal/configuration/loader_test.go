@@ -206,7 +206,7 @@ hooks:
 		}
 	})
 
-	t.Run("files megred on loading", func(t *testing.T) {
+	t.Run("files merged on loading", func(t *testing.T) {
 		fs := testutils.FsFromMap(t, map[string]string{
 			"global.yaml": `
 variables:

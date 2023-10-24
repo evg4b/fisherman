@@ -103,7 +103,7 @@ func TestHost_Write(t *testing.T) {
 		require.EqualError(t, err, "exec: Stdin already set")
 	})
 
-	t.Run("write in call endoder", func(t *testing.T) {
+	t.Run("write in call encoder", func(t *testing.T) {
 		encoderTransformer := mocks.NewTransformerMock(t).
 			ResetMock.Return().
 			TransformMock.Set(transform.Nop.Transform)
@@ -112,11 +112,11 @@ func TestHost_Write(t *testing.T) {
 			ResetMock.Return().
 			TransformMock.Set(transform.Nop.Transform)
 
-		encoding := mocks.NewEncodingMock(t).
+		encodingMock := mocks.NewEncodingMock(t).
 			NewDecoderMock.Return(&encoding.Decoder{Transformer: decoderTransformer}).
 			NewEncoderMock.Return(&encoding.Encoder{Transformer: encoderTransformer})
 
-		host := NewHost(context.TODO(), Default(), WithEncoding(encoding))
+		host := NewHost(context.TODO(), Default(), WithEncoding(encodingMock))
 		defer host.Terminate()
 
 		_, err := fmt.Fprintln(host, "echo 'test'")
@@ -128,7 +128,7 @@ func TestHost_Write(t *testing.T) {
 		assert.Empty(t, decoderTransformer.TransformMock.Calls())
 	})
 
-	t.Run("write in call endoder and decoder", func(t *testing.T) {
+	t.Run("write in call encoder and decoder", func(t *testing.T) {
 		encoderTransformer := mocks.NewTransformerMock(t).
 			ResetMock.Set(transform.Nop.Reset).
 			TransformMock.Set(transform.Nop.Transform)
@@ -137,12 +137,12 @@ func TestHost_Write(t *testing.T) {
 			ResetMock.Set(transform.Nop.Reset).
 			TransformMock.Set(transform.Nop.Transform)
 
-		encoding := mocks.NewEncodingMock(t).
+		encodingMock := mocks.NewEncodingMock(t).
 			NewDecoderMock.Return(&encoding.Decoder{Transformer: decoderTransformer}).
 			NewEncoderMock.Return(&encoding.Encoder{Transformer: encoderTransformer})
 
 		buff := &bytes.Buffer{}
-		host := NewHost(context.TODO(), Default(), WithEncoding(encoding), WithStdout(buff), WithStderr(buff))
+		host := NewHost(context.TODO(), Default(), WithEncoding(encodingMock), WithStdout(buff), WithStderr(buff))
 		defer host.Terminate()
 
 		_, err := fmt.Fprintln(host, "echo 'test'")
@@ -237,20 +237,20 @@ func TestHost_Wait(t *testing.T) {
 		transformer := mocks.NewTransformerMock(t).
 			ResetMock.Set(transform.Nop.Reset).
 			TransformMock.Set(func(dst, src []byte, atEOF bool) (nDst int, nSrc int, err error) {
-			return 0, 0, errors.New("encoding error")
+			return 0, 0, errors.New("encodingMock error")
 		})
 
-		encoding := mocks.NewEncodingMock(t).
+		encodingMock := mocks.NewEncodingMock(t).
 			NewDecoderMock.Return(&encoding.Decoder{Transformer: transformer}).
 			NewEncoderMock.Return(&encoding.Encoder{Transformer: transformer})
 
-		host := NewHost(context.TODO(), Default(), WithEncoding(encoding))
+		host := NewHost(context.TODO(), Default(), WithEncoding(encodingMock))
 		defer host.Terminate()
 		_ = host.Start()
 
 		actual := host.Wait()
 
-		require.EqualError(t, actual, "encoding error")
+		require.EqualError(t, actual, "encodingMock error")
 		assert.NotEmpty(t, transformer.TransformMock.Calls())
 	})
 }

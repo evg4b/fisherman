@@ -25,7 +25,7 @@ func FindConfigFiles(usr *user.User, cwd string, fs billy.Filesystem) (map[strin
 			return nil, err
 		}
 
-		files := []string{}
+		var files []string
 		for _, name := range constants.AppConfigNames {
 			configPath := filepath.Join(folder, name)
 			exist, err := utils.Exists(fs, configPath)
@@ -72,7 +72,7 @@ func Load(fs billy.Filesystem, files map[string]string) (*FishermanConfig, error
 	for _, mode := range ModeOptions {
 		file, ok := files[mode]
 		if ok {
-			loadedConfig, err := unmarshlFile(fs, file)
+			loadedConfig, err := unmarshalFile(fs, file)
 			if err != nil {
 				return &config, err
 			}
@@ -84,11 +84,11 @@ func Load(fs billy.Filesystem, files map[string]string) (*FishermanConfig, error
 		}
 	}
 
-	// TODO: incorrect log level marging
+	// TODO: incorrect log level margin
 	return &config, nil
 }
 
-func unmarshlFile(fs billy.Filesystem, path string) (*FishermanConfig, error) {
+func unmarshalFile(fs billy.Filesystem, path string) (*FishermanConfig, error) {
 	var config FishermanConfig
 
 	file, err := fs.Open(path)

@@ -25,7 +25,7 @@ var levelMatching = map[string]Level{
 }
 
 func (c *OutputConfig) UnmarshalYAML(value *yaml.Node) error {
-	(*c) = DefaultOutputConfig
+	*c = DefaultOutputConfig
 
 	var config struct {
 		LogLevel string `yaml:"level"`
@@ -36,7 +36,7 @@ func (c *OutputConfig) UnmarshalYAML(value *yaml.Node) error {
 		return err
 	}
 
-	level, err := parselogLevel(config.LogLevel)
+	level, err := parseLogLevel(config.LogLevel)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (c *OutputConfig) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func parselogLevel(level string) (Level, error) {
+func parseLogLevel(level string) (Level, error) {
 	value, ok := levelMatching[strings.Trim(level, " ")]
 	if ok {
 		return value, nil

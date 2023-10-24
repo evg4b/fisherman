@@ -16,7 +16,7 @@ import (
 
 func TestBashStrategy(t *testing.T) {
 	if runtime.GOOS == windowsOS {
-		t.Skip("test can not be runned on windows")
+		t.Skip("test can not be run on windows")
 	}
 
 	for _, tt := range scriptTests {

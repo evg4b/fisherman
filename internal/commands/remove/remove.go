@@ -1,15 +1,15 @@
 package remove
 
 import (
-  "context"
-  "flag"
-  "github.com/evg4b/fisherman/internal/constants"
-  "github.com/evg4b/fisherman/internal/utils"
-  "github.com/evg4b/fisherman/pkg/guards"
-  "github.com/evg4b/fisherman/pkg/log"
-  "path/filepath"
+	"context"
+	"flag"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/log"
+	"path/filepath"
 
-  "github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5"
 )
 
 type Command struct {
@@ -20,7 +20,7 @@ type Command struct {
 	configFiles map[string]string
 }
 
-func NewCommand(options ...removeOption) *Command {
+func NewCommand(options ...RemoveOption) *Command {
 	command := &Command{
 		flagSet:     flag.NewFlagSet("remove", flag.ExitOnError),
 		usage:       "removes fisherman from git repository",
@@ -43,7 +43,7 @@ func (c *Command) Run(_ context.Context, args []string) error {
 		return err
 	}
 
-	filesToDelete := []string{}
+	filesToDelete := make([]string, 0, len(c.configFiles)+len(constants.HooksNames))
 	for _, config := range c.configFiles {
 		filesToDelete = append(filesToDelete, config)
 	}

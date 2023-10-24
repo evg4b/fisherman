@@ -10,6 +10,6 @@ var TestUser = user.User{
 	Uid:      "1",
 	Gid:      "2",
 	Username: "evg4b",
-	Name:     "Evgeny Abramovitch",
+	Name:     "Evgeny Abramovich",
 	HomeDir:  filepath.Join("usr", "home"),
 }

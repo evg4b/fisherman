@@ -59,11 +59,11 @@ func TestPrefixWriter_Write(t *testing.T) {
 
 	t.Run("write partial", func(t *testing.T) {
 		var buf bytes.Buffer
-		prefixwriter := NewWriter(&buf, prefix)
+		prefixWriter := NewWriter(&buf, prefix)
 
-		fmt.Fprintln(prefixwriter, "input 1")
-		fmt.Fprint(prefixwriter, "input 2")
-		fmt.Fprint(prefixwriter, " with additional string")
+		fmt.Fprintln(prefixWriter, "input 1")
+		fmt.Fprint(prefixWriter, "input 2")
+		fmt.Fprint(prefixWriter, " with additional string")
 
 		assert.Equal(t, "prefix: input 1\nprefix: input 2 with additional string", buf.String())
 	})

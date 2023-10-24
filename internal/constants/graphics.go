@@ -1,6 +1,6 @@
 package constants
 
-// Logo is a logotip of fisherman.
+// Logo is a logotype of fisherman.
 var Logo = `
  .d888  d8b          888
  d88P"  Y8P          888                                 Version: {{FishermanVersion}}

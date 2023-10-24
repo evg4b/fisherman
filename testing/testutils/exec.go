@@ -10,15 +10,15 @@ import (
 )
 
 type (
-	cmdBuilder = func(context.Context, string, ...string) *exec.Cmd
-	envBuilder = func([]string) []string
+	CmdBuilder = func(context.Context, string, ...string) *exec.Cmd
+	EnvBuilder = func([]string) []string
 )
 
 const envConstant = "GO_HELPER_PROCESS"
 
 // ConfigureFakeExec configures exec.Cmd builder mock to call passed helper test
 // (helper test should be located in the package with test).
-func ConfigureFakeExec(helperTest string) (cmdBuilder, envBuilder) {
+func ConfigureFakeExec(helperTest string) (CmdBuilder, EnvBuilder) {
 	cmdBuilder := func(_ context.Context, program string, args ...string) *exec.Cmd {
 		testArgs := []string{"-test.run=" + helperTest, "-test.v", "--", program}
 		testArgs = append(testArgs, args...)
@@ -38,7 +38,7 @@ func ConfigureFakeExec(helperTest string) (cmdBuilder, envBuilder) {
 }
 
 // ExecTestHandler configure helper test to check executed command.
-// Key is concatanaion program with arguments e.g. 'go test ./..'.
+// Key is concatenation program with arguments e.g. 'go test ./..'.
 func ExecTestHandler(t *testing.T, cases map[string]func()) {
 	t.Helper()
 

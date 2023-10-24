@@ -10,7 +10,7 @@ import (
 )
 
 func plainErrorFormatter(e []error) string {
-	parts := []string{}
+	parts := make([]string, 0, len(e))
 	for _, err := range e {
 		parts = append(parts, err.Error())
 	}

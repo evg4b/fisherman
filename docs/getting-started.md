@@ -29,12 +29,12 @@ cd fisherman
 # Compiling binary to $GOPATH/bin:
 task install
 # Or without task:
-go install -v ./cmd/fisherman/main.go
+go install -v ./main.go
 
 # Compiling it to another location:
 task build
 # Or without task (Note: replace <version> to fisherman version):
-go build -v -ldflags="-s -w -X fisherman/internal/constants.Version=<version>" ./cmd/fisherman/main.go -o fisherman
+go build -v -ldflags="-s -w -X fisherman/internal/constants.Version=<version>" ./main.go -o fisherman
 
 ./fisherman
 ```

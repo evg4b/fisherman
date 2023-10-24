@@ -18,7 +18,7 @@ type GitRepository struct {
 //
 // Repo has lazy initialization. Error in case of error opening the repository
 // will be returned only on the first access to any method.
-func NewRepository(options ...repositoryOption) *GitRepository {
+func NewRepository(options ...RepositoryOption) *GitRepository {
 	repo := &GitRepository{}
 
 	for _, option := range options {
@@ -46,7 +46,6 @@ func (r *GitRepository) GetCurrentBranch() (string, error) {
 	return headRef.Name().String(), nil
 }
 
-// GetUser return information ablout configured git user.
 func (r *GitRepository) GetUser() (User, error) {
 	if err := r.init(); err != nil {
 		return User{}, err
@@ -63,7 +62,6 @@ func (r *GitRepository) GetUser() (User, error) {
 	}, nil
 }
 
-// AddGlob adds files in index by glob expresion.
 func (r *GitRepository) AddGlob(glob string) error {
 	if err := r.init(); err != nil {
 		return err
@@ -77,7 +75,6 @@ func (r *GitRepository) AddGlob(glob string) error {
 	return wt.AddGlob(glob)
 }
 
-// AddGlob removes files from index by glob expresion.
 func (r *GitRepository) RemoveGlob(glob string) error {
 	if err := r.init(); err != nil {
 		return err

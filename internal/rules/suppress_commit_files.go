@@ -32,7 +32,7 @@ func (rule *SuppressCommitFiles) Check(_ context.Context, _ io.Writer) error {
 		return err
 	}
 
-	matchedFiles := []string{}
+	var matchedFiles []string
 	for _, glob := range rule.Globs {
 		for _, file := range files {
 			matched, err := filepath.Match(glob, file)

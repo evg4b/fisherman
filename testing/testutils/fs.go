@@ -48,8 +48,8 @@ func FsFromSlice(t *testing.T, files []string) billy.Filesystem {
 func MakeFiles(t *testing.T, fs billy.Basic, files map[string]string) {
 	t.Helper()
 
-	for filemane, content := range files {
-		err := util.WriteFile(fs, filemane, []byte(content), os.ModePerm)
+	for filename, content := range files {
+		err := util.WriteFile(fs, filename, []byte(content), os.ModePerm)
 		guards.NoError(err)
 	}
 }

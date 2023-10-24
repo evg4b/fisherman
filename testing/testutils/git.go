@@ -15,7 +15,7 @@ var index int
 
 // MakeCommits creates commits history from two-dimensional map.
 // First level key is a commit message, second key is a file name and value is a file content.
-func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string](map[string]string)) {
+func MakeCommits(t *testing.T, wt *git.Worktree, fs billy.Basic, data map[string]map[string]string) {
 	t.Helper()
 
 	for commitMessage, files := range data {

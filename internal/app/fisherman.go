@@ -15,7 +15,7 @@ type FishermanApp struct {
 }
 
 // NewFishermanApp is an fisherman application constructor.
-func NewFishermanApp(options ...appOption) *FishermanApp {
+func NewFishermanApp(options ...AppOption) *FishermanApp {
 	app := FishermanApp{
 		commands:     CliCommands{},
 		cwd:          "",
@@ -34,8 +34,8 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 // Run runs fisherman application.
 func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 	ctx, cancel := context.WithCancel(baseCtx)
-	subscribeInteruption(r.interruption, func() {
-		log.Debug("application received interapt event")
+	subscribeInterruption(r.interruption, func() {
+		log.Debug("application received interact event")
 		cancel()
 	})
 
@@ -58,14 +58,14 @@ func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 		return err
 	}
 
-	log.Debugf("Command '%s' finished witout error", command.Name())
+	log.Debugf("Command '%s' finished without error", command.Name())
 
 	return nil
 }
 
-func subscribeInteruption(interaption chan os.Signal, action func()) {
+func subscribeInterruption(interruption chan os.Signal, action func()) {
 	go func() {
-		<-interaption
+		<-interruption
 		action()
 	}()
 }

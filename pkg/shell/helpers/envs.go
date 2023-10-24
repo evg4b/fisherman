@@ -23,7 +23,7 @@ func MergeEnv(env []string, vars map[string]string) []string {
 		parsedEnv[key] = value
 	}
 
-	resultEnv := []string{}
+	resultEnv := make([]string, 0, len(parsedEnv))
 	for key, value := range parsedEnv {
 		resultEnv = append(resultEnv, fmt.Sprintf("%s=%s", key, value))
 	}

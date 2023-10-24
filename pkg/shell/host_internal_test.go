@@ -15,8 +15,8 @@ func TestNewHost(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		shellStr       ShellStrategy
-		options        []hostOption
+		shellStr       Strategy
+		options        []HostOption
 		expectedStdout io.Writer
 		expectedStderr io.Writer
 		expectedDir    string
@@ -25,16 +25,16 @@ func TestNewHost(t *testing.T) {
 		expectedEnv    []string
 	}{
 		{
-			name:         "bash withut options",
+			name:         "bash without options",
 			shellStr:     Bash(),
-			options:      []func(str ShellStrategy, host *Host){},
+			options:      []func(str Strategy, host *Host){},
 			expectedPath: lookupPath("bash"),
 			expectedArgs: []string{"bash"},
 		},
 		{
 			name:     "bash with raw options",
 			shellStr: Bash(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithRawArgs([]string{"arg1", "arg2"}),
 				WithRawEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -47,7 +47,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "bash with options",
 			shellStr: Bash(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithArgs([]string{"arg1", "arg2"}),
 				WithEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -60,7 +60,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "bash with Stdout and Stderr options",
 			shellStr: Bash(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithStdout(&buff),
 				WithStderr(&buff),
 			},
@@ -70,16 +70,16 @@ func TestNewHost(t *testing.T) {
 			expectedStderr: &buff,
 		},
 		{
-			name:         "cmd withut options",
+			name:         "cmd without options",
 			shellStr:     Cmd(),
-			options:      []func(str ShellStrategy, host *Host){},
+			options:      []func(str Strategy, host *Host){},
 			expectedPath: lookupPath("cmd"),
 			expectedArgs: []string{"cmd", "/Q", "/D", "/K"},
 		},
 		{
 			name:     "cmd with raw options",
 			shellStr: Cmd(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithRawArgs([]string{"arg1", "arg2"}),
 				WithRawEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -92,7 +92,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "cmd with options",
 			shellStr: Cmd(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithArgs([]string{"arg1", "arg2"}),
 				WithEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -105,7 +105,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "cmd with Stdout and Stderr options",
 			shellStr: Cmd(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithStdout(&buff),
 				WithStderr(&buff),
 			},
@@ -115,16 +115,16 @@ func TestNewHost(t *testing.T) {
 			expectedStderr: &buff,
 		},
 		{
-			name:         "powershell withut options",
+			name:         "powershell without options",
 			shellStr:     PowerShell(),
-			options:      []func(str ShellStrategy, host *Host){},
+			options:      []func(str Strategy, host *Host){},
 			expectedPath: lookupPath("powershell"),
 			expectedArgs: []string{"powershell", "-NoProfile", "-NonInteractive", "-NoLogo"},
 		},
 		{
 			name:     "powershell with raw options",
 			shellStr: PowerShell(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithRawArgs([]string{"arg1", "arg2"}),
 				WithRawEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -137,7 +137,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "powershell with options",
 			shellStr: PowerShell(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithCwd("/demo/test"),
 				WithArgs([]string{"arg1", "arg2"}),
 				WithEnv([]string{"VAR1=1", "VAR2=2"}),
@@ -150,7 +150,7 @@ func TestNewHost(t *testing.T) {
 		{
 			name:     "powershell with Stdout and Stderr options",
 			shellStr: PowerShell(),
-			options: []func(str ShellStrategy, host *Host){
+			options: []func(str Strategy, host *Host){
 				WithStdout(&buff),
 				WithStderr(&buff),
 			},

@@ -5,7 +5,7 @@ import (
 	"github.com/evg4b/fisherman/pkg/vcs"
 )
 
-// Repository is interface to comunicate with git.
+// Repository is interface to communicate with git.
 type Repository interface {
 	GetCurrentBranch() (string, error)
 	GetUser() (vcs.User, error)

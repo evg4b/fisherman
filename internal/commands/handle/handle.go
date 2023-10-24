@@ -29,7 +29,7 @@ type Command struct {
 
 const defaultWorkerCount = 5
 
-func NewCommand(options ...commandOption) *Command {
+func NewCommand(options ...CommandOption) *Command {
 	command := &Command{
 		flagSet:      flag.NewFlagSet("handle", flag.ExitOnError),
 		usage:        "starts hook processing based on the config file (for debugging only)",

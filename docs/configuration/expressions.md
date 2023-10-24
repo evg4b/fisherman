@@ -4,7 +4,7 @@ title: Condition expressions
 ---
 
 Fisherman uses expressions to define a condition for executing a rule. In this
-document, you can find all supported syntaxes.
+document, you can find all supported syntax's.
 
 ### Supported Literals
 

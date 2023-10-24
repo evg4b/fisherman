@@ -71,7 +71,7 @@ func TestShellScript_UnmarshalYAML(t *testing.T) {
 		expectedErr string
 	}{
 		{
-			name: "crossplatform script",
+			name: "cross platform script",
 			config: `
 type: shell-script
 when: 1=1
@@ -120,7 +120,7 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		require.EqualError(t, err, "failed to cheate shell host: unsupported shell")
+		require.EqualError(t, err, "failed to cheat shell host: unsupported shell")
 	})
 
 	t.Run("return error for incorrect encoding", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		require.EqualError(t, err, "failed to cheate shell host: 'incorrect-encoding' is unknown encoding")
+		require.EqualError(t, err, "failed to cheat shell host: 'incorrect-encoding' is unknown encoding")
 	})
 
 	t.Run("executed successful", func(t *testing.T) {

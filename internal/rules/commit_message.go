@@ -24,7 +24,7 @@ type CommitMessage struct {
 }
 
 // nolint: cyclop
-func (rule CommitMessage) Check(_ context.Context, _ io.Writer) error {
+func (rule *CommitMessage) Check(_ context.Context, _ io.Writer) error {
 	message, err := rule.Message()
 	if err != nil {
 		return err

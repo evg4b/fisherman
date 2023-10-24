@@ -186,7 +186,7 @@ func TestSuppressedText_Check(t *testing.T) {
 				expectedErr: []string{"file 'README.md' should not contains 'suppressed text'"},
 			},
 			{
-				name:        "winvalid glob pattern",
+				name:        "invalid glob pattern",
 				exclude:     []string{"some/[*"},
 				expectedErr: []string{"syntax error in pattern"},
 			},

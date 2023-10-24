@@ -20,15 +20,15 @@ const (
 var generalOutput io.Writer = os.Stdout
 
 var (
-	err *color.Color = color.New(color.FgRed).Add(color.Bold)
-	dbg *color.Color = color.New(color.FgYellow)
-	inf *color.Color = color.New(color.FgWhite)
+	err = color.New(color.FgRed).Add(color.Bold)
+	dbg = color.New(color.FgYellow)
+	inf = color.New(color.FgWhite)
 )
 
 var (
-	ErrorOutput = NewlevelWriter(generalOutput, ErrorLevel)
-	DebugOutput = NewlevelWriter(generalOutput, DebugLevel)
-	InfoOutput  = NewlevelWriter(generalOutput, InfoLevel)
+	ErrorOutput = NewLevelWriter(generalOutput, ErrorLevel)
+	DebugOutput = NewLevelWriter(generalOutput, DebugLevel)
+	InfoOutput  = NewLevelWriter(generalOutput, InfoLevel)
 )
 
 func SetOutput(output io.Writer) {

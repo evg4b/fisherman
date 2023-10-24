@@ -83,7 +83,7 @@ func main() {
 			),
 			version.NewCommand(),
 		}),
-		app.WithSistemInterruptSignals(),
+		app.WithSistermInterruptSignals(),
 	)
 
 	if err = fishermanApp.Run(ctx, os.Args[1:]); err != nil {

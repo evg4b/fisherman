@@ -1,8 +1,8 @@
 package handling
 
 import (
-  "github.com/evg4b/fisherman/internal/configuration"
-  "github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/rules"
 )
 
 type Rule = configuration.Rule
@@ -26,7 +26,7 @@ func getScriptRules(ruleCollection []Rule) []Rule {
 }
 
 func filterRules(rules []Rule, predicate func(Rule) bool) []Rule {
-	filteredRules := []Rule{}
+	var filteredRules []Rule
 
 	for _, rule := range rules {
 		if predicate(rule) {

@@ -10,7 +10,7 @@ type LevelWriter struct {
 	output   io.Writer
 }
 
-func NewlevelWriter(output io.Writer, expected Level) *LevelWriter {
+func NewLevelWriter(output io.Writer, expected Level) *LevelWriter {
 	return &LevelWriter{
 		expected: expected,
 		current:  InfoLevel,

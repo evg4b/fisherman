@@ -9,63 +9,63 @@ import (
 	"github.com/go-git/go-billy/v5"
 )
 
-type handlerOptions = func(*HookHandler)
+type HandlerOptions = func(*HookHandler)
 
-func WithExpressionEngine(engine expression.Engine) handlerOptions {
+func WithExpressionEngine(engine expression.Engine) HandlerOptions {
 	return func(h *HookHandler) {
 		h.engine = engine
 	}
 }
 
-func WithHooksConfig(configs *configuration.HooksConfig) handlerOptions {
+func WithHooksConfig(configs *configuration.HooksConfig) HandlerOptions {
 	return func(h *HookHandler) {
 		h.configs = configs
 	}
 }
 
-func WithGlobalVars(globalVars map[string]any) handlerOptions {
+func WithGlobalVars(globalVars map[string]any) HandlerOptions {
 	return func(h *HookHandler) {
 		h.globalVars = globalVars
 	}
 }
 
-func WithCwd(cwd string) handlerOptions {
+func WithCwd(cwd string) HandlerOptions {
 	return func(h *HookHandler) {
 		h.cwd = cwd
 	}
 }
 
-func WithFileSystem(fs billy.Filesystem) handlerOptions {
+func WithFileSystem(fs billy.Filesystem) HandlerOptions {
 	return func(h *HookHandler) {
 		h.fs = fs
 	}
 }
 
-func WithRepository(repo internal.Repository) handlerOptions {
+func WithRepository(repo internal.Repository) HandlerOptions {
 	return func(h *HookHandler) {
 		h.repo = repo
 	}
 }
 
-func WithArgs(args []string) handlerOptions {
+func WithArgs(args []string) HandlerOptions {
 	return func(h *HookHandler) {
 		h.args = args
 	}
 }
 
-func WithEnv(env []string) handlerOptions {
+func WithEnv(env []string) HandlerOptions {
 	return func(h *HookHandler) {
 		h.env = env
 	}
 }
 
-func WithWorkersCount(workersCount uint) handlerOptions {
+func WithWorkersCount(workersCount uint) HandlerOptions {
 	return func(h *HookHandler) {
 		h.workersCount = workersCount
 	}
 }
 
-func WithOutput(output io.Writer) handlerOptions {
+func WithOutput(output io.Writer) HandlerOptions {
 	return func(h *HookHandler) {
 		h.output = output
 	}

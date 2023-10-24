@@ -38,12 +38,12 @@ func (rule *ShellScript) Check(ctx context.Context, output io.Writer) error {
 	env := helpers.MergeEnv(rule.BaseRule.env, rule.Env)
 	strategy, err := getShellStrategy(rule.Shell)
 	if err != nil {
-		return errors.Errorf("failed to cheate shell host: %w", err)
+		return errors.Errorf("failed to cheat shell host: %w", err)
 	}
 
 	encoding, err := getEncoding(rule.Encoding)
 	if err != nil {
-		return errors.Errorf("failed to cheate shell host: %w", err)
+		return errors.Errorf("failed to cheat shell host: %w", err)
 	}
 
 	host := shell.NewHost(
@@ -91,7 +91,7 @@ func formatOutput(output io.Writer, rule *ShellScript) io.Writer {
 	return io.Discard
 }
 
-func getShellStrategy(name string) (shell.ShellStrategy, error) {
+func getShellStrategy(name string) (shell.Strategy, error) {
 	if utils.IsEmpty(name) {
 		return shell.Default(), nil
 	}

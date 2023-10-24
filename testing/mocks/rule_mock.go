@@ -684,7 +684,7 @@ type mRuleMockGetContition struct {
 	expectations       []*RuleMockGetContitionExpectation
 }
 
-// RuleMockGetContitionExpectation specifies expectation struct of the Rule.GetContition
+// RuleMockGetContitionExpectation specifies expectation struct of the Rule.GetCondition
 type RuleMockGetContitionExpectation struct {
 	mock *RuleMock
 
@@ -692,15 +692,15 @@ type RuleMockGetContitionExpectation struct {
 	Counter uint64
 }
 
-// RuleMockGetContitionResults contains results of the Rule.GetContition
+// RuleMockGetContitionResults contains results of the Rule.GetCondition
 type RuleMockGetContitionResults struct {
 	s1 string
 }
 
-// Expect sets up expected params for Rule.GetContition
+// Expect sets up expected params for Rule.GetCondition
 func (mmGetContition *mRuleMockGetContition) Expect() *mRuleMockGetContition {
 	if mmGetContition.mock.funcGetContition != nil {
-		mmGetContition.mock.t.Fatalf("RuleMock.GetContition mock is already set by Set")
+		mmGetContition.mock.t.Fatalf("RuleMock.GetCondition mock is already set by Set")
 	}
 
 	if mmGetContition.defaultExpectation == nil {
@@ -710,10 +710,10 @@ func (mmGetContition *mRuleMockGetContition) Expect() *mRuleMockGetContition {
 	return mmGetContition
 }
 
-// Inspect accepts an inspector function that has same arguments as the Rule.GetContition
+// Inspect accepts an inspector function that has same arguments as the Rule.GetCondition
 func (mmGetContition *mRuleMockGetContition) Inspect(f func()) *mRuleMockGetContition {
 	if mmGetContition.mock.inspectFuncGetContition != nil {
-		mmGetContition.mock.t.Fatalf("Inspect function is already set for RuleMock.GetContition")
+		mmGetContition.mock.t.Fatalf("Inspect function is already set for RuleMock.GetCondition")
 	}
 
 	mmGetContition.mock.inspectFuncGetContition = f
@@ -721,10 +721,10 @@ func (mmGetContition *mRuleMockGetContition) Inspect(f func()) *mRuleMockGetCont
 	return mmGetContition
 }
 
-// Return sets up results that will be returned by Rule.GetContition
+// Return sets up results that will be returned by Rule.GetCondition
 func (mmGetContition *mRuleMockGetContition) Return(s1 string) *RuleMock {
 	if mmGetContition.mock.funcGetContition != nil {
-		mmGetContition.mock.t.Fatalf("RuleMock.GetContition mock is already set by Set")
+		mmGetContition.mock.t.Fatalf("RuleMock.GetCondition mock is already set by Set")
 	}
 
 	if mmGetContition.defaultExpectation == nil {
@@ -734,14 +734,14 @@ func (mmGetContition *mRuleMockGetContition) Return(s1 string) *RuleMock {
 	return mmGetContition.mock
 }
 
-// Set uses given function f to mock the Rule.GetContition method
+// Set uses given function f to mock the Rule.GetCondition method
 func (mmGetContition *mRuleMockGetContition) Set(f func() (s1 string)) *RuleMock {
 	if mmGetContition.defaultExpectation != nil {
-		mmGetContition.mock.t.Fatalf("Default expectation is already set for the Rule.GetContition method")
+		mmGetContition.mock.t.Fatalf("Default expectation is already set for the Rule.GetCondition method")
 	}
 
 	if len(mmGetContition.expectations) > 0 {
-		mmGetContition.mock.t.Fatalf("Some expectations are already set for the Rule.GetContition method")
+		mmGetContition.mock.t.Fatalf("Some expectations are already set for the Rule.GetCondition method")
 	}
 
 	mmGetContition.mock.funcGetContition = f
@@ -749,7 +749,7 @@ func (mmGetContition *mRuleMockGetContition) Set(f func() (s1 string)) *RuleMock
 }
 
 // GetContition implements configuration.Rule
-func (mmGetContition *RuleMock) GetContition() (s1 string) {
+func (mmGetContition *RuleMock) GetCondition() (s1 string) {
 	mm_atomic.AddUint64(&mmGetContition.beforeGetContitionCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetContition.afterGetContitionCounter, 1)
 
@@ -762,14 +762,14 @@ func (mmGetContition *RuleMock) GetContition() (s1 string) {
 
 		mm_results := mmGetContition.GetContitionMock.defaultExpectation.results
 		if mm_results == nil {
-			mmGetContition.t.Fatal("No results are set for the RuleMock.GetContition")
+			mmGetContition.t.Fatal("No results are set for the RuleMock.GetCondition")
 		}
 		return (*mm_results).s1
 	}
 	if mmGetContition.funcGetContition != nil {
 		return mmGetContition.funcGetContition()
 	}
-	mmGetContition.t.Fatalf("Unexpected call to RuleMock.GetContition.")
+	mmGetContition.t.Fatalf("Unexpected call to RuleMock.GetCondition.")
 	return
 }
 
@@ -807,17 +807,17 @@ func (m *RuleMock) MinimockGetContitionDone() bool {
 func (m *RuleMock) MinimockGetContitionInspect() {
 	for _, e := range m.GetContitionMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to RuleMock.GetContition")
+			m.t.Error("Expected call to RuleMock.GetCondition")
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetContitionMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetContitionCounter) < 1 {
-		m.t.Error("Expected call to RuleMock.GetContition")
+		m.t.Error("Expected call to RuleMock.GetCondition")
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGetContition != nil && mm_atomic.LoadUint64(&m.afterGetContitionCounter) < 1 {
-		m.t.Error("Expected call to RuleMock.GetContition")
+		m.t.Error("Expected call to RuleMock.GetCondition")
 	}
 }
 

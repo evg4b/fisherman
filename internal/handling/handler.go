@@ -44,7 +44,7 @@ type HookHandler struct {
 	postScriptRules []configuration.Rule
 }
 
-func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error) {
+func NewHookHandler(hook string, options ...HandlerOptions) (*HookHandler, error) {
 	h := &HookHandler{
 		configs:         &configuration.HooksConfig{},
 		globalVars:      map[string]any{},
@@ -122,11 +122,11 @@ func (h *HookHandler) Handle(ctx context.Context) error {
 }
 
 func (h *HookHandler) run(ctx context.Context, rules []configuration.Rule) error {
-	filteredRules := []configuration.Rule{}
+	var filteredRules []configuration.Rule
 	for _, rule := range rules {
 		shouldAdd := true
 
-		condition := rule.GetContition()
+		condition := rule.GetCondition()
 		if !utils.IsEmpty(condition) {
 			var err error
 			shouldAdd, err = h.engine.Eval(condition, h.globalVars)

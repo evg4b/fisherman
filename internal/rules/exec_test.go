@@ -143,7 +143,7 @@ func TestExec_Check(t *testing.T) {
 			},
 		},
 		{
-			name: "successfully oweride env variables",
+			name: "successfully overwrite env variables",
 			env: map[string]string{
 				"RULE_ENV": "This is rule env",
 				"VAR_2":    "Rule value 2",
@@ -152,7 +152,7 @@ func TestExec_Check(t *testing.T) {
 			commands: []CommandDef{
 				{
 					Program: "go",
-					Args:    []string{"test", "env-oweride"},
+					Args:    []string{"test", "env-overwrite"},
 					Env: map[string]string{
 						"VAR_3": "Command value 3",
 					},
@@ -257,7 +257,7 @@ func TestExec_CheckHelper(t *testing.T) {
 		"go test env-command": func() {
 			assert.Equal(t, "This is command env", os.Getenv("COMMAND_ENV"))
 		},
-		"go test env-oweride": func() {
+		"go test env-overwrite": func() {
 			assert.Equal(t, "Global value 1", os.Getenv("VAR_1"))
 			assert.Equal(t, "Rule value 2", os.Getenv("VAR_2"))
 			assert.Equal(t, "Command value 3", os.Getenv("VAR_3"))

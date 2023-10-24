@@ -68,7 +68,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 		assert.Equal(t, []string{"tracked"}, files)
 	})
 
-	t.Run("workdree error", func(t *testing.T) {
+	t.Run("worktree error", func(t *testing.T) {
 		expectedErr := errors.New("worktree error")
 		gitMock := mocks.NewGoGitRepositoryMock(t).WorktreeMock.Return(nil, expectedErr)
 

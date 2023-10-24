@@ -36,7 +36,7 @@ type CommandDef struct {
 }
 
 func (c *CommandDef) UnmarshalYAML(value *yaml.Node) error {
-	(*c) = CommandDef{}
+	*c = CommandDef{}
 
 	var shortForm string
 	if err := value.Decode(&shortForm); err == nil {

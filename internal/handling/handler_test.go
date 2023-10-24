@@ -183,7 +183,7 @@ func TestHookHandler_Handle(t *testing.T) {
 	})
 
 	t.Run("run rules in correct orders", func(t *testing.T) {
-		order := []string{}
+		var order []string
 
 		ruleDef := func(ruleType string, position byte) configuration.Rule {
 			checkHandler := func() func(context.Context, io.Writer) error {
@@ -342,7 +342,7 @@ func ruleMock(t *testing.T, prefix, condition, ruleType string) *mocks.RuleMock 
 }
 
 func applyPosition(rules []*mocks.RuleMock, position byte) []configuration.Rule {
-	updatedRules := []configuration.Rule{}
+	updatedRules := make([]configuration.Rule, 0, len(rules))
 	for _, rule := range rules {
 		rule.GetPositionMock.Return(position)
 		updatedRules = append(updatedRules, rule)

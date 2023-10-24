@@ -9,7 +9,7 @@ vars:
   GIT_COMMIT:
     sh: git log -n 1 --format=%h
   VERSION_PATH: fisherman/internal/constants.Version
-  ENTRY_POINT: ./cmd/fisherman/...
+  ENTRY_POINT: ./main.go
   OUTPUT_FILE: fisherman{{exeExt}}
 
 tasks:

@@ -14,7 +14,7 @@ import (
 
 var (
 	formattingParams = []any{1, "s", 44.3}
-	emptyParamas     = []any{}
+	emptyParams      []any
 )
 
 func TestError(t *testing.T) {
@@ -82,13 +82,13 @@ func TestErrorf(t *testing.T) {
 		},
 		{
 			message: "error",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error\n",
 			level:   ErrorLevel,
 		},
 		{
 			message: "error %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error %!s(MISSING)\n",
 			level:   ErrorLevel,
 		},
@@ -100,13 +100,13 @@ func TestErrorf(t *testing.T) {
 		},
 		{
 			message: "error",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error\n",
 			level:   DebugLevel,
 		},
 		{
 			message: "error %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error %!s(MISSING)\n",
 			level:   DebugLevel,
 		},
@@ -118,13 +118,13 @@ func TestErrorf(t *testing.T) {
 		},
 		{
 			message: "error",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error\n",
 			level:   InfoLevel,
 		},
 		{
 			message: "error %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "error %!s(MISSING)\n",
 			level:   InfoLevel,
 		},
@@ -135,12 +135,12 @@ func TestErrorf(t *testing.T) {
 		},
 		{
 			message: "error",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 		{
 			message: "error %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 	}
@@ -220,13 +220,13 @@ func TestDebugf(t *testing.T) {
 		},
 		{
 			message: "debug",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "debug\n",
 			level:   DebugLevel,
 		},
 		{
 			message: "debug %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "debug %!s(MISSING)\n",
 			level:   DebugLevel,
 		},
@@ -237,12 +237,12 @@ func TestDebugf(t *testing.T) {
 		},
 		{
 			message: "debug",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   ErrorLevel,
 		},
 		{
 			message: "debug %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   ErrorLevel,
 		},
 		{
@@ -252,12 +252,12 @@ func TestDebugf(t *testing.T) {
 		},
 		{
 			message: "debug",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   InfoLevel,
 		},
 		{
 			message: "debug %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   InfoLevel,
 		},
 		{
@@ -267,12 +267,12 @@ func TestDebugf(t *testing.T) {
 		},
 		{
 			message: "debug",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 		{
 			message: "debug %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 	}
@@ -351,12 +351,12 @@ func TestInfof(t *testing.T) {
 		},
 		{
 			message: "info",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   ErrorLevel,
 		},
 		{
 			message: "info %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   ErrorLevel,
 		},
 		{
@@ -367,13 +367,13 @@ func TestInfof(t *testing.T) {
 		},
 		{
 			message: "info",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "info\n",
 			level:   DebugLevel,
 		},
 		{
 			message: "info %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "info %!s(MISSING)\n",
 			level:   DebugLevel,
 		},
@@ -385,13 +385,13 @@ func TestInfof(t *testing.T) {
 		},
 		{
 			message: "info",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "info\n",
 			level:   InfoLevel,
 		},
 		{
 			message: "info %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			output:  "info %!s(MISSING)\n",
 			level:   InfoLevel,
 		},
@@ -402,12 +402,12 @@ func TestInfof(t *testing.T) {
 		},
 		{
 			message: "info",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 		{
 			message: "info %s",
-			params:  emptyParamas,
+			params:  emptyParams,
 			level:   NoneLevel,
 		},
 	}

@@ -202,7 +202,7 @@ func TestCommitMessage_Check(t *testing.T) {
 	})
 
 	t.Run("regexp field", func(t *testing.T) {
-		t.Run("correct mattching", func(t *testing.T) {
+		t.Run("correct matching", func(t *testing.T) {
 			tests := []struct {
 				name        string
 				message     string
@@ -269,7 +269,7 @@ func TestCommitMessage_Check(t *testing.T) {
 				BaseRule: BaseRule{Type: CommitMessageType},
 				Regexp:   "[a-z]($",
 			},
-			WithArgs([]string{"unknow/file"}),
+			WithArgs([]string{"unknown/file"}),
 			WithFileSystem(memfs.New()),
 		)
 

@@ -108,7 +108,7 @@ func TestShouldBeNotEmpty(t *testing.T) {
 			err:    "string is empty",
 		},
 		{
-			name:   "should panic for carret symbol",
+			name:   "should panic for caret symbol",
 			object: "\r\r",
 			err:    "string is empty",
 		},
@@ -118,7 +118,7 @@ func TestShouldBeNotEmpty(t *testing.T) {
 			err:    "string is empty",
 		},
 		{
-			name:   "should not panic for string with witespace symbols",
+			name:   "should not panic for string with whitespace symbols",
 			object: "\n\r\t  not empty",
 		},
 		{

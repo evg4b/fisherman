@@ -13,7 +13,7 @@ import (
 )
 
 // ShellStrategy is interface to describe base concrete shell command.
-type ShellStrategy interface { // nolint: revive
+type Strategy interface { // nolint: revive
 	GetName() string
 	GetCommand(ctx context.Context) *exec.Cmd
 	ArgsWrapper(args []string) []string
@@ -21,7 +21,7 @@ type ShellStrategy interface { // nolint: revive
 	GetEncoding() encoding.Encoding
 }
 
-// Host is shell host structure to comunicate with shell process.
+// Host is shell host structure to communicate with shell process.
 type Host struct {
 	command    *exec.Cmd
 	stdin      io.Writer
@@ -32,7 +32,7 @@ type Host struct {
 }
 
 // NewHost creates new shell host based on passed strategy.
-func NewHost(ctx context.Context, strategy ShellStrategy, options ...hostOption) *Host {
+func NewHost(ctx context.Context, strategy Strategy, options ...HostOption) *Host {
 	host := &Host{
 		command:    strategy.GetCommand(ctx),
 		encoding:   strategy.GetEncoding(),

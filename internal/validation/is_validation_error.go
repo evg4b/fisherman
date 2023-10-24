@@ -7,9 +7,9 @@ import (
 )
 
 func IsValidationError(err error) bool {
-	var multierror *multierror.Error
-	if errors.As(err, &multierror) {
-		for _, e := range multierror.Errors {
+	var multiError *multierror.Error
+	if errors.As(err, &multiError) {
+		for _, e := range multiError.Errors {
 			if !isValidationErrorInternal(e) {
 				return false
 			}

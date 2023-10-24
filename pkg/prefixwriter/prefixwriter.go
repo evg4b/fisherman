@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-// PrefixWriter is io.Writer intergace implementation where the specified prefix
+// PrefixWriter is io.Writer interface implementation where the specified prefix
 // will be added to the beginning of a new line.
 type PrefixWriter struct {
 	prefix          string

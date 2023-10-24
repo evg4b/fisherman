@@ -6,7 +6,7 @@ import (
 	"github.com/go-git/go-git/v5"
 )
 
-func WithFsRepo(path string) repositoryOption {
+func WithFsRepo(path string) RepositoryOption {
 	var repoOnce sync.Once
 	var gitRepo *git.Repository
 
@@ -25,7 +25,7 @@ func WithFsRepo(path string) repositoryOption {
 	}
 }
 
-func WithFactoryMethod(factory factoryMethod) repositoryOption {
+func WithFactoryMethod(factory factoryMethod) RepositoryOption {
 	var repoOnce sync.Once
 
 	return func(repo *GitRepository) {
@@ -41,7 +41,7 @@ func WithFactoryMethod(factory factoryMethod) repositoryOption {
 	}
 }
 
-func WithGitRepository(gitRepo *git.Repository) repositoryOption {
+func WithGitRepository(gitRepo *git.Repository) RepositoryOption {
 	return func(repo *GitRepository) {
 		repo.init = func() error {
 			return nil

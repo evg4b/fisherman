@@ -73,7 +73,7 @@ func TestOutputConfig_UnmarshalYAML(t *testing.T) {
 				expectedErr: "incorrect log level",
 			},
 			{
-				name:        "incrrect type",
+				name:        "incorrect type",
 				config:      "level: info\ncolors: 'test'",
 				expectedErr: "yaml: unmarshal errors:\n  line 2: cannot unmarshal !!str `test` into bool",
 			},

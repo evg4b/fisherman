@@ -2,7 +2,6 @@ package vcs
 
 import (
 	"context"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -55,6 +54,6 @@ type GoGitRepository interface {
 	Worktree() (*git.Worktree, error)
 }
 
-type repositoryOption = func(repo *GitRepository)
+type RepositoryOption = func(repo *GitRepository)
 
 type factoryMethod = func() (GoGitRepository, storage.Storer, error)

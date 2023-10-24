@@ -19,7 +19,7 @@ import (
 )
 
 func TestGitRepository_GetCurrentBranch(t *testing.T) {
-	t.Run("returns currect branch name", func(t *testing.T) {
+	t.Run("returns current branch name", func(t *testing.T) {
 		branchName := "test-branch"
 		expectedBranchName := fmt.Sprintf("refs/heads/%s", branchName)
 
@@ -152,7 +152,7 @@ func TestLazyInitialization(t *testing.T) {
 	for _, tt := range test {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := NewRepository(WithFactoryMethod(func() (GoGitRepository, storage.Storer, error) {
-				return nil, nil, errors.New("Initialization error")
+				return nil, nil, errors.New("initialization error")
 			}))
 
 			err := tt.action(repo)
