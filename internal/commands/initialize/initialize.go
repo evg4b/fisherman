@@ -32,7 +32,7 @@ type Command struct {
 }
 
 // TODO: Refactor to implement options pattern.
-func NewCommand(options ...initializeOption) *Command {
+func NewCommand(options ...Option) *Command {
 	command := &Command{
 		flagSet: flag.NewFlagSet("init", flag.ExitOnError),
 		usage:   "initializes fisherman in git repository",
@@ -126,7 +126,7 @@ func (c *Command) writeConfig() error {
 
 	if !exist {
 		content := configuration.DefaultConfig
-		utils.FillTemplate(&content, map[string]interface{}{
+		utils.FillTemplate(&content, map[string]any{
 			"URL": constants.ConfigurationFilesDocksURL,
 		})
 

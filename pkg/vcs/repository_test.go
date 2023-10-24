@@ -3,10 +3,13 @@ package vcs_test
 import (
 	"errors"
 	"fisherman/pkg/guards"
-	. "fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/pkg/vcs"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -34,7 +37,7 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 
 		branch, err := repo.GetCurrentBranch()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expectedBranchName, branch)
 	})
 
@@ -47,7 +50,7 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 
 		branch, err := repo.GetCurrentBranch()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "refs/heads/master", branch)
 	})
 
@@ -56,7 +59,7 @@ func TestGitRepository_GetCurrentBranch(t *testing.T) {
 
 		branch, err := repo.GetCurrentBranch()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "", branch)
 	})
 }
@@ -80,7 +83,7 @@ func TestGitRepository_GetUser(t *testing.T) {
 
 	user, err := repo.GetUser()
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, User{
 		UserName: expectedUserName,
 		Email:    expectedEmail,
@@ -154,7 +157,7 @@ func TestLazyInitialization(t *testing.T) {
 
 			err := tt.action(repo)
 
-			assert.Error(t, err, "Initialization error")
+			require.Error(t, err, "Initialization error")
 		})
 	}
 }

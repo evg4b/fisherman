@@ -5,7 +5,7 @@ import (
 	"fisherman/internal/utils"
 )
 
-type EnvVars map[string]interface{}
+type EnvVars map[string]any
 
 func (vars EnvVars) IsEmpty(value string) bool {
 	return utils.IsEmpty(value)

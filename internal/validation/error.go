@@ -16,7 +16,7 @@ func (err *Error) Error() string {
 	return err.message
 }
 
-func Errorf(prefix, message string, a ...interface{}) error {
+func Errorf(prefix, message string, a ...any) error {
 	return &Error{
 		prefix:  prefix,
 		message: fmt.Sprintf(message, a...),

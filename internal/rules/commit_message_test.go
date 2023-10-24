@@ -3,10 +3,13 @@ package rules_test
 
 import (
 	"context"
-	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/internal/rules"
 
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +24,7 @@ func TestCommitMessage_Compile(t *testing.T) {
 		NotEmpty: true,
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, CommitMessage{
 		BaseRule: BaseRule{Type: CommitMessageType},
@@ -256,7 +259,7 @@ func TestCommitMessage_Check(t *testing.T) {
 
 			err := rule.Check(context.TODO(), io.Discard)
 
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	})
 
@@ -272,6 +275,6 @@ func TestCommitMessage_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "message cannot be read: file does not exist")
+		require.EqualError(t, err, "message cannot be read: file does not exist")
 	})
 }

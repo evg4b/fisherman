@@ -1,8 +1,9 @@
 package validation_test
 
 import (
-	. "fisherman/internal/validation"
 	"testing"
+
+	. "fisherman/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 )

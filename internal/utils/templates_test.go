@@ -2,8 +2,9 @@ package utils_test
 
 import (
 	"bytes"
-	. "fisherman/internal/utils"
 	"testing"
+
+	. "fisherman/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,20 +13,20 @@ func TestPrintGraphics(t *testing.T) {
 	tests := []struct {
 		name           string
 		content        string
-		data           map[string]interface{}
+		data           map[string]any
 		expectedOutput string
 	}{
 		{name: "Print template without data", content: "Template", data: nil, expectedOutput: "Template"},
 		{
 			name:           "Print template with empty data map",
 			content:        "Template",
-			data:           map[string]interface{}{},
+			data:           map[string]any{},
 			expectedOutput: "Template",
 		},
 		{
 			name:    "Print template with correct data",
 			content: "Template [{{Demo}}] = {{Test}}",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Demo": "this is demo",
 				"Test": "this is test",
 			},
@@ -46,7 +47,7 @@ func TestPrintGraphicsPanics(t *testing.T) {
 	tests := []struct {
 		name    string
 		content string
-		data    map[string]interface{}
+		data    map[string]any
 	}{
 		{name: "Panics when template is brocken", content: "Template{{Demo", data: nil},
 		{name: "Panics when writer is nil", content: "Template", data: nil},
@@ -65,12 +66,12 @@ func TestFillTemplate(t *testing.T) {
 	tests := []struct {
 		name     string
 		template string
-		data     map[string]interface{}
+		data     map[string]any
 		expected string
 	}{
 		{
 			name: "should update template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test":  "Test value",
 				"Test2": "Test value2",
 			},
@@ -79,7 +80,7 @@ func TestFillTemplate(t *testing.T) {
 		},
 		{
 			name: "should skip template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test":  "Test value",
 				"Test2": "Test value2",
 			},
@@ -88,7 +89,7 @@ func TestFillTemplate(t *testing.T) {
 		},
 		{
 			name: "should skip template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test": "[value]",
 			},
 			template: "{{Test}}={{Test}}={{Test}}",
@@ -98,6 +99,7 @@ func TestFillTemplate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			assert.NotPanics(t, func() {
 				FillTemplate(&tt.template, tt.data)
 
@@ -110,14 +112,14 @@ func TestFillTemplate(t *testing.T) {
 func TestFillTemplatesArray(t *testing.T) {
 	tests := []struct {
 		name      string
-		data      map[string]interface{}
+		data      map[string]any
 		templates []string
 		expected  []string
 		wantErr   bool
 	}{
 		{
 			name: "should update template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test":  "Test value",
 				"Test2": "Test value2",
 			},
@@ -132,7 +134,7 @@ func TestFillTemplatesArray(t *testing.T) {
 		},
 		{
 			name: "should skip template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test":  "Test value",
 				"Test2": "Test value2",
 			},
@@ -141,7 +143,7 @@ func TestFillTemplatesArray(t *testing.T) {
 		},
 		{
 			name: "should skip template correctly",
-			data: map[string]interface{}{
+			data: map[string]any{
 				"Test": "[value]",
 			},
 			templates: []string{"{{Test}}={{Test}}={{Test}}"},
@@ -161,7 +163,7 @@ func TestFillTemplatesArray(t *testing.T) {
 func TestFillTemplatesMap(t *testing.T) {
 	tests := []struct {
 		name      string
-		data      map[string]interface{}
+		data      map[string]any
 		templates map[string]string
 		expected  map[string]string
 		wantErr   bool

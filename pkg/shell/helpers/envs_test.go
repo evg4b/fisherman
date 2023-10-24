@@ -1,9 +1,10 @@
 package helpers_test
 
 import (
-	. "fisherman/pkg/shell/helpers"
 	"fisherman/testing/testutils"
 	"testing"
+
+	. "fisherman/pkg/shell/helpers"
 )
 
 func TestMergeEnv(t *testing.T) {

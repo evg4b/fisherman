@@ -108,7 +108,7 @@ func (mmHandle *mHandlerMockHandle) Return(err error) *HandlerMock {
 	return mmHandle.mock
 }
 
-//Set uses given function f to mock the Handler.Handle method
+// Set uses given function f to mock the Handler.Handle method
 func (mmHandle *mHandlerMockHandle) Set(f func(ctx context.Context) (err error)) *HandlerMock {
 	if mmHandle.defaultExpectation != nil {
 		mmHandle.mock.t.Fatalf("Default expectation is already set for the Handler.Handle method")

@@ -10,14 +10,16 @@ import (
 	"golang.org/x/text/encoding/ianaindex"
 )
 
-var modkernel32 = syscall.NewLazyDLL("kernel32.dll")
-var procGetConsoleCP = modkernel32.NewProc("GetConsoleCP")
+var (
+	modkernel32      = syscall.NewLazyDLL("kernel32.dll")
+	procGetConsoleCP = modkernel32.NewProc("GetConsoleCP")
+)
 
 var mapping = map[uint32]string{
-	037: "IBM037",
-	437: "IBM437",
-	500: "IBM500",
-	708: "ASMO-708",
+	0o37: "IBM037",
+	437:  "IBM437",
+	500:  "IBM500",
+	708:  "ASMO-708",
 	// 709:   "",
 	// 710:   "",
 	720:   "DOS-720",
@@ -169,7 +171,7 @@ var mapping = map[uint32]string{
 }
 
 func windowsEncoding() encoding.Encoding {
-	cpID, _, _ := syscall.Syscall(procGetConsoleCP.Addr(), 0, 0, 0, 0)
+	cpID, _, _ := syscall.Syscall(procGetConsoleCP.Addr(), 0, 0, 0, 0) //nolint: staticcheck
 	if encodingName, ok := mapping[uint32(cpID)]; ok {
 		if enc, err := ianaindex.IANA.Encoding(encodingName); err == nil {
 			return enc

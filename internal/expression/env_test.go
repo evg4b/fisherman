@@ -2,8 +2,9 @@ package expression_test
 
 import (
 	"fisherman/internal/constants"
-	. "fisherman/internal/expression"
 	"testing"
+
+	. "fisherman/internal/expression"
 
 	"github.com/stretchr/testify/assert"
 )

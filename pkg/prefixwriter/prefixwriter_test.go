@@ -2,9 +2,10 @@ package prefixwriter_test
 
 import (
 	"bytes"
-	. "fisherman/pkg/prefixwriter"
 	"fmt"
 	"testing"
+
+	. "fisherman/pkg/prefixwriter"
 
 	"github.com/stretchr/testify/assert"
 )

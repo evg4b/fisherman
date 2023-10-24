@@ -44,11 +44,11 @@ func (rule *BaseRule) GetPosition() byte {
 	return PreScripts
 }
 
-func (rule *BaseRule) Compile(variables map[string]interface{}) {
+func (rule *BaseRule) Compile(variables map[string]any) {
 	utils.FillTemplate(&rule.Condition, variables)
 }
 
-func (rule *BaseRule) errorf(message string, a ...interface{}) error {
+func (rule *BaseRule) errorf(message string, a ...any) error {
 	return validation.Errorf(rule.GetPrefix(), message, a...)
 }
 

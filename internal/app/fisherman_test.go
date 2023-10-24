@@ -3,7 +3,6 @@ package app_test
 import (
 	"context"
 	"fisherman/internal"
-	. "fisherman/internal/app"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
@@ -14,9 +13,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-errors/errors"
+	. "fisherman/internal/app"
 
+	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRunner_Run(t *testing.T) {
@@ -113,7 +114,7 @@ func TestRunner_Run(t *testing.T) {
 
 		output := buffer.String()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Contains(t, output, constants.AppName)
 		assert.Contains(t, output, constants.Version)
 		assert.Contains(t, output, expectedCommand1)
@@ -144,7 +145,7 @@ func TestRunner_Interrupt(t *testing.T) {
 
 	err := app.Run(context.Background(), []string{"test-command"})
 
-	assert.EqualError(t, err, context.Canceled.Error())
+	require.EqualError(t, err, context.Canceled.Error())
 }
 
 func makeCommand(t *testing.T, name string) *mocks.CliCommandMock {

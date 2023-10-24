@@ -235,7 +235,7 @@ func (mmChroot *mFilesystemMockChroot) Return(f1 mm_billy.Filesystem, err error)
 	return mmChroot.mock
 }
 
-//Set uses given function f to mock the Filesystem.Chroot method
+// Set uses given function f to mock the Filesystem.Chroot method
 func (mmChroot *mFilesystemMockChroot) Set(f func(path string) (f1 mm_billy.Filesystem, err error)) *FilesystemMock {
 	if mmChroot.defaultExpectation != nil {
 		mmChroot.mock.t.Fatalf("Default expectation is already set for the Filesystem.Chroot method")
@@ -451,7 +451,7 @@ func (mmCreate *mFilesystemMockCreate) Return(f1 mm_billy.File, err error) *File
 	return mmCreate.mock
 }
 
-//Set uses given function f to mock the Filesystem.Create method
+// Set uses given function f to mock the Filesystem.Create method
 func (mmCreate *mFilesystemMockCreate) Set(f func(filename string) (f1 mm_billy.File, err error)) *FilesystemMock {
 	if mmCreate.defaultExpectation != nil {
 		mmCreate.mock.t.Fatalf("Default expectation is already set for the Filesystem.Create method")
@@ -666,7 +666,7 @@ func (mmJoin *mFilesystemMockJoin) Return(s1 string) *FilesystemMock {
 	return mmJoin.mock
 }
 
-//Set uses given function f to mock the Filesystem.Join method
+// Set uses given function f to mock the Filesystem.Join method
 func (mmJoin *mFilesystemMockJoin) Set(f func(elem ...string) (s1 string)) *FilesystemMock {
 	if mmJoin.defaultExpectation != nil {
 		mmJoin.mock.t.Fatalf("Default expectation is already set for the Filesystem.Join method")
@@ -882,7 +882,7 @@ func (mmLstat *mFilesystemMockLstat) Return(f1 os.FileInfo, err error) *Filesyst
 	return mmLstat.mock
 }
 
-//Set uses given function f to mock the Filesystem.Lstat method
+// Set uses given function f to mock the Filesystem.Lstat method
 func (mmLstat *mFilesystemMockLstat) Set(f func(filename string) (f1 os.FileInfo, err error)) *FilesystemMock {
 	if mmLstat.defaultExpectation != nil {
 		mmLstat.mock.t.Fatalf("Default expectation is already set for the Filesystem.Lstat method")
@@ -1098,7 +1098,7 @@ func (mmMkdirAll *mFilesystemMockMkdirAll) Return(err error) *FilesystemMock {
 	return mmMkdirAll.mock
 }
 
-//Set uses given function f to mock the Filesystem.MkdirAll method
+// Set uses given function f to mock the Filesystem.MkdirAll method
 func (mmMkdirAll *mFilesystemMockMkdirAll) Set(f func(filename string, perm os.FileMode) (err error)) *FilesystemMock {
 	if mmMkdirAll.defaultExpectation != nil {
 		mmMkdirAll.mock.t.Fatalf("Default expectation is already set for the Filesystem.MkdirAll method")
@@ -1314,7 +1314,7 @@ func (mmOpen *mFilesystemMockOpen) Return(f1 mm_billy.File, err error) *Filesyst
 	return mmOpen.mock
 }
 
-//Set uses given function f to mock the Filesystem.Open method
+// Set uses given function f to mock the Filesystem.Open method
 func (mmOpen *mFilesystemMockOpen) Set(f func(filename string) (f1 mm_billy.File, err error)) *FilesystemMock {
 	if mmOpen.defaultExpectation != nil {
 		mmOpen.mock.t.Fatalf("Default expectation is already set for the Filesystem.Open method")
@@ -1532,7 +1532,7 @@ func (mmOpenFile *mFilesystemMockOpenFile) Return(f1 mm_billy.File, err error) *
 	return mmOpenFile.mock
 }
 
-//Set uses given function f to mock the Filesystem.OpenFile method
+// Set uses given function f to mock the Filesystem.OpenFile method
 func (mmOpenFile *mFilesystemMockOpenFile) Set(f func(filename string, flag int, perm os.FileMode) (f1 mm_billy.File, err error)) *FilesystemMock {
 	if mmOpenFile.defaultExpectation != nil {
 		mmOpenFile.mock.t.Fatalf("Default expectation is already set for the Filesystem.OpenFile method")
@@ -1748,7 +1748,7 @@ func (mmReadDir *mFilesystemMockReadDir) Return(fa1 []os.FileInfo, err error) *F
 	return mmReadDir.mock
 }
 
-//Set uses given function f to mock the Filesystem.ReadDir method
+// Set uses given function f to mock the Filesystem.ReadDir method
 func (mmReadDir *mFilesystemMockReadDir) Set(f func(path string) (fa1 []os.FileInfo, err error)) *FilesystemMock {
 	if mmReadDir.defaultExpectation != nil {
 		mmReadDir.mock.t.Fatalf("Default expectation is already set for the Filesystem.ReadDir method")
@@ -1964,7 +1964,7 @@ func (mmReadlink *mFilesystemMockReadlink) Return(s1 string, err error) *Filesys
 	return mmReadlink.mock
 }
 
-//Set uses given function f to mock the Filesystem.Readlink method
+// Set uses given function f to mock the Filesystem.Readlink method
 func (mmReadlink *mFilesystemMockReadlink) Set(f func(link string) (s1 string, err error)) *FilesystemMock {
 	if mmReadlink.defaultExpectation != nil {
 		mmReadlink.mock.t.Fatalf("Default expectation is already set for the Filesystem.Readlink method")
@@ -2179,7 +2179,7 @@ func (mmRemove *mFilesystemMockRemove) Return(err error) *FilesystemMock {
 	return mmRemove.mock
 }
 
-//Set uses given function f to mock the Filesystem.Remove method
+// Set uses given function f to mock the Filesystem.Remove method
 func (mmRemove *mFilesystemMockRemove) Set(f func(filename string) (err error)) *FilesystemMock {
 	if mmRemove.defaultExpectation != nil {
 		mmRemove.mock.t.Fatalf("Default expectation is already set for the Filesystem.Remove method")
@@ -2395,7 +2395,7 @@ func (mmRename *mFilesystemMockRename) Return(err error) *FilesystemMock {
 	return mmRename.mock
 }
 
-//Set uses given function f to mock the Filesystem.Rename method
+// Set uses given function f to mock the Filesystem.Rename method
 func (mmRename *mFilesystemMockRename) Set(f func(oldpath string, newpath string) (err error)) *FilesystemMock {
 	if mmRename.defaultExpectation != nil {
 		mmRename.mock.t.Fatalf("Default expectation is already set for the Filesystem.Rename method")
@@ -2595,7 +2595,7 @@ func (mmRoot *mFilesystemMockRoot) Return(s1 string) *FilesystemMock {
 	return mmRoot.mock
 }
 
-//Set uses given function f to mock the Filesystem.Root method
+// Set uses given function f to mock the Filesystem.Root method
 func (mmRoot *mFilesystemMockRoot) Set(f func() (s1 string)) *FilesystemMock {
 	if mmRoot.defaultExpectation != nil {
 		mmRoot.mock.t.Fatalf("Default expectation is already set for the Filesystem.Root method")
@@ -2754,7 +2754,7 @@ func (mmStat *mFilesystemMockStat) Return(f1 os.FileInfo, err error) *Filesystem
 	return mmStat.mock
 }
 
-//Set uses given function f to mock the Filesystem.Stat method
+// Set uses given function f to mock the Filesystem.Stat method
 func (mmStat *mFilesystemMockStat) Set(f func(filename string) (f1 os.FileInfo, err error)) *FilesystemMock {
 	if mmStat.defaultExpectation != nil {
 		mmStat.mock.t.Fatalf("Default expectation is already set for the Filesystem.Stat method")
@@ -2970,7 +2970,7 @@ func (mmSymlink *mFilesystemMockSymlink) Return(err error) *FilesystemMock {
 	return mmSymlink.mock
 }
 
-//Set uses given function f to mock the Filesystem.Symlink method
+// Set uses given function f to mock the Filesystem.Symlink method
 func (mmSymlink *mFilesystemMockSymlink) Set(f func(target string, link string) (err error)) *FilesystemMock {
 	if mmSymlink.defaultExpectation != nil {
 		mmSymlink.mock.t.Fatalf("Default expectation is already set for the Filesystem.Symlink method")
@@ -3187,7 +3187,7 @@ func (mmTempFile *mFilesystemMockTempFile) Return(f1 mm_billy.File, err error) *
 	return mmTempFile.mock
 }
 
-//Set uses given function f to mock the Filesystem.TempFile method
+// Set uses given function f to mock the Filesystem.TempFile method
 func (mmTempFile *mFilesystemMockTempFile) Set(f func(dir string, prefix string) (f1 mm_billy.File, err error)) *FilesystemMock {
 	if mmTempFile.defaultExpectation != nil {
 		mmTempFile.mock.t.Fatalf("Default expectation is already set for the Filesystem.TempFile method")

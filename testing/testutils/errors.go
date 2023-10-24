@@ -3,7 +3,7 @@ package testutils
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // AssertError error by string, where expected string is empty then error should be null.
@@ -12,8 +12,8 @@ func AssertError(t *testing.T, expected string, actual error) {
 	t.Helper()
 
 	if len(expected) > 0 {
-		assert.EqualError(t, actual, expected)
+		require.EqualError(t, actual, expected)
 	} else {
-		assert.NoError(t, actual)
+		require.NoError(t, actual)
 	}
 }

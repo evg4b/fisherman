@@ -3,7 +3,6 @@ package remove_test
 import (
 	"context"
 	"errors"
-	. "fisherman/internal/commands/remove"
 	"fisherman/internal/configuration"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
@@ -11,6 +10,8 @@ import (
 	"io"
 	"path/filepath"
 	"testing"
+
+	. "fisherman/internal/commands/remove"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"

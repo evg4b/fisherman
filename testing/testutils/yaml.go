@@ -7,7 +7,7 @@ import (
 )
 
 // DecodeYaml decodes object from yaml string (KnownFields = true).
-func DecodeYaml(source string, object interface{}) error {
+func DecodeYaml(source string, object any) error {
 	reader := strings.NewReader(source)
 	decoder := yaml.NewDecoder(reader)
 	decoder.KnownFields(true)

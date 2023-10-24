@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"fisherman/internal"
-	. "fisherman/internal/rules"
 	"fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"io"
 	"strings"
 	"testing"
 
+	. "fisherman/internal/rules"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSuppressedText_Check(t *testing.T) {
@@ -241,7 +243,7 @@ func TestSuppressedText_Compile(t *testing.T) {
 		},
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, SuppressedText{
 		BaseRule:   BaseRule{Type: ShellScriptType},
@@ -264,6 +266,6 @@ func assertFlatMultiError(t *testing.T, expected []string, actual error) {
 			assert.Contains(t, parts, expectedLine)
 		}
 	} else {
-		assert.NoError(t, actual)
+		require.NoError(t, actual)
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // ShouldBeDefined checks that the variable is not nil. In case when a variable is nill, it panic.
-func ShouldBeDefined(object interface{}, message string) {
+func ShouldBeDefined(object any, message string) {
 	if object == nil || (reflect.ValueOf(object).Kind() == reflect.Ptr && reflect.ValueOf(object).IsNil()) {
 		panic(errors.New(message))
 	}

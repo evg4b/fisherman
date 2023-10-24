@@ -2,10 +2,11 @@ package app_test
 
 import (
 	"fisherman/internal"
-	. "fisherman/internal/app"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
+
+	. "fisherman/internal/app"
 
 	"github.com/stretchr/testify/assert"
 )

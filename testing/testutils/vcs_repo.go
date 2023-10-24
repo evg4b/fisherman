@@ -1,9 +1,10 @@
 package testutils
 
 import (
+	"testing"
+
 	"fisherman/pkg/guards"
 	"fisherman/pkg/vcs"
-	"testing"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"

@@ -44,7 +44,7 @@ func (c *Command) Run(ctx context.Context, args []string) error {
 	log.Debugf("handler for '%s' hook founded", c.hook)
 
 	files := c.configFiles
-	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]interface{}{
+	utils.PrintGraphics(log.InfoOutput, constants.HookHeader, map[string]any{
 		constants.HookName:                 c.hook,
 		constants.GlobalConfigPath:         utils.FirstNotEmpty(files[configuration.GlobalMode], noFilesLabel),
 		constants.RepoConfigPath:           utils.FirstNotEmpty(files[configuration.RepoMode], noFilesLabel),

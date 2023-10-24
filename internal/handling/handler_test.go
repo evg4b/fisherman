@@ -7,7 +7,6 @@ import (
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/expression"
-	. "fisherman/internal/handling"
 	"fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/pkg/guards"
@@ -17,7 +16,10 @@ import (
 	"io"
 	"testing"
 
+	. "fisherman/internal/handling"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHookHandler_Handle(t *testing.T) {
@@ -221,7 +223,7 @@ func TestHookHandler_Handle(t *testing.T) {
 
 		err = handler.Handle(context.TODO())
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{"rule", "script", "post-script"}, order)
 	})
 
@@ -249,7 +251,7 @@ func TestHookHandler_Handle(t *testing.T) {
 
 		err = handler.Handle(ctx)
 
-		assert.EqualError(t, err, "1 error occurred:\n\t* context canceled\n\n")
+		require.EqualError(t, err, "1 error occurred:\n\t* context canceled\n\n")
 	})
 
 	t.Run("hook config is not presented", func(t *testing.T) {
@@ -260,7 +262,7 @@ func TestHookHandler_Handle(t *testing.T) {
 			}),
 		)
 
-		assert.Error(t, err, ErrNotPresented.Error())
+		require.Error(t, err, ErrNotPresented.Error())
 	})
 
 	t.Run("invalid hook name", func(t *testing.T) {
@@ -271,7 +273,7 @@ func TestHookHandler_Handle(t *testing.T) {
 			}),
 		)
 
-		assert.Error(t, err, "'unknown-hook' is not valid hook name")
+		require.Error(t, err, "'unknown-hook' is not valid hook name")
 	})
 
 	t.Run("fails when get predefined variables", func(t *testing.T) {
@@ -322,7 +324,7 @@ func TestHookHandler_Handle(t *testing.T) {
 				)
 
 				assert.Nil(t, handler)
-				assert.EqualError(t, err, tt.expectedErr)
+				require.EqualError(t, err, tt.expectedErr)
 			})
 		}
 	})

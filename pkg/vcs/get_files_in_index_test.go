@@ -3,13 +3,15 @@ package vcs_test
 import (
 	"errors"
 	"fisherman/pkg/guards"
-	. "fisherman/pkg/vcs"
 	"fisherman/testing/mocks"
 	"fisherman/testing/testutils"
 	"testing"
 
+	. "fisherman/pkg/vcs"
+
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGitRepository_GetFilesInIndex(t *testing.T) {
@@ -23,7 +25,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 
 		files, err := repo.GetFilesInIndex()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, files)
 	})
 
@@ -41,7 +43,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 
 		files, err := repo.GetFilesInIndex()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, files)
 	})
 
@@ -62,7 +64,7 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 
 		files, err := repo.GetFilesInIndex()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{"tracked"}, files)
 	})
 
@@ -76,6 +78,6 @@ func TestGitRepository_GetFilesInIndex(t *testing.T) {
 
 		_, err := repo.GetFilesInIndex()
 
-		assert.EqualError(t, err, expectedErr.Error())
+		require.EqualError(t, err, expectedErr.Error())
 	})
 }

@@ -3,11 +3,13 @@ package vcs_test
 
 import (
 	"fisherman/pkg/guards"
-	. "fisherman/pkg/vcs"
 	"fisherman/testing/testutils"
 	"testing"
 
+	. "fisherman/pkg/vcs"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGitRepository_GetIndexChanges(t *testing.T) {
@@ -34,7 +36,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 
 		changes, err := repo.GetIndexChanges()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, map[string]Changes{
 			"new": {
 				{Status: Added, Change: "new file"},
@@ -69,7 +71,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 
 		changes, err := repo.GetIndexChanges()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, map[string]Changes{
 			"folder1/added": {
 				{Status: Added, Change: "added content"},
@@ -90,7 +92,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 
 		changes, err := repo.GetIndexChanges()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, map[string]Changes{}, changes)
 	})
 
@@ -107,7 +109,7 @@ func TestGitRepository_GetIndexChanges(t *testing.T) {
 
 		changes, err := repo.GetIndexChanges()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, map[string]Changes{}, changes)
 	})
 }

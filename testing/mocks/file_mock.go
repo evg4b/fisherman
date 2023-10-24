@@ -160,7 +160,7 @@ func (mmClose *mFileMockClose) Return(err error) *FileMock {
 	return mmClose.mock
 }
 
-//Set uses given function f to mock the File.Close method
+// Set uses given function f to mock the File.Close method
 func (mmClose *mFileMockClose) Set(f func() (err error)) *FileMock {
 	if mmClose.defaultExpectation != nil {
 		mmClose.mock.t.Fatalf("Default expectation is already set for the File.Close method")
@@ -303,7 +303,7 @@ func (mmLock *mFileMockLock) Return(err error) *FileMock {
 	return mmLock.mock
 }
 
-//Set uses given function f to mock the File.Lock method
+// Set uses given function f to mock the File.Lock method
 func (mmLock *mFileMockLock) Set(f func() (err error)) *FileMock {
 	if mmLock.defaultExpectation != nil {
 		mmLock.mock.t.Fatalf("Default expectation is already set for the File.Lock method")
@@ -446,7 +446,7 @@ func (mmName *mFileMockName) Return(s1 string) *FileMock {
 	return mmName.mock
 }
 
-//Set uses given function f to mock the File.Name method
+// Set uses given function f to mock the File.Name method
 func (mmName *mFileMockName) Set(f func() (s1 string)) *FileMock {
 	if mmName.defaultExpectation != nil {
 		mmName.mock.t.Fatalf("Default expectation is already set for the File.Name method")
@@ -605,7 +605,7 @@ func (mmRead *mFileMockRead) Return(n int, err error) *FileMock {
 	return mmRead.mock
 }
 
-//Set uses given function f to mock the File.Read method
+// Set uses given function f to mock the File.Read method
 func (mmRead *mFileMockRead) Set(f func(p []byte) (n int, err error)) *FileMock {
 	if mmRead.defaultExpectation != nil {
 		mmRead.mock.t.Fatalf("Default expectation is already set for the File.Read method")
@@ -822,7 +822,7 @@ func (mmReadAt *mFileMockReadAt) Return(n int, err error) *FileMock {
 	return mmReadAt.mock
 }
 
-//Set uses given function f to mock the File.ReadAt method
+// Set uses given function f to mock the File.ReadAt method
 func (mmReadAt *mFileMockReadAt) Set(f func(p []byte, off int64) (n int, err error)) *FileMock {
 	if mmReadAt.defaultExpectation != nil {
 		mmReadAt.mock.t.Fatalf("Default expectation is already set for the File.ReadAt method")
@@ -1039,7 +1039,7 @@ func (mmSeek *mFileMockSeek) Return(i1 int64, err error) *FileMock {
 	return mmSeek.mock
 }
 
-//Set uses given function f to mock the File.Seek method
+// Set uses given function f to mock the File.Seek method
 func (mmSeek *mFileMockSeek) Set(f func(offset int64, whence int) (i1 int64, err error)) *FileMock {
 	if mmSeek.defaultExpectation != nil {
 		mmSeek.mock.t.Fatalf("Default expectation is already set for the File.Seek method")
@@ -1254,7 +1254,7 @@ func (mmTruncate *mFileMockTruncate) Return(err error) *FileMock {
 	return mmTruncate.mock
 }
 
-//Set uses given function f to mock the File.Truncate method
+// Set uses given function f to mock the File.Truncate method
 func (mmTruncate *mFileMockTruncate) Set(f func(size int64) (err error)) *FileMock {
 	if mmTruncate.defaultExpectation != nil {
 		mmTruncate.mock.t.Fatalf("Default expectation is already set for the File.Truncate method")
@@ -1454,7 +1454,7 @@ func (mmUnlock *mFileMockUnlock) Return(err error) *FileMock {
 	return mmUnlock.mock
 }
 
-//Set uses given function f to mock the File.Unlock method
+// Set uses given function f to mock the File.Unlock method
 func (mmUnlock *mFileMockUnlock) Set(f func() (err error)) *FileMock {
 	if mmUnlock.defaultExpectation != nil {
 		mmUnlock.mock.t.Fatalf("Default expectation is already set for the File.Unlock method")
@@ -1613,7 +1613,7 @@ func (mmWrite *mFileMockWrite) Return(n int, err error) *FileMock {
 	return mmWrite.mock
 }
 
-//Set uses given function f to mock the File.Write method
+// Set uses given function f to mock the File.Write method
 func (mmWrite *mFileMockWrite) Set(f func(p []byte) (n int, err error)) *FileMock {
 	if mmWrite.defaultExpectation != nil {
 		mmWrite.mock.t.Fatalf("Default expectation is already set for the File.Write method")

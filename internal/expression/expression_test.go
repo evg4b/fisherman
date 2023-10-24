@@ -2,9 +2,12 @@ package expression_test
 
 import (
 	"errors"
-	. "fisherman/internal/expression"
 	"fisherman/testing/testutils"
 	"testing"
+
+	. "fisherman/internal/expression"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +46,7 @@ func TestExpressionEngine_Eval(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := engine.Eval(tt.expression, map[string]interface{}{
+			actual, err := engine.Eval(tt.expression, map[string]any{
 				"X":          "this is x value",
 				"EmptyValue": "",
 			})
@@ -54,10 +57,10 @@ func TestExpressionEngine_Eval(t *testing.T) {
 	}
 
 	t.Run("panic in function", func(t *testing.T) {
-		_, err := engine.Eval("test()", map[string]interface{}{
+		_, err := engine.Eval("test()", map[string]any{
 			"test": func() bool { panic(errors.New("test error")) },
 		})
 
-		assert.EqualError(t, err, "test error (1:1)\n | test()\n | ^")
+		require.EqualError(t, err, "test error (1:1)\n | test()\n | ^")
 	})
 }

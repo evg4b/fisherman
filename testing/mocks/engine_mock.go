@@ -16,8 +16,8 @@ import (
 type EngineMock struct {
 	t minimock.Tester
 
-	funcEval          func(expression string, vars map[string]interface{}) (b1 bool, err error)
-	inspectFuncEval   func(expression string, vars map[string]interface{})
+	funcEval          func(expression string, vars map[string]any) (b1 bool, err error)
+	inspectFuncEval   func(expression string, vars map[string]any)
 	afterEvalCounter  uint64
 	beforeEvalCounter uint64
 	EvalMock          mEngineMockEval
@@ -56,7 +56,7 @@ type EngineMockEvalExpectation struct {
 // EngineMockEvalParams contains parameters of the Engine.Eval
 type EngineMockEvalParams struct {
 	expression string
-	vars       map[string]interface{}
+	vars       map[string]any
 }
 
 // EngineMockEvalResults contains results of the Engine.Eval
@@ -66,7 +66,7 @@ type EngineMockEvalResults struct {
 }
 
 // Expect sets up expected params for Engine.Eval
-func (mmEval *mEngineMockEval) Expect(expression string, vars map[string]interface{}) *mEngineMockEval {
+func (mmEval *mEngineMockEval) Expect(expression string, vars map[string]any) *mEngineMockEval {
 	if mmEval.mock.funcEval != nil {
 		mmEval.mock.t.Fatalf("EngineMock.Eval mock is already set by Set")
 	}
@@ -86,7 +86,7 @@ func (mmEval *mEngineMockEval) Expect(expression string, vars map[string]interfa
 }
 
 // Inspect accepts an inspector function that has same arguments as the Engine.Eval
-func (mmEval *mEngineMockEval) Inspect(f func(expression string, vars map[string]interface{})) *mEngineMockEval {
+func (mmEval *mEngineMockEval) Inspect(f func(expression string, vars map[string]any)) *mEngineMockEval {
 	if mmEval.mock.inspectFuncEval != nil {
 		mmEval.mock.t.Fatalf("Inspect function is already set for EngineMock.Eval")
 	}
@@ -109,8 +109,8 @@ func (mmEval *mEngineMockEval) Return(b1 bool, err error) *EngineMock {
 	return mmEval.mock
 }
 
-//Set uses given function f to mock the Engine.Eval method
-func (mmEval *mEngineMockEval) Set(f func(expression string, vars map[string]interface{}) (b1 bool, err error)) *EngineMock {
+// Set uses given function f to mock the Engine.Eval method
+func (mmEval *mEngineMockEval) Set(f func(expression string, vars map[string]any) (b1 bool, err error)) *EngineMock {
 	if mmEval.defaultExpectation != nil {
 		mmEval.mock.t.Fatalf("Default expectation is already set for the Engine.Eval method")
 	}
@@ -125,7 +125,7 @@ func (mmEval *mEngineMockEval) Set(f func(expression string, vars map[string]int
 
 // When sets expectation for the Engine.Eval which will trigger the result defined by the following
 // Then helper
-func (mmEval *mEngineMockEval) When(expression string, vars map[string]interface{}) *EngineMockEvalExpectation {
+func (mmEval *mEngineMockEval) When(expression string, vars map[string]any) *EngineMockEvalExpectation {
 	if mmEval.mock.funcEval != nil {
 		mmEval.mock.t.Fatalf("EngineMock.Eval mock is already set by Set")
 	}
@@ -145,7 +145,7 @@ func (e *EngineMockEvalExpectation) Then(b1 bool, err error) *EngineMock {
 }
 
 // Eval implements expression.Engine
-func (mmEval *EngineMock) Eval(expression string, vars map[string]interface{}) (b1 bool, err error) {
+func (mmEval *EngineMock) Eval(expression string, vars map[string]any) (b1 bool, err error) {
 	mm_atomic.AddUint64(&mmEval.beforeEvalCounter, 1)
 	defer mm_atomic.AddUint64(&mmEval.afterEvalCounter, 1)
 

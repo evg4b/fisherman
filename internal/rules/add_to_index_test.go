@@ -3,11 +3,14 @@ package rules_test
 import (
 	"context"
 	syserrors "errors"
-	. "fisherman/internal/rules"
 	"fisherman/internal/validation"
 	"fisherman/testing/mocks"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/internal/rules"
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-git/v5"
@@ -28,7 +31,7 @@ func TestAddToIndex_Compile(t *testing.T) {
 		},
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, AddToIndex{
 		Globs: []Glob{
@@ -44,7 +47,7 @@ func TestAddToIndex_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("added to index correctly", func(t *testing.T) {
@@ -66,7 +69,7 @@ func TestAddToIndex_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("failed to add files", func(t *testing.T) {
@@ -88,7 +91,7 @@ func TestAddToIndex_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "failed to add files matching pattern '*.css' to the index: testError")
+		require.EqualError(t, err, "failed to add files matching pattern '*.css' to the index: testError")
 		assert.IsType(t, &errors.Error{}, err)
 	})
 
@@ -124,9 +127,9 @@ func TestAddToIndex_Check(t *testing.T) {
 				err := rule.Check(context.TODO(), io.Discard)
 
 				if !testCase.isRequired {
-					assert.NoError(t, err)
+					require.NoError(t, err)
 				} else {
-					assert.EqualError(t, err, errorMessage(AddToIndexType, "can't add files matching pattern *.css"))
+					require.EqualError(t, err, errorMessage(AddToIndexType, "can't add files matching pattern *.css"))
 					assert.IsType(t, &validation.Error{}, err)
 				}
 			})

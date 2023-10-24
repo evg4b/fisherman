@@ -3,7 +3,6 @@ package handle_test
 import (
 	"context"
 	"errors"
-	. "fisherman/internal/commands/handle"
 	"fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/rules"
@@ -14,10 +13,12 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "fisherman/internal/commands/handle"
+
+	"github.com/stretchr/testify/require"
 )
 
-var globalVars = map[string]interface{}{
+var globalVars = map[string]any{
 	constants.BranchNameVariable:       "/refs/head/develop",
 	constants.TagVariable:              "1.0.0",
 	constants.UserEmailVariable:        "evg4b@mail.com",
@@ -61,7 +62,7 @@ func TestCommand_Run(t *testing.T) {
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("unknown hook", func(t *testing.T) {
@@ -83,7 +84,7 @@ func TestCommand_Run(t *testing.T) {
 
 		err := command.Run(context.TODO(), []string{"--hook", "test"})
 
-		assert.EqualError(t, err, "'test' is not valid hook name")
+		require.EqualError(t, err, "'test' is not valid hook name")
 	})
 
 	t.Run("call handler and return error", func(t *testing.T) {
@@ -104,7 +105,7 @@ func TestCommand_Run(t *testing.T) {
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
-		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
+		require.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})
 
 	t.Run("call handler with global variables", func(t *testing.T) {
@@ -126,6 +127,6 @@ func TestCommand_Run(t *testing.T) {
 
 		err := command.Run(context.TODO(), []string{"--hook", "pre-commit"})
 
-		assert.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
+		require.EqualError(t, err, "1 error occurred:\n\t* [exec] test error\n\n")
 	})
 }

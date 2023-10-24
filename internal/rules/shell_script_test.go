@@ -2,10 +2,13 @@ package rules_test
 
 import (
 	"context"
-	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,7 +36,7 @@ func TestShellScript_Compile(t *testing.T) {
 		Output: true,
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, ShellScript{
 		BaseRule: BaseRule{Type: ShellScriptType},
@@ -57,7 +60,7 @@ func TestShellScript_GetPrefix(t *testing.T) {
 
 	actual := rule.GetPrefix()
 
-	assert.Equal(t, actual, expectedValue)
+	assert.Equal(t, expectedValue, actual)
 }
 
 func TestShellScript_UnmarshalYAML(t *testing.T) {
@@ -100,7 +103,7 @@ when: '
 
 			testutils.AssertError(t, tt.expectedErr, err)
 			if len(tt.expectedErr) > 0 {
-				assert.Equal(t, config, ShellScript{})
+				assert.Equal(t, ShellScript{}, config)
 			} else {
 				assert.Equal(t, *tt.expected, config)
 			}
@@ -117,7 +120,7 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "failed to cheate shell host: unsupported shell")
+		require.EqualError(t, err, "failed to cheate shell host: unsupported shell")
 	})
 
 	t.Run("return error for incorrect encoding", func(t *testing.T) {
@@ -129,7 +132,7 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "failed to cheate shell host: 'incorrect-encoding' is unknown encoding")
+		require.EqualError(t, err, "failed to cheate shell host: 'incorrect-encoding' is unknown encoding")
 	})
 
 	t.Run("executed successful", func(t *testing.T) {
@@ -142,7 +145,7 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("executed with non zero exit code ", func(t *testing.T) {
@@ -155,6 +158,6 @@ func TestShellScript_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "[shell-script] script finished with exit code 33")
+		require.EqualError(t, err, "[shell-script] script finished with exit code 33")
 	})
 }

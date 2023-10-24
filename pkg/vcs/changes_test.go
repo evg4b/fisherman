@@ -1,8 +1,9 @@
 package vcs_test
 
 import (
-	. "fisherman/pkg/vcs"
 	"testing"
+
+	. "fisherman/pkg/vcs"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -1,9 +1,10 @@
 package rules_test
 
 import (
-	. "fisherman/internal/rules"
 	"fmt"
 	"testing"
+
+	. "fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +33,7 @@ func TestBaseRule_Compile(t *testing.T) {
 		Type:      "{{var1}}",
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, BaseRule{Condition: "VALUE", Type: "{{var1}}"}, rule)
 }

@@ -49,27 +49,27 @@ func Configure(config OutputConfig) {
 	InfoOutput.SetLevel(config.LogLevel)
 }
 
-func Debug(params ...interface{}) {
+func Debug(params ...any) {
 	dbg.Fprintln(DebugOutput, params...)
 }
 
-func Debugf(message string, params ...interface{}) {
+func Debugf(message string, params ...any) {
 	dbg.Fprintln(DebugOutput, fmt.Sprintf(message, params...))
 }
 
-func Error(params ...interface{}) {
+func Error(params ...any) {
 	err.Fprintln(ErrorOutput, params...)
 }
 
-func Errorf(message string, params ...interface{}) {
+func Errorf(message string, params ...any) {
 	err.Fprintln(ErrorOutput, fmt.Sprintf(message, params...))
 }
 
-func Info(params ...interface{}) {
+func Info(params ...any) {
 	inf.Fprintln(InfoOutput, params...)
 }
 
-func Infof(message string, params ...interface{}) {
+func Infof(message string, params ...any) {
 	inf.Fprintln(InfoOutput, fmt.Sprintf(message, params...))
 }
 

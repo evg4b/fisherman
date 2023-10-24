@@ -24,13 +24,13 @@ func WithCwd(cwd string) appOption {
 
 func WithSistemInterruptSignals() appOption {
 	return func(app *FishermanApp) {
-		app.interaption = make(chan os.Signal, 1)
-		signal.Notify(app.interaption, os.Interrupt)
+		app.interruption = make(chan os.Signal, 1)
+		signal.Notify(app.interruption, os.Interrupt)
 	}
 }
 
 func WithInterruptChanel(chanel chan os.Signal) appOption {
 	return func(app *FishermanApp) {
-		app.interaption = chanel
+		app.interruption = chanel
 	}
 }

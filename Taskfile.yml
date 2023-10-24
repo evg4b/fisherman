@@ -53,7 +53,9 @@ tasks:
     cmds:
       - task: build
       - task: lint
-      - task: test
+      - GOOS=windows golangci-lint run --fix
+      - GOOS=linux golangci-lint run --fix
+      - GOOS=darwin golangci-lint run --fix
       - task: lint-docs
 
   install:

@@ -1,9 +1,12 @@
 package configuration_test
 
 import (
-	. "fisherman/internal/configuration"
 	"fisherman/testing/testutils"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/internal/configuration"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,10 +15,10 @@ func TestHookConfig_Compile_Empty(t *testing.T) {
 	section := HookConfig{}
 
 	assert.NotPanics(t, func() {
-		variables, err := section.Compile(map[string]interface{}{})
+		variables, err := section.Compile(map[string]any{})
 
 		assert.Empty(t, variables)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
 
@@ -28,12 +31,12 @@ func TestHookConfig_VariablesSections_Compile(t *testing.T) {
 		},
 	}
 
-	_, err := section.Compile(map[string]interface{}{
+	_, err := section.Compile(map[string]any{
 		"var1": "localValue1",
 		"var2": "localValue2",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, map[string]string{
 		"VAR_1": "localValue1",

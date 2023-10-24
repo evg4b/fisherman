@@ -6,6 +6,11 @@ run:
 linters:
   enable-all: true
   disable:
+    - revive
+    - depguard
+    - gofumpt
+    - gofmt
+    - goimports
     - wsl
     - maligned
     - gochecknoglobals

@@ -20,7 +20,7 @@ import (
 var ErrNotPresented = errors.New("configuration for hook is not presented")
 
 type CompilableConfig interface {
-	Compile(engine expression.Engine, global map[string]interface{}) (map[string]interface{}, error)
+	Compile(engine expression.Engine, global map[string]any) (map[string]any, error)
 }
 
 type Handler interface {
@@ -30,7 +30,7 @@ type Handler interface {
 type HookHandler struct {
 	engine       expression.Engine
 	configs      *configuration.HooksConfig
-	globalVars   map[string]interface{}
+	globalVars   map[string]any
 	cwd          string
 	fs           billy.Filesystem
 	repo         internal.Repository
@@ -47,7 +47,7 @@ type HookHandler struct {
 func NewHookHandler(hook string, options ...handlerOptions) (*HookHandler, error) {
 	h := &HookHandler{
 		configs:         &configuration.HooksConfig{},
-		globalVars:      map[string]interface{}{},
+		globalVars:      map[string]any{},
 		args:            []string{},
 		env:             []string{},
 		workersCount:    1,
@@ -153,7 +153,7 @@ func (h *HookHandler) ruleOptions() []rules.RuleOption {
 	}
 }
 
-func (h *HookHandler) getPredefinedVariables() (map[string]interface{}, error) {
+func (h *HookHandler) getPredefinedVariables() (map[string]any, error) {
 	gitUser, err := h.repo.GetUser()
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func (h *HookHandler) getPredefinedVariables() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		constants.UserEmailVariable:        gitUser.Email,
 		constants.UserNameVariable:         gitUser.UserName,
 		constants.FishermanVersionVariable: constants.Version,

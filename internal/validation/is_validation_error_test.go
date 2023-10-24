@@ -2,8 +2,9 @@ package validation_test
 
 import (
 	"errors"
-	. "fisherman/internal/validation"
 	"testing"
+
+	. "fisherman/internal/validation"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/assert"

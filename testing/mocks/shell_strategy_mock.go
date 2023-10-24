@@ -144,7 +144,7 @@ func (mmArgsWrapper *mShellStrategyMockArgsWrapper) Return(sa2 []string) *ShellS
 	return mmArgsWrapper.mock
 }
 
-//Set uses given function f to mock the ShellStrategy.ArgsWrapper method
+// Set uses given function f to mock the ShellStrategy.ArgsWrapper method
 func (mmArgsWrapper *mShellStrategyMockArgsWrapper) Set(f func(sa1 []string) (sa2 []string)) *ShellStrategyMock {
 	if mmArgsWrapper.defaultExpectation != nil {
 		mmArgsWrapper.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.ArgsWrapper method")
@@ -359,7 +359,7 @@ func (mmEnvWrapper *mShellStrategyMockEnvWrapper) Return(sa2 []string) *ShellStr
 	return mmEnvWrapper.mock
 }
 
-//Set uses given function f to mock the ShellStrategy.EnvWrapper method
+// Set uses given function f to mock the ShellStrategy.EnvWrapper method
 func (mmEnvWrapper *mShellStrategyMockEnvWrapper) Set(f func(sa1 []string) (sa2 []string)) *ShellStrategyMock {
 	if mmEnvWrapper.defaultExpectation != nil {
 		mmEnvWrapper.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.EnvWrapper method")
@@ -574,7 +574,7 @@ func (mmGetCommand *mShellStrategyMockGetCommand) Return(cp1 *exec.Cmd) *ShellSt
 	return mmGetCommand.mock
 }
 
-//Set uses given function f to mock the ShellStrategy.GetCommand method
+// Set uses given function f to mock the ShellStrategy.GetCommand method
 func (mmGetCommand *mShellStrategyMockGetCommand) Set(f func(ctx context.Context) (cp1 *exec.Cmd)) *ShellStrategyMock {
 	if mmGetCommand.defaultExpectation != nil {
 		mmGetCommand.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.GetCommand method")
@@ -774,7 +774,7 @@ func (mmGetEncoding *mShellStrategyMockGetEncoding) Return(e1 encoding.Encoding)
 	return mmGetEncoding.mock
 }
 
-//Set uses given function f to mock the ShellStrategy.GetEncoding method
+// Set uses given function f to mock the ShellStrategy.GetEncoding method
 func (mmGetEncoding *mShellStrategyMockGetEncoding) Set(f func() (e1 encoding.Encoding)) *ShellStrategyMock {
 	if mmGetEncoding.defaultExpectation != nil {
 		mmGetEncoding.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.GetEncoding method")
@@ -917,7 +917,7 @@ func (mmGetName *mShellStrategyMockGetName) Return(s1 string) *ShellStrategyMock
 	return mmGetName.mock
 }
 
-//Set uses given function f to mock the ShellStrategy.GetName method
+// Set uses given function f to mock the ShellStrategy.GetName method
 func (mmGetName *mShellStrategyMockGetName) Set(f func() (s1 string)) *ShellStrategyMock {
 	if mmGetName.defaultExpectation != nil {
 		mmGetName.mock.t.Fatalf("Default expectation is already set for the ShellStrategy.GetName method")

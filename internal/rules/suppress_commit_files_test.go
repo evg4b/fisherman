@@ -3,10 +3,13 @@ package rules_test
 import (
 	"context"
 	"errors"
-	. "fisherman/internal/rules"
 	"fisherman/testing/mocks"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	. "fisherman/internal/rules"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +35,7 @@ func TestSuppressCommitFiles_Compile(t *testing.T) {
 		RemoveFromIndex: true,
 	}
 
-	rule.Compile(map[string]interface{}{"var1": "VALUE"})
+	rule.Compile(map[string]any{"var1": "VALUE"})
 
 	assert.Equal(t, SuppressCommitFiles{
 		BaseRule: BaseRule{
@@ -52,7 +55,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("suppressed add files", func(t *testing.T) {
@@ -70,7 +73,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "1 error occurred:\n\t* [suppress-commit-files] file glob1/demo.go can not be committed\n\n")
+		require.EqualError(t, err, "1 error occurred:\n\t* [suppress-commit-files] file glob1/demo.go can not be committed\n\n")
 	})
 
 	t.Run("removed files from index", func(t *testing.T) {
@@ -90,7 +93,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("get files in index error", func(t *testing.T) {
@@ -107,7 +110,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "test error")
+		require.EqualError(t, err, "test error")
 	})
 
 	t.Run("glob patter parsing error", func(t *testing.T) {
@@ -124,7 +127,7 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "syntax error in pattern")
+		require.EqualError(t, err, "syntax error in pattern")
 	})
 
 	t.Run("removing files from index error", func(t *testing.T) {
@@ -143,6 +146,6 @@ func TestSuppressCommitFiles_Check(t *testing.T) {
 
 		err := rule.Check(context.TODO(), io.Discard)
 
-		assert.EqualError(t, err, "test error")
+		require.EqualError(t, err, "test error")
 	})
 }

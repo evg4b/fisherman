@@ -1,8 +1,9 @@
 package guards_test
 
 import (
-	. "fisherman/pkg/guards"
 	"testing"
+
+	. "fisherman/pkg/guards"
 
 	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +14,7 @@ func TestShouldBeDefined(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		object  interface{}
+		object  any
 		message string
 		err     string
 	}{

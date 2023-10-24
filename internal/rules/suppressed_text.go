@@ -58,7 +58,7 @@ func (rule *SuppressedText) GetPosition() byte {
 	return PostScripts
 }
 
-func (rule *SuppressedText) Compile(variables map[string]interface{}) {
+func (rule *SuppressedText) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplatesArray(rule.Substrings, variables)
 	utils.FillTemplatesArray(rule.ExcludedGlobs, variables)

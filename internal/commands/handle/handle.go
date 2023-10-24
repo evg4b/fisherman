@@ -17,7 +17,7 @@ type Command struct {
 	usage        string
 	engine       expression.Engine
 	config       *configuration.HooksConfig
-	globalVars   map[string]interface{}
+	globalVars   map[string]any
 	cwd          string
 	fs           billy.Filesystem
 	repo         internal.Repository
@@ -36,7 +36,7 @@ func NewCommand(options ...commandOption) *Command {
 		workersCount: defaultWorkerCount,
 		output:       io.Discard,
 		configFiles:  map[string]string{},
-		globalVars:   map[string]interface{}{},
+		globalVars:   map[string]any{},
 		env:          []string{},
 	}
 

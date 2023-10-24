@@ -99,7 +99,7 @@ func (mmNewDecoder *mEncodingMockNewDecoder) Return(dp1 *mm_encoding.Decoder) *E
 	return mmNewDecoder.mock
 }
 
-//Set uses given function f to mock the Encoding.NewDecoder method
+// Set uses given function f to mock the Encoding.NewDecoder method
 func (mmNewDecoder *mEncodingMockNewDecoder) Set(f func() (dp1 *mm_encoding.Decoder)) *EncodingMock {
 	if mmNewDecoder.defaultExpectation != nil {
 		mmNewDecoder.mock.t.Fatalf("Default expectation is already set for the Encoding.NewDecoder method")
@@ -242,7 +242,7 @@ func (mmNewEncoder *mEncodingMockNewEncoder) Return(ep1 *mm_encoding.Encoder) *E
 	return mmNewEncoder.mock
 }
 
-//Set uses given function f to mock the Encoding.NewEncoder method
+// Set uses given function f to mock the Encoding.NewEncoder method
 func (mmNewEncoder *mEncodingMockNewEncoder) Set(f func() (ep1 *mm_encoding.Encoder)) *EncodingMock {
 	if mmNewEncoder.defaultExpectation != nil {
 		mmNewEncoder.mock.t.Fatalf("Default expectation is already set for the Encoding.NewEncoder method")

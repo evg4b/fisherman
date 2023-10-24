@@ -6,11 +6,12 @@ package mocks
 
 import (
 	"context"
-	"fisherman/internal/rules"
 	"io"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
+
+	"fisherman/internal/rules"
 
 	"github.com/gojuno/minimock/v3"
 )
@@ -25,8 +26,8 @@ type RuleMock struct {
 	beforeCheckCounter uint64
 	CheckMock          mRuleMockCheck
 
-	funcCompile          func(m1 map[string]interface{})
-	inspectFuncCompile   func(m1 map[string]interface{})
+	funcCompile          func(m1 map[string]any)
+	inspectFuncCompile   func(m1 map[string]any)
 	afterCompileCounter  uint64
 	beforeCompileCounter uint64
 	CompileMock          mRuleMockCompile
@@ -161,7 +162,7 @@ func (mmCheck *mRuleMockCheck) Return(err error) *RuleMock {
 	return mmCheck.mock
 }
 
-//Set uses given function f to mock the Rule.Check method
+// Set uses given function f to mock the Rule.Check method
 func (mmCheck *mRuleMockCheck) Set(f func(ctx context.Context, w1 io.Writer) (err error)) *RuleMock {
 	if mmCheck.defaultExpectation != nil {
 		mmCheck.mock.t.Fatalf("Default expectation is already set for the Rule.Check method")
@@ -324,11 +325,11 @@ type RuleMockCompileExpectation struct {
 
 // RuleMockCompileParams contains parameters of the Rule.Compile
 type RuleMockCompileParams struct {
-	m1 map[string]interface{}
+	m1 map[string]any
 }
 
 // Expect sets up expected params for Rule.Compile
-func (mmCompile *mRuleMockCompile) Expect(m1 map[string]interface{}) *mRuleMockCompile {
+func (mmCompile *mRuleMockCompile) Expect(m1 map[string]any) *mRuleMockCompile {
 	if mmCompile.mock.funcCompile != nil {
 		mmCompile.mock.t.Fatalf("RuleMock.Compile mock is already set by Set")
 	}
@@ -348,7 +349,7 @@ func (mmCompile *mRuleMockCompile) Expect(m1 map[string]interface{}) *mRuleMockC
 }
 
 // Inspect accepts an inspector function that has same arguments as the Rule.Compile
-func (mmCompile *mRuleMockCompile) Inspect(f func(m1 map[string]interface{})) *mRuleMockCompile {
+func (mmCompile *mRuleMockCompile) Inspect(f func(m1 map[string]any)) *mRuleMockCompile {
 	if mmCompile.mock.inspectFuncCompile != nil {
 		mmCompile.mock.t.Fatalf("Inspect function is already set for RuleMock.Compile")
 	}
@@ -371,8 +372,8 @@ func (mmCompile *mRuleMockCompile) Return() *RuleMock {
 	return mmCompile.mock
 }
 
-//Set uses given function f to mock the Rule.Compile method
-func (mmCompile *mRuleMockCompile) Set(f func(m1 map[string]interface{})) *RuleMock {
+// Set uses given function f to mock the Rule.Compile method
+func (mmCompile *mRuleMockCompile) Set(f func(m1 map[string]any)) *RuleMock {
 	if mmCompile.defaultExpectation != nil {
 		mmCompile.mock.t.Fatalf("Default expectation is already set for the Rule.Compile method")
 	}
@@ -386,7 +387,7 @@ func (mmCompile *mRuleMockCompile) Set(f func(m1 map[string]interface{})) *RuleM
 }
 
 // Compile implements configuration.Rule
-func (mmCompile *RuleMock) Compile(m1 map[string]interface{}) {
+func (mmCompile *RuleMock) Compile(m1 map[string]any) {
 	mm_atomic.AddUint64(&mmCompile.beforeCompileCounter, 1)
 	defer mm_atomic.AddUint64(&mmCompile.afterCompileCounter, 1)
 
@@ -424,7 +425,6 @@ func (mmCompile *RuleMock) Compile(m1 map[string]interface{}) {
 		return
 	}
 	mmCompile.t.Fatalf("Unexpected call to RuleMock.Compile. %v", m1)
-
 }
 
 // CompileAfterCounter returns a count of finished RuleMock.Compile invocations
@@ -558,7 +558,7 @@ func (mmConfigure *mRuleMockConfigure) Return() *RuleMock {
 	return mmConfigure.mock
 }
 
-//Set uses given function f to mock the Rule.Configure method
+// Set uses given function f to mock the Rule.Configure method
 func (mmConfigure *mRuleMockConfigure) Set(f func(options ...rules.RuleOption)) *RuleMock {
 	if mmConfigure.defaultExpectation != nil {
 		mmConfigure.mock.t.Fatalf("Default expectation is already set for the Rule.Configure method")
@@ -611,7 +611,6 @@ func (mmConfigure *RuleMock) Configure(options ...rules.RuleOption) {
 		return
 	}
 	mmConfigure.t.Fatalf("Unexpected call to RuleMock.Configure. %v", options)
-
 }
 
 // ConfigureAfterCounter returns a count of finished RuleMock.Configure invocations
@@ -735,7 +734,7 @@ func (mmGetContition *mRuleMockGetContition) Return(s1 string) *RuleMock {
 	return mmGetContition.mock
 }
 
-//Set uses given function f to mock the Rule.GetContition method
+// Set uses given function f to mock the Rule.GetContition method
 func (mmGetContition *mRuleMockGetContition) Set(f func() (s1 string)) *RuleMock {
 	if mmGetContition.defaultExpectation != nil {
 		mmGetContition.mock.t.Fatalf("Default expectation is already set for the Rule.GetContition method")
@@ -878,7 +877,7 @@ func (mmGetPosition *mRuleMockGetPosition) Return(b1 byte) *RuleMock {
 	return mmGetPosition.mock
 }
 
-//Set uses given function f to mock the Rule.GetPosition method
+// Set uses given function f to mock the Rule.GetPosition method
 func (mmGetPosition *mRuleMockGetPosition) Set(f func() (b1 byte)) *RuleMock {
 	if mmGetPosition.defaultExpectation != nil {
 		mmGetPosition.mock.t.Fatalf("Default expectation is already set for the Rule.GetPosition method")
@@ -1021,7 +1020,7 @@ func (mmGetPrefix *mRuleMockGetPrefix) Return(s1 string) *RuleMock {
 	return mmGetPrefix.mock
 }
 
-//Set uses given function f to mock the Rule.GetPrefix method
+// Set uses given function f to mock the Rule.GetPrefix method
 func (mmGetPrefix *mRuleMockGetPrefix) Set(f func() (s1 string)) *RuleMock {
 	if mmGetPrefix.defaultExpectation != nil {
 		mmGetPrefix.mock.t.Fatalf("Default expectation is already set for the Rule.GetPrefix method")
@@ -1164,7 +1163,7 @@ func (mmGetType *mRuleMockGetType) Return(s1 string) *RuleMock {
 	return mmGetType.mock
 }
 
-//Set uses given function f to mock the Rule.GetType method
+// Set uses given function f to mock the Rule.GetType method
 func (mmGetType *mRuleMockGetType) Set(f func() (s1 string)) *RuleMock {
 	if mmGetType.defaultExpectation != nil {
 		mmGetType.mock.t.Fatalf("Default expectation is already set for the Rule.GetType method")

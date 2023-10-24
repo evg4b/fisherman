@@ -3,11 +3,13 @@ package version_test
 import (
 	"bytes"
 	"context"
-	. "fisherman/internal/commands/version"
 	"fisherman/pkg/log"
 	"testing"
 
+	. "fisherman/internal/commands/version"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCommand_Run(t *testing.T) {
@@ -18,7 +20,7 @@ func TestCommand_Run(t *testing.T) {
 
 	err := command.Run(context.TODO(), []string{})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "fisherman@x.x.x\n", output.String())
 }
 

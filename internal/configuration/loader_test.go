@@ -1,7 +1,6 @@
 package configuration_test
 
 import (
-	. "fisherman/internal/configuration"
 	"fisherman/internal/constants"
 	"fisherman/internal/rules"
 	"fisherman/pkg/log"
@@ -13,8 +12,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	. "fisherman/internal/configuration"
+
 	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetConfigFolder(t *testing.T) {
@@ -163,7 +165,7 @@ hooks:
 				expected: &FishermanConfig{
 					DefaultShell: shell.Default().GetName(),
 					Output:       log.DefaultOutputConfig,
-					GlobalVariables: map[string]interface{}{
+					GlobalVariables: map[string]any{
 						"name": "value",
 					},
 					Hooks: HooksConfig{
@@ -230,7 +232,7 @@ variables:
 
 		actual, err := Load(fs, files)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, &FishermanConfig{
 			Output:       log.DefaultOutputConfig,
 			DefaultShell: shell.Default().GetName(),

@@ -1,8 +1,9 @@
 package utils_test
 
 import (
-	. "fisherman/internal/utils"
 	"testing"
+
+	. "fisherman/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -5,10 +5,10 @@ import (
 )
 
 type FishermanConfig struct {
-	GlobalVariables map[string]interface{} `yaml:"variables,omitempty"`
-	Hooks           HooksConfig            `yaml:"hooks,omitempty"`
-	Output          log.OutputConfig       `yaml:"output,omitempty"`
-	DefaultShell    string                 `yaml:"default-shell,omitempty"`
+	GlobalVariables map[string]any   `yaml:"variables,omitempty"`
+	Hooks           HooksConfig      `yaml:"hooks,omitempty"`
+	Output          log.OutputConfig `yaml:"output,omitempty"`
+	DefaultShell    string           `yaml:"default-shell,omitempty"`
 }
 
 var DefaultConfig = `# Documentation {{URL}}

@@ -24,7 +24,7 @@ import (
 const fatalExitCode = 1
 
 func main() {
-	defer utils.PanicInterceptor(func(recovered interface{}) {
+	defer utils.PanicInterceptor(func(recovered any) {
 		log.Errorf("Fatal error: %s", recovered)
 		if err, ok := recovered.(error); ok {
 			log.DumpError(err)

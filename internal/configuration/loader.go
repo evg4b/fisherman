@@ -4,9 +4,10 @@ import (
 	"fisherman/internal/constants"
 	"fisherman/internal/utils"
 	"fisherman/pkg/log"
-	"fisherman/pkg/shell" // TODO: remove this dependency
 	"os/user"
 	"path/filepath"
+
+	"fisherman/pkg/shell" // TODO: remove this dependency
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"

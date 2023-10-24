@@ -109,7 +109,7 @@ func (mmDescription *mCliCommandMockDescription) Return(s1 string) *CliCommandMo
 	return mmDescription.mock
 }
 
-//Set uses given function f to mock the CliCommand.Description method
+// Set uses given function f to mock the CliCommand.Description method
 func (mmDescription *mCliCommandMockDescription) Set(f func() (s1 string)) *CliCommandMock {
 	if mmDescription.defaultExpectation != nil {
 		mmDescription.mock.t.Fatalf("Default expectation is already set for the CliCommand.Description method")
@@ -252,7 +252,7 @@ func (mmName *mCliCommandMockName) Return(s1 string) *CliCommandMock {
 	return mmName.mock
 }
 
-//Set uses given function f to mock the CliCommand.Name method
+// Set uses given function f to mock the CliCommand.Name method
 func (mmName *mCliCommandMockName) Set(f func() (s1 string)) *CliCommandMock {
 	if mmName.defaultExpectation != nil {
 		mmName.mock.t.Fatalf("Default expectation is already set for the CliCommand.Name method")
@@ -411,7 +411,7 @@ func (mmRun *mCliCommandMockRun) Return(err error) *CliCommandMock {
 	return mmRun.mock
 }
 
-//Set uses given function f to mock the CliCommand.Run method
+// Set uses given function f to mock the CliCommand.Run method
 func (mmRun *mCliCommandMockRun) Set(f func(ctx context.Context, args []string) (err error)) *CliCommandMock {
 	if mmRun.defaultExpectation != nil {
 		mmRun.mock.t.Fatalf("Default expectation is already set for the CliCommand.Run method")

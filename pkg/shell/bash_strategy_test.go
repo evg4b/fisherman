@@ -4,10 +4,11 @@ package shell_test
 
 import (
 	"context"
-	. "fisherman/pkg/shell"
 	"fisherman/testing/testutils"
 	"runtime"
 	"testing"
+
+	. "fisherman/pkg/shell"
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/encoding"

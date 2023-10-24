@@ -8,7 +8,7 @@
 </p>
 <p align="center">
     <a href="https://github.com/evg4b/fisherman/actions?query=workflow%3AGo+branch%3Adevelop">
-        <img alt="GitHub Workflow Status (develop)" src="https://img.shields.io/github/workflow/status/evg4b/fisherman/Go/develop">
+        <img alt="GitHub Workflow Status (develop)" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/go.yml">
     </a>
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
         <img alt="GitHub license" src="https://img.shields.io/github/license/evg4b/fisherman?label=license">

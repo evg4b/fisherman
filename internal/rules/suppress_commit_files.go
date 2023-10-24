@@ -64,7 +64,7 @@ func (rule *SuppressCommitFiles) GetPosition() byte {
 	return PostScripts
 }
 
-func (rule *SuppressCommitFiles) Compile(variables map[string]interface{}) {
+func (rule *SuppressCommitFiles) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplatesArray(rule.Globs, variables)
 }

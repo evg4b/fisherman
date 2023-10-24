@@ -5,6 +5,8 @@ import (
 	"fisherman/testing/testutils"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/stretchr/testify/assert"
@@ -48,7 +50,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 
 		tag, err := repo.GetLastTag()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "refs/tags/tag2", tag)
 	})
 
@@ -94,7 +96,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 
 		tag, err := repo.GetLastTag()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "refs/tags/tag1", tag)
 	})
 
@@ -103,7 +105,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 
 		tag, err := repo.GetLastTag()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "", tag)
 	})
 
@@ -117,7 +119,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 
 		tag, err := repo.GetLastTag()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, tag)
 	})
 
@@ -126,7 +128,7 @@ func TestGitRepository_GetLastTag(t *testing.T) {
 
 		tag, err := repo.GetLastTag()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, tag)
 	})
 }

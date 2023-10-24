@@ -2,7 +2,6 @@ package initialize_test
 
 import (
 	"context"
-	. "fisherman/internal/commands/initialize"
 	"fisherman/internal/constants"
 	"fisherman/pkg/log"
 	"fisherman/testing/mocks"
@@ -11,7 +10,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	. "fisherman/internal/commands/initialize"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // nolint: gochecknoinits
@@ -46,7 +48,7 @@ func TestCommand_Run(t *testing.T) {
 		)
 
 		err := command.Run(context.TODO(), []string{"--force"})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
 
@@ -58,7 +60,7 @@ func TestCommand_Name(t *testing.T) {
 		WithUser(&testutils.TestUser),
 	)
 
-	assert.Equal(t, command.Name(), "init")
+	assert.Equal(t, "init", command.Name())
 }
 
 func TestCommand_Description(t *testing.T) {

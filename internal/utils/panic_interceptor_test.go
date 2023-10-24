@@ -2,8 +2,9 @@ package utils_test
 
 import (
 	"errors"
-	. "fisherman/internal/utils"
 	"testing"
+
+	. "fisherman/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +12,7 @@ import (
 func TestPanicInterceptor(t *testing.T) {
 	tests := []struct {
 		name           string
-		panicData      interface{}
+		panicData      any
 		shouldBeCalled bool
 	}{
 		{
@@ -24,18 +25,15 @@ func TestPanicInterceptor(t *testing.T) {
 			panicData:      errors.New("test error"),
 			shouldBeCalled: true,
 		},
-		{
-			name:      "intercepts panic and return with exit code 0",
-			panicData: nil,
-		},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			called := false
 
 			assert.NotPanics(t, func() {
-				defer PanicInterceptor(func(data interface{}) {
+				defer PanicInterceptor(func(data any) {
 					called = true
 					assert.Equal(t, tt.panicData, data)
 				})

@@ -2,12 +2,13 @@ package rules_test
 
 import (
 	"context"
-	. "fisherman/internal/rules"
 	"fisherman/testing/testutils"
 	"io"
 	"os"
 	"os/exec"
 	"testing"
+
+	. "fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -209,7 +210,7 @@ func TestExec_Compile(t *testing.T) {
 		},
 	}
 
-	rule.Compile(map[string]interface{}{
+	rule.Compile(map[string]any{
 		"VAR1":    "TEST",
 		"VAR2":    "DEMO",
 		"Version": "3-5-17",

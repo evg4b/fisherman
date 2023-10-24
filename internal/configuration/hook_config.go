@@ -17,8 +17,8 @@ type Rule interface {
 	GetPrefix() string
 	GetContition() string
 	GetPosition() byte
-	Check(context.Context, io.Writer) error
-	Compile(map[string]interface{})
+	Check(ctx context.Context, writer io.Writer) error
+	Compile(variables map[string]any)
 	Configure(options ...rules.RuleOption)
 }
 
@@ -55,8 +55,8 @@ func (c *HookConfig) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (c *HookConfig) Compile(global map[string]interface{}) (map[string]interface{}, error) {
-	variables := map[string]interface{}{}
+func (c *HookConfig) Compile(global map[string]any) (map[string]any, error) {
+	variables := map[string]any{}
 	err := mergo.MergeWithOverwrite(&variables, global)
 	if err != nil {
 		return variables, err
@@ -98,7 +98,7 @@ func (c *HookConfig) Compile(global map[string]interface{}) (map[string]interfac
 	return variables, nil
 }
 
-func extract(source, expression string) (map[string]interface{}, error) {
+func extract(source, expression string) (map[string]any, error) {
 	variables := make(map[string]interface{})
 	if !utils.IsEmpty(expression) && !utils.IsEmpty(source) {
 		reg, err := regexp.Compile(expression)

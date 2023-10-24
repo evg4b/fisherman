@@ -452,7 +452,7 @@ func (mmBlobObject *mGoGitRepositoryMockBlobObject) Return(bp1 *object.Blob, err
 	return mmBlobObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.BlobObject method
+// Set uses given function f to mock the GoGitRepository.BlobObject method
 func (mmBlobObject *mGoGitRepositoryMockBlobObject) Set(f func(h plumbing.Hash) (bp1 *object.Blob, err error)) *GoGitRepositoryMock {
 	if mmBlobObject.defaultExpectation != nil {
 		mmBlobObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.BlobObject method")
@@ -653,7 +653,7 @@ func (mmBlobObjects *mGoGitRepositoryMockBlobObjects) Return(bp1 *object.BlobIte
 	return mmBlobObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.BlobObjects method
+// Set uses given function f to mock the GoGitRepository.BlobObjects method
 func (mmBlobObjects *mGoGitRepositoryMockBlobObjects) Set(f func() (bp1 *object.BlobIter, err error)) *GoGitRepositoryMock {
 	if mmBlobObjects.defaultExpectation != nil {
 		mmBlobObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.BlobObjects method")
@@ -812,7 +812,7 @@ func (mmBranch *mGoGitRepositoryMockBranch) Return(bp1 *config.Branch, err error
 	return mmBranch.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Branch method
+// Set uses given function f to mock the GoGitRepository.Branch method
 func (mmBranch *mGoGitRepositoryMockBranch) Set(f func(name string) (bp1 *config.Branch, err error)) *GoGitRepositoryMock {
 	if mmBranch.defaultExpectation != nil {
 		mmBranch.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Branch method")
@@ -1013,7 +1013,7 @@ func (mmBranches *mGoGitRepositoryMockBranches) Return(r1 storer.ReferenceIter, 
 	return mmBranches.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Branches method
+// Set uses given function f to mock the GoGitRepository.Branches method
 func (mmBranches *mGoGitRepositoryMockBranches) Set(f func() (r1 storer.ReferenceIter, err error)) *GoGitRepositoryMock {
 	if mmBranches.defaultExpectation != nil {
 		mmBranches.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Branches method")
@@ -1172,7 +1172,7 @@ func (mmCommitObject *mGoGitRepositoryMockCommitObject) Return(cp1 *object.Commi
 	return mmCommitObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CommitObject method
+// Set uses given function f to mock the GoGitRepository.CommitObject method
 func (mmCommitObject *mGoGitRepositoryMockCommitObject) Set(f func(h plumbing.Hash) (cp1 *object.Commit, err error)) *GoGitRepositoryMock {
 	if mmCommitObject.defaultExpectation != nil {
 		mmCommitObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CommitObject method")
@@ -1373,7 +1373,7 @@ func (mmCommitObjects *mGoGitRepositoryMockCommitObjects) Return(c1 object.Commi
 	return mmCommitObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CommitObjects method
+// Set uses given function f to mock the GoGitRepository.CommitObjects method
 func (mmCommitObjects *mGoGitRepositoryMockCommitObjects) Set(f func() (c1 object.CommitIter, err error)) *GoGitRepositoryMock {
 	if mmCommitObjects.defaultExpectation != nil {
 		mmCommitObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CommitObjects method")
@@ -1517,7 +1517,7 @@ func (mmConfig *mGoGitRepositoryMockConfig) Return(cp1 *config.Config, err error
 	return mmConfig.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Config method
+// Set uses given function f to mock the GoGitRepository.Config method
 func (mmConfig *mGoGitRepositoryMockConfig) Set(f func() (cp1 *config.Config, err error)) *GoGitRepositoryMock {
 	if mmConfig.defaultExpectation != nil {
 		mmConfig.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Config method")
@@ -1676,7 +1676,7 @@ func (mmConfigScoped *mGoGitRepositoryMockConfigScoped) Return(cp1 *config.Confi
 	return mmConfigScoped.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.ConfigScoped method
+// Set uses given function f to mock the GoGitRepository.ConfigScoped method
 func (mmConfigScoped *mGoGitRepositoryMockConfigScoped) Set(f func(scope config.Scope) (cp1 *config.Config, err error)) *GoGitRepositoryMock {
 	if mmConfigScoped.defaultExpectation != nil {
 		mmConfigScoped.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.ConfigScoped method")
@@ -1891,7 +1891,7 @@ func (mmCreateBranch *mGoGitRepositoryMockCreateBranch) Return(err error) *GoGit
 	return mmCreateBranch.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CreateBranch method
+// Set uses given function f to mock the GoGitRepository.CreateBranch method
 func (mmCreateBranch *mGoGitRepositoryMockCreateBranch) Set(f func(c *config.Branch) (err error)) *GoGitRepositoryMock {
 	if mmCreateBranch.defaultExpectation != nil {
 		mmCreateBranch.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CreateBranch method")
@@ -2107,7 +2107,7 @@ func (mmCreateRemote *mGoGitRepositoryMockCreateRemote) Return(rp1 *git.Remote, 
 	return mmCreateRemote.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CreateRemote method
+// Set uses given function f to mock the GoGitRepository.CreateRemote method
 func (mmCreateRemote *mGoGitRepositoryMockCreateRemote) Set(f func(c *config.RemoteConfig) (rp1 *git.Remote, err error)) *GoGitRepositoryMock {
 	if mmCreateRemote.defaultExpectation != nil {
 		mmCreateRemote.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CreateRemote method")
@@ -2323,7 +2323,7 @@ func (mmCreateRemoteAnonymous *mGoGitRepositoryMockCreateRemoteAnonymous) Return
 	return mmCreateRemoteAnonymous.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CreateRemoteAnonymous method
+// Set uses given function f to mock the GoGitRepository.CreateRemoteAnonymous method
 func (mmCreateRemoteAnonymous *mGoGitRepositoryMockCreateRemoteAnonymous) Set(f func(c *config.RemoteConfig) (rp1 *git.Remote, err error)) *GoGitRepositoryMock {
 	if mmCreateRemoteAnonymous.defaultExpectation != nil {
 		mmCreateRemoteAnonymous.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CreateRemoteAnonymous method")
@@ -2541,7 +2541,7 @@ func (mmCreateTag *mGoGitRepositoryMockCreateTag) Return(rp1 *plumbing.Reference
 	return mmCreateTag.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.CreateTag method
+// Set uses given function f to mock the GoGitRepository.CreateTag method
 func (mmCreateTag *mGoGitRepositoryMockCreateTag) Set(f func(name string, hash plumbing.Hash, opts *git.CreateTagOptions) (rp1 *plumbing.Reference, err error)) *GoGitRepositoryMock {
 	if mmCreateTag.defaultExpectation != nil {
 		mmCreateTag.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.CreateTag method")
@@ -2756,7 +2756,7 @@ func (mmDeleteBranch *mGoGitRepositoryMockDeleteBranch) Return(err error) *GoGit
 	return mmDeleteBranch.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.DeleteBranch method
+// Set uses given function f to mock the GoGitRepository.DeleteBranch method
 func (mmDeleteBranch *mGoGitRepositoryMockDeleteBranch) Set(f func(name string) (err error)) *GoGitRepositoryMock {
 	if mmDeleteBranch.defaultExpectation != nil {
 		mmDeleteBranch.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.DeleteBranch method")
@@ -2971,7 +2971,7 @@ func (mmDeleteObject *mGoGitRepositoryMockDeleteObject) Return(err error) *GoGit
 	return mmDeleteObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.DeleteObject method
+// Set uses given function f to mock the GoGitRepository.DeleteObject method
 func (mmDeleteObject *mGoGitRepositoryMockDeleteObject) Set(f func(hash plumbing.Hash) (err error)) *GoGitRepositoryMock {
 	if mmDeleteObject.defaultExpectation != nil {
 		mmDeleteObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.DeleteObject method")
@@ -3186,7 +3186,7 @@ func (mmDeleteRemote *mGoGitRepositoryMockDeleteRemote) Return(err error) *GoGit
 	return mmDeleteRemote.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.DeleteRemote method
+// Set uses given function f to mock the GoGitRepository.DeleteRemote method
 func (mmDeleteRemote *mGoGitRepositoryMockDeleteRemote) Set(f func(name string) (err error)) *GoGitRepositoryMock {
 	if mmDeleteRemote.defaultExpectation != nil {
 		mmDeleteRemote.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.DeleteRemote method")
@@ -3401,7 +3401,7 @@ func (mmDeleteTag *mGoGitRepositoryMockDeleteTag) Return(err error) *GoGitReposi
 	return mmDeleteTag.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.DeleteTag method
+// Set uses given function f to mock the GoGitRepository.DeleteTag method
 func (mmDeleteTag *mGoGitRepositoryMockDeleteTag) Set(f func(name string) (err error)) *GoGitRepositoryMock {
 	if mmDeleteTag.defaultExpectation != nil {
 		mmDeleteTag.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.DeleteTag method")
@@ -3616,7 +3616,7 @@ func (mmFetch *mGoGitRepositoryMockFetch) Return(err error) *GoGitRepositoryMock
 	return mmFetch.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Fetch method
+// Set uses given function f to mock the GoGitRepository.Fetch method
 func (mmFetch *mGoGitRepositoryMockFetch) Set(f func(o *git.FetchOptions) (err error)) *GoGitRepositoryMock {
 	if mmFetch.defaultExpectation != nil {
 		mmFetch.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Fetch method")
@@ -3832,7 +3832,7 @@ func (mmFetchContext *mGoGitRepositoryMockFetchContext) Return(err error) *GoGit
 	return mmFetchContext.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.FetchContext method
+// Set uses given function f to mock the GoGitRepository.FetchContext method
 func (mmFetchContext *mGoGitRepositoryMockFetchContext) Set(f func(ctx context.Context, o *git.FetchOptions) (err error)) *GoGitRepositoryMock {
 	if mmFetchContext.defaultExpectation != nil {
 		mmFetchContext.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.FetchContext method")
@@ -4033,7 +4033,7 @@ func (mmHead *mGoGitRepositoryMockHead) Return(rp1 *plumbing.Reference, err erro
 	return mmHead.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Head method
+// Set uses given function f to mock the GoGitRepository.Head method
 func (mmHead *mGoGitRepositoryMockHead) Set(f func() (rp1 *plumbing.Reference, err error)) *GoGitRepositoryMock {
 	if mmHead.defaultExpectation != nil {
 		mmHead.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Head method")
@@ -4192,7 +4192,7 @@ func (mmLog *mGoGitRepositoryMockLog) Return(c1 object.CommitIter, err error) *G
 	return mmLog.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Log method
+// Set uses given function f to mock the GoGitRepository.Log method
 func (mmLog *mGoGitRepositoryMockLog) Set(f func(o *git.LogOptions) (c1 object.CommitIter, err error)) *GoGitRepositoryMock {
 	if mmLog.defaultExpectation != nil {
 		mmLog.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Log method")
@@ -4393,7 +4393,7 @@ func (mmNotes *mGoGitRepositoryMockNotes) Return(r1 storer.ReferenceIter, err er
 	return mmNotes.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Notes method
+// Set uses given function f to mock the GoGitRepository.Notes method
 func (mmNotes *mGoGitRepositoryMockNotes) Set(f func() (r1 storer.ReferenceIter, err error)) *GoGitRepositoryMock {
 	if mmNotes.defaultExpectation != nil {
 		mmNotes.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Notes method")
@@ -4553,7 +4553,7 @@ func (mmObject *mGoGitRepositoryMockObject) Return(o1 object.Object, err error) 
 	return mmObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Object method
+// Set uses given function f to mock the GoGitRepository.Object method
 func (mmObject *mGoGitRepositoryMockObject) Set(f func(t plumbing.ObjectType, h plumbing.Hash) (o1 object.Object, err error)) *GoGitRepositoryMock {
 	if mmObject.defaultExpectation != nil {
 		mmObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Object method")
@@ -4754,7 +4754,7 @@ func (mmObjects *mGoGitRepositoryMockObjects) Return(op1 *object.ObjectIter, err
 	return mmObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Objects method
+// Set uses given function f to mock the GoGitRepository.Objects method
 func (mmObjects *mGoGitRepositoryMockObjects) Set(f func() (op1 *object.ObjectIter, err error)) *GoGitRepositoryMock {
 	if mmObjects.defaultExpectation != nil {
 		mmObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Objects method")
@@ -4912,7 +4912,7 @@ func (mmPrune *mGoGitRepositoryMockPrune) Return(err error) *GoGitRepositoryMock
 	return mmPrune.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Prune method
+// Set uses given function f to mock the GoGitRepository.Prune method
 func (mmPrune *mGoGitRepositoryMockPrune) Set(f func(opt git.PruneOptions) (err error)) *GoGitRepositoryMock {
 	if mmPrune.defaultExpectation != nil {
 		mmPrune.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Prune method")
@@ -5127,7 +5127,7 @@ func (mmPush *mGoGitRepositoryMockPush) Return(err error) *GoGitRepositoryMock {
 	return mmPush.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Push method
+// Set uses given function f to mock the GoGitRepository.Push method
 func (mmPush *mGoGitRepositoryMockPush) Set(f func(o *git.PushOptions) (err error)) *GoGitRepositoryMock {
 	if mmPush.defaultExpectation != nil {
 		mmPush.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Push method")
@@ -5343,7 +5343,7 @@ func (mmPushContext *mGoGitRepositoryMockPushContext) Return(err error) *GoGitRe
 	return mmPushContext.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.PushContext method
+// Set uses given function f to mock the GoGitRepository.PushContext method
 func (mmPushContext *mGoGitRepositoryMockPushContext) Set(f func(ctx context.Context, o *git.PushOptions) (err error)) *GoGitRepositoryMock {
 	if mmPushContext.defaultExpectation != nil {
 		mmPushContext.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.PushContext method")
@@ -5560,7 +5560,7 @@ func (mmReference *mGoGitRepositoryMockReference) Return(rp1 *plumbing.Reference
 	return mmReference.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Reference method
+// Set uses given function f to mock the GoGitRepository.Reference method
 func (mmReference *mGoGitRepositoryMockReference) Set(f func(name plumbing.ReferenceName, resolved bool) (rp1 *plumbing.Reference, err error)) *GoGitRepositoryMock {
 	if mmReference.defaultExpectation != nil {
 		mmReference.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Reference method")
@@ -5761,7 +5761,7 @@ func (mmReferences *mGoGitRepositoryMockReferences) Return(r1 storer.ReferenceIt
 	return mmReferences.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.References method
+// Set uses given function f to mock the GoGitRepository.References method
 func (mmReferences *mGoGitRepositoryMockReferences) Set(f func() (r1 storer.ReferenceIter, err error)) *GoGitRepositoryMock {
 	if mmReferences.defaultExpectation != nil {
 		mmReferences.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.References method")
@@ -5920,7 +5920,7 @@ func (mmRemote *mGoGitRepositoryMockRemote) Return(rp1 *git.Remote, err error) *
 	return mmRemote.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Remote method
+// Set uses given function f to mock the GoGitRepository.Remote method
 func (mmRemote *mGoGitRepositoryMockRemote) Set(f func(name string) (rp1 *git.Remote, err error)) *GoGitRepositoryMock {
 	if mmRemote.defaultExpectation != nil {
 		mmRemote.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Remote method")
@@ -6121,7 +6121,7 @@ func (mmRemotes *mGoGitRepositoryMockRemotes) Return(rpa1 []*git.Remote, err err
 	return mmRemotes.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Remotes method
+// Set uses given function f to mock the GoGitRepository.Remotes method
 func (mmRemotes *mGoGitRepositoryMockRemotes) Set(f func() (rpa1 []*git.Remote, err error)) *GoGitRepositoryMock {
 	if mmRemotes.defaultExpectation != nil {
 		mmRemotes.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Remotes method")
@@ -6279,7 +6279,7 @@ func (mmRepackObjects *mGoGitRepositoryMockRepackObjects) Return(err error) *GoG
 	return mmRepackObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.RepackObjects method
+// Set uses given function f to mock the GoGitRepository.RepackObjects method
 func (mmRepackObjects *mGoGitRepositoryMockRepackObjects) Set(f func(cfg *git.RepackConfig) (err error)) *GoGitRepositoryMock {
 	if mmRepackObjects.defaultExpectation != nil {
 		mmRepackObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.RepackObjects method")
@@ -6495,7 +6495,7 @@ func (mmResolveRevision *mGoGitRepositoryMockResolveRevision) Return(hp1 *plumbi
 	return mmResolveRevision.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.ResolveRevision method
+// Set uses given function f to mock the GoGitRepository.ResolveRevision method
 func (mmResolveRevision *mGoGitRepositoryMockResolveRevision) Set(f func(rev plumbing.Revision) (hp1 *plumbing.Hash, err error)) *GoGitRepositoryMock {
 	if mmResolveRevision.defaultExpectation != nil {
 		mmResolveRevision.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.ResolveRevision method")
@@ -6710,7 +6710,7 @@ func (mmSetConfig *mGoGitRepositoryMockSetConfig) Return(err error) *GoGitReposi
 	return mmSetConfig.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.SetConfig method
+// Set uses given function f to mock the GoGitRepository.SetConfig method
 func (mmSetConfig *mGoGitRepositoryMockSetConfig) Set(f func(cfg *config.Config) (err error)) *GoGitRepositoryMock {
 	if mmSetConfig.defaultExpectation != nil {
 		mmSetConfig.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.SetConfig method")
@@ -6926,7 +6926,7 @@ func (mmTag *mGoGitRepositoryMockTag) Return(rp1 *plumbing.Reference, err error)
 	return mmTag.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Tag method
+// Set uses given function f to mock the GoGitRepository.Tag method
 func (mmTag *mGoGitRepositoryMockTag) Set(f func(name string) (rp1 *plumbing.Reference, err error)) *GoGitRepositoryMock {
 	if mmTag.defaultExpectation != nil {
 		mmTag.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Tag method")
@@ -7142,7 +7142,7 @@ func (mmTagObject *mGoGitRepositoryMockTagObject) Return(tp1 *object.Tag, err er
 	return mmTagObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.TagObject method
+// Set uses given function f to mock the GoGitRepository.TagObject method
 func (mmTagObject *mGoGitRepositoryMockTagObject) Set(f func(h plumbing.Hash) (tp1 *object.Tag, err error)) *GoGitRepositoryMock {
 	if mmTagObject.defaultExpectation != nil {
 		mmTagObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.TagObject method")
@@ -7343,7 +7343,7 @@ func (mmTagObjects *mGoGitRepositoryMockTagObjects) Return(tp1 *object.TagIter, 
 	return mmTagObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.TagObjects method
+// Set uses given function f to mock the GoGitRepository.TagObjects method
 func (mmTagObjects *mGoGitRepositoryMockTagObjects) Set(f func() (tp1 *object.TagIter, err error)) *GoGitRepositoryMock {
 	if mmTagObjects.defaultExpectation != nil {
 		mmTagObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.TagObjects method")
@@ -7487,7 +7487,7 @@ func (mmTags *mGoGitRepositoryMockTags) Return(r1 storer.ReferenceIter, err erro
 	return mmTags.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Tags method
+// Set uses given function f to mock the GoGitRepository.Tags method
 func (mmTags *mGoGitRepositoryMockTags) Set(f func() (r1 storer.ReferenceIter, err error)) *GoGitRepositoryMock {
 	if mmTags.defaultExpectation != nil {
 		mmTags.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Tags method")
@@ -7646,7 +7646,7 @@ func (mmTreeObject *mGoGitRepositoryMockTreeObject) Return(tp1 *object.Tree, err
 	return mmTreeObject.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.TreeObject method
+// Set uses given function f to mock the GoGitRepository.TreeObject method
 func (mmTreeObject *mGoGitRepositoryMockTreeObject) Set(f func(h plumbing.Hash) (tp1 *object.Tree, err error)) *GoGitRepositoryMock {
 	if mmTreeObject.defaultExpectation != nil {
 		mmTreeObject.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.TreeObject method")
@@ -7847,7 +7847,7 @@ func (mmTreeObjects *mGoGitRepositoryMockTreeObjects) Return(tp1 *object.TreeIte
 	return mmTreeObjects.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.TreeObjects method
+// Set uses given function f to mock the GoGitRepository.TreeObjects method
 func (mmTreeObjects *mGoGitRepositoryMockTreeObjects) Set(f func() (tp1 *object.TreeIter, err error)) *GoGitRepositoryMock {
 	if mmTreeObjects.defaultExpectation != nil {
 		mmTreeObjects.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.TreeObjects method")
@@ -7991,7 +7991,7 @@ func (mmWorktree *mGoGitRepositoryMockWorktree) Return(wp1 *git.Worktree, err er
 	return mmWorktree.mock
 }
 
-//Set uses given function f to mock the GoGitRepository.Worktree method
+// Set uses given function f to mock the GoGitRepository.Worktree method
 func (mmWorktree *mGoGitRepositoryMockWorktree) Set(f func() (wp1 *git.Worktree, err error)) *GoGitRepositoryMock {
 	if mmWorktree.defaultExpectation != nil {
 		mmWorktree.mock.t.Fatalf("Default expectation is already set for the GoGitRepository.Worktree method")

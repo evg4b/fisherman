@@ -7,7 +7,7 @@ import (
 )
 
 type Engine interface {
-	Eval(expression string, vars map[string]interface{}) (bool, error)
+	Eval(expression string, vars map[string]any) (bool, error)
 }
 
 type GoExpressionEngine struct {
@@ -18,7 +18,7 @@ func NewGoExpressionEngine() *GoExpressionEngine {
 	return &GoExpressionEngine{}
 }
 
-func (e *GoExpressionEngine) Eval(expString string, vars map[string]interface{}) (bool, error) {
+func (e *GoExpressionEngine) Eval(expString string, vars map[string]any) (bool, error) {
 	env := EnvVars{}
 	var castedVars EnvVars = vars
 

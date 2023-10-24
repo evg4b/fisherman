@@ -2,16 +2,19 @@ package log_test
 
 import (
 	"bytes"
-	. "fisherman/pkg/log"
 	"fmt"
 	"testing"
+
+	. "fisherman/pkg/log"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	formattingParams = []interface{}{1, "s", 44.3}
-	emptyParamas     = []interface{}{}
+	formattingParams = []any{1, "s", 44.3}
+	emptyParamas     = []any{}
 )
 
 func TestError(t *testing.T) {
@@ -68,7 +71,7 @@ func TestErrorf(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		params  []interface{}
+		params  []any
 		level   Level
 	}{
 		{
@@ -206,7 +209,7 @@ func TestDebugf(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		params  []interface{}
+		params  []any
 		level   Level
 	}{
 		{
@@ -338,7 +341,7 @@ func TestInfof(t *testing.T) {
 	testData := []struct {
 		message string
 		output  string
-		params  []interface{}
+		params  []any
 		level   Level
 	}{
 		{
@@ -483,8 +486,8 @@ func TestStdout(t *testing.T) {
 			bytesCount, err := Stdout().Write([]byte(tt.message))
 
 			assert.Equal(t, tt.output, output.String())
-			assert.NoError(t, err)
-			assert.Equal(t, len([]byte(tt.message)), bytesCount)
+			require.NoError(t, err)
+			assert.Len(t, []byte(tt.message), bytesCount)
 		})
 	}
 }

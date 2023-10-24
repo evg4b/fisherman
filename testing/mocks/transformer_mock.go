@@ -94,7 +94,7 @@ func (mmReset *mTransformerMockReset) Return() *TransformerMock {
 	return mmReset.mock
 }
 
-//Set uses given function f to mock the Transformer.Reset method
+// Set uses given function f to mock the Transformer.Reset method
 func (mmReset *mTransformerMockReset) Set(f func()) *TransformerMock {
 	if mmReset.defaultExpectation != nil {
 		mmReset.mock.t.Fatalf("Default expectation is already set for the Transformer.Reset method")
@@ -128,7 +128,6 @@ func (mmReset *TransformerMock) Reset() {
 		return
 	}
 	mmReset.t.Fatalf("Unexpected call to TransformerMock.Reset.")
-
 }
 
 // ResetAfterCounter returns a count of finished TransformerMock.Reset invocations
@@ -254,7 +253,7 @@ func (mmTransform *mTransformerMockTransform) Return(nDst int, nSrc int, err err
 	return mmTransform.mock
 }
 
-//Set uses given function f to mock the Transformer.Transform method
+// Set uses given function f to mock the Transformer.Transform method
 func (mmTransform *mTransformerMockTransform) Set(f func(dst []byte, src []byte, atEOF bool) (nDst int, nSrc int, err error)) *TransformerMock {
 	if mmTransform.defaultExpectation != nil {
 		mmTransform.mock.t.Fatalf("Default expectation is already set for the Transformer.Transform method")

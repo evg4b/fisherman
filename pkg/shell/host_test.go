@@ -6,14 +6,16 @@ import (
 	"context"
 	"errors"
 	"fisherman/pkg/guards"
-	. "fisherman/pkg/shell"
 	"fisherman/testing/mocks"
 	"fmt"
 	"os/exec"
 	"strings"
 	"testing"
 
+	. "fisherman/pkg/shell"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/transform"
 )
@@ -27,7 +29,7 @@ func TestHost_Start(t *testing.T) {
 
 		err = host.Start()
 
-		assert.EqualError(t, err, "host already started")
+		require.EqualError(t, err, "host already started")
 	})
 
 	t.Run("start returns error after print script", func(t *testing.T) {
@@ -37,7 +39,7 @@ func TestHost_Start(t *testing.T) {
 		fmt.Fprintln(host, "echo 1")
 		err := host.Start()
 
-		assert.EqualError(t, err, "host already started")
+		require.EqualError(t, err, "host already started")
 	})
 
 	t.Run("stdin pipe error", func(t *testing.T) {
@@ -51,7 +53,7 @@ func TestHost_Start(t *testing.T) {
 
 		err := host.Start()
 
-		assert.EqualError(t, err, "exec: Stdin already set")
+		require.EqualError(t, err, "exec: Stdin already set")
 	})
 }
 
@@ -62,7 +64,7 @@ func TestHost_Run(t *testing.T) {
 
 		err := host.Run("")
 
-		assert.EqualError(t, err, "script can not be empty")
+		require.EqualError(t, err, "script can not be empty")
 	})
 
 	t.Run("return error for started host", func(t *testing.T) {
@@ -73,7 +75,7 @@ func TestHost_Run(t *testing.T) {
 
 		err = host.Run("echo 'test'")
 
-		assert.EqualError(t, err, "host already started")
+		require.EqualError(t, err, "host already started")
 	})
 }
 
@@ -84,7 +86,7 @@ func TestHost_Write(t *testing.T) {
 
 		_, err := fmt.Fprintln(host, "echo 'test'")
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("stdin pipe error", func(t *testing.T) {
@@ -98,7 +100,7 @@ func TestHost_Write(t *testing.T) {
 
 		_, err := fmt.Fprintln(host, "echo 'test'")
 
-		assert.EqualError(t, err, "exec: Stdin already set")
+		require.EqualError(t, err, "exec: Stdin already set")
 	})
 
 	t.Run("write in call endoder", func(t *testing.T) {
@@ -121,7 +123,7 @@ func TestHost_Write(t *testing.T) {
 
 		_ = host.Wait()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, encoderTransformer.TransformMock.Calls())
 		assert.Empty(t, decoderTransformer.TransformMock.Calls())
 	})
@@ -147,7 +149,7 @@ func TestHost_Write(t *testing.T) {
 
 		_ = host.Wait()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, encoderTransformer.TransformMock.Calls())
 		assert.NotEmpty(t, decoderTransformer.TransformMock.Calls())
 	})
@@ -159,7 +161,7 @@ func TestHost_Close(t *testing.T) {
 
 		err := host.Close()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("correctly closed stdin", func(t *testing.T) {
@@ -170,7 +172,7 @@ func TestHost_Close(t *testing.T) {
 
 		err = host.Close()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("called multiple times", func(t *testing.T) {
@@ -181,10 +183,10 @@ func TestHost_Close(t *testing.T) {
 
 		assert.NotPanics(t, func() {
 			err = host.Close()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			err = host.Close()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	})
 
@@ -206,7 +208,7 @@ func TestHost_Close(t *testing.T) {
 
 		actual := host.Close()
 
-		assert.EqualError(t, actual, "encoding error")
+		require.EqualError(t, actual, "encoding error")
 		assert.NotEmpty(t, transformer.TransformMock.Calls())
 	})
 }
@@ -217,7 +219,7 @@ func TestHost_Terminate(t *testing.T) {
 
 		err := host.Terminate()
 
-		assert.EqualError(t, err, "host is not started")
+		require.EqualError(t, err, "host is not started")
 	})
 
 	t.Run("terminate host correctly", func(t *testing.T) {
@@ -226,7 +228,7 @@ func TestHost_Terminate(t *testing.T) {
 
 		err := host.Terminate()
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
 
@@ -248,7 +250,7 @@ func TestHost_Wait(t *testing.T) {
 
 		actual := host.Wait()
 
-		assert.EqualError(t, actual, "encoding error")
+		require.EqualError(t, actual, "encoding error")
 		assert.NotEmpty(t, transformer.TransformMock.Calls())
 	})
 }

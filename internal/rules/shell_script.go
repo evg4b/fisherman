@@ -75,7 +75,7 @@ func (rule *ShellScript) Check(ctx context.Context, output io.Writer) error {
 	return nil
 }
 
-func (rule *ShellScript) Compile(variables map[string]interface{}) {
+func (rule *ShellScript) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplate(&rule.Dir, variables)
 	utils.FillTemplate(&rule.Name, variables)

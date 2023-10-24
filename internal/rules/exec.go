@@ -56,7 +56,7 @@ func (c *CommandDef) UnmarshalYAML(value *yaml.Node) error {
 	return value.Decode((*plain)(c))
 }
 
-func (c *CommandDef) Compile(variables map[string]interface{}) {
+func (c *CommandDef) Compile(variables map[string]any) {
 	utils.FillTemplate(&c.Program, variables)
 	utils.FillTemplatesArray(c.Args, variables)
 	utils.FillTemplatesMap(c.Env, variables)
@@ -99,7 +99,7 @@ func (r *Exec) Check(ctx context.Context, output io.Writer) error {
 	return resultError.ErrorOrNil()
 }
 
-func (r *Exec) Compile(variables map[string]interface{}) {
+func (r *Exec) Compile(variables map[string]any) {
 	r.BaseRule.Compile(variables)
 	utils.FillTemplate(&r.Dir, variables)
 	utils.FillTemplate(&r.Name, variables)

@@ -15,9 +15,9 @@ import (
 // ShellStrategy is interface to describe base concrete shell command.
 type ShellStrategy interface { // nolint: revive
 	GetName() string
-	GetCommand(context.Context) *exec.Cmd
-	ArgsWrapper([]string) []string
-	EnvWrapper([]string) []string
+	GetCommand(ctx context.Context) *exec.Cmd
+	ArgsWrapper(args []string) []string
+	EnvWrapper(env []string) []string
 	GetEncoding() encoding.Encoding
 }
 

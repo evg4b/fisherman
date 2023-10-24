@@ -49,7 +49,7 @@ func (rule *AddToIndex) Check(_ context.Context, _ io.Writer) error {
 	return nil
 }
 
-func (rule *AddToIndex) Compile(variables map[string]interface{}) {
+func (rule *AddToIndex) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	for index := range rule.Globs {
 		utils.FillTemplate(&rule.Globs[index].Pattern, variables)

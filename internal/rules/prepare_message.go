@@ -29,7 +29,7 @@ func (rule PrepareMessage) Check(_ context.Context, _ io.Writer) error {
 	return util.WriteFile(rule.BaseRule.fs, arg, []byte(rule.Message), fs.ModePerm)
 }
 
-func (rule *PrepareMessage) Compile(variables map[string]interface{}) {
+func (rule *PrepareMessage) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplate(&rule.Message, variables)
 }

@@ -1,10 +1,12 @@
 package log_test
 
 import (
-	. "fisherman/pkg/log"
 	"testing"
 
+	. "fisherman/pkg/log"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
 
@@ -47,7 +49,7 @@ func TestOutputConfig_UnmarshalYAML(t *testing.T) {
 				var config OutputConfig
 				err := yaml.Unmarshal([]byte(tt.config), &config)
 
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.colors, config.Colors)
 				assert.Equal(t, tt.level, config.LogLevel)
 			})
@@ -81,7 +83,7 @@ func TestOutputConfig_UnmarshalYAML(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				var config OutputConfig
 				err := yaml.Unmarshal([]byte(tt.config), &config)
-				assert.EqualError(t, err, tt.expectedErr)
+				require.EqualError(t, err, tt.expectedErr)
 			})
 		}
 	})

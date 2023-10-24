@@ -56,7 +56,7 @@ func (rule CommitMessage) Check(_ context.Context, _ io.Writer) error {
 	return nil
 }
 
-func (rule *CommitMessage) Compile(variables map[string]interface{}) {
+func (rule *CommitMessage) Compile(variables map[string]any) {
 	rule.BaseRule.Compile(variables)
 	utils.FillTemplate(&rule.Prefix, variables)
 	utils.FillTemplate(&rule.Suffix, variables)

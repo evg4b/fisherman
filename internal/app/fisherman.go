@@ -9,17 +9,17 @@ import (
 
 // FishermanApp is main application structure.
 type FishermanApp struct {
-	cwd         string
-	commands    CliCommands
-	interaption chan os.Signal
+	cwd          string
+	commands     CliCommands
+	interruption chan os.Signal
 }
 
 // NewFishermanApp is an fisherman application constructor.
 func NewFishermanApp(options ...appOption) *FishermanApp {
 	app := FishermanApp{
-		commands:    CliCommands{},
-		cwd:         "",
-		interaption: make(chan os.Signal),
+		commands:     CliCommands{},
+		cwd:          "",
+		interruption: make(chan os.Signal),
 	}
 
 	for _, option := range options {
@@ -34,7 +34,7 @@ func NewFishermanApp(options ...appOption) *FishermanApp {
 // Run runs fisherman application.
 func (r *FishermanApp) Run(baseCtx context.Context, args []string) error {
 	ctx, cancel := context.WithCancel(baseCtx)
-	subscribeInteruption(r.interaption, func() {
+	subscribeInteruption(r.interruption, func() {
 		log.Debug("application received interapt event")
 		cancel()
 	})
