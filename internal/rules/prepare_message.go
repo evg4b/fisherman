@@ -2,7 +2,7 @@ package rules
 
 import (
 	"context"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/utils"
 	"io"
 	"io/fs"
 

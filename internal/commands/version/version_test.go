@@ -3,10 +3,10 @@ package version_test
 import (
 	"bytes"
 	"context"
-	"fisherman/pkg/log"
+	"github.com/evg4b/fisherman/pkg/log"
 	"testing"
 
-	. "fisherman/internal/commands/version"
+	. "github.com/evg4b/fisherman/internal/commands/version"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

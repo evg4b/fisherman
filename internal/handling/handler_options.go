@@ -1,9 +1,9 @@
 package handling
 
 import (
-	"fisherman/internal"
-	"fisherman/internal/configuration"
-	"fisherman/internal/expression"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/expression"
 	"io"
 
 	"github.com/go-git/go-billy/v5"

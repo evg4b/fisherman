@@ -2,12 +2,12 @@ package rules_test
 
 import (
 	"context"
-	"fisherman/internal/configuration"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"io"
 	"testing"
 
-	. "fisherman/internal/rules"
+	. "github.com/evg4b/fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

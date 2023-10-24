@@ -2,13 +2,13 @@ package initialize
 
 import (
 	"context"
-	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
-	"fisherman/internal/utils"
-	"fisherman/pkg/guards"
-	"fisherman/pkg/log"
 	"flag"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/log"
 	"os"
 	"os/user"
 	"path/filepath"

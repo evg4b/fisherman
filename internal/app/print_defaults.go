@@ -1,10 +1,10 @@
 package app
 
 import (
-	"fisherman/internal/constants"
-	"fisherman/internal/utils"
-	"fisherman/pkg/log"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/log"
 	"strings"
 )
 

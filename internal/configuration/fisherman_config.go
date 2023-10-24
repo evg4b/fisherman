@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"fisherman/pkg/log"
+	"github.com/evg4b/fisherman/pkg/log"
 )
 
 type FishermanConfig struct {

@@ -3,17 +3,17 @@ package handle_test
 import (
 	"context"
 	"errors"
-	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
-	"fisherman/internal/rules"
-	"fisherman/pkg/log"
-	"fisherman/pkg/vcs"
-	"fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/pkg/log"
+	"github.com/evg4b/fisherman/pkg/vcs"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"io"
 	"runtime"
 	"testing"
 
-	. "fisherman/internal/commands/handle"
+	. "github.com/evg4b/fisherman/internal/commands/handle"
 
 	"github.com/stretchr/testify/require"
 )

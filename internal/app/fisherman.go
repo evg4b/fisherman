@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fisherman/pkg/guards"
-	"fisherman/pkg/log"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/log"
 	"os"
 )
 

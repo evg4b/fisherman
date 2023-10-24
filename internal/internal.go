@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"fisherman/pkg/vcs"
+	"github.com/evg4b/fisherman/pkg/vcs"
 )
 
 // Repository is interface to comunicate with git.

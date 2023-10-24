@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	. "fisherman/internal/utils"
+	. "github.com/evg4b/fisherman/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )

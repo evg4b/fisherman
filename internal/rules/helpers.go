@@ -1,8 +1,8 @@
 package rules
 
 import (
-	"fisherman/internal/utils"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/utils"
 	"strings"
 
 	"golang.org/x/text/encoding"

@@ -1,8 +1,8 @@
 package utils_test
 
 import (
-	"fisherman/internal/utils"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

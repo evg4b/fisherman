@@ -9,7 +9,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"fisherman/pkg/vcs"
+	"github.com/evg4b/fisherman/pkg/vcs"
 
 	"github.com/gojuno/minimock/v3"
 )

@@ -2,18 +2,18 @@ package app_test
 
 import (
 	"context"
-	"fisherman/internal"
-	"fisherman/internal/constants"
-	"fisherman/pkg/log"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
 	"fmt"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/pkg/log"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"io"
 	"os"
 	"strings"
 	"testing"
 
-	. "fisherman/internal/app"
+	. "github.com/evg4b/fisherman/internal/app"
 
 	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"

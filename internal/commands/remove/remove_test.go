@@ -3,15 +3,15 @@ package remove_test
 import (
 	"context"
 	"errors"
-	"fisherman/internal/configuration"
-	"fisherman/pkg/log"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/pkg/log"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"io"
 	"path/filepath"
 	"testing"
 
-	. "fisherman/internal/commands/remove"
+	. "github.com/evg4b/fisherman/internal/commands/remove"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"

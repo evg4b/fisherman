@@ -1,11 +1,11 @@
 package handle
 
 import (
-	"fisherman/internal"
-	"fisherman/internal/configuration"
-	"fisherman/internal/expression"
-	"fisherman/pkg/guards"
 	"flag"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/expression"
+	"github.com/evg4b/fisherman/pkg/guards"
 	"io"
 
 	"github.com/go-git/go-billy/v5"

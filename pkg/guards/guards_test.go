@@ -3,7 +3,7 @@ package guards_test
 import (
 	"testing"
 
-	. "fisherman/pkg/guards"
+	. "github.com/evg4b/fisherman/pkg/guards"
 
 	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"

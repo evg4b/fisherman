@@ -2,14 +2,14 @@ package vcs_test
 
 import (
 	"errors"
-	"fisherman/pkg/guards"
-	"fisherman/testing/testutils"
 	"fmt"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	. "fisherman/pkg/vcs"
+	. "github.com/evg4b/fisherman/pkg/vcs"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"

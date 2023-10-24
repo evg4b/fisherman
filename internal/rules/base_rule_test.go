@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "fisherman/internal/rules"
+	. "github.com/evg4b/fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 )

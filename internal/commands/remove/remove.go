@@ -1,15 +1,15 @@
 package remove
 
 import (
-	"context"
-	"fisherman/internal/constants"
-	"fisherman/internal/utils"
-	"fisherman/pkg/guards"
-	"fisherman/pkg/log"
-	"flag"
-	"path/filepath"
+  "context"
+  "flag"
+  "github.com/evg4b/fisherman/internal/constants"
+  "github.com/evg4b/fisherman/internal/utils"
+  "github.com/evg4b/fisherman/pkg/guards"
+  "github.com/evg4b/fisherman/pkg/log"
+  "path/filepath"
 
-	"github.com/go-git/go-billy/v5"
+  "github.com/go-git/go-billy/v5"
 )
 
 type Command struct {

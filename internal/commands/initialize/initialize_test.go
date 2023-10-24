@@ -2,15 +2,15 @@ package initialize_test
 
 import (
 	"context"
-	"fisherman/internal/constants"
-	"fisherman/pkg/log"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/pkg/log"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"io"
 	"path/filepath"
 	"testing"
 
-	. "fisherman/internal/commands/initialize"
+	. "github.com/evg4b/fisherman/internal/commands/initialize"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

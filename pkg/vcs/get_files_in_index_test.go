@@ -2,12 +2,12 @@ package vcs_test
 
 import (
 	"errors"
-	"fisherman/pkg/guards"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
-	. "fisherman/pkg/vcs"
+	. "github.com/evg4b/fisherman/pkg/vcs"
 
 	"github.com/go-git/go-git/v5/storage"
 	"github.com/stretchr/testify/assert"

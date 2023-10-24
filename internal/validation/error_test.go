@@ -3,7 +3,7 @@ package validation_test
 import (
 	"testing"
 
-	. "fisherman/internal/validation"
+	. "github.com/evg4b/fisherman/internal/validation"
 
 	"github.com/stretchr/testify/assert"
 )

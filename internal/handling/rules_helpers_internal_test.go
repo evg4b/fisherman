@@ -1,9 +1,9 @@
 package handling
 
 import (
-	"fisherman/internal/configuration"
-	"fisherman/internal/rules"
-	"fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

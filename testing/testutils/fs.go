@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/guards"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"

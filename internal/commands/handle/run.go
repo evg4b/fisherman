@@ -3,11 +3,11 @@ package handle
 import (
 	"context"
 	"errors"
-	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
-	"fisherman/internal/handling"
-	"fisherman/internal/utils"
-	"fisherman/pkg/log"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/handling"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/log"
 )
 
 const noFilesLabel = "N/A"

@@ -2,10 +2,10 @@ package version
 
 import (
 	"context"
-	"fisherman/internal/constants"
-	"fisherman/pkg/log"
 	"flag"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/pkg/log"
 )
 
 type Command struct {

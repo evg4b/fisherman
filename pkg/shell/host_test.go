@@ -5,14 +5,14 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fisherman/pkg/guards"
-	"fisherman/testing/mocks"
 	"fmt"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"os/exec"
 	"strings"
 	"testing"
 
-	. "fisherman/pkg/shell"
+	. "github.com/evg4b/fisherman/pkg/shell"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

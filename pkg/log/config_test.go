@@ -3,7 +3,7 @@ package log_test
 import (
 	"testing"
 
-	. "fisherman/pkg/log"
+	. "github.com/evg4b/fisherman/pkg/log"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

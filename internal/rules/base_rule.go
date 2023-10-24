@@ -1,9 +1,9 @@
 package rules
 
 import (
-	"fisherman/internal"
-	"fisherman/internal/utils"
-	"fisherman/internal/validation"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/validation"
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"

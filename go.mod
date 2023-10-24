@@ -1,4 +1,4 @@
-module fisherman
+module github.com/evg4b/fisherman
 
 go 1.21
 

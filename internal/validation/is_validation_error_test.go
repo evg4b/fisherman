@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	. "fisherman/internal/validation"
+	. "github.com/evg4b/fisherman/internal/validation"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/assert"

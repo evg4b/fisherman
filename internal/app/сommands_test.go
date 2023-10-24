@@ -1,12 +1,12 @@
 package app_test
 
 import (
-	"fisherman/internal"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
-	. "fisherman/internal/app"
+	. "github.com/evg4b/fisherman/internal/app"
 
 	"github.com/stretchr/testify/assert"
 )

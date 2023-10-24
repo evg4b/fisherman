@@ -2,8 +2,8 @@ package configuration
 
 import (
 	"context"
-	"fisherman/internal/rules"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/internal/utils"
 	"io"
 	"regexp"
 

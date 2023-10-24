@@ -2,10 +2,10 @@ package rules
 
 import (
 	"context"
-	"fisherman/internal/utils"
-	"fisherman/pkg/shell"
-	"fisherman/pkg/shell/helpers"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/shell"
+	"github.com/evg4b/fisherman/pkg/shell/helpers"
 	"io"
 	"os/exec"
 

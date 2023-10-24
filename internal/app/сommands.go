@@ -1,7 +1,7 @@
 package app
 
 import (
-	"fisherman/internal"
+	"github.com/evg4b/fisherman/internal"
 	"strings"
 
 	"github.com/go-errors/errors"

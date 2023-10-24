@@ -1,12 +1,12 @@
 package configuration_test
 
 import (
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	. "fisherman/internal/configuration"
+	. "github.com/evg4b/fisherman/internal/configuration"
 
 	"github.com/stretchr/testify/assert"
 )

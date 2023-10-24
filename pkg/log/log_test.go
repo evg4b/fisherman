@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "fisherman/pkg/log"
+	. "github.com/evg4b/fisherman/pkg/log"
 
 	"github.com/stretchr/testify/require"
 

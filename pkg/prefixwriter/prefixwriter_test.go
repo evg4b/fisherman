@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "fisherman/pkg/prefixwriter"
+	. "github.com/evg4b/fisherman/pkg/prefixwriter"
 
 	"github.com/stretchr/testify/assert"
 )

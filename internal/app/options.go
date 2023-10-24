@@ -1,7 +1,7 @@
 package app
 
 import (
-	"fisherman/internal"
+	"github.com/evg4b/fisherman/internal"
 	"os"
 	"os/signal"
 )

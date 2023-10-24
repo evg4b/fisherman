@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"fisherman/internal"
+	"github.com/evg4b/fisherman/internal"
 
 	"github.com/go-git/go-billy/v5"
 )

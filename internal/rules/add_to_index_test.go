@@ -3,14 +3,14 @@ package rules_test
 import (
 	"context"
 	syserrors "errors"
-	"fisherman/internal/validation"
-	"fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/internal/validation"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"io"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	. "fisherman/internal/rules"
+	. "github.com/evg4b/fisherman/internal/rules"
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-git/v5"

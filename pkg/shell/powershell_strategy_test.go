@@ -3,11 +3,11 @@ package shell_test
 
 import (
 	"context"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"runtime"
 	"testing"
 
-	. "fisherman/pkg/shell"
+	. "github.com/evg4b/fisherman/pkg/shell"
 
 	"github.com/stretchr/testify/assert"
 )

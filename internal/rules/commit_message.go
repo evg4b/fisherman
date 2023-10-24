@@ -2,8 +2,8 @@ package rules
 
 import (
 	"context"
-	"fisherman/internal/utils"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/utils"
 	"io"
 	"regexp"
 	"strings"

@@ -2,8 +2,8 @@ package rules
 
 import (
 	"context"
-	"fisherman/internal/utils"
-	"fisherman/pkg/shell/helpers"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/shell/helpers"
 	"io"
 	"os/exec"
 

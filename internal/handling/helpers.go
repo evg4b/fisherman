@@ -1,9 +1,9 @@
 package handling
 
 import (
-	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/constants"
 )
 
 // nolint: cyclop

@@ -1,8 +1,8 @@
 package vcs_test
 
 import (
-	"fisherman/pkg/guards"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
 	"github.com/stretchr/testify/require"

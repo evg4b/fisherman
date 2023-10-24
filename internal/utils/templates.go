@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/guards"
 	"io"
 
 	"github.com/valyala/fasttemplate"

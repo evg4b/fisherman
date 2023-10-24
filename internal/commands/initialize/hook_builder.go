@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"fisherman/internal/constants"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/constants"
 	"strings"
 )
 

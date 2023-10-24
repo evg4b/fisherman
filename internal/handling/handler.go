@@ -2,12 +2,12 @@ package handling
 
 import (
 	"context"
-	"fisherman/internal"
-	"fisherman/internal/configuration"
-	"fisherman/internal/constants"
-	"fisherman/internal/expression"
-	"fisherman/internal/rules"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/expression"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/internal/utils"
 	"io"
 	"runtime"
 

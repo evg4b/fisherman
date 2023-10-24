@@ -1,16 +1,16 @@
 package handling
 
 import (
-	"context"
-	"fisherman/internal/configuration"
-	"fisherman/internal/utils"
-	"fisherman/pkg/log"
-	"fisherman/pkg/prefixwriter"
-	"fmt"
-	"io"
+  "context"
+  "fmt"
+  "github.com/evg4b/fisherman/internal/configuration"
+  "github.com/evg4b/fisherman/internal/utils"
+  "github.com/evg4b/fisherman/pkg/log"
+  "github.com/evg4b/fisherman/pkg/prefixwriter"
+  "io"
 
-	"github.com/evg4b/linebyline"
-	"github.com/go-errors/errors"
+  "github.com/evg4b/linebyline"
+  "github.com/go-errors/errors"
 )
 
 type (

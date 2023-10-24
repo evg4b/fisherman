@@ -3,14 +3,14 @@ package rules_test
 import (
 	"context"
 	"errors"
-	"fisherman/internal"
-	"fisherman/pkg/vcs"
-	"fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/internal"
+	"github.com/evg4b/fisherman/pkg/vcs"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"io"
 	"strings"
 	"testing"
 
-	. "fisherman/internal/rules"
+	. "github.com/evg4b/fisherman/internal/rules"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

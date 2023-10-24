@@ -1,13 +1,13 @@
 package configuration
 
 import (
-	"fisherman/internal/constants"
-	"fisherman/internal/utils"
-	"fisherman/pkg/log"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/utils"
+	"github.com/evg4b/fisherman/pkg/log"
 	"os/user"
 	"path/filepath"
 
-	"fisherman/pkg/shell" // TODO: remove this dependency
+	"github.com/evg4b/fisherman/pkg/shell" // TODO: remove this dependency
 
 	"github.com/go-errors/errors"
 	"github.com/go-git/go-billy/v5"

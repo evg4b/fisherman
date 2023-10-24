@@ -1,8 +1,8 @@
 package handling
 
 import (
-	"fisherman/internal/configuration"
-	"fisherman/internal/rules"
+  "github.com/evg4b/fisherman/internal/configuration"
+  "github.com/evg4b/fisherman/internal/rules"
 )
 
 type Rule = configuration.Rule

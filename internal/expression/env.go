@@ -1,8 +1,8 @@
 package expression
 
 import (
-	"fisherman/internal/constants"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/utils"
 )
 
 type EnvVars map[string]any

@@ -1,10 +1,10 @@
 package handle_test
 
 import (
-	"fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/mocks"
 	"testing"
 
-	. "fisherman/internal/commands/handle"
+	. "github.com/evg4b/fisherman/internal/commands/handle"
 
 	"github.com/stretchr/testify/assert"
 )

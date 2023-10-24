@@ -3,8 +3,8 @@ package testutils
 import (
 	"testing"
 
-	"fisherman/pkg/guards"
-	"fisherman/pkg/vcs"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/pkg/vcs"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"

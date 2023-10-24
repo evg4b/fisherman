@@ -1,8 +1,8 @@
 package configuration
 
 import (
-	"fisherman/internal/rules"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/internal/utils"
 	"reflect"
 
 	"github.com/go-errors/errors"

@@ -3,7 +3,7 @@ package vcs_test
 import (
 	"testing"
 
-	. "fisherman/pkg/vcs"
+	. "github.com/evg4b/fisherman/pkg/vcs"
 
 	"github.com/stretchr/testify/assert"
 )

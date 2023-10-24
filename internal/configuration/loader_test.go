@@ -1,18 +1,18 @@
 package configuration_test
 
 import (
-	"fisherman/internal/constants"
-	"fisherman/internal/rules"
-	"fisherman/pkg/log"
-	"fisherman/pkg/shell"
-	"fisherman/testing/mocks"
-	"fisherman/testing/testutils"
 	"fmt"
+	"github.com/evg4b/fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/rules"
+	"github.com/evg4b/fisherman/pkg/log"
+	"github.com/evg4b/fisherman/pkg/shell"
+	"github.com/evg4b/fisherman/testing/mocks"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"os/user"
 	"path/filepath"
 	"testing"
 
-	. "fisherman/internal/configuration"
+	. "github.com/evg4b/fisherman/internal/configuration"
 
 	"github.com/go-git/go-billy/v5"
 	"github.com/stretchr/testify/assert"

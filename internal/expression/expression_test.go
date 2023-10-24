@@ -2,10 +2,10 @@ package expression_test
 
 import (
 	"errors"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"testing"
 
-	. "fisherman/internal/expression"
+	. "github.com/evg4b/fisherman/internal/expression"
 
 	"github.com/stretchr/testify/require"
 

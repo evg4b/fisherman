@@ -11,7 +11,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"fisherman/internal/rules"
+	"github.com/evg4b/fisherman/internal/rules"
 
 	"github.com/gojuno/minimock/v3"
 )

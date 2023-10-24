@@ -1,12 +1,12 @@
 package utils_test
 
 import (
-	"fisherman/pkg/guards"
-	"fisherman/testing/testutils"
+	"github.com/evg4b/fisherman/pkg/guards"
+	"github.com/evg4b/fisherman/testing/testutils"
 	"path/filepath"
 	"testing"
 
-	. "fisherman/internal/utils"
+	. "github.com/evg4b/fisherman/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )

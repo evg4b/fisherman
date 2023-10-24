@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"fisherman/internal/configuration"
+	"github.com/evg4b/fisherman/internal/configuration"
 )
 
 var (

@@ -1,10 +1,10 @@
 package expression_test
 
 import (
-	"fisherman/internal/constants"
+	"github.com/evg4b/fisherman/internal/constants"
 	"testing"
 
-	. "fisherman/internal/expression"
+	. "github.com/evg4b/fisherman/internal/expression"
 
 	"github.com/stretchr/testify/assert"
 )

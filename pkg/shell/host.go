@@ -3,7 +3,7 @@ package shell
 import (
 	"context"
 	"errors"
-	"fisherman/internal/utils"
+	"github.com/evg4b/fisherman/internal/utils"
 	"io"
 	"os/exec"
 	"sync"

@@ -1,8 +1,8 @@
 package handling
 
 import (
-	"fisherman/internal/constants"
-	"fisherman/internal/rules"
+  "github.com/evg4b/fisherman/internal/constants"
+  "github.com/evg4b/fisherman/internal/rules"
 )
 
 var allowedHooks = map[string][]string{
