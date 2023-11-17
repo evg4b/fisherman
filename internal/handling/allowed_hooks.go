@@ -6,7 +6,91 @@ import (
 )
 
 var allowedHooks = map[string][]string{
-	constants.ApplyPatchMsgHook: {
+	constants.PostApplypatchHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PreMergeCommitHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostCommitHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostCheckoutHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostMergeHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PreReceiveHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.UpdateHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.ProcReceiveHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostReceiveHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostUpdateHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.ReferenceTransactionHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PushToCheckoutHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PreAutoGcHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostRewriteHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.SendemailValidateHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.FsmonitorWatchmanHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.P4ChangelistHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.P4PrepareChangelistHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.P4PostChangelistHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.P4PreSubmitHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.PostIndexChangeHook: {
+		rules.ShellScriptType,
+		rules.ExecType,
+	},
+	constants.ApplypatchMsgHook: {
 		rules.ShellScriptType,
 		rules.ExecType,
 	},
@@ -15,11 +99,11 @@ var allowedHooks = map[string][]string{
 		rules.ExecType,
 		rules.CommitMessageType,
 	},
-	constants.FsMonitorWatchmanHook: {
+	constants.FsmonitorWatchmanHook: {
 		rules.ShellScriptType,
 		rules.ExecType,
 	},
-	constants.PreApplyPatchHook: {
+	constants.PreApplypatchHook: {
 		rules.ShellScriptType,
 		rules.ExecType,
 	},
