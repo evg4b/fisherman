@@ -26,7 +26,7 @@ func getScriptRules(ruleCollection []Rule) []Rule {
 }
 
 func filterRules(rules []Rule, predicate func(Rule) bool) []Rule {
-	var filteredRules []Rule
+	filteredRules := make([]Rule, 0, len(rules))
 
 	for _, rule := range rules {
 		if predicate(rule) {

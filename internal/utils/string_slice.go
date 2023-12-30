@@ -5,7 +5,7 @@ import (
 )
 
 func Filter(slice []string, predicate func(string) bool) []string {
-	var resultSlice []string
+	resultSlice := make([]string, 0, len(slice))
 
 	for i := range slice {
 		if predicate(slice[i]) {

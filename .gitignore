@@ -27,3 +27,4 @@ __debug_bin
 dist
 coverage.xml
 fisherman
+.DS_Store
