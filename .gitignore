@@ -24,3 +24,6 @@
 coverage.html
 .vscode/debug-data
 __debug_bin
+/
+fisherman
+.DS_Store
