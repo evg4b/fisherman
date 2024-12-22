@@ -2,5 +2,11 @@
 name = "fisherman"
 version = "0.0.1"
 edition = "2021"
+authors = ["Evgeny Abramovich"]
+license = "MIT"
+description = "A simple CLI tool for managing fish tanks"
+readme = "README.md"
+repository = "https://github.com/evg4b/fisherman"
 
 [dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
