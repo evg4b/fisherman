@@ -1,6 +1,9 @@
+use std::env;
 use clap::{Parser, Subcommand};
-use std::{env, fs, io};
 use std::error::Error;
+
+pub mod hooks;
+use crate::hooks::{backup_hook, build_hook_content, read_hooks, write_hook};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
@@ -22,28 +25,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match &cli.command {
         Commands::Init => {
-            let cwd = env::current_dir()
-                .expect("Failed to get current working directory");
-            let bin_path = env::current_exe()
-                .expect("Failed to get binary path");
+            let entries = read_hooks();
+            let bin = env::current_exe().expect("Failed to get current executable path");
 
-            println!("Current working directory: {:?}", cwd);
-            println!("Binary path: {:?}", bin_path);
-
-            let hooks_directory = cwd.join(".git/hooks");
-            println!("Hooks directory: {:?}", hooks_directory);
-            if !hooks_directory.exists() {
-                fs::create_dir(&hooks_directory)?;
-            }
-
-            let entries = fs::read_dir(hooks_directory)?
-                .map(|res| res.map(|e| e.path()))
-                .collect::<Result<Vec<_>, io::Error>>()?;
-
-            for entry in entries {
-                println!("Entry: {:?}", entry);
-                let file = fs::read_to_string(&entry)?;
-                println!("File:\n {:?}", file);
+            for (hook_name, entry) in entries {
+                if entry.exists() {
+                    backup_hook(&entry)?;
+                    println!("Backed up hook: {:?}", entry);
+                }
+                write_hook(&entry, build_hook_content(&bin, hook_name))?;
             }
 
             Ok(())
