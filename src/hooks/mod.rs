@@ -1,55 +1,95 @@
+use clap::ValueEnum;
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
-use std::{env, fs, io};
+use std::{fs, io};
 
-const HOOK_NAMES: [&str; 14] = [
-    "applypatch-msg",
-    "commit-msg",
-    "fsmonitor-watchman",
-    "post-update",
-    "pre-applypatch",
-    "pre-commit",
-    "pre-merge-commit",
-    "pre-push",
-    "pre-rebase",
-    "pre-receive",
-    "prepare-commit-msg",
-    "push-to-checkout",
-    "sendemail-validate",
-    "update",
-];
+const APPLYPATCH_MSG: &str = "applypatch-msg";
+const COMMIT_MSG: &str = "commit-msg";
+const FSMONITOR_WATCHMAN: &str = "fsmonitor-watchman";
+const POST_UPDATE: &str = "post-update";
+const PRE_APPLY_PATCH: &str = "pre-applypatch";
+const PRE_COMMIT: &str = "pre-commit";
+const PRE_MERGE_COMMIT: &str = "pre-merge-commit";
+const PRE_PUSH: &str = "pre-push";
+const PRE_REBASE: &str = "pre-rebase";
+const PRE_RECEIVE: &str = "pre-receive";
+const PREPARE_COMMIT_MSG: &str = "prepare-commit-msg";
+const PUSH_TO_CHECKOUT: &str = "push-to-checkout";
+const SENDEMAIL_VALIDATE: &str = "sendemail-validate";
+const UPDATE: &str = "update";
 
-pub(crate) fn read_hooks() -> Vec<(&'static str, PathBuf)> {
-    let cwd = env::current_dir().expect("Failed to get current working directory");
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, ValueEnum, Ord, Debug)]
+pub(crate) enum GitHook {
+    ApplypatchMsg,
+    CommitMsg,
+    FsmonitorWatchman,
+    PostUpdate,
+    PreApplypatch,
+    PreCommit,
+    PreMergeCommit,
+    PrePush,
+    PreRebase,
+    PreReceive,
+    PrepareCommitMsg,
+    PushToCheckout,
+    SendemailValidate,
+    Update,
+}
 
-    let hooks_directory = cwd.join(".git/hooks");
-
-    if !hooks_directory.exists() {
-        fs::create_dir(&hooks_directory).expect("Failed to create hooks directory");
+impl GitHook {
+    // Return all the git hooks
+    pub fn all() -> Vec<GitHook> {
+        vec![
+            GitHook::ApplypatchMsg,
+            GitHook::CommitMsg,
+            GitHook::FsmonitorWatchman,
+            GitHook::PostUpdate,
+            GitHook::PreApplypatch,
+            GitHook::PreCommit,
+            GitHook::PreMergeCommit,
+            GitHook::PrePush,
+            GitHook::PreRebase,
+            GitHook::PreReceive,
+            GitHook::PrepareCommitMsg,
+            GitHook::PushToCheckout,
+            GitHook::SendemailValidate,
+            GitHook::Update,
+        ]
     }
 
-    return HOOK_NAMES
-        .map(|hook_name| (hook_name, hooks_directory.join(hook_name)))
-        .to_vec();
-}
-
-pub(crate) fn write_hook(path: &PathBuf, content: String) -> io::Result<()> {
-    fs::write(path, content)
-}
-
-pub(crate) fn backup_hook(path: &PathBuf) -> io::Result<()> {
-    match fs::read_to_string(&path) {
-        Ok(content) => {
-            let backup_path = path.with_extension("bak");
-            fs::write(backup_path, content)
+    // Convert the git hook enum to a string slice
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            GitHook::ApplypatchMsg => APPLYPATCH_MSG,
+            GitHook::CommitMsg => COMMIT_MSG,
+            GitHook::FsmonitorWatchman => FSMONITOR_WATCHMAN,
+            GitHook::PostUpdate => POST_UPDATE,
+            GitHook::PreApplypatch => PRE_APPLY_PATCH,
+            GitHook::PreCommit => PRE_COMMIT,
+            GitHook::PreMergeCommit => PRE_MERGE_COMMIT,
+            GitHook::PrePush => PRE_PUSH,
+            GitHook::PreRebase => PRE_REBASE,
+            GitHook::PreReceive => PRE_RECEIVE,
+            GitHook::PrepareCommitMsg => PREPARE_COMMIT_MSG,
+            GitHook::PushToCheckout => PUSH_TO_CHECKOUT,
+            GitHook::SendemailValidate => SENDEMAIL_VALIDATE,
+            GitHook::Update => UPDATE,
         }
-        Err(e) => Err(e),
     }
 }
 
-pub(crate) fn build_hook_content(bin: &PathBuf, hook_name: &'static str) -> String {
-    format!(
-        "#!/bin/sh\n{} handle {}\n",
-        bin.display(),
-        hook_name
-    )
+impl std::fmt::Display for GitHook {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
+    let hook_path = &path.join(".git/hooks").join(hook.as_str());
+    fs::write(hook_path, content)?;
+    fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
+}
+
+pub(crate) fn build_hook_content(bin: &PathBuf, hook_name: GitHook) -> String {
+    format!("#!/bin/sh\n{} handle {}\n", bin.display(), hook_name)
 }

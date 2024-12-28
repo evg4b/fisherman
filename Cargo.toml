@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2021"
 authors = ["Evgeny Abramovich"]
 license = "MIT"
-description = "A simple CLI tool for managing fish tanks"
+description = "A simple CLI tool for managing git hooks"
 readme = "README.md"
 repository = "https://github.com/evg4b/fisherman"
 
