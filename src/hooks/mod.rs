@@ -1,4 +1,5 @@
 use clap::ValueEnum;
+use serde::Deserialize;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::{fs, io};
@@ -18,21 +19,35 @@ const PUSH_TO_CHECKOUT: &str = "push-to-checkout";
 const SENDEMAIL_VALIDATE: &str = "sendemail-validate";
 const UPDATE: &str = "update";
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, ValueEnum, Ord, Debug)]
+#[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, PartialOrd, ValueEnum, Ord)]
 pub(crate) enum GitHook {
+    #[serde(rename = "applypatch-msg")]
     ApplypatchMsg,
+    #[serde(rename = "commit-msg")]
     CommitMsg,
+    #[serde(rename = "fsmonitor-watchman")]
     FsmonitorWatchman,
+    #[serde(rename = "post-update")]
     PostUpdate,
+    #[serde(rename = "pre-applypatch")]
     PreApplypatch,
+    #[serde(rename = "pre-commit")]
     PreCommit,
+    #[serde(rename = "pre-merge-commit")]
     PreMergeCommit,
+    #[serde(rename = "pre-push")]
     PrePush,
+    #[serde(rename = "pre-rebase")]
     PreRebase,
+    #[serde(rename = "pre-receive")]
     PreReceive,
+    #[serde(rename = "prepare-commit-msg")]
     PrepareCommitMsg,
+    #[serde(rename = "push-to-checkout")]
     PushToCheckout,
+    #[serde(rename = "sendemail-validate")]
     SendemailValidate,
+    #[serde(rename = "update")]
     Update,
 }
 
@@ -96,7 +111,7 @@ pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> io::
     fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
 }
 
-pub (crate) fn override_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
+pub(crate) fn override_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
     let hook_path = &path.join(".git/hooks").join(hook.as_str());
     fs::write(hook_path, content)?;
     fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))

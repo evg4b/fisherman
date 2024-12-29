@@ -1,9 +1,11 @@
+use crate::configuration::Configuration;
 use crate::hooks::{build_hook_content, override_hook, write_hook, GitHook};
 use clap::{Parser, Subcommand};
 use std::env;
 use std::error::Error;
 
-pub mod hooks;
+mod configuration;
+mod hooks;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
@@ -36,11 +38,11 @@ enum Commands {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
+    let current_dir = env::current_dir().expect("Failed to get current working directory");
 
     match &cli.command {
         Commands::Init { force } => {
             let bin = env::current_exe().expect("Failed to get current executable path");
-            let current_dir = env::current_dir().expect("Failed to get current working directory");
             for hook_name in GitHook::all() {
                 if *force {
                     override_hook(&current_dir, hook_name, build_hook_content(&bin, hook_name))?;
@@ -53,6 +55,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             Ok(())
         }
         Commands::Handle { hook } => {
+            let config = Configuration::load(&current_dir)?;
+            config.hooks.iter().for_each(|item| {
+                println!("{:?}", item);
+            });
+
             println!("Handling task {}", hook);
             Ok(())
         }
