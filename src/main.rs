@@ -36,7 +36,20 @@ enum Commands {
     },
 }
 
+const LOGO: &str = r#"
+ .d888  d8b          888
+ d88P"  Y8P          888                                 Version: {{FishermanVersion}}
+ 888                 888
+ 888888 888 .d8888b  88888b.   .d88b.  888d888 88888b.d88b.   8888b.  88888b.
+ 888    888 88K      888 "88b d8P  Y8b 888P"   888 "888 "88b     "88b 888 "88b
+ 888    888 "Y8888b. 888  888 88888888 888     888  888  888 .d888888 888  888
+ 888    888      X88 888  888 Y8b.     888     888  888  888 888  888 888  888
+ 888    888  88888P' 888  888  "Y8888  888     888  888  888 "Y888888 888  888
+"#;
+
 fn main() -> Result<(), Box<dyn Error>> {
+    println!("{}", LOGO);
+
     let cli = Cli::parse();
     let current_dir = env::current_dir().expect("Failed to get current working directory");
 
