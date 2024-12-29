@@ -22,6 +22,12 @@ pub(crate) struct Configuration {
     pub hooks: Option<HashMap<GitHook, Vec<Item>>>,
 }
 
+impl Default for Configuration {
+    fn default() -> Self {
+        Configuration { hooks: None }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum ConfigurationError {
     MultipleConfigFiles { files: Vec<PathBuf> },

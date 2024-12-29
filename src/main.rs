@@ -69,15 +69,30 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Handle { hook } => {
             let config = Configuration::load(&current_dir)?;
-            config.hooks.iter().for_each(|item| {
-                println!("{:?}", item);
-            });
+            let item = config.hooks.unwrap_or_default();
+            let rules = match item.get(hook) {
+                Some(rules) => rules,
+                None => {
+                    eprintln!("No rules found for hook {}", hook);
+                    return Ok(());
+                }
+            };
 
-            println!("Handling task {}", hook);
+            println!("Handling task {} with rules {:?}", hook, rules);
             Ok(())
         }
         Commands::Explain { hook } => {
-            println!("Explain task {}", hook);
+            let config = Configuration::load(&current_dir)?;
+            let item = config.hooks.unwrap_or_default();
+            let rules = match item.get(hook) {
+                Some(rules) => rules,
+                None => {
+                    eprintln!("No rules found for hook {}", hook);
+                    return Ok(());
+                }
+            };
+
+            println!("Handling task {} with rules {:?}", hook, rules);
             Ok(())
         }
     }
