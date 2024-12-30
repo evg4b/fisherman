@@ -11,15 +11,9 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub(crate) struct Configuration {
     pub hooks: Option<HashMap<GitHook, Vec<RuleRef>>>,
-}
-
-impl Default for Configuration {
-    fn default() -> Self {
-        Self { hooks: None }
-    }
 }
 
 impl Configuration {

@@ -11,9 +11,9 @@ impl fmt::Display for ConfigurationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ConfigurationError::MultipleConfigFiles { files } => {
-                write!(f, "Multiple configuration files found:\n")?;
+                writeln!(f, "Multiple configuration files found:")?;
                 files.iter().for_each(|file| {
-                    write!(f, "  {}\n", file.display()).unwrap();
+                    writeln!(f, "  {:?}", file).unwrap();
                 });
                 Ok(())
             }

@@ -1,5 +1,9 @@
+mod errors;
+
+use crate::hooks::errors::HookError;
 use clap::ValueEnum;
 use serde::Deserialize;
+use std::error::Error;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::{fs, io};
@@ -19,7 +23,7 @@ const PUSH_TO_CHECKOUT: &str = "push-to-checkout";
 const SENDEMAIL_VALIDATE: &str = "sendemail-validate";
 const UPDATE: &str = "update";
 
-#[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, PartialOrd, ValueEnum, Ord)]
+#[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, ValueEnum)]
 pub(crate) enum GitHook {
     #[serde(rename = "applypatch-msg")]
     ApplypatchMsg,
@@ -99,16 +103,18 @@ impl std::fmt::Display for GitHook {
     }
 }
 
-pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
-    let hook_path = &path.join(".git/hooks").join(hook.as_str());
+pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> Result<(), Box<dyn Error>> {
+    let hook_path = &path.join(".git/hooks")
+        .join(hook.as_str());
+
     if hook_path.exists() {
-        return Err(io::Error::new(
-            io::ErrorKind::AlreadyExists,
-            format!("Hook {} already exists", hook),
-        ));
+        return Err(Box::new(HookError::AlreadyExists { hook: hook_path.clone() }));
     }
+
     fs::write(hook_path, content)?;
-    fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
+    fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))?;
+
+    Ok(())
 }
 
 pub(crate) fn override_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
