@@ -6,6 +6,7 @@ use std::error::Error;
 
 mod configuration;
 mod hooks;
+mod rules;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
