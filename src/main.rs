@@ -87,7 +87,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let rules = match item.get(hook) {
                 Some(rules) => rules,
                 None => {
-                    eprintln!("No rules found for hook {}", hook);
+                    println!("No rules found for hook {}", hook);
                     return Ok(());
                 }
             };

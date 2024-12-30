@@ -24,7 +24,7 @@ pub(crate) struct Configuration {
 
 impl Default for Configuration {
     fn default() -> Self {
-        Configuration { hooks: None }
+        Self { hooks: None }
     }
 }
 
@@ -54,6 +54,7 @@ impl Configuration {
         let files = find_config_files(path.clone())?;
 
         let mut config = Figment::new();
+        println!("{:?}", files);
         for file in files {
             let extension = match file.extension().and_then(OsStr::to_str) {
                 Some(ext) => ext,
@@ -73,19 +74,22 @@ impl Configuration {
 }
 
 fn find_config_files(path: PathBuf) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let locations = vec![path.clone(), path.join(".git"), home_dir().unwrap()];
-    for path in locations {
-        let configs = resolve_configs(path);
-        if configs.len() > 1 {
-            return Err(Box::new(ConfigurationError::MultipleConfigFiles {
-                files: configs,
-            }));
-        } else if configs.len() == 1 {
-            return Ok(configs);
+    let locations = vec![
+        home_dir().unwrap(),
+        path.clone(),
+        path.join(".git")
+    ];
+    let mut config_files = vec![];
+    for location_path in locations {
+        let files = resolve_configs(location_path);
+        if files.len() > 1 {
+            return Err(Box::new(ConfigurationError::MultipleConfigFiles { files }));
+        } else if files.len() == 1 {
+            config_files.push(files[0].clone());
         }
     }
 
-    return Ok(vec![]);
+    Ok(config_files)
 }
 
 fn resolve_configs(path: PathBuf) -> Vec<PathBuf> {
