@@ -1,8 +1,10 @@
 use crate::configuration::Configuration;
 use crate::hooks::{build_hook_content, override_hook, write_hook, GitHook};
+use crate::rules::{Rule, RuleResult};
 use clap::{Parser, Subcommand};
 use std::env;
 use std::error::Error;
+use std::process::exit;
 
 mod configuration;
 mod hooks;
@@ -71,29 +73,49 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Handle { hook } => {
             let config = Configuration::load(&current_dir)?;
             let item = config.hooks.unwrap_or_default();
-            let rules = match item.get(hook) {
-                Some(rules) => rules,
+            match item.get(hook) {
+                Some(rules) => {
+                    let rules_to_exec: Vec<Rule> = rules
+                        .into_iter()
+                        .map(|rule| Rule::new(rule.clone()))
+                        .collect();
+
+                    let info: Vec<RuleResult> = rules_to_exec
+                        .into_iter()
+                        // TODO: Handle errors
+                        .map(|rule| rule.exec())
+                        .collect();
+
+                    for rule in info {
+                        println!("Rule {} executed with success: {}", rule.name, rule.success);
+                        println!("Output: {}", rule.message);
+                        if !rule.success {
+                            exit(1);
+                        }
+                    }
+                }
                 None => {
                     eprintln!("No rules found for hook {}", hook);
                     return Ok(());
                 }
             };
 
-            println!("Handling task {} with rules {:?}", hook, rules);
             Ok(())
         }
         Commands::Explain { hook } => {
             let config = Configuration::load(&current_dir)?;
             let item = config.hooks.unwrap_or_default();
-            let rules = match item.get(hook) {
-                Some(rules) => rules,
+            match item.get(hook) {
+                Some(rules) => {
+                    rules.into_iter().for_each(|rule| {
+                        println!("{:?}", rule);
+                    });
+                }
                 None => {
                     println!("No rules found for hook {}", hook);
-                    return Ok(());
                 }
             };
 
-            println!("Handling task {} with rules {:?}", hook, rules);
             Ok(())
         }
     }
