@@ -1,15 +1,16 @@
+use crate::commands::explain::explain_command;
+use crate::commands::handle::handle_command;
+use crate::commands::init::init_command;
 use crate::common::BError;
-use crate::configuration::Configuration;
-use crate::hooks::files::{build_hook_content, override_hook, write_hook};
 use crate::hooks::GitHook;
-use crate::rules::{Rule, RuleResult};
 use clap::{Parser, Subcommand};
 use std::env;
-use std::process::exit;
+use std::fmt::Display;
 
+mod commands;
+mod common;
 mod configuration;
 mod hooks;
-mod common;
 mod rules;
 
 #[derive(Parser)]
@@ -17,6 +18,12 @@ mod rules;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+}
+
+impl Display for Cli {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", logo())
+    }
 }
 
 #[derive(Subcommand)]
@@ -42,77 +49,12 @@ enum Commands {
 }
 
 fn main() -> Result<(), BError> {
-    println!("{}", logo());
-
     let cli = Cli::parse();
-    let current_dir = env::current_dir().expect("Failed to get current working directory");
 
     match &cli.command {
-        Commands::Init { force } => {
-            let bin = env::current_exe().expect("Failed to get current executable path");
-            for hook_name in GitHook::all() {
-                if *force {
-                    override_hook(&current_dir, hook_name, build_hook_content(&bin, hook_name))?;
-                } else {
-                    write_hook(&current_dir, hook_name, build_hook_content(&bin, hook_name))?;
-                }
-                println!("Hook {} initialized", hook_name);
-            }
-
-            Ok(())
-        }
-        Commands::Handle { hook } => {
-            let config = Configuration::load(&current_dir)?;
-            println!("Configuration loaded from {:?}", config.files);
-
-            match config.hooks.get(hook) {
-                Some(rules) => {
-                    let rules_to_exec: Vec<Rule> = rules
-                        .into_iter()
-                        .map(|rule| Rule::new(rule.clone()))
-                        .collect();
-
-                    let results: Vec<RuleResult> = rules_to_exec
-                        .into_iter()
-                        // TODO: Handle errors
-                        .map(|rule| rule.exec())
-                        .collect();
-
-                    for rule in results {
-                        if rule.success {
-                            println!("Rule {} successfully executed", rule.name);
-                        } else {
-                            println!("Rule {} execution failed", rule.name);
-                            println!("Output: {}", rule.message);
-                            exit(1);
-                        }
-                    }
-                }
-                None => {
-                    eprintln!("No rules found for hook {}", hook);
-                    return Ok(());
-                }
-            };
-
-            Ok(())
-        }
-        Commands::Explain { hook } => {
-            let config = Configuration::load(&current_dir)?;
-            println!("Configuration loaded from {:?}", config.files);
-
-            match config.hooks.get(hook) {
-                Some(rules) => {
-                    rules.into_iter().for_each(|rule| {
-                        println!("{:?}", rule);
-                    });
-                }
-                None => {
-                    println!("No rules found for hook {}", hook);
-                }
-            };
-
-            Ok(())
-        }
+        Commands::Init { force } => init_command(*force),
+        Commands::Handle { hook } => handle_command(hook),
+        Commands::Explain { hook } => explain_command(hook),
     }
 }
 
