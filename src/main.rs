@@ -69,17 +69,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                         .map(|rule| Rule::new(rule.clone()))
                         .collect();
 
-                    let info: Vec<RuleResult> = rules_to_exec
+                    let results: Vec<RuleResult> = rules_to_exec
                         .into_iter()
                         // TODO: Handle errors
                         .map(|rule| rule.exec())
                         .collect();
 
-                    for rule in info {
+                    for rule in results {
                         if rule.success {
-                            println!("Rule {} executed with succeed", rule.name);
+                            println!("Rule {} successfully executed", rule.name);
                         } else {
-                            println!("Rule {} executed with success: {}", rule.name, rule.success);
+                            println!("Rule {} execution failed", rule.name);
                             println!("Output: {}", rule.message);
                             exit(1);
                         }
@@ -116,7 +116,7 @@ fn logo() -> String {
     format!(
 r#"
  .d888  d8b          888
- d88P"  Y8P          888                                      Version: {}
+ d88P"  Y8P          888                        {:>30}
  888                 888
  888888 888 .d8888b  88888b.   .d88b.  888d888 88888b.d88b.   8888b.  88888b.
  888    888 88K      888 "88b d8P  Y8b 888P"   888 "888 "88b     "88b 888 "88b
@@ -124,6 +124,6 @@ r#"
  888    888      X88 888  888 Y8b.     888     888  888  888 888  888 888  888
  888    888  88888P' 888  888  "Y8888  888     888  888  888 "Y888888 888  888
 "#,
-        env!("CARGO_PKG_VERSION")
+format!("Version: {}", env!("CARGO_PKG_VERSION"))
     )
 }
