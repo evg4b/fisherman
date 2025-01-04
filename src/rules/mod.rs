@@ -1,5 +1,4 @@
-mod exec_rule;
-
+pub mod exec_rule;
 use crate::rules::exec_rule::exec_rule;
 use serde::Deserialize;
 use std::collections::HashMap;

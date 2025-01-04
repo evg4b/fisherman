@@ -1,13 +1,8 @@
-mod errors;
+pub(crate) mod errors;
+pub(crate) mod files;
 
-use crate::err;
-use crate::hooks::errors::HookError;
 use clap::ValueEnum;
 use serde::Deserialize;
-use std::error::Error;
-use std::os::unix::fs::PermissionsExt;
-use std::path::PathBuf;
-use std::{fs, io};
 
 const APPLYPATCH_MSG: &str = "applypatch-msg";
 const COMMIT_MSG: &str = "commit-msg";
@@ -102,28 +97,4 @@ impl std::fmt::Display for GitHook {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
     }
-}
-
-pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> Result<(), Box<dyn Error>> {
-    let hook_path = &path.join(".git/hooks")
-        .join(hook.as_str());
-
-    if hook_path.exists() {
-        err!(HookError::AlreadyExists { hook: hook_path.clone() });
-    }
-
-    fs::write(hook_path, content)?;
-    fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))?;
-
-    Ok(())
-}
-
-pub(crate) fn override_hook(path: &PathBuf, hook: GitHook, content: String) -> io::Result<()> {
-    let hook_path = &path.join(".git/hooks").join(hook.as_str());
-    fs::write(hook_path, content)?;
-    fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
-}
-
-pub(crate) fn build_hook_content(bin: &PathBuf, hook_name: GitHook) -> String {
-    format!("#!/bin/sh\n{} handle {}\n", bin.display(), hook_name)
 }

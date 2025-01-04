@@ -5,3 +5,5 @@ macro_rules! err {
         return Err(Box::new($e))
     };
 }
+
+pub type BError = Box<dyn std::error::Error>;

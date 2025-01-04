@@ -1,15 +1,16 @@
+use crate::common::BError;
 use crate::configuration::Configuration;
-use crate::hooks::{build_hook_content, override_hook, write_hook, GitHook};
+use crate::hooks::files::{build_hook_content, override_hook, write_hook};
+use crate::hooks::GitHook;
 use crate::rules::{Rule, RuleResult};
 use clap::{Parser, Subcommand};
 use std::env;
-use std::error::Error;
 use std::process::exit;
 
 mod configuration;
 mod hooks;
+mod common;
 mod rules;
-mod macros;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
@@ -40,7 +41,7 @@ enum Commands {
     },
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), BError> {
     println!("{}", logo());
 
     let cli = Cli::parse();
