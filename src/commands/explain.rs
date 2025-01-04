@@ -10,7 +10,7 @@ pub(crate) fn explain_command(hook: &GitHook) -> Result<(), BError> {
 
     match config.hooks.get(hook) {
         Some(rules) => {
-            rules.into_iter().for_each(|rule| {
+            rules.iter().for_each(|rule| {
                 println!("{:?}", rule);
             });
         }

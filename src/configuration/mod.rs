@@ -11,7 +11,7 @@ use figment::Figment;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default, Deserialize)]
 struct InnerConfiguration {
@@ -24,8 +24,8 @@ pub(crate) struct Configuration {
 }
 
 impl Configuration {
-    pub(crate) fn load(path: &PathBuf) -> Result<Configuration, BError> {
-        let files = find_config_files(path.clone())?;
+    pub(crate) fn load(path: &Path) -> Result<Configuration, BError> {
+        let files = find_config_files(path)?;
 
         let mut instance = Figment::new();
         for file in files.clone() {
@@ -51,15 +51,15 @@ impl Configuration {
     }
 }
 
-fn find_config_files(path: PathBuf) -> Result<Vec<PathBuf>, BError> {
-    let locations = vec![path.join(".git"), path.clone(), home_dir().unwrap()];
+fn find_config_files(path: &Path) -> Result<Vec<PathBuf>, BError> {
+    let locations = vec![path.join(".git"), path.to_path_buf(), home_dir().unwrap()];
     let mut config_files = vec![];
     for location_path in locations {
         let files = resolve_configs(location_path);
-        if files.len() > 1 {
-            err!(ConfigurationError::MultipleConfigFiles { files });
-        } else if files.len() == 1 {
-            config_files.push(files[0].clone());
+        match files.len() {
+            0 => continue,
+            1 => config_files.push(files[0].clone()),
+            _ => err!(ConfigurationError::MultipleConfigFiles { files }),
         }
     }
 

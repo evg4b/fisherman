@@ -30,7 +30,7 @@ impl RuleRef {
                         .collect::<Vec<String>>()
                         .join(" ")
                 });
-                String::from(format!("exec {} {}", command, args_str))
+                format!("exec {} {}", command, args_str)
             }
         }
     }

@@ -14,7 +14,7 @@ pub(crate) fn handle_command(hook: &GitHook) -> Result<(), BError> {
     match config.hooks.get(hook) {
         Some(rules) => {
             let rules_to_exec: Vec<Rule> = rules
-                .into_iter()
+                .iter()
                 .map(|rule| Rule::new(rule.clone()))
                 .collect();
 
