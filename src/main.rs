@@ -9,6 +9,7 @@ use std::process::exit;
 mod configuration;
 mod hooks;
 mod rules;
+mod macros;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
@@ -61,8 +62,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Handle { hook } => {
             let config = Configuration::load(&current_dir)?;
-            let item = config.hooks.unwrap_or_default();
-            match item.get(hook) {
+            println!("Configuration loaded from {:?}", config.files);
+
+            match config.hooks.get(hook) {
                 Some(rules) => {
                     let rules_to_exec: Vec<Rule> = rules
                         .into_iter()
@@ -95,8 +97,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Explain { hook } => {
             let config = Configuration::load(&current_dir)?;
-            let item = config.hooks.unwrap_or_default();
-            match item.get(hook) {
+            println!("Configuration loaded from {:?}", config.files);
+
+            match config.hooks.get(hook) {
                 Some(rules) => {
                     rules.into_iter().for_each(|rule| {
                         println!("{:?}", rule);
@@ -114,7 +117,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn logo() -> String {
     format!(
-r#"
+        r#"
  .d888  d8b          888
  d88P"  Y8P          888                        {:>30}
  888                 888
@@ -124,6 +127,6 @@ r#"
  888    888      X88 888  888 Y8b.     888     888  888  888 888  888 888  888
  888    888  88888P' 888  888  "Y8888  888     888  888  888 "Y888888 888  888
 "#,
-format!("Version: {}", env!("CARGO_PKG_VERSION"))
+        format!("Version: {}", env!("CARGO_PKG_VERSION"))
     )
 }

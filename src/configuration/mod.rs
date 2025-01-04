@@ -1,6 +1,7 @@
 pub(crate) mod errors;
 
 use crate::configuration::errors::ConfigurationError;
+use crate::err;
 use crate::hooks::GitHook;
 use crate::rules::RuleRef;
 use dirs::home_dir;
@@ -12,8 +13,13 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 
 #[derive(Debug, Default, Deserialize)]
-pub(crate) struct Configuration {
+struct InnerConfiguration {
     pub hooks: Option<HashMap<GitHook, Vec<RuleRef>>>,
+}
+
+pub(crate) struct Configuration {
+    pub hooks: HashMap<GitHook, Vec<RuleRef>>,
+    pub files: Vec<PathBuf>,
 }
 
 impl Configuration {
@@ -21,22 +27,26 @@ impl Configuration {
         let files = find_config_files(path.clone())?;
 
         let mut config = Figment::new();
-        println!("{:?}", files);
-        for file in files {
+        for file in files.clone() {
             let extension = match file.extension().and_then(OsStr::to_str) {
                 Some(ext) => ext,
-                None => return Err(Box::new(ConfigurationError::UnknownConfigFileExtension)),
+                None => err!(ConfigurationError::UnknownConfigFileExtension),
             };
 
             config = match extension {
-                "toml" => config.merge(Toml::file(file)),
-                "yaml" => config.merge(Yaml::file(file)),
-                "json" => config.merge(Json::file(file)),
-                _ => return Err(Box::new(ConfigurationError::UnknownConfigFileExtension)),
+                "toml" => config.adjoin(Toml::file(file)),
+                "yaml" => config.adjoin(Yaml::file(file)),
+                "json" => config.adjoin(Json::file(file)),
+                _ => err!(ConfigurationError::UnknownConfigFileExtension),
             };
         }
 
-        Ok(config.extract()?)
+        let inner_config: InnerConfiguration = config.extract()?;
+
+        Ok(Configuration {
+            hooks: inner_config.hooks.unwrap_or_default(),
+            files,
+        })
     }
 }
 
@@ -46,7 +56,7 @@ fn find_config_files(path: PathBuf) -> Result<Vec<PathBuf>, Box<dyn std::error::
     for location_path in locations {
         let files = resolve_configs(location_path);
         if files.len() > 1 {
-            return Err(Box::new(ConfigurationError::MultipleConfigFiles { files }));
+            err!(ConfigurationError::MultipleConfigFiles { files });
         } else if files.len() == 1 {
             config_files.push(files[0].clone());
         }

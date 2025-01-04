@@ -1,5 +1,6 @@
 mod errors;
 
+use crate::err;
 use crate::hooks::errors::HookError;
 use clap::ValueEnum;
 use serde::Deserialize;
@@ -108,7 +109,7 @@ pub(crate) fn write_hook(path: &PathBuf, hook: GitHook, content: String) -> Resu
         .join(hook.as_str());
 
     if hook_path.exists() {
-        return Err(Box::new(HookError::AlreadyExists { hook: hook_path.clone() }));
+        err!(HookError::AlreadyExists { hook: hook_path.clone() });
     }
 
     fs::write(hook_path, content)?;

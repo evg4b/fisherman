@@ -18,7 +18,21 @@ pub(crate) enum RuleRef {
 impl RuleRef {
     pub(crate) fn name(&self) -> String {
         match self {
-            RuleRef::ExecRule { .. } => String::from("exec"),
+            RuleRef::ExecRule { command, args, .. } => {
+                let args_str = args.as_ref().map_or(String::new(), |args| {
+                    args.iter()
+                        .map(|arg| {
+                            if arg.contains(" ") {
+                                format!("\"{}\"", arg.replace("\"", "\\\""))
+                            } else {
+                                arg.clone()
+                            }
+                        })
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                });
+                String::from(format!("exec {} {}", command, args_str))
+            }
         }
     }
 }
