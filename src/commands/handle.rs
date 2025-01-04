@@ -2,21 +2,20 @@ use crate::common::BError;
 use crate::configuration::Configuration;
 use crate::hooks::GitHook;
 use crate::rules::{Rule, RuleResult};
+use crate::ui::logo::hook_display;
 use std::env;
 use std::process::exit;
 
 pub(crate) fn handle_command(hook: &GitHook) -> Result<(), BError> {
-    let current_dir = env::current_dir()?;
+    let cwd = env::current_dir()?;
 
-    let config = Configuration::load(&current_dir)?;
-    println!("Configuration loaded from {:?}", config.files);
+    let config = Configuration::load(&cwd)?;
+    println!("{}", hook_display(hook, config.files));
 
     match config.hooks.get(hook) {
         Some(rules) => {
-            let rules_to_exec: Vec<Rule> = rules
-                .iter()
-                .map(|rule| Rule::new(rule.clone()))
-                .collect();
+            let rules_to_exec: Vec<Rule> =
+                rules.iter().map(|rule| Rule::new(rule.clone())).collect();
 
             let results: Vec<RuleResult> = rules_to_exec
                 .into_iter()
@@ -24,14 +23,18 @@ pub(crate) fn handle_command(hook: &GitHook) -> Result<(), BError> {
                 .map(|rule| rule.exec())
                 .collect();
 
-            for rule in results {
-                if rule.success {
-                    println!("Rule {} successfully executed", rule.name);
-                } else {
+            let failed: Vec<&RuleResult> = results.iter().filter(|rule| !rule.success).collect();
+
+            if !failed.is_empty() {
+                for rule in failed {
                     println!("Rule {} execution failed", rule.name);
                     println!("Output: {}", rule.message);
-                    exit(1);
                 }
+                exit(1);
+            }
+
+            for rule in results {
+                println!("Rule {} successfully executed", rule.name);
             }
         }
         None => {
