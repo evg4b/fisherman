@@ -41,10 +41,10 @@ pub(crate) struct Rule {
     def: RuleRef,
 }
 
-pub(crate) struct RuleResult {
-    pub name: String,
-    pub success: bool,
-    pub message: String,
+#[derive(Debug)]
+pub(crate) enum RuleResult {
+    Success { name: String },
+    Failure { name: String, message: String },
 }
 
 impl Rule {
@@ -60,13 +60,16 @@ impl Rule {
                     args.clone().unwrap_or_default(),
                     env.clone().unwrap_or_default(),
                 ) {
-                    Ok((message, success)) => RuleResult {
-                        success,
-                        message,
-                        name: self.name(),
+                    Ok((message, success)) => match success {
+                        true => RuleResult::Success {
+                            name: self.name(),
+                        },
+                        false => RuleResult::Failure {
+                            message,
+                            name: self.name(),
+                        },
                     },
-                    Err(e) => RuleResult {
-                        success: false,
+                    Err(e) => RuleResult::Failure {
                         message: format!("Failed to execute rule: {}", e),
                         name: self.name(),
                     },

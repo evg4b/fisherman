@@ -1,8 +1,8 @@
 use crate::common::BError;
 use crate::configuration::Configuration;
 use crate::hooks::GitHook;
+use crate::ui::hook_display::hook_display;
 use std::env;
-use crate::ui::logo::hook_display;
 
 pub(crate) fn explain_command(hook: &GitHook) -> Result<(), BError> {
     let cwd = env::current_dir()?;

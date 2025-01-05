@@ -2,7 +2,7 @@ use crate::common::BError;
 use crate::configuration::Configuration;
 use crate::hooks::GitHook;
 use crate::rules::{Rule, RuleResult};
-use crate::ui::logo::hook_display;
+use crate::ui::hook_display::hook_display;
 use std::env;
 use std::process::exit;
 
@@ -19,28 +19,25 @@ pub(crate) fn handle_command(hook: &GitHook) -> Result<(), BError> {
 
             let results: Vec<RuleResult> = rules_to_exec
                 .into_iter()
-                // TODO: Handle errors
                 .map(|rule| rule.exec())
                 .collect();
 
-            let failed: Vec<&RuleResult> = results.iter().filter(|rule| !rule.success).collect();
-
-            if !failed.is_empty() {
-                for rule in failed {
-                    println!("Rule {} execution failed", rule.name);
-                    println!("Output: {}", rule.message);
+            for rule in results.iter() {
+                match rule {
+                    RuleResult::Success { name } => {
+                        println!("{} executed successfully", name);
+                    }
+                    RuleResult::Failure { message, name } => {
+                        eprintln!("{}: {}", name, message);
+                    }
                 }
+            }
+
+            if results.iter().any(|r| matches!(r, RuleResult::Failure { .. })) {
                 exit(1);
             }
-
-            for rule in results {
-                println!("Rule {} successfully executed", rule.name);
-            }
         }
-        None => {
-            eprintln!("No rules found for hook {}", hook);
-            return Ok(());
-        }
+        None => println!("No rules found for hook {}", hook),
     };
 
     Ok(())
