@@ -13,3 +13,4 @@ clap = { version = "4.5.23", features = ["derive"] }
 figment = { version = "0.10.19", features = ["toml", "yaml", "json"] }
 serde = { version = "1.0.217", features = ["derive"] }
 dirs = "5.0.1"
+git2 = "0.20.0"

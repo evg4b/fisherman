@@ -2,8 +2,10 @@ use crate::commands::explain::explain_command;
 use crate::commands::handle::handle_command;
 use crate::commands::init::init_command;
 use crate::common::BError;
+use crate::context::Context;
 use crate::hooks::GitHook;
 use clap::{Parser, Subcommand};
+use std::env;
 
 mod commands;
 mod common;
@@ -11,6 +13,7 @@ mod configuration;
 mod hooks;
 mod rules;
 mod ui;
+mod context;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
@@ -44,10 +47,14 @@ enum Commands {
 fn main() -> Result<(), BError> {
     let cli = Cli::parse();
 
+    let context = &Context::new(env::current_dir()?)?;
+    println!("On branch: {}", context.current_branch()?);
+    println!("Hooks dir: {:?}", context.hooks_dir());
+
     let result = match &cli.command {
-        Commands::Init { force } => init_command(*force),
-        Commands::Handle { hook } => handle_command(hook),
-        Commands::Explain { hook } => explain_command(hook),
+        Commands::Init { force } => init_command(context, *force),
+        Commands::Handle { hook } => handle_command(context, hook),
+        Commands::Explain { hook } => explain_command(context, hook),
     };
 
     match result {

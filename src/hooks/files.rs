@@ -5,9 +5,10 @@ use crate::hooks::GitHook;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::{fs, io};
+use crate::context::Context;
 
-pub(crate) fn write_hook(path: &Path, hook: GitHook, content: String) -> Result<(), BError> {
-    let hook_path = &path.join(".git/hooks").join(hook.as_str());
+pub(crate) fn write_hook(context: &Context, hook: GitHook, content: String) -> Result<(), BError> {
+    let hook_path = &context.hooks_dir().join(hook.as_str());
 
     if hook_path.exists() {
         err!(HookError::AlreadyExists {
@@ -21,8 +22,8 @@ pub(crate) fn write_hook(path: &Path, hook: GitHook, content: String) -> Result<
     Ok(())
 }
 
-pub(crate) fn override_hook(path: &Path, hook: GitHook, content: String) -> io::Result<()> {
-    let hook_path = &path.join(".git/hooks").join(hook.as_str());
+pub(crate) fn override_hook(context: &Context, hook: GitHook, content: String) -> io::Result<()> {
+    let hook_path = &context.hooks_dir().join(hook.as_str());
     fs::write(hook_path, content)?;
     fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
 }
