@@ -10,10 +10,10 @@ use std::env;
 mod commands;
 mod common;
 mod configuration;
+mod context;
 mod hooks;
 mod rules;
 mod ui;
-mod context;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]

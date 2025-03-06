@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use crate::common::BError;
 use git2::Repository;
+use std::fmt::Display;
 use std::path::{Path, PathBuf};
 
 pub(crate) struct GitRepoContext {
