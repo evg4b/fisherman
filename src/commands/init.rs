@@ -4,7 +4,7 @@ use crate::hooks::files::{build_hook_content, override_hook, write_hook};
 use crate::hooks::GitHook;
 use crate::ui::logo::logo;
 
-pub fn init_command(context: &Context, force: bool) -> Result<(), BError> {
+pub fn init_command(context: &impl Context, force: bool) -> Result<(), BError> {
     println!("{}", logo());
 
     for hook_name in GitHook::all() {

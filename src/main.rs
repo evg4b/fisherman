@@ -2,7 +2,7 @@ use crate::commands::explain::explain_command;
 use crate::commands::handle::handle_command;
 use crate::commands::init::init_command;
 use crate::common::BError;
-use crate::context::Context;
+use crate::context::{Context, GitRepoContext};
 use crate::hooks::GitHook;
 use clap::{Parser, Subcommand};
 use std::env;
@@ -47,7 +47,7 @@ enum Commands {
 fn main() -> Result<(), BError> {
     let cli = Cli::parse();
 
-    let context = &Context::new(env::current_dir()?)?;
+    let context = &GitRepoContext::new(env::current_dir()?)?;
     println!("On branch: {}", context.current_branch()?);
     println!("Hooks dir: {:?}", context.hooks_dir());
 

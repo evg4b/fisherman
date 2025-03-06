@@ -6,7 +6,7 @@ use crate::rules::{Rule, RuleResult};
 use crate::ui::hook_display::hook_display;
 use std::process::exit;
 
-pub(crate) fn handle_command(context: &Context, hook: &GitHook) -> Result<(), BError> {
+pub(crate) fn handle_command(context: &impl Context, hook: &GitHook) -> Result<(), BError> {
     let config = Configuration::load(context.repo_path())?;
     println!("{}", hook_display(hook, config.files));
 
