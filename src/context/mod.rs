@@ -2,6 +2,7 @@ use crate::common::BError;
 use git2::Repository;
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
+use mockall::*;
 
 pub(crate) struct GitRepoContext {
     repo: Repository,
@@ -9,6 +10,7 @@ pub(crate) struct GitRepoContext {
     bin: PathBuf,
 }
 
+#[automock]
 pub(crate) trait Context {
     fn repo_path(&self) -> &Path;
     fn hooks_dir(&self) -> PathBuf;

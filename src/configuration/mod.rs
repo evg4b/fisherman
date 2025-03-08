@@ -16,11 +16,13 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Default, Deserialize)]
 struct InnerConfiguration {
     pub hooks: Option<HashMap<GitHook, Vec<RuleRef>>>,
+    pub extract: Option<Vec<String>>,
 }
 
 pub(crate) struct Configuration {
     pub hooks: HashMap<GitHook, Vec<RuleRef>>,
     pub files: Vec<PathBuf>,
+    pub extract: Vec<String>,
 }
 
 impl Configuration {
@@ -46,6 +48,7 @@ impl Configuration {
 
         Ok(Configuration {
             hooks: inner_config.hooks.unwrap_or_default(),
+            extract: inner_config.extract.unwrap_or(vec![]),
             files,
         })
     }
