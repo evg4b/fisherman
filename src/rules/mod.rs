@@ -39,6 +39,7 @@ impl RuleRef {
 #[derive(Debug)]
 pub(crate) struct Rule {
     def: RuleRef,
+    variables: HashMap<String, String>,
 }
 
 #[derive(Debug)]
@@ -48,8 +49,8 @@ pub(crate) enum RuleResult {
 }
 
 impl Rule {
-    pub fn new(def: RuleRef) -> Self {
-        Self { def }
+    pub fn new(def: RuleRef, variables: HashMap<String, String>) -> Self {
+        Self { def, variables }
     }
 
     pub fn exec(&self) -> RuleResult {
@@ -59,6 +60,7 @@ impl Rule {
                     command.clone(),
                     args.clone().unwrap_or_default(),
                     env.clone().unwrap_or_default(),
+                    self.variables.clone(),
                 ) {
                     Ok((message, success)) => match success {
                         true => RuleResult::Success {
