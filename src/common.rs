@@ -25,9 +25,7 @@ impl Display for CommonError {
 impl std::error::Error for CommonError {}
 
 impl CommonError {
-    pub fn new(message: &str) -> Self {
-        Self {
-            message: message.to_string(),
-        }
+    pub fn new<T: Into<String>>(message: T) -> Self {
+        Self { message: message.into() }
     }
 }

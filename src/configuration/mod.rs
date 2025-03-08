@@ -48,7 +48,7 @@ impl Configuration {
 
         Ok(Configuration {
             hooks: inner_config.hooks.unwrap_or_default(),
-            extract: inner_config.extract.unwrap_or(vec![]),
+            extract: inner_config.extract.unwrap_or_default(),
             files,
         })
     }

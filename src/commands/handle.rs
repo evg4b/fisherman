@@ -13,31 +13,12 @@ pub(crate) fn handle_command(context: &impl Context, hook: &GitHook) -> R {
     let config = Configuration::load(context.repo_path())?;
     println!("{}", hook_display(hook, config.files));
 
-    let vars_expressions = transform_array(config.extract)?;
-    for (source, expressions) in vars_expressions.iter() {
-        let (source, opt) = source.extract(context)?;
-        println!("expressions: {:?} {:?}", expressions, opt);
-        for expression in expressions.iter() {
-            let names = expression.capture_names();
-            let captures = expression.captures(&source);
-            if let Some(captures) = captures {
-                names.into_iter().for_each(|name| {
-                    if let Some(name) = name {
-                        println!("Capturing: {}", name);
-                        let demo = captures.name(name);
-                        if let Some(demo) = demo {
-                            println!("Value: {}", demo.as_str());
-                        }
-                    }
-                });
-            }
-        }
-    }
+    let variables = extract_variables(context, config.extract)?;
 
     match config.hooks.get(hook) {
         Some(rules) => {
             let rules_to_exec: Vec<Rule> =
-                rules.iter().map(|rule| Rule::new(rule.clone())).collect();
+                rules.iter().map(|rule| Rule::new(rule.clone(), variables.clone())).collect();
 
             let results: Vec<RuleResult> =
                 rules_to_exec.into_iter().map(|rule| rule.exec()).collect();
@@ -79,9 +60,7 @@ impl VariableSource {
             "branch?" => Ok(VariableSource::Branch { optional: true }),
             "repo_path" => Ok(VariableSource::RepoPath { optional: false }),
             "repo_path?" => Ok(VariableSource::RepoPath { optional: true }),
-            _ => err!(CommonError::new(
-                format!("Invalid variable source: {}", s).as_str()
-            )),
+            _ => err!(CommonError::new(format!("Invalid variable source: {}", s))),
         }
     }
 
@@ -103,7 +82,7 @@ fn transform_array(arr: Vec<String>) -> R<HashMap<VariableSource, Vec<Regex>>> {
             Some((key, value)) => {
                 let expression = Regex::new(value)?;
                 let key = VariableSource::from_str(key)?;
-                map.entry(key).or_insert_with(Vec::new).push(expression);
+                map.entry(key).or_default().push(expression);
             }
             None => err!(CommonError::new("Invalid extract format")),
         }
@@ -115,11 +94,7 @@ fn transform_array(arr: Vec<String>) -> R<HashMap<VariableSource, Vec<Regex>>> {
 fn extract_variables(
     ctx: &impl Context,
     extract: Vec<String>,
-) -> R<Option<HashMap<String, String>>> {
-    if extract.is_empty() {
-        return Ok(None);
-    }
-
+) -> R<HashMap<String, String>> {
     let expressions = transform_array(extract)?;
 
     let mut variables = HashMap::new();
@@ -141,13 +116,13 @@ fn extract_variables(
                     });
                 }
                 None => err!(CommonError::new(
-                    format!("The expression {:?} does not match the source {:?}", expression, source).as_str()
+                    format!("The expression {:?} does not match the source {:?}", expression, source)
                 )),
             }
         }
     }
 
-    Ok(Some(variables))
+    Ok(variables)
 }
 
 #[cfg(test)]
@@ -161,7 +136,7 @@ mod extract_variables_tests {
     fn accept_empty_vec() {
         let context = &MockContext::new();
         let result = extract_variables(context, vec![]).unwrap();
-        assert_that!(result).is_none();
+        assert_that!(result).is_equal_to(HashMap::new());
     }
 
     #[test]
@@ -174,7 +149,7 @@ mod extract_variables_tests {
         let extract = vec!["branch:m(?P<part>.*)".to_string()];
 
         let result: HashMap<String, String> =
-            extract_variables(&context, extract).unwrap().unwrap();
+            extract_variables(&context, extract).unwrap();
 
         assert_that!(result).has_length(1);
         assert_that!(result["part"]).is_equal_to("aster".to_string())
@@ -189,7 +164,7 @@ mod extract_variables_tests {
         let extract = vec!["repo_path:^/path/(?P<demo>.*)/repo$".to_string()];
 
         let result: HashMap<String, String> =
-            extract_variables(&context, extract).unwrap().unwrap();
+            extract_variables(&context, extract).unwrap();
 
         assert_that!(result).has_length(1);
         assert_that!(result["demo"]).is_equal_to("to".to_string())
@@ -204,7 +179,7 @@ mod extract_variables_tests {
         let extract = vec!["repo_path:^/(?P<S1>.\\S+)/(?P<S2>.\\S+)/(?P<S3>.\\S+)$".to_string()];
 
         let result: HashMap<String, String> =
-            extract_variables(&context, extract).unwrap().unwrap();
+            extract_variables(&context, extract).unwrap();
 
         assert_that!(result).has_length(3);
         assert_that!(result["S1"]).is_equal_to("path".to_string());
