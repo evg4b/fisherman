@@ -7,7 +7,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::{fs, io};
 
-pub(crate) fn write_hook(context: &impl Context, hook: GitHook, content: String) -> Result<(), BError> {
+pub fn write_hook(context: &impl Context, hook: GitHook, content: String) -> Result<(), BError> {
     let hook_path = &context.hooks_dir().join(hook.as_str());
 
     if hook_path.exists() {
@@ -22,12 +22,12 @@ pub(crate) fn write_hook(context: &impl Context, hook: GitHook, content: String)
     Ok(())
 }
 
-pub(crate) fn override_hook(context: &impl Context, hook: GitHook, content: String) -> io::Result<()> {
+pub fn override_hook(context: &impl Context, hook: GitHook, content: String) -> io::Result<()> {
     let hook_path = &context.hooks_dir().join(hook.as_str());
     fs::write(hook_path, content)?;
     fs::set_permissions(hook_path, fs::Permissions::from_mode(0o700))
 }
 
-pub(crate) fn build_hook_content(bin: &Path, hook_name: GitHook) -> String {
+pub fn build_hook_content(bin: &Path, hook_name: GitHook) -> String {
     format!("#!/bin/sh\n{} handle {}\n", bin.display(), hook_name)
 }

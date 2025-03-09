@@ -1,2 +1,5 @@
-pub(crate) mod hook_display;
-pub(crate) mod logo;
+mod hook_display;
+mod logo;
+
+pub use hook_display::hook_display;
+pub use logo::logo;

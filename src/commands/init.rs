@@ -1,8 +1,8 @@
 use crate::common::BError;
 use crate::context::Context;
-use crate::hooks::files::{build_hook_content, override_hook, write_hook};
+use crate::hooks::{build_hook_content, override_hook, write_hook};
 use crate::hooks::GitHook;
-use crate::ui::logo::logo;
+use crate::ui::logo;
 
 pub fn init_command(context: &impl Context, force: bool) -> Result<(), BError> {
     println!("{}", logo());

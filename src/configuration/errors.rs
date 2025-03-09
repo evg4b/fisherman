@@ -2,7 +2,7 @@ use std::fmt;
 use std::path::PathBuf;
 
 #[derive(Debug)]
-pub(crate) enum ConfigurationError {
+pub enum ConfigurationError {
     MultipleConfigFiles { files: Vec<PathBuf> },
     UnknownConfigFileExtension,
 }

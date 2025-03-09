@@ -1,4 +1,4 @@
-pub(crate) fn logo() -> String {
+pub fn logo() -> String {
     format!(
         r#"
  .d888  d8b          888

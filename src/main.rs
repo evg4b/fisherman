@@ -1,6 +1,4 @@
-use crate::commands::explain::explain_command;
-use crate::commands::handle::handle_command;
-use crate::commands::init::init_command;
+use crate::commands::{explain_command, handle_command, init_command};
 use crate::common::BError;
 use crate::context::{Context, GitRepoContext};
 use crate::hooks::GitHook;
@@ -13,8 +11,8 @@ mod configuration;
 mod context;
 mod hooks;
 mod rules;
-mod ui;
 mod templates;
+mod ui;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]

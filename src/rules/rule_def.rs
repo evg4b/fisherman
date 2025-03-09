@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use serde::Deserialize;
 use crate::common::BError;
 use crate::context::Context;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::rule::CompiledRule;
 use crate::rules::vars::extract_variables;
+use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
