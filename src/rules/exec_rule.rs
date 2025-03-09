@@ -1,5 +1,5 @@
 use crate::rules::rule::{CompiledRule, RuleResult};
-use crate::templates::replace_in_hashmap;
+use crate::templates::{replace_in_hashmap, replace_in_vac};
 use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
@@ -41,7 +41,7 @@ impl CompiledRule for ExecRule {
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
 
         let output = Command::new(self.command.clone())
-            .args(self.args.clone())
+            .args(replace_in_vac(&self.args, &self.variables)?)
             .envs(env_map)
             .output()?;
 
@@ -55,5 +55,114 @@ impl CompiledRule for ExecRule {
                 message: String::from_utf8_lossy(&output.stderr).to_string(),
             }),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use assertor::{assert_that, EqualityAssertion, StringAssertion};
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_exec_rule() {
+        let rule = ExecRule::new(
+            "test".into(),
+            "echo".into(),
+            vec!["hello".into()],
+            HashMap::new(),
+            HashMap::new(),
+        );
+
+        let result = rule.check().unwrap();
+        let RuleResult::Success { name, output } = result else {
+            panic!("Expected Success, but got {:?}", result)
+        };
+
+        assert_that!(name).is_equal_to("test".to_string());
+        assert_that!(output).is_equal_to("hello\n".to_string());
+    }
+
+    #[test]
+    fn test_exec_rule_with_env() {
+        let mut env = HashMap::new();
+        env.insert("HELLO".into(), "world".into());
+
+        let rule = ExecRule::new(
+            "test".into(),
+            "printenv".into(),
+            vec![],
+            env,
+            HashMap::new(),
+        );
+
+        let result = rule.check().unwrap();
+        let RuleResult::Success { name, output } = result else {
+            panic!("Expected Success, but got {:?}", result)
+        };
+
+        assert_that!(name).is_equal_to("test".to_string());
+        assert_that!(output).contains("HELLO=world".to_string());
+    }
+
+    #[test]
+    fn test_exec_rule_with_variables() {
+        let mut variables = HashMap::new();
+        variables.insert("HELLO".into(), "world".into());
+
+        let rule = ExecRule::new(
+            "test".into(),
+            "echo".into(),
+            vec!["hello".into(), "{{HELLO}}".into()],
+            HashMap::new(),
+            variables,
+        );
+
+        let result = rule.check().unwrap();
+        let RuleResult::Success { name, output } = result else {
+            panic!("Expected Success, but got {:?}", result)
+        };
+
+        assert_that!(name).is_equal_to("test".to_string());
+        assert_that!(output).is_equal_to("hello world\n".to_string());
+    }
+
+    #[test]
+    fn test_exec_rule_with_variable222() {
+        let mut variables = HashMap::new();
+        variables.insert("HELLO".into(), "world".into());
+
+        let rule = ExecRule::new(
+            "test".into(),
+            "cat".into(),
+            vec!["./unknown.txt".into()],
+            HashMap::new(),
+            variables,
+        );
+
+        let result = rule.check().unwrap();
+        let RuleResult::Failure { name, message } = result else {
+            panic!("Expected Success, but got {:?}", result)
+        };
+
+        assert_that!(name).is_equal_to("test".to_string());
+        assert_that!(message)
+            .is_equal_to("cat: ./unknown.txt: No such file or directory\n".to_string());
+    }
+
+    #[test]
+    fn test_return_error() {
+        let rule = ExecRule::new(
+            "test".into(),
+            "XXXXXXXXXXXX".into(),
+            vec![],
+            HashMap::new(),
+            HashMap::new(),
+        );
+
+        let result = rule.check().err().unwrap();
+
+        assert_that!(result.to_string())
+            .is_equal_to("No such file or directory (os error 2)".to_string());
     }
 }
