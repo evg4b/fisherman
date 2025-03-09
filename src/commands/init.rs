@@ -1,28 +1,14 @@
 use crate::common::BError;
 use crate::context::Context;
-use crate::hooks::{build_hook_content, override_hook, write_hook};
 use crate::hooks::GitHook;
 use crate::ui::logo;
 
 pub fn init_command(context: &impl Context, force: bool) -> Result<(), BError> {
     println!("{}", logo());
 
-    for hook_name in GitHook::all() {
-        if force {
-            override_hook(
-                context,
-                hook_name,
-                build_hook_content(context.bin(), hook_name),
-            )?;
-        } else {
-            write_hook(
-                context,
-                hook_name,
-                build_hook_content(context.bin(), hook_name),
-            )?;
-        }
-
-        println!("Hook {} initialized", hook_name);
+    for hook in GitHook::all() {
+        hook.install(context, force)?;
+        println!("Hook {} initialized", hook);
     }
 
     Ok(())

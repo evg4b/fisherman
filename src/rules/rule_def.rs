@@ -53,6 +53,7 @@ impl RuleRef {
 
                 let variables = extract_variables(context, local_extract)?;
                 Ok(ExecRule::new(
+                    self.name(),
                     command.clone(),
                     args.clone().unwrap_or_default(),
                     env.clone().unwrap_or_default(),

@@ -18,7 +18,7 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<(), BErr
 
 
             let results: Vec<RuleResult> = rules_to_exec
-                .map(|rule| rule.unwrap().check())
+                .map(|rule| rule.unwrap().check().unwrap())
                 .collect();
 
             for rule in results.iter() {

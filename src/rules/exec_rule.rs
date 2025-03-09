@@ -8,25 +8,9 @@ use std::process::Command;
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
 
-fn exec_rule(
-    command: String,
-    args: Args,
-    env: Env,
-    map: HashMap<String, String>,
-) -> Result<(String, bool), BError> {
-    let mut env_map: Env = env::vars().collect();
-    env_map.extend(replace_in_hashmap(&env, &map)?);
-
-    let cmd = Command::new(command).args(args).envs(env_map).output()?;
-
-    Ok((
-        String::from_utf8_lossy(&cmd.stdout).to_string(),
-        cmd.status.success(),
-    ))
-}
-
 #[derive(Debug)]
 pub struct ExecRule {
+    name: String,
     command: String,
     args: Args,
     env: Env,
@@ -34,8 +18,15 @@ pub struct ExecRule {
 }
 
 impl ExecRule {
-    pub fn new(command: String, args: Args, env: Env, variables: HashMap<String, String>) -> Self {
+    pub fn new(
+        name: String,
+        command: String,
+        args: Args,
+        env: Env,
+        variables: HashMap<String, String>,
+    ) -> Self {
         Self {
+            name,
             command,
             args,
             env,
@@ -45,30 +36,24 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
-    fn check(&self) -> RuleResult {
-        match exec_rule(
-            self.command.clone(),
-            self.args.clone(),
-            self.env.clone(),
-            self.variables.clone(),
-        ) {
-            Ok((output, success)) => {
-                if success {
-                    RuleResult::Success {
-                        name: self.command.clone(),
-                        output,
-                    }
-                } else {
-                    RuleResult::Failure {
-                        name: self.command.clone(),
-                        message: output,
-                    }
-                }
-            }
-            Err(e) => RuleResult::Failure {
-                name: self.command.clone(),
-                message: e.to_string(),
-            },
+    fn check(&self) -> Result<RuleResult, BError> {
+        let mut env_map: Env = env::vars().collect();
+        env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
+
+        let output = Command::new(self.command.clone())
+            .args(self.args.clone())
+            .envs(env_map)
+            .output()?;
+
+        match output.status.success() {
+            true => Ok(RuleResult::Success {
+                name: self.name.clone(),
+                output: String::from_utf8_lossy(&output.stdout).to_string(),
+            }),
+            false => Ok(RuleResult::Failure {
+                name: self.name.clone(),
+                message: String::from_utf8_lossy(&output.stderr).to_string(),
+            }),
         }
     }
 }

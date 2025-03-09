@@ -1,3 +1,4 @@
+#[allow(clippy::module_inception)]
 mod context;
 mod git_repo_context;
 

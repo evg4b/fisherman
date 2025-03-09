@@ -10,12 +10,10 @@
 <hr>
 <div align="center">
     <a href="https://github.com/evg4b/fisherman/actions/workflows/rust.yml">
-        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/rust.yml?branch=master">
+        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/rust.yml?branch=master&label=Build">
     </a>
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
-        <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman">
+        <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
     </a>
-    <br>
-    <img alt="Covered Lines" src="./.github/badges/lines.svg">
-    <img alt="Covered Function" src="./.github/badges/lines.svg">
+    <img alt="Coverage" src="./.github/badges/coverage.svg">
 </div>

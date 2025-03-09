@@ -15,5 +15,9 @@ serde = { version = "1.0.217", features = ["derive"] }
 dirs = "6.0.0"
 git2 = "0.20.0"
 regex = "1.11.1"
-assertor = { version = "*", features = ["anyhow"] }
 mockall = "0.13.1"
+
+[dev-dependencies]
+rstest = "0.25.0"
+tempdir = "0.3"
+assertor = { version = "*", features = ["anyhow"] }
