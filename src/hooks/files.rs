@@ -1,8 +1,8 @@
 use crate::common::BError;
 use crate::context::Context;
 use crate::err;
-use crate::hooks::GitHook;
 use crate::hooks::errors::HookError;
+use crate::hooks::GitHook;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 use std::{fs, io};

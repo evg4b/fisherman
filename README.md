@@ -15,4 +15,7 @@
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
         <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman">
     </a>
+    <br>
+    <img alt="Covered Lines" src="./.github/badges/lines.svg">
+    <img alt="Covered Function" src="./.github/badges/lines.svg">
 </div>
