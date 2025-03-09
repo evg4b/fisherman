@@ -14,6 +14,7 @@ mod context;
 mod hooks;
 mod rules;
 mod ui;
+mod templates;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]

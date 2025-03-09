@@ -9,6 +9,7 @@ macro_rules! err {
 }
 
 pub type BError = Box<dyn std::error::Error>;
+
 pub type R<T = ()> = Result<T, BError>;
 
 #[derive(Debug)]

@@ -44,7 +44,7 @@ pub(crate) struct Rule {
 
 #[derive(Debug)]
 pub(crate) enum RuleResult {
-    Success { name: String },
+    Success { name: String, output: String, },
     Failure { name: String, message: String },
 }
 
@@ -65,6 +65,7 @@ impl Rule {
                     Ok((message, success)) => match success {
                         true => RuleResult::Success {
                             name: self.name(),
+                            output: message,
                         },
                         false => RuleResult::Failure {
                             message,

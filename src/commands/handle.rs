@@ -25,8 +25,11 @@ pub(crate) fn handle_command(context: &impl Context, hook: &GitHook) -> R {
 
             for rule in results.iter() {
                 match rule {
-                    RuleResult::Success { name } => {
+                    RuleResult::Success { name, output } => {
                         println!("{} executed successfully", name);
+                        if !output.is_empty() {
+                            println!("{}", output);
+                        }
                     }
                     RuleResult::Failure { message, name } => {
                         eprintln!("{}: {}", name, message);
