@@ -1,7 +1,7 @@
 mod exec_rule;
 mod rule;
 mod rule_def;
-mod vars;
+mod variables;
 
 pub use crate::rules::rule::CompiledRule;
 pub use crate::rules::rule::RuleResult;

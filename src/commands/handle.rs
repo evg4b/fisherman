@@ -10,12 +10,10 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<(), BErr
     let config = Configuration::load(context.repo_path())?;
     println!("{}", hook_display(hook, config.files));
 
-
     match config.hooks.get(hook) {
         Some(rules) => {
             let rules_to_exec = rules.iter()
                     .map(|rule| rule.compile(context, config.extract.clone()));
-
 
             let results: Vec<RuleResult> = rules_to_exec
                 .map(|rule| rule.unwrap().check().unwrap())

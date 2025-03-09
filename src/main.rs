@@ -1,8 +1,7 @@
-use crate::commands::{explain_command, handle_command, init_command};
+use crate::commands::{Commands};
 use crate::common::BError;
-use crate::context::{Context, GitRepoContext};
-use crate::hooks::GitHook;
-use clap::{Parser, Subcommand};
+use crate::context::GitRepoContext;
+use clap::{Parser};
 use std::env;
 
 mod commands;
@@ -21,42 +20,12 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Initialize hooks for the repository
-    Init {
-        /// Force the initialization of the hooks (override existing hooks)
-        #[arg(short, long)]
-        force: bool,
-    },
-    /// Handle a hook
-    Handle {
-        /// The hook to handle
-        #[arg(value_enum)]
-        hook: GitHook,
-    },
-    /// Explain a hook behavior
-    Explain {
-        /// The hook to explain
-        #[arg(value_enum)]
-        hook: GitHook,
-    },
-}
-
 fn main() -> Result<(), BError> {
     let cli = Cli::parse();
 
     let context = &GitRepoContext::new(env::current_dir()?)?;
-    println!("On branch: {}", context.current_branch()?);
-    println!("Hooks dir: {:?}", context.hooks_dir());
 
-    let result = match &cli.command {
-        Commands::Init { force } => init_command(context, *force),
-        Commands::Handle { hook } => handle_command(context, hook),
-        Commands::Explain { hook } => explain_command(context, hook),
-    };
-
-    match result {
+    match cli.command.run(context) {
         Ok(_) => Ok(()),
         Err(err) => {
             eprintln!("Error: {}", err);
