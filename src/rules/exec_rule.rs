@@ -1,6 +1,6 @@
-use crate::common::BError;
 use crate::rules::rule::{CompiledRule, RuleResult};
 use crate::templates::replace_in_hashmap;
+use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
@@ -36,7 +36,7 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
-    fn check(&self) -> Result<RuleResult, BError> {
+    fn check(&self) -> Result<RuleResult> {
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
 

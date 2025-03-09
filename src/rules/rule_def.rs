@@ -1,8 +1,8 @@
-use crate::common::BError;
 use crate::context::Context;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::rule::CompiledRule;
 use crate::rules::variables::extract_variables;
+use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -16,7 +16,7 @@ pub enum RuleRef {
         env: Option<HashMap<String, String>>,
         extract: Option<Vec<String>>,
     },
-    
+
 }
 
 impl std::fmt::Display for RuleRef {
@@ -46,14 +46,14 @@ impl RuleRef {
         }
     }
 
-    pub fn compile(&self, context: &impl Context, global_extract: Vec<String>) -> Result<impl CompiledRule, BError> {
+    pub fn compile(&self, context: &impl Context, global_extract: Vec<String>) -> Result<impl CompiledRule> {
         match self {
             RuleRef::ExecRule { command, args, env, extract } => {
                 let mut local_extract = extract.clone().unwrap_or_default();
                 local_extract.extend(global_extract);
 
                 let variables = extract_variables(context, local_extract)?;
-                
+
                 Ok(ExecRule::new(
                     self.name(),
                     command.clone(),

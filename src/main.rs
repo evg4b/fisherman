@@ -1,11 +1,9 @@
-use crate::commands::{Commands};
-use crate::common::BError;
+use crate::commands::Commands;
 use crate::context::GitRepoContext;
-use clap::{Parser};
+use clap::Parser;
 use std::env;
 
 mod commands;
-mod common;
 mod configuration;
 mod context;
 mod hooks;
@@ -20,7 +18,7 @@ struct Cli {
     command: Commands,
 }
 
-fn main() -> Result<(), BError> {
+fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let context = &GitRepoContext::new(env::current_dir()?)?;

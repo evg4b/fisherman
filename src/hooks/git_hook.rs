@@ -1,6 +1,5 @@
-use crate::common::BError;
-use crate::err;
 use crate::hooks::errors::HookError;
+use anyhow::{bail, Result};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
@@ -98,11 +97,11 @@ impl GitHook {
         &self,
         context: &impl crate::context::Context,
         force: bool,
-    ) -> Result<(), BError> {
+    ) -> Result<()> {
         let hook_path = &context.hooks_dir().join(self.as_str());
         let hook_exists = hook_path.exists();
         if hook_exists && !force {
-            err!(HookError::AlreadyExists {
+            bail!(HookError::AlreadyExists {
                 name: self.as_str(),
                 hook: hook_path.clone()
             });
@@ -135,7 +134,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;

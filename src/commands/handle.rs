@@ -1,12 +1,12 @@
-use crate::common::BError;
 use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::ui::hook_display;
+use anyhow::Result;
 use std::process::exit;
 
-pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<(), BError> {
+pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
     let config = Configuration::load(context.repo_path())?;
     println!("{}", hook_display(hook, config.files));
 

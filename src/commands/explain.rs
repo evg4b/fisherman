@@ -1,10 +1,10 @@
-use crate::common::BError;
 use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::ui::hook_display;
+use anyhow::Result;
 
-pub fn explain_command(context: &impl Context, hook: &GitHook) -> Result<(), BError> {
+pub fn explain_command(context: &impl Context, hook: &GitHook) -> Result<()> {
     let config = Configuration::load(context.repo_path())?;
 
     println!("{}", hook_display(hook, config.files));

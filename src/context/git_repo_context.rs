@@ -1,8 +1,8 @@
-use crate::common::BError;
+use crate::context::Context;
+use anyhow::Result;
 use git2::Repository;
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
-use crate::context::Context;
 
 pub struct GitRepoContext {
     repo: Repository,
@@ -23,14 +23,14 @@ impl Context for GitRepoContext {
         self.bin.as_path()
     }
 
-    fn current_branch(&self) -> Result<String, BError> {
+    fn current_branch(&self) -> Result<String> {
         let head = self.repo.head()?;
         Ok(head.shorthand().unwrap_or("HEAD").to_string())
     }
 }
 
 impl GitRepoContext {
-    pub(crate) fn new(cwd: PathBuf) -> Result<Self, BError> {
+    pub(crate) fn new(cwd: PathBuf) -> Result<Self> {
         let repo = Repository::open(cwd.clone())?;
         let bin = std::env::current_exe()?;
 

@@ -1,6 +1,5 @@
-use crate::common::{CommonError, R};
 use crate::context::Context;
-use crate::err;
+use anyhow::{bail, Result};
 use regex::Regex;
 use std::collections::HashMap;
 
@@ -11,17 +10,17 @@ enum VariableSource {
 }
 
 impl VariableSource {
-    fn from_str(s: &str) -> R<Self> {
+    fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "branch" => Ok(VariableSource::Branch { optional: false }),
             "branch?" => Ok(VariableSource::Branch { optional: true }),
             "repo_path" => Ok(VariableSource::RepoPath { optional: false }),
             "repo_path?" => Ok(VariableSource::RepoPath { optional: true }),
-            _ => err!(CommonError::new(format!("Invalid variable source: {}", s))),
+            _ => bail!("Invalid variable source: {}", s),
         }
     }
 
-    fn extract(&self, context: &impl Context) -> R<(String, bool)> {
+    fn extract(&self, context: &impl Context) -> Result<(String, bool)> {
         match self {
             VariableSource::Branch { optional } => Ok((context.current_branch()?, *optional)),
             VariableSource::RepoPath { optional } => {
@@ -31,7 +30,7 @@ impl VariableSource {
     }
 }
 
-fn transform_array(arr: Vec<String>) -> R<HashMap<VariableSource, Vec<Regex>>> {
+fn transform_array(arr: Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex>>> {
     let mut map: HashMap<VariableSource, Vec<Regex>> = HashMap::new();
 
     for entry in arr {
@@ -41,7 +40,7 @@ fn transform_array(arr: Vec<String>) -> R<HashMap<VariableSource, Vec<Regex>>> {
                 let key = VariableSource::from_str(key)?;
                 map.entry(key).or_default().push(expression);
             }
-            None => err!(CommonError::new("Invalid extract format")),
+            None => bail!("Invalid extract format"),
         }
     }
 
@@ -51,7 +50,7 @@ fn transform_array(arr: Vec<String>) -> R<HashMap<VariableSource, Vec<Regex>>> {
 pub(crate) fn extract_variables(
     ctx: &impl Context,
     extract: Vec<String>,
-) -> R<HashMap<String, String>> {
+) -> Result<HashMap<String, String>> {
     let expressions = transform_array(extract)?;
     let mut variables = HashMap::with_capacity(expressions.len());
 
@@ -70,14 +69,14 @@ pub(crate) fn extract_variables(
                 }
                 None => {
                     if optional {
-                       continue;
+                        continue;
                     }
 
-                    err!(CommonError::new(format!(
+                    bail!(
                         "The expression \"{}\" does not match the source \"{:}\"",
                         expression,
                         source
-                    )));
+                    );
                 }
             }
         }
@@ -157,9 +156,8 @@ mod extract_variables_tests {
         let error = extract_variables(&context, extract);
 
         assert_that!(error).is_err();
-        assert_that!(error.unwrap_err().to_string()).is_equal_to(
-            "The expression \"^.&\" does not match the source \"master\"".to_string(),
-        );
+        assert_that!(error.unwrap_err().to_string())
+            .is_equal_to("The expression \"^.&\" does not match the source \"master\"".to_string());
     }
 
     #[test]

@@ -1,10 +1,9 @@
-use crate::common::BError;
 use crate::configuration::errors::ConfigurationError;
-use crate::err;
+use anyhow::{bail, Result};
 use dirs::home_dir;
 use std::path::{Path, PathBuf};
 
-pub fn find_config_files(path: &Path) -> Result<Vec<PathBuf>, BError> {
+pub fn find_config_files(path: &Path) -> Result<Vec<PathBuf>> {
     let locations = vec![path.join(".git"), path.to_path_buf(), home_dir().unwrap()];
     let mut config_files = vec![];
     for location_path in locations {
@@ -12,7 +11,7 @@ pub fn find_config_files(path: &Path) -> Result<Vec<PathBuf>, BError> {
         match files.len() {
             0 => continue,
             1 => config_files.push(files[0].clone()),
-            _ => err!(ConfigurationError::MultipleConfigFiles { files }),
+            _ => bail!(ConfigurationError::MultipleConfigFiles { files }),
         }
     }
 

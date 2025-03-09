@@ -1,4 +1,4 @@
-use crate::common::BError;
+use anyhow::Result;
 
 #[derive(Debug)]
 pub enum RuleResult {
@@ -7,5 +7,5 @@ pub enum RuleResult {
 }
 
 pub trait CompiledRule {
-    fn check(&self) -> Result<RuleResult, BError>;
+    fn check(&self) -> Result<RuleResult>;
 }

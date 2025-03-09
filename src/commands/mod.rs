@@ -2,9 +2,9 @@ mod explain;
 mod handle;
 mod init;
 
-use crate::common::BError;
 use crate::context::Context;
 use crate::hooks::GitHook;
+use anyhow::Result;
 use clap::Subcommand;
 pub use explain::explain_command;
 pub use handle::handle_command;
@@ -34,7 +34,7 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn run(&self, context: &impl Context) -> Result<(), BError> {
+    pub fn run(&self, context: &impl Context) -> Result<()> {
         match self {
             Commands::Init { force, hooks } => init_command(context, hooks.clone(), *force),
             Commands::Handle { hook } => handle_command(context, hook),
