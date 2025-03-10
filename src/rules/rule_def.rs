@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use regex::Regex;
 use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
+use crate::rules::shell_script::ShellScript;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
@@ -22,20 +23,23 @@ pub enum RuleDefinition {
     },
     #[serde(rename = "message-regex")]
     CommitMessageRegex {
-        #[serde(rename = "regex")]
         regex: String,
     },
     #[serde(rename = "message-prefix")]
     CommitMessagePrefix {
         extract: Option<Vec<String>>,
-        #[serde(rename = "prefix")]
         prefix: String,
     },
     #[serde(rename = "message-suffix")]
     CommitMessageSuffix {
         extract: Option<Vec<String>>,
-        #[serde(rename = "suffix")]
         suffix: String,
+    },
+    #[serde(rename = "shell")]
+    ShellScript {
+        extract: Option<Vec<String>>,
+        env: Option<HashMap<String, String>>,
+        script: String,
     },
 }
 
@@ -71,6 +75,9 @@ impl RuleDefinition {
             },
             RuleDefinition::CommitMessageSuffix { suffix, .. } => {
                 format!("commit message rule should end with: {}", suffix)
+            },
+            RuleDefinition::ShellScript { script, .. } => {
+                format!("shell script:\n{}", script)
             }
         }
     }
@@ -109,6 +116,16 @@ impl RuleDefinition {
                 let rule = CommitMessageSuffix::new(
                     self.name(),
                     suffix.clone(),
+                    prepare_variables(context, global_extract, extract)?,
+                );
+
+                Ok(Box::new(rule))
+            },
+            RuleDefinition::ShellScript { script, extract, env } => {
+                let rule = ShellScript::new(
+                    self.name(),
+                    script.clone(),
+                    env.clone().unwrap_or_default(),
                     prepare_variables(context, global_extract, extract)?,
                 );
 

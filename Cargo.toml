@@ -18,6 +18,7 @@ regex = "1.11.1"
 mockall = "0.13.1"
 anyhow = "1.0.44"
 thiserror = "2.0.12"
+run_script = "0.11.0"
 
 [dev-dependencies]
 rstest = "0.25.0"
