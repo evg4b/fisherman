@@ -6,50 +6,92 @@ use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
 const APPLYPATCH_MSG: &str = "applypatch-msg";
-const COMMIT_MSG: &str = "commit-msg";
-const FSMONITOR_WATCHMAN: &str = "fsmonitor-watchman";
-const POST_UPDATE: &str = "post-update";
-const PRE_APPLY_PATCH: &str = "pre-applypatch";
+const PRE_APPLYPATCH: &str = "pre-applypatch";
+const POST_APPLYPATCH: &str = "post-applypatch";
 const PRE_COMMIT: &str = "pre-commit";
 const PRE_MERGE_COMMIT: &str = "pre-merge-commit";
-const PRE_PUSH: &str = "pre-push";
-const PRE_REBASE: &str = "pre-rebase";
-const PRE_RECEIVE: &str = "pre-receive";
 const PREPARE_COMMIT_MSG: &str = "prepare-commit-msg";
-const PUSH_TO_CHECKOUT: &str = "push-to-checkout";
-const SENDEMAIL_VALIDATE: &str = "sendemail-validate";
+const COMMIT_MSG: &str = "commit-msg";
+const POST_COMMIT: &str = "post-commit";
+const PRE_REBASE: &str = "pre-rebase";
+const POST_CHECKOUT: &str = "post-checkout";
+const POST_MERGE: &str = "post-merge";
+const PRE_PUSH: &str = "pre-push";
+const PRE_RECEIVE: &str = "pre-receive";
 const UPDATE: &str = "update";
+const PROC_RECEIVE: &str = "proc-receive";
+const POST_RECEIVE: &str = "post-receive";
+const POST_UPDATE: &str = "post-update";
+const REFERENCE_TRANSACTION: &str = "reference-transaction";
+const PUSH_TO_CHECKOUT: &str = "push-to-checkout";
+const PRE_AUTO_GC: &str = "pre-auto-gc";
+const POST_REWRITE: &str = "post-rewrite";
+const SENDEMAIL_VALIDATE: &str = "sendemail-validate";
+const FSMONITOR_WATCHMAN: &str = "fsmonitor-watchman";
+const P4_CHANGELIST: &str = "p4-changelist";
+const P4_PREPARE_CHANGELIST: &str = "p4-prepare-changelist";
+const P4_POST_CHANGELIST: &str = "p4-post-changelist";
+const P4_PRE_SUBMIT: &str = "p4-pre-submit";
+const POST_INDEX_CHANGE: &str = "post-index-change";
 
 #[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, ValueEnum)]
 pub enum GitHook {
-    #[serde(rename = "applypatch-msg")]
+    #[serde(rename="applypatch-msg")]
     ApplypatchMsg,
-    #[serde(rename = "commit-msg")]
-    CommitMsg,
-    #[serde(rename = "fsmonitor-watchman")]
-    FsmonitorWatchman,
-    #[serde(rename = "post-update")]
-    PostUpdate,
-    #[serde(rename = "pre-applypatch")]
+    #[serde(rename="pre-applypatch")]
     PreApplypatch,
-    #[serde(rename = "pre-commit")]
+    #[serde(rename="post-applypatch")]
+    PostApplypatch,
+    #[serde(rename="pre-commit")]
     PreCommit,
-    #[serde(rename = "pre-merge-commit")]
+    #[serde(rename="pre-merge-commit")]
     PreMergeCommit,
-    #[serde(rename = "pre-push")]
-    PrePush,
-    #[serde(rename = "pre-rebase")]
-    PreRebase,
-    #[serde(rename = "pre-receive")]
-    PreReceive,
-    #[serde(rename = "prepare-commit-msg")]
+    #[serde(rename="prepare-commit-msg")]
     PrepareCommitMsg,
-    #[serde(rename = "push-to-checkout")]
-    PushToCheckout,
-    #[serde(rename = "sendemail-validate")]
-    SendemailValidate,
-    #[serde(rename = "update")]
+    #[serde(rename="commit-msg")]
+    CommitMsg,
+    #[serde(rename="post-commit")]
+    PostCommit,
+    #[serde(rename="pre-rebase")]
+    PreRebase,
+    #[serde(rename="post-checkout")]
+    PostCheckout,
+    #[serde(rename="post-merge")]
+    PostMerge,
+    #[serde(rename="pre-push")]
+    PrePush,
+    #[serde(rename="pre-receive")]
+    PreReceive,
+    #[serde(rename="update")]
     Update,
+    #[serde(rename="proc-receive")]
+    ProcReceive,
+    #[serde(rename="post-receive")]
+    PostReceive,
+    #[serde(rename="post-update")]
+    PostUpdate,
+    #[serde(rename="reference-transaction")]
+    ReferenceTransaction,
+    #[serde(rename="push-to-checkout")]
+    PushToCheckout,
+    #[serde(rename="pre-auto-gc")]
+    PreAutoGc,
+    #[serde(rename="post-rewrite")]
+    PostRewrite,
+    #[serde(rename="sendemail-validate")]
+    SendemailValidate,
+    #[serde(rename="fsmonitor-watchman")]
+    FsmonitorWatchman,
+    #[serde(rename="p4-changelist")]
+    P4Changelist,
+    #[serde(rename="p4-prepare-changelist")]
+    P4PrepareChangelist,
+    #[serde(rename="p4-post-changelist")]
+    P4PostChangelist,
+    #[serde(rename="p4-pre-submit")]
+    P4PreSubmit,
+    #[serde(rename="post-index-change")]
+    PostIndexChange,
 }
 
 impl GitHook {
@@ -57,19 +99,33 @@ impl GitHook {
     pub fn all() -> Vec<GitHook> {
         vec![
             GitHook::ApplypatchMsg,
-            GitHook::CommitMsg,
-            GitHook::FsmonitorWatchman,
-            GitHook::PostUpdate,
             GitHook::PreApplypatch,
+            GitHook::PostApplypatch,
             GitHook::PreCommit,
             GitHook::PreMergeCommit,
-            GitHook::PrePush,
-            GitHook::PreRebase,
-            GitHook::PreReceive,
             GitHook::PrepareCommitMsg,
-            GitHook::PushToCheckout,
-            GitHook::SendemailValidate,
+            GitHook::CommitMsg,
+            GitHook::PostCommit,
+            GitHook::PreRebase,
+            GitHook::PostCheckout,
+            GitHook::PostMerge,
+            GitHook::PrePush,
+            GitHook::PreReceive,
             GitHook::Update,
+            GitHook::ProcReceive,
+            GitHook::PostReceive,
+            GitHook::PostUpdate,
+            GitHook::ReferenceTransaction,
+            GitHook::PushToCheckout,
+            GitHook::PreAutoGc,
+            GitHook::PostRewrite,
+            GitHook::SendemailValidate,
+            GitHook::FsmonitorWatchman,
+            GitHook::P4Changelist,
+            GitHook::P4PrepareChangelist,
+            GitHook::P4PostChangelist,
+            GitHook::P4PreSubmit,
+            GitHook::PostIndexChange,
         ]
     }
 
@@ -77,19 +133,33 @@ impl GitHook {
     pub fn as_str(&self) -> &'static str {
         match self {
             GitHook::ApplypatchMsg => APPLYPATCH_MSG,
-            GitHook::CommitMsg => COMMIT_MSG,
-            GitHook::FsmonitorWatchman => FSMONITOR_WATCHMAN,
-            GitHook::PostUpdate => POST_UPDATE,
-            GitHook::PreApplypatch => PRE_APPLY_PATCH,
+            GitHook::PreApplypatch => PRE_APPLYPATCH,
+            GitHook::PostApplypatch => POST_APPLYPATCH,
             GitHook::PreCommit => PRE_COMMIT,
             GitHook::PreMergeCommit => PRE_MERGE_COMMIT,
-            GitHook::PrePush => PRE_PUSH,
-            GitHook::PreRebase => PRE_REBASE,
-            GitHook::PreReceive => PRE_RECEIVE,
             GitHook::PrepareCommitMsg => PREPARE_COMMIT_MSG,
-            GitHook::PushToCheckout => PUSH_TO_CHECKOUT,
-            GitHook::SendemailValidate => SENDEMAIL_VALIDATE,
+            GitHook::CommitMsg => COMMIT_MSG,
+            GitHook::PostCommit => POST_COMMIT,
+            GitHook::PreRebase => PRE_REBASE,
+            GitHook::PostCheckout => POST_CHECKOUT,
+            GitHook::PostMerge => POST_MERGE,
+            GitHook::PrePush => PRE_PUSH,
+            GitHook::PreReceive => PRE_RECEIVE,
             GitHook::Update => UPDATE,
+            GitHook::ProcReceive => PROC_RECEIVE,
+            GitHook::PostReceive => POST_RECEIVE,
+            GitHook::PostUpdate => POST_UPDATE,
+            GitHook::ReferenceTransaction => REFERENCE_TRANSACTION,
+            GitHook::PushToCheckout => PUSH_TO_CHECKOUT,
+            GitHook::PreAutoGc => PRE_AUTO_GC,
+            GitHook::PostRewrite => POST_REWRITE,
+            GitHook::SendemailValidate => SENDEMAIL_VALIDATE,
+            GitHook::FsmonitorWatchman => FSMONITOR_WATCHMAN,
+            GitHook::P4Changelist => P4_CHANGELIST,
+            GitHook::P4PrepareChangelist => P4_PREPARE_CHANGELIST,
+            GitHook::P4PostChangelist => P4_POST_CHANGELIST,
+            GitHook::P4PreSubmit => P4_PRE_SUBMIT,
+            GitHook::PostIndexChange => POST_INDEX_CHANGE,
         }
     }
 
@@ -141,19 +211,33 @@ mod test_hook_install {
 
     #[rstest]
     #[case(APPLYPATCH_MSG)]
-    #[case(COMMIT_MSG)]
-    #[case(FSMONITOR_WATCHMAN)]
-    #[case(POST_UPDATE)]
-    #[case(PRE_APPLY_PATCH)]
+    #[case(PRE_APPLYPATCH)]
+    #[case(POST_APPLYPATCH)]
     #[case(PRE_COMMIT)]
     #[case(PRE_MERGE_COMMIT)]
-    #[case(PRE_PUSH)]
-    #[case(PRE_REBASE)]
-    #[case(PRE_RECEIVE)]
     #[case(PREPARE_COMMIT_MSG)]
-    #[case(PUSH_TO_CHECKOUT)]
-    #[case(SENDEMAIL_VALIDATE)]
+    #[case(COMMIT_MSG)]
+    #[case(POST_COMMIT)]
+    #[case(PRE_REBASE)]
+    #[case(POST_CHECKOUT)]
+    #[case(POST_MERGE)]
+    #[case(PRE_PUSH)]
+    #[case(PRE_RECEIVE)]
     #[case(UPDATE)]
+    #[case(PROC_RECEIVE)]
+    #[case(POST_RECEIVE)]
+    #[case(POST_UPDATE)]
+    #[case(REFERENCE_TRANSACTION)]
+    #[case(PUSH_TO_CHECKOUT)]
+    #[case(PRE_AUTO_GC)]
+    #[case(POST_REWRITE)]
+    #[case(SENDEMAIL_VALIDATE)]
+    #[case(FSMONITOR_WATCHMAN)]
+    #[case(P4_CHANGELIST)]
+    #[case(P4_PREPARE_CHANGELIST)]
+    #[case(P4_POST_CHANGELIST)]
+    #[case(P4_PRE_SUBMIT)]
+    #[case(POST_INDEX_CHANGE)]
     fn install_test(#[case] hook_name: &str) {
         let hook = GitHook::from_str(hook_name, false).unwrap();
         let dir = TempDir::new(format!("test_install_{}", hook_name).as_str()).unwrap();
@@ -175,19 +259,33 @@ mod test_hook_install {
 
     #[rstest]
     #[case(APPLYPATCH_MSG)]
-    #[case(COMMIT_MSG)]
-    #[case(FSMONITOR_WATCHMAN)]
-    #[case(POST_UPDATE)]
-    #[case(PRE_APPLY_PATCH)]
+    #[case(PRE_APPLYPATCH)]
+    #[case(POST_APPLYPATCH)]
     #[case(PRE_COMMIT)]
     #[case(PRE_MERGE_COMMIT)]
-    #[case(PRE_PUSH)]
-    #[case(PRE_REBASE)]
-    #[case(PRE_RECEIVE)]
     #[case(PREPARE_COMMIT_MSG)]
-    #[case(PUSH_TO_CHECKOUT)]
-    #[case(SENDEMAIL_VALIDATE)]
+    #[case(COMMIT_MSG)]
+    #[case(POST_COMMIT)]
+    #[case(PRE_REBASE)]
+    #[case(POST_CHECKOUT)]
+    #[case(POST_MERGE)]
+    #[case(PRE_PUSH)]
+    #[case(PRE_RECEIVE)]
     #[case(UPDATE)]
+    #[case(PROC_RECEIVE)]
+    #[case(POST_RECEIVE)]
+    #[case(POST_UPDATE)]
+    #[case(REFERENCE_TRANSACTION)]
+    #[case(PUSH_TO_CHECKOUT)]
+    #[case(PRE_AUTO_GC)]
+    #[case(POST_REWRITE)]
+    #[case(SENDEMAIL_VALIDATE)]
+    #[case(FSMONITOR_WATCHMAN)]
+    #[case(P4_CHANGELIST)]
+    #[case(P4_PREPARE_CHANGELIST)]
+    #[case(P4_POST_CHANGELIST)]
+    #[case(P4_PRE_SUBMIT)]
+    #[case(POST_INDEX_CHANGE)]
     fn install_force_test(#[case] hook_name: &str) {
         let hook = GitHook::from_str(hook_name, false).unwrap();
         let dir = TempDir::new(format!("test_install_force_{}", hook_name).as_str()).unwrap();
