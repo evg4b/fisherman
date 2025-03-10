@@ -15,16 +15,15 @@ pub fn hook_display(hook: &GitHook, files: Vec<PathBuf>) -> String {
   "Y8988888P"     |
 "#,
         hook,
-        get_at_index(&files, 0),
-        get_at_index(&files, 1),
-        get_at_index(&files, 2),
+        get(&files, 0),
+        get(&files, 1),
+        get(&files, 2),
         env!("CARGO_PKG_VERSION"),
     )
 }
 
-fn get_at_index(files: &[PathBuf], index: usize) -> String {
+fn get(files: &[PathBuf], index: usize) -> &str {
     files.get(index)
         .and_then(|p| p.to_str())
         .unwrap_or("")
-        .to_string()
 }

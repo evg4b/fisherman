@@ -8,4 +8,6 @@ pub trait Context {
     fn hooks_dir(&self) -> PathBuf;
     fn bin(&self) -> &Path;
     fn current_branch(&self) -> Result<String>;
+    fn commit_msg(&self) -> Result<String>;
+    fn set_commit_msg_path(&mut self, message_file: PathBuf);
 }

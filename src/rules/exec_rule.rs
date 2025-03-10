@@ -1,9 +1,10 @@
-use crate::rules::rule::{CompiledRule, RuleResult};
+use crate::rules::compiled_rule::{CompiledRule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vac};
 use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
+use crate::context::Context;
 
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
@@ -36,7 +37,7 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
-    fn check(&self) -> Result<RuleResult> {
+    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
 
@@ -63,6 +64,7 @@ mod test {
     use super::*;
     use assertor::{assert_that, EqualityAssertion, StringAssertion};
     use std::collections::HashMap;
+    use crate::context::MockContext;
 
     #[test]
     fn test_exec_rule() {
@@ -74,7 +76,7 @@ mod test {
             HashMap::new(),
         );
 
-        let result = rule.check().unwrap();
+        let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result)
         };
@@ -96,7 +98,7 @@ mod test {
             HashMap::new(),
         );
 
-        let result = rule.check().unwrap();
+        let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result)
         };
@@ -118,7 +120,7 @@ mod test {
             variables,
         );
 
-        let result = rule.check().unwrap();
+        let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result)
         };
@@ -140,7 +142,7 @@ mod test {
             variables,
         );
 
-        let result = rule.check().unwrap();
+        let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             panic!("Expected Success, but got {:?}", result)
         };
@@ -160,7 +162,7 @@ mod test {
             HashMap::new(),
         );
 
-        let result = rule.check().err().unwrap();
+        let result = rule.check(&MockContext::new()).err().unwrap();
 
         assert_that!(result.to_string())
             .is_equal_to("No such file or directory (os error 2)".to_string());

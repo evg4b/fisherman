@@ -21,7 +21,7 @@ struct Cli {
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
-    let context = &GitRepoContext::new(env::current_dir()?)?;
+    let context = &mut GitRepoContext::new(env::current_dir()?)?;
 
     match cli.command.run(context) {
         Ok(_) => Ok(()),

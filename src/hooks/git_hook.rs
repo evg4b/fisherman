@@ -1,5 +1,5 @@
 use crate::hooks::errors::HookError;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
@@ -93,11 +93,7 @@ impl GitHook {
         }
     }
 
-    pub fn install(
-        &self,
-        context: &impl crate::context::Context,
-        force: bool,
-    ) -> Result<()> {
+    pub fn install(&self, context: &impl crate::context::Context, force: bool) -> Result<()> {
         let hook_path = &context.hooks_dir().join(self.as_str());
         let hook_exists = hook_path.exists();
         if hook_exists && !force {
@@ -119,7 +115,11 @@ impl GitHook {
     }
 
     fn content(&self, context: &impl crate::context::Context) -> String {
-        format!("#!/bin/sh\n{} handle {}\n", context.bin().display(), self)
+        let bin = context.bin().display();
+        match self {
+            GitHook::CommitMsg => format!("#!/bin/sh\n{} handle {} $@\n", bin, self),
+            _ => format!("#!/bin/sh\n{} handle {}\n", bin, self),
+        }
     }
 }
 
@@ -134,7 +134,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{assert_that, EqualityAssertion};
+    use assertor::{EqualityAssertion, assert_that};
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;
@@ -170,8 +170,7 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert_that!(fs::read_to_string(hook_path).unwrap())
-            .is_equal_to(hook.content(&ctx));
+        assert_that!(fs::read_to_string(hook_path).unwrap()).is_equal_to(hook.content(&ctx));
     }
 
     #[rstest]
@@ -213,12 +212,10 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert_that!(fs::read_to_string(hook_path).unwrap())
-            .is_equal_to(hook.content(&ctx));
+        assert_that!(fs::read_to_string(hook_path).unwrap()).is_equal_to(hook.content(&ctx));
 
         assert!(hook_bkp_path.exists());
         assert!(hook_bkp_path.is_file());
-        assert_that!(fs::read_to_string(hook_bkp_path).unwrap())
-            .is_equal_to(original_hook_content);
+        assert_that!(fs::read_to_string(hook_bkp_path).unwrap()).is_equal_to(original_hook_content);
     }
 }

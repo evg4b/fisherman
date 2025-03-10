@@ -1,7 +1,7 @@
 use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use std::process::exit;
@@ -16,7 +16,7 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
                     .map(|rule| rule.compile(context, config.extract.clone()));
 
             let results: Vec<RuleResult> = rules_to_exec
-                .map(|rule| rule.unwrap().check().unwrap())
+                .map(|rule| rule.unwrap().check(context).unwrap())
                 .collect();
 
             for rule in results.iter() {

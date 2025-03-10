@@ -2,6 +2,7 @@ mod explain;
 mod handle;
 mod init;
 
+use std::path::PathBuf;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use anyhow::Result;
@@ -24,6 +25,8 @@ pub enum Commands {
         /// The hook to handle
         #[arg(value_enum)]
         hook: GitHook,
+        /// The commit message file path
+        message: Option<String>,
     },
     /// Explain a hook behavior
     Explain {
@@ -34,11 +37,21 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn run(&self, context: &impl Context) -> Result<()> {
+    pub fn run(&self, context: &mut impl Context) -> Result<()> {
         match self {
-            Commands::Init { force, hooks } => init_command(context, hooks.clone(), *force),
-            Commands::Handle { hook } => handle_command(context, hook),
-            Commands::Explain { hook } => explain_command(context, hook),
+            Commands::Init { force, hooks } => {
+                init_command(context, hooks.clone(), *force)
+            },
+            Commands::Handle { hook, message } => {
+                if let Some(message) = message {
+                    context.set_commit_msg_path(PathBuf::from(message));
+                }
+
+                handle_command(context, hook)
+            },
+            Commands::Explain { hook } => {
+                explain_command(context, hook)
+            },
         }
     }
 }

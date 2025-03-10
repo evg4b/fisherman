@@ -1,4 +1,5 @@
 use anyhow::Result;
+use crate::context::Context;
 
 #[derive(Debug)]
 pub enum RuleResult {
@@ -7,5 +8,5 @@ pub enum RuleResult {
 }
 
 pub trait CompiledRule {
-    fn check(&self) -> Result<RuleResult>;
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 }

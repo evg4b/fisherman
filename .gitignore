@@ -25,3 +25,4 @@ Cargo.lock
 .fisherman.yml
 .fisherman.json
 *.profraw
+*.html

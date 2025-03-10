@@ -1,9 +1,12 @@
 mod exec_rule;
-mod rule;
+mod compiled_rule;
 mod rule_def;
 mod variables;
+mod commit_message_regex;
+mod commit_message_prefix;
+mod commit_message_suffix;
 
-pub use crate::rules::rule::CompiledRule;
-pub use crate::rules::rule::RuleResult;
-pub use crate::rules::rule_def::RuleRef;
+pub use crate::rules::compiled_rule::CompiledRule;
+pub use crate::rules::compiled_rule::RuleResult;
+pub use crate::rules::rule_def::RuleDefinition;
 
