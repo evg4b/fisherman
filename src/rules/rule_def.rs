@@ -85,51 +85,41 @@ impl RuleDefinition {
     pub fn compile(&self, context: &impl Context, global_extract: Vec<String>) -> Result<Box<dyn CompiledRule>> {
         match self {
             RuleDefinition::ExecRule { command, args, env, extract } => {
-                let rule = ExecRule::new(
+                Ok(Box::new(ExecRule::new(
                     self.name(),
                     command.clone(),
                     args.clone().unwrap_or_default(),
                     env.clone().unwrap_or_default(),
                     prepare_variables(context, global_extract, extract)?,
-                );
-
-                Ok(Box::new(rule))
+                )))
             }
             RuleDefinition::CommitMessageRegex { regex } => {
-                let rule = CommitMessageRegex::new(
+                Ok(Box::new(CommitMessageRegex::new(
                     self.name(),
                     Regex::new(regex)?,
-                );
-
-                Ok(Box::new(rule))
+                )))
             },
             RuleDefinition::CommitMessagePrefix { prefix, extract } => {
-                let rule = CommitMessagePrefix::new(
+                Ok(Box::new(CommitMessagePrefix::new(
                     self.name(),
                     prefix.clone(),
                     prepare_variables(context, global_extract, extract)?,
-                );
-
-                Ok(Box::new(rule))
+                )))
             },
             RuleDefinition::CommitMessageSuffix { suffix, extract } => {
-                let rule = CommitMessageSuffix::new(
+                Ok(Box::new(CommitMessageSuffix::new(
                     self.name(),
                     suffix.clone(),
                     prepare_variables(context, global_extract, extract)?,
-                );
-
-                Ok(Box::new(rule))
+                )))
             },
             RuleDefinition::ShellScript { script, extract, env } => {
-                let rule = ShellScript::new(
+                Ok(Box::new(ShellScript::new(
                     self.name(),
                     script.clone(),
                     env.clone().unwrap_or_default(),
                     prepare_variables(context, global_extract, extract)?,
-                );
-
-                Ok(Box::new(rule))
+                )))
             }
         }
     }
