@@ -1,2 +1,2 @@
 mod expression;
-pub use expression::check_expression;
+pub use expression::Expression;

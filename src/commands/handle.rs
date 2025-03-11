@@ -1,12 +1,10 @@
-use std::collections::HashMap;
 use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
-use crate::rules::{RuleResult};
+use crate::rules::RuleResult;
 use crate::ui::hook_display;
 use anyhow::Result;
 use std::process::exit;
-use crate::scripting::check_expression;
 
 pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
     let config = Configuration::load(context.repo_path())?;
@@ -15,16 +13,12 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
     match config.hooks.get(hook) {
         Some(rules) => {
             let rules_to_exec = rules.iter()
-                .filter(|rule| {
-                    match &rule.when {
-                        Some(script) => check_expression(script, &HashMap::new()).unwrap_or(false),
-                        None => true,
-                    }
-                })
-                .map(|rule| rule.rule.compile(context, config.extract.clone()));
+                .filter_map(|rule| {
+                    rule.compile(context, config.extract.clone()).unwrap()
+                });
 
             let results: Vec<RuleResult> = rules_to_exec
-                .map(|rule| rule.unwrap().check(context).unwrap())
+                .map(|rule| rule.check(context).unwrap())
                 .collect();
 
             for rule in results.iter() {
