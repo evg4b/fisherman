@@ -15,7 +15,9 @@
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
         <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
     </a>
-    <img alt="Coverage" src="./.github/badges/coverage.svg">
+    <a href="https://codecov.io/gh/evg4b/fisherman">
+        <img alt="Codecov" src="https://img.shields.io/codecov/c/github/evg4b/fisherman?label=Coverage"> 
+    </a>
 </div>
 
 # Getting Started
