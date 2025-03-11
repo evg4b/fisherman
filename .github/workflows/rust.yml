@@ -24,15 +24,19 @@ jobs:
       run: cargo clippy --all-targets --all-features -- -D warnings
   test:
     runs-on: ubuntu-latest
-    container:
-      image: xd009642/tarpaulin:develop-nightly
-      options: --security-opt seccomp=unconfined
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate code coverage
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: taiki-e/install-action@nextest
+
+      - name: Collect coverage data (including doctests)
         run: |
-          cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Lcov
+          cargo llvm-cov --no-report nextest
+          cargo llvm-cov report --doctests --lcov --output-path lcov.info
 
       - name: Codecov
         uses: codecov/codecov-action@v5
@@ -41,3 +45,10 @@ jobs:
         with:
           verbose: true
           fail_ci_if_error: true
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./target/nextest/default/junit.xml
