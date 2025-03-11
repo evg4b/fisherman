@@ -54,6 +54,12 @@ impl std::fmt::Display for Rule {
     }
 }
 
+macro_rules! wrap {
+    ($expr:expr) => {
+        Ok(Some(Box::new($expr)))
+    };
+}
+
 impl Rule {
     pub fn compile(&self, context: &impl Context, global_extract: Vec<String>) -> Result<Option<Box<dyn CompiledRule>>> {
         let variables = prepare_variables(context, global_extract, &self.extract)?;
@@ -66,42 +72,42 @@ impl Rule {
 
         match &self.params {
             RuleParams::ExecRule { command, args, env,  .. } => {
-                Ok(Some(Box::new(ExecRule::new(
+                wrap!(ExecRule::new(
                     self.to_string(),
                     command.clone(),
                     args.clone().unwrap_or_default(),
                     env.clone().unwrap_or_default(),
                     variables,
-                ))))
+                ))
             }
             RuleParams::CommitMessageRegex { regex, .. } => {
-                Ok(Some(Box::new(CommitMessageRegex::new(
+                wrap!(CommitMessageRegex::new(
                     self.to_string(),
                     regex.clone(),
                     variables,
-                ))))
+                ))
             },
             RuleParams::CommitMessagePrefix { prefix,  .. } => {
-                Ok(Some(Box::new(CommitMessagePrefix::new(
+                wrap!(CommitMessagePrefix::new(
                     self.to_string(),
                     prefix.clone(),
                     variables,
-                ))))
+                ))
             },
             RuleParams::CommitMessageSuffix { suffix,.. } => {
-                Ok(Some(Box::new(CommitMessageSuffix::new(
+                wrap!(CommitMessageSuffix::new(
                     self.to_string(),
                     suffix.clone(),
                     variables,
-                ))))
+                ))
             },
             RuleParams::ShellScript { script, env, .. } => {
-                Ok(Some(Box::new(ShellScript::new(
+                wrap!(ShellScript::new(
                     self.to_string(),
                     script.clone(),
                     env.clone().unwrap_or_default(),
                     variables,
-                ))))
+                ))
             }
         }
     }
