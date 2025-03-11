@@ -24,13 +24,13 @@ mod tests {
     #[test]
     fn test_check_expression() {
         let a = check_expression("1 > 0", &HashMap::new()).unwrap();
-        assert_eq!(a, true);
+        assert!(a);
     }
 
     #[test]
     fn test_check_expression2() {
         let a = check_expression("is_def_var(\"xx\") && xx > 10", &HashMap::new()).unwrap();
-        assert_eq!(a, false);
+        assert!(!a);
     }
 
     #[test]
@@ -47,7 +47,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "20".to_string());
         let a = check_expression("parse_int(xx) > 10", &variables).unwrap();
-        assert_eq!(a, true);
+        assert!(a);
     }
 
     #[test]
@@ -55,6 +55,6 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "91".to_string());
         let a = check_expression("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)", &variables).unwrap();
-        assert_eq!(a, true);
+        assert!(a);
     }
 }

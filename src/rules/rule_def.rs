@@ -13,6 +13,37 @@ use crate::rules::shell_script::ShellScript;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
+pub struct Rule {
+    pub when: Option<String>,
+    #[serde(flatten)]
+    pub rule: RuleDefinition,
+}
+
+#[cfg(test)]
+mod rule_test {
+    #[test]
+    fn test_rule() {
+        let rule = r#"
+        {
+            "when": "is_def_var(\"xx\") && parse_int(xx) > 10",
+            "type": "exec",
+            "command": "echo",
+            "args": ["hello", "world"],
+            "env": {
+                "xx": "20"
+            },
+            "extract": ["yy"]
+        }
+        "#;
+
+        let rule: super::Rule = serde_json::from_str(rule).unwrap();
+        assert_eq!(rule.when, Some("is_def_var(\"xx\") && parse_int(xx) > 10".to_string()));
+    }
+}
+
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(tag = "type")]
 pub enum RuleDefinition {
     #[serde(rename = "exec")]
     ExecRule {
@@ -67,7 +98,7 @@ impl RuleDefinition {
                 });
                 format!("exec {} {}", command, args_str)
             }
-            RuleDefinition::CommitMessageRegex { regex } => {
+            RuleDefinition::CommitMessageRegex { regex, .. } => {
                 format!("commit message rule should match regex: {}", regex)
             }
             RuleDefinition::CommitMessagePrefix { prefix, .. } => {
@@ -84,7 +115,7 @@ impl RuleDefinition {
 
     pub fn compile(&self, context: &impl Context, global_extract: Vec<String>) -> Result<Box<dyn CompiledRule>> {
         match self {
-            RuleDefinition::ExecRule { command, args, env, extract } => {
+            RuleDefinition::ExecRule { command, args, env, extract, .. } => {
                 Ok(Box::new(ExecRule::new(
                     self.name(),
                     command.clone(),
@@ -93,27 +124,27 @@ impl RuleDefinition {
                     prepare_variables(context, global_extract, extract)?,
                 )))
             }
-            RuleDefinition::CommitMessageRegex { regex } => {
+            RuleDefinition::CommitMessageRegex { regex, .. } => {
                 Ok(Box::new(CommitMessageRegex::new(
                     self.name(),
                     Regex::new(regex)?,
                 )))
             },
-            RuleDefinition::CommitMessagePrefix { prefix, extract } => {
+            RuleDefinition::CommitMessagePrefix { prefix, extract, .. } => {
                 Ok(Box::new(CommitMessagePrefix::new(
                     self.name(),
                     prefix.clone(),
                     prepare_variables(context, global_extract, extract)?,
                 )))
             },
-            RuleDefinition::CommitMessageSuffix { suffix, extract } => {
+            RuleDefinition::CommitMessageSuffix { suffix, extract,.. } => {
                 Ok(Box::new(CommitMessageSuffix::new(
                     self.name(),
                     suffix.clone(),
                     prepare_variables(context, global_extract, extract)?,
                 )))
             },
-            RuleDefinition::ShellScript { script, extract, env } => {
+            RuleDefinition::ShellScript { script, extract, env, .. } => {
                 Ok(Box::new(ShellScript::new(
                     self.name(),
                     script.clone(),
