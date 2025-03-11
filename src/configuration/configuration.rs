@@ -1,7 +1,7 @@
 use crate::configuration::errors::ConfigurationError;
 use crate::configuration::files::find_config_files;
 use crate::hooks::GitHook;
-use crate::rules::RuleDefinition;
+use crate::rules::Rule;
 use anyhow::{bail, Result};
 use figment::providers::{Format, Json, Toml, Yaml};
 use figment::Figment;
@@ -12,12 +12,12 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default, Deserialize)]
 struct InnerConfiguration {
-    pub hooks: Option<HashMap<GitHook, Vec<RuleDefinition>>>,
+    pub hooks: Option<HashMap<GitHook, Vec<Rule>>>,
     pub extract: Option<Vec<String>>,
 }
 
 pub struct Configuration {
-    pub hooks: HashMap<GitHook, Vec<RuleDefinition>>,
+    pub hooks: HashMap<GitHook, Vec<Rule>>,
     pub files: Vec<PathBuf>,
     pub extract: Vec<String>,
 }

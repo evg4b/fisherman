@@ -9,5 +9,4 @@ mod shell_script;
 
 pub use crate::rules::compiled_rule::CompiledRule;
 pub use crate::rules::compiled_rule::RuleResult;
-pub use crate::rules::rule_def::RuleDefinition;
-
+pub use crate::rules::rule_def::Rule;

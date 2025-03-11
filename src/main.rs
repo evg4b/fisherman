@@ -10,6 +10,7 @@ mod hooks;
 mod rules;
 mod templates;
 mod ui;
+mod scripting;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
