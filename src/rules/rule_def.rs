@@ -8,6 +8,7 @@ use serde::{Deserialize};
 use std::collections::HashMap;
 use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
+use crate::rules::write_file::WriteFile;
 use crate::rules::shell_script::ShellScript;
 use crate::scripting::Expression;
 
@@ -46,6 +47,11 @@ pub enum RuleParams {
         env: Option<HashMap<String, String>>,
         script: String,
     },
+    #[serde(rename = "write-file")]
+    WriteFile {
+        path: String,
+        content: String,
+    }
 }
 
 impl std::fmt::Display for Rule {
@@ -108,6 +114,14 @@ impl Rule {
                     env.clone().unwrap_or_default(),
                     variables,
                 ))
+            },
+            RuleParams::WriteFile { path, content } => {
+                wrap!(WriteFile::new(
+                    self.to_string(),
+                    path.clone(),
+                    content.clone(),
+                    variables,
+                ))
             }
         }
     }
@@ -142,6 +156,9 @@ impl RuleParams {
             },
             RuleParams::ShellScript { script, .. } => {
                 format!("shell script:\n{}", script)
+            },
+            RuleParams::WriteFile { path, .. } => {
+                format!("write file to: {}", path)
             }
         }
     }
