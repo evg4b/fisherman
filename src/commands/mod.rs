@@ -1,6 +1,6 @@
 mod explain;
 mod handle;
-mod init;
+mod install;
 
 use std::path::PathBuf;
 use crate::context::Context;
@@ -9,15 +9,17 @@ use anyhow::Result;
 use clap::Subcommand;
 pub use explain::explain_command;
 pub use handle::handle_command;
-pub use init::init_command;
+pub use install::install_command;
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Initialize hooks for the repository
-    Init {
+    /// Install hooks for the repository
+    Install {
         /// Force the initialization of the hooks (override existing hooks)
         #[arg(short, long)]
         force: bool,
+        /// List of hooks to install (if not provided, only the configured
+        /// hooks will be installed or all hooks if no configuration is found)
         hooks: Option<Vec<GitHook>>,
     },
     /// Handle a hook
@@ -39,8 +41,8 @@ pub enum Commands {
 impl Commands {
     pub fn run(&self, context: &mut impl Context) -> Result<()> {
         match self {
-            Commands::Init { force, hooks } => {
-                init_command(context, hooks.clone(), *force)
+            Commands::Install { force, hooks } => {
+                install_command(context, hooks.clone(), *force)
             },
             Commands::Handle { hook, message } => {
                 if let Some(message) = message {

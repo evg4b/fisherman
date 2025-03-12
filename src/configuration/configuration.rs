@@ -49,4 +49,12 @@ impl Configuration {
             files,
         })
     }
+
+    pub fn get_configured_hooks(&self) -> Option<Vec<GitHook>> {
+        if self.hooks.is_empty() {
+            return None;
+        }
+        
+        Some(self.hooks.keys().cloned().collect())
+    }
 }
