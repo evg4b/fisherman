@@ -3,8 +3,13 @@ use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::ui::logo;
 use anyhow::Result;
+use std::fs;
 
-pub fn install_command(context: &impl Context, hooks: Option<Vec<GitHook>>, force: bool) -> Result<()> {
+pub fn install_command(
+    context: &impl Context,
+    hooks: Option<Vec<GitHook>>,
+    force: bool,
+) -> Result<()> {
     println!("{}", logo());
 
     let selected_hooks = match hooks {
@@ -14,6 +19,7 @@ pub fn install_command(context: &impl Context, hooks: Option<Vec<GitHook>>, forc
             .unwrap_or_else(GitHook::all),
     };
 
+    fs::create_dir_all(context.hooks_dir())?;
     for hook in selected_hooks {
         hook.install(context, force)?;
         println!("Hook {} installed", hook);

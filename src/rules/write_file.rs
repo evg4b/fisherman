@@ -43,7 +43,7 @@ impl CompiledRule for WriteFile {
             .append(self.append)
             .open(&path)?;
 
-        file.write(content.as_bytes())?;
+        file.write_all(content.as_bytes())?;
 
         Ok(RuleResult::Success {
             name: self.name.clone(),
