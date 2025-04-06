@@ -1,24 +1,33 @@
-use std::collections::HashMap;
-use std::fs;
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::replace_in_string;
 use anyhow::Result;
+use std::collections::HashMap;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 pub struct WriteFile {
     name: String,
     variables: HashMap<String, String>,
     path: String,
     content: String,
+    append: bool,
 }
 
 impl WriteFile {
-    pub fn new(name: String, path: String, content: String, variables: HashMap<String, String>) -> WriteFile {
+    pub fn new(
+        name: String,
+        path: String,
+        content: String,
+        append: bool,
+        variables: HashMap<String, String>,
+    ) -> WriteFile {
         WriteFile {
             name,
             variables,
             path,
             content,
+            append,
         }
     }
 }
@@ -28,7 +37,13 @@ impl CompiledRule for WriteFile {
         let content = replace_in_string(&self.content, &self.variables)?;
         let path = replace_in_string(&self.path, &self.variables)?;
 
-        fs::write(path, content)?;
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(self.append)
+            .open(&path)?;
+
+        file.write(content.as_bytes())?;
 
         Ok(RuleResult::Success {
             name: self.name.clone(),
@@ -42,7 +57,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use std::fs;
-    
+
     use tempdir::TempDir;
 
     #[test]
@@ -56,13 +71,16 @@ mod tests {
             "write_file".to_string(),
             path.to_str().unwrap().to_string(),
             content.clone(),
-            variables
+            false,
+            variables,
         );
 
         let context = MockContext::new();
         let result = rule.check(&context).unwrap();
 
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
@@ -84,18 +102,52 @@ mod tests {
             "write_file".to_string(),
             path.to_str().unwrap().to_string(),
             content.clone(),
-            variables
+            false,
+            variables,
         );
 
         let context = MockContext::new();
         let result = rule.check(&context).unwrap();
 
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, content);
+    }
+
+    #[test]
+    fn append_file_when_file_exists() {
+        let dir = TempDir::new("write_file_when_file_exists").unwrap();
+
+        let path = dir.path().join("test.txt");
+        fs::write(&path, "Test").unwrap();
+
+        let content = "Hello, world!".to_string();
+        let variables = HashMap::new();
+
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            path.to_str().unwrap().to_string(),
+            content.clone(),
+            true,
+            variables,
+        );
+
+        let context = MockContext::new();
+        let result = rule.check(&context).unwrap();
+
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
+        assert_eq!(name, "write_file");
+        assert_eq!(output, "");
+
+        let file_content = fs::read_to_string(path).unwrap();
+        assert_eq!(file_content, "TestHello, world!");
     }
 
     #[test]
@@ -112,13 +164,16 @@ mod tests {
             "write_file".to_string(),
             path.to_str().unwrap().to_string(),
             content.clone(),
-            variables
+            false,
+            variables,
         );
 
         let context = MockContext::new();
         let result = rule.check(&context).unwrap();
 
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
@@ -138,13 +193,16 @@ mod tests {
             "write_file".to_string(),
             path.to_str().unwrap().to_string(),
             content.clone(),
-            variables
+            false,
+            variables,
         );
 
         let context = MockContext::new();
         let result = rule.check(&context).unwrap();
 
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 

@@ -51,6 +51,7 @@ pub enum RuleParams {
     WriteFile {
         path: String,
         content: String,
+        append: Option<bool>,
     }
 }
 
@@ -115,11 +116,12 @@ impl Rule {
                     variables,
                 ))
             },
-            RuleParams::WriteFile { path, content } => {
+            RuleParams::WriteFile { path, content, append } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
                     path.clone(),
                     content.clone(),
+                    append.unwrap_or(false),
                     variables,
                 ))
             }
