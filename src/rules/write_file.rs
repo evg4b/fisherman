@@ -54,13 +54,13 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use std::fs;
-
+    use anyhow::Result;
     use crate::tmpl;
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     #[test]
-    fn write_file_when_file_doesnt_exist() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_file_doesnt_exist() -> Result<()> {
+        let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
         let variables = HashMap::new();
@@ -68,12 +68,12 @@ mod tests {
         let rule = WriteFile::new(
             "write_file".to_string(),
             tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content, variables.clone()),
+            tmpl!(content, variables),
             false,
         );
 
         let context = MockContext::new();
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
@@ -81,16 +81,18 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_file_exists() {
-        let dir = TempDir::new("write_file_when_file_exists").unwrap();
+    fn write_file_when_file_exists() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test").unwrap();
+        fs::write(&path, "Test")?;
 
         let content = "Hello, world!".to_string();
         let variables = HashMap::new();
@@ -98,12 +100,12 @@ mod tests {
         let rule = WriteFile::new(
             "write_file".to_string(),
             tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl!(content.clone(), variables),
             false,
         );
 
         let context = MockContext::new();
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
@@ -111,16 +113,18 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn append_file_when_file_exists() {
-        let dir = TempDir::new("write_file_when_file_exists").unwrap();
+    fn append_file_when_file_exists() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test").unwrap();
+        fs::write(&path, "Test")?;
 
         let content = "Hello, world!".to_string();
         let variables = HashMap::new();
@@ -128,12 +132,12 @@ mod tests {
         let rule = WriteFile::new(
             "write_file".to_string(),
             tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl!(content.clone(), variables),
             true,
         );
 
         let context = MockContext::new();
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
@@ -141,13 +145,15 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, "TestHello, world!");
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_path_template_literal() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_path_template_literal() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("{{FILE_NAME}}.txt");
         let content = "Hello, world!".to_string();
@@ -158,12 +164,12 @@ mod tests {
         let rule = WriteFile::new(
             "write_file".to_string(),
             tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl!(content.clone(), variables),
             false,
         );
 
         let context = MockContext::new();
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
@@ -171,13 +177,15 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, "");
 
-        let file_content = fs::read_to_string(dir.path().join("test.txt")).unwrap();
+        let file_content = fs::read_to_string(dir.path().join("test.txt"))?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_content_template_literal() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_content_template_literal() -> Result<()> {
+        let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, {{WHO}}!".to_string();
         let mut variables = HashMap::new();
@@ -186,12 +194,12 @@ mod tests {
         let rule = WriteFile::new(
             "write_file".to_string(),
             tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl!(content.clone(), variables),
             false,
         );
 
         let context = MockContext::new();
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
@@ -201,5 +209,7 @@ mod tests {
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "Hello, world!");
+
+        Ok(())
     }
 }

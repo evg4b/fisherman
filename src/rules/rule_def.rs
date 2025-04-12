@@ -3,6 +3,8 @@ use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_regex::CommitMessageRegex;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
+use crate::rules::copy_files::CopyFiles;
+use crate::rules::delete_files::DeleteFiles;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
 use crate::rules::variables::extract_variables;
@@ -47,6 +49,18 @@ pub enum RuleParams {
         path: String,
         content: String,
         append: Option<bool>,
+    },
+    #[serde(rename = "write-files")]
+    CopyFiles {
+        glob: String,
+        destination: String,
+        source: Option<String>,
+    },
+    #[serde(rename = "delete-files")]
+    DeleteFiles {
+        glob: String,
+        #[serde(rename = "fail-if-not-found")]
+        fail_if_not_found: Option<bool>,
     },
 }
 
@@ -125,6 +139,21 @@ impl Rule {
                     append.unwrap_or(false),
                 ))
             }
+            RuleParams::CopyFiles { glob, destination, source  } => {
+                wrap!(CopyFiles::new(
+                    self.to_string(),
+                    tmpl!(glob.clone(), variables.clone()),
+                    source.as_ref().map(|s| tmpl!(s.clone(), variables.clone())),
+                    tmpl!(destination.clone(), variables.clone()),
+                ))
+            }
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                wrap!(DeleteFiles::new(
+                    self.to_string(),
+                    tmpl!(glob.clone(), variables.clone()),
+                    fail_if_not_found.unwrap_or(false),
+                ))
+            }
         }
     }
 }
@@ -160,7 +189,13 @@ impl RuleParams {
                 format!("shell script:\n{}", script)
             }
             RuleParams::WriteFile { path, .. } => {
-                format!("write file to: {}", path)
+                format!("write a file to: {}", path)
+            }
+            RuleParams::CopyFiles { glob, destination, source } => {
+                format!("copy files from {} to {} {}", glob, destination, source.as_ref().unwrap_or(&String::from("<n/a>")))
+            }
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
             }
         }
     }
