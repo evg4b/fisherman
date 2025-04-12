@@ -51,7 +51,11 @@ pub enum RuleParams {
         append: Option<bool>,
     },
     #[serde(rename = "write-files")]
-    CopyFiles { glob: String, destination: String },
+    CopyFiles {
+        glob: String,
+        destination: String,
+        source: Option<String>,
+    },
     #[serde(rename = "delete-files")]
     DeleteFiles {
         glob: String,
@@ -135,10 +139,11 @@ impl Rule {
                     append.unwrap_or(false),
                 ))
             }
-            RuleParams::CopyFiles { glob, destination } => {
+            RuleParams::CopyFiles { glob, destination, source  } => {
                 wrap!(CopyFiles::new(
                     self.to_string(),
                     tmpl!(glob.clone(), variables.clone()),
+                    source.as_ref().map(|s| tmpl!(s.clone(), variables.clone())),
                     tmpl!(destination.clone(), variables.clone()),
                 ))
             }
@@ -186,8 +191,8 @@ impl RuleParams {
             RuleParams::WriteFile { path, .. } => {
                 format!("write a file to: {}", path)
             }
-            RuleParams::CopyFiles { glob, destination } => {
-                format!("copy files from {} to {}", glob, destination)
+            RuleParams::CopyFiles { glob, destination, source } => {
+                format!("copy files from {} to {} {}", glob, destination, source.as_ref().unwrap_or(&String::from("<n/a>")))
             }
             RuleParams::DeleteFiles { glob, fail_if_not_found } => {
                 format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
