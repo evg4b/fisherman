@@ -59,7 +59,11 @@ pub enum RuleParams {
     #[serde(rename = "branch-name-suffix")]
     BranchNameSuffix { suffix: String },
     #[serde(rename = "write-files")]
-    CopyFiles { glob: String, destination: String },
+    CopyFiles {
+        glob: String,
+        destination: String,
+        source: Option<String>,
+    },
     #[serde(rename = "delete-files")]
     DeleteFiles {
         glob: String,
@@ -152,10 +156,11 @@ impl Rule {
                     t!(suffix.clone()),
                 ))
             }
-            RuleParams::CopyFiles { glob, destination } => {
+            RuleParams::CopyFiles { glob, destination, source } => {
                 wrap!(CopyFiles::new(
                     self.to_string(),
                     t!(glob.clone()),
+                    source.as_ref().map(|s| t!(s.clone())),
                     t!(destination.clone()),
                 ))
             }
@@ -212,8 +217,8 @@ impl RuleParams {
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 format!("branch name rule should end with: {}", suffix)
             }
-            RuleParams::CopyFiles { glob, destination } => {
-                format!("copy files from {} to {}", glob, destination)
+            RuleParams::CopyFiles { glob, destination, source } => {
+                format!("copy files from {} to {} (source: {})", glob, destination, source.as_ref().unwrap_or(&String::from("<n/a>")))
             }
             RuleParams::DeleteFiles { glob, fail_if_not_found } => {
                 format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
