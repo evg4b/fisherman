@@ -2,7 +2,6 @@ use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -51,6 +50,7 @@ impl CompiledRule for WriteFile {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use std::fs;

@@ -2,7 +2,6 @@ mod explain;
 mod handle;
 mod install;
 
-use std::path::PathBuf;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use anyhow::Result;
@@ -10,6 +9,7 @@ use clap::Subcommand;
 pub use explain::explain_command;
 pub use handle::handle_command;
 pub use install::install_command;
+use std::path::PathBuf;
 
 #[derive(Subcommand)]
 pub enum Commands {

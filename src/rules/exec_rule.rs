@@ -1,10 +1,10 @@
+use crate::context::Context;
 use crate::rules::compiled_rule::{CompiledRule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vac};
 use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
-use crate::context::Context;
 
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
@@ -62,9 +62,9 @@ impl CompiledRule for ExecRule {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::context::MockContext;
     use assertor::{assert_that, EqualityAssertion, StringAssertion};
     use std::collections::HashMap;
-    use crate::context::MockContext;
 
     #[test]
     fn test_exec_rule() {
