@@ -3,6 +3,8 @@ use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_regex::CommitMessageRegex;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
+use crate::rules::copy_files::CopyFiles;
+use crate::rules::delete_files::DeleteFiles;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
 use crate::rules::variables::extract_variables;
@@ -48,6 +50,10 @@ pub enum RuleParams {
         content: String,
         append: Option<bool>,
     },
+    #[serde(rename = "write-files")]
+    CopyFiles { glob: String, destination: String },
+    #[serde(rename = "delete-files")]
+    DeleteFiles { glob: String },
 }
 
 impl std::fmt::Display for Rule {
@@ -125,6 +131,19 @@ impl Rule {
                     append.unwrap_or(false),
                 ))
             }
+            RuleParams::CopyFiles { glob, destination } => {
+                wrap!(CopyFiles::new(
+                    self.to_string(),
+                    tmpl!(glob.clone(), variables.clone()),
+                    tmpl!(destination.clone(), variables.clone()),
+                ))
+            }
+            RuleParams::DeleteFiles { glob } => {
+                wrap!(DeleteFiles::new(
+                    self.to_string(),
+                    tmpl!(glob.clone(), variables.clone()),
+                ))
+            }
         }
     }
 }
@@ -161,6 +180,12 @@ impl RuleParams {
             }
             RuleParams::WriteFile { path, .. } => {
                 format!("write file to: {}", path)
+            }
+            RuleParams::CopyFiles { glob, destination } => {
+                format!("copy files from {} to {}", glob, destination)
+            }
+            RuleParams::DeleteFiles { glob } => {
+                format!("delete files matching {}", glob)
             }
         }
     }
