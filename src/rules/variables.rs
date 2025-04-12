@@ -91,7 +91,7 @@ mod extract_variables_tests {
     use crate::context::MockContext;
     use assertor::*;
     use std::path::Path;
-    
+
     #[test]
     fn accept_empty_vec() {
         let context = &MockContext::new();

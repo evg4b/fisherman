@@ -1,5 +1,5 @@
 use crate::hooks::errors::HookError;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
@@ -204,7 +204,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;

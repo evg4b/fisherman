@@ -1,20 +1,24 @@
-use crate::templates::{replace_in_string, TemplateError};
+use crate::templates::TemplateError;
+use crate::tmpl;
 use std::collections::HashMap;
 
-pub fn replace_in_hashmap(input: &HashMap<String, String>, values: &HashMap<String, String>) -> Result<HashMap<String, String>, TemplateError> {
+pub fn replace_in_hashmap(
+    input: &HashMap<String, String>,
+    values: &HashMap<String, String>,
+) -> Result<HashMap<String, String>, TemplateError> {
     let transformed: HashMap<String, String> = input
         .iter()
-        .map(|(k, v)| {
-            match replace_in_string(v, values) {
-                Ok(v) => Ok((k.clone(), v)),
-                Err(e) => match e {
-                    TemplateError::PlaceholderNotFound { placeholder } => Err(TemplateError::PlaceholderNotFoundForKey {
+        .map(|(k, v)| match tmpl!(v, values.clone()).to_string() {
+            Ok(v) => Ok((k.clone(), v)),
+            Err(e) => match e {
+                TemplateError::PlaceholderNotFound { placeholder } => {
+                    Err(TemplateError::PlaceholderNotFoundForKey {
                         placeholder,
                         key: k.clone(),
-                    }),
-                    _ => Err(e),
+                    })
                 }
-            }
+                _ => Err(e),
+            },
         })
         .collect::<Result<HashMap<String, String>, TemplateError>>()?;
 

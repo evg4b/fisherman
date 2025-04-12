@@ -48,7 +48,6 @@ impl Expression {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     #[test]

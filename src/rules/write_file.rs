@@ -1,30 +1,26 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::replace_in_string;
+use crate::templates::TemplateString;
 use anyhow::Result;
-use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
 pub struct WriteFile {
     name: String,
-    variables: HashMap<String, String>,
-    path: String,
-    content: String,
+    path: TemplateString,
+    content: TemplateString,
     append: bool,
 }
 
 impl WriteFile {
     pub fn new(
         name: String,
-        path: String,
-        content: String,
+        path: TemplateString,
+        content: TemplateString,
         append: bool,
-        variables: HashMap<String, String>,
     ) -> WriteFile {
         WriteFile {
             name,
-            variables,
             path,
             content,
             append,
@@ -34,8 +30,8 @@ impl WriteFile {
 
 impl CompiledRule for WriteFile {
     fn check(&self, _: &dyn Context) -> Result<RuleResult> {
-        let content = replace_in_string(&self.content, &self.variables)?;
-        let path = replace_in_string(&self.path, &self.variables)?;
+        let content = self.content.to_string()?;
+        let path = self.path.to_string()?;
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -54,10 +50,12 @@ impl CompiledRule for WriteFile {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use std::fs;
 
+    use crate::tmpl;
     use tempdir::TempDir;
 
     #[test]
@@ -69,10 +67,9 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            path.to_str().unwrap().to_string(),
-            content.clone(),
+            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl!(content, variables.clone()),
             false,
-            variables,
         );
 
         let context = MockContext::new();
@@ -100,10 +97,9 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            path.to_str().unwrap().to_string(),
-            content.clone(),
+            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl!(content.clone(), variables.clone()),
             false,
-            variables,
         );
 
         let context = MockContext::new();
@@ -131,10 +127,9 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            path.to_str().unwrap().to_string(),
-            content.clone(),
+            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl!(content.clone(), variables.clone()),
             true,
-            variables,
         );
 
         let context = MockContext::new();
@@ -162,10 +157,9 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            path.to_str().unwrap().to_string(),
-            content.clone(),
+            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl!(content.clone(), variables.clone()),
             false,
-            variables,
         );
 
         let context = MockContext::new();
@@ -191,10 +185,9 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            path.to_str().unwrap().to_string(),
-            content.clone(),
+            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl!(content.clone(), variables.clone()),
             false,
-            variables,
         );
 
         let context = MockContext::new();
