@@ -53,7 +53,11 @@ pub enum RuleParams {
     #[serde(rename = "write-files")]
     CopyFiles { glob: String, destination: String },
     #[serde(rename = "delete-files")]
-    DeleteFiles { glob: String },
+    DeleteFiles {
+        glob: String,
+        #[serde(rename = "fail-if-not-found")]
+        fail_if_not_found: Option<bool>,
+    },
 }
 
 impl std::fmt::Display for Rule {
@@ -138,10 +142,11 @@ impl Rule {
                     tmpl!(destination.clone(), variables.clone()),
                 ))
             }
-            RuleParams::DeleteFiles { glob } => {
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
                 wrap!(DeleteFiles::new(
                     self.to_string(),
                     tmpl!(glob.clone(), variables.clone()),
+                    fail_if_not_found.unwrap_or(false),
                 ))
             }
         }
@@ -179,13 +184,13 @@ impl RuleParams {
                 format!("shell script:\n{}", script)
             }
             RuleParams::WriteFile { path, .. } => {
-                format!("write file to: {}", path)
+                format!("write a file to: {}", path)
             }
             RuleParams::CopyFiles { glob, destination } => {
                 format!("copy files from {} to {}", glob, destination)
             }
-            RuleParams::DeleteFiles { glob } => {
-                format!("delete files matching {}", glob)
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
             }
         }
     }
