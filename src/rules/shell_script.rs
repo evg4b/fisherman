@@ -1,20 +1,19 @@
-use std::collections::HashMap;
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
+use crate::templates::TemplateString;
 use anyhow::Result;
-use run_script::{ScriptOptions, run};
-use crate::templates::replace_in_string;
+use run_script::{run, ScriptOptions};
+use std::collections::HashMap;
 
 pub struct ShellScript {
     name: String,
-    script: String,
-    variables: HashMap<String, String>,
-    pub env: HashMap<String, String>,
+    script: TemplateString,
+    env: HashMap<String, String>,
 }
 
 impl ShellScript {
-    pub fn new(name: String, script: String, env: HashMap<String, String>, variables: HashMap<String, String>) -> Self {
-        Self { name, script, env, variables }
+    pub fn new(name: String, script: TemplateString, env: HashMap<String, String>) -> Self {
+        Self { name, script, env }
     }
 }
 
@@ -24,15 +23,13 @@ impl CompiledRule for ShellScript {
         options.env_vars = Some(self.env.clone());
 
         let args = vec![];
-        let script = replace_in_string(&self.script, &self.variables)?;
-
-        let (code, output, _) = run(script.as_str(), &args, &options)?;
+        let (code, output, _) = run(self.script.to_string()?.as_str(), &args, &options)?;
 
         if code != 0 {
             return Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!("exit code: {}", code),
-            })
+            });
         }
 
         Ok(RuleResult::Success {
@@ -45,23 +42,25 @@ impl CompiledRule for ShellScript {
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
-    use crate::rules::CompiledRule;
-    use std::collections::HashMap;
-    use crate::rules::RuleResult;
     use crate::rules::shell_script::ShellScript;
+    use crate::rules::CompiledRule;
+    use crate::rules::RuleResult;
+    use crate::templates::TemplateString;
+    use std::collections::HashMap;
 
     #[test]
     fn test_shell_script() {
         let script = ShellScript::new(
             "Test".to_string(),
-            "echo 'Test'".to_string(),
-            HashMap::new(),
+            TemplateString::new("echo 'Test'".to_string(), HashMap::new()),
             HashMap::new(),
         );
 
         let context = MockContext::new();
         let result = script.check(&context).unwrap();
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
 
         assert_eq!(name, "Test");
         assert_eq!(output, "Test\n");
@@ -69,17 +68,17 @@ mod tests {
 
     #[test]
     fn test_shell_script_failure() {
-
         let script = ShellScript::new(
             "Test".to_string(),
-            "exit 1".to_string(),
-            HashMap::new(),
+            TemplateString::new("exit 1".to_string(), HashMap::new()),
             HashMap::new(),
         );
 
         let context = MockContext::new();
         let result = script.check(&context).unwrap();
-        let RuleResult::Failure { name, message } = result else { panic!("Rule failed") };
+        let RuleResult::Failure { name, message } = result else {
+            panic!("Rule failed")
+        };
 
         assert_eq!(name, "Test");
         assert_eq!(message, "exit code: 1");
@@ -92,14 +91,15 @@ mod tests {
 
         let script = ShellScript::new(
             "Test".to_string(),
-            "echo 'Hello {{name}}'".to_string(),
+            TemplateString::new("echo 'Hello {{name}}'".to_string(), variables.clone()),
             HashMap::new(),
-            variables,
         );
 
         let context = MockContext::new();
         let result = script.check(&context).unwrap();
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
 
         assert_eq!(name, "Test");
         assert_eq!(output, "Hello Test\n");
@@ -112,14 +112,15 @@ mod tests {
 
         let script = ShellScript::new(
             "Test".to_string(),
-            "echo $TEST".to_string(),
+            TemplateString::new("echo $TEST".to_string(), HashMap::new()),
             env,
-            HashMap::new(),
         );
 
         let context = MockContext::new();
         let result = script.check(&context).unwrap();
-        let RuleResult::Success { name, output } = result else { panic!("Rule failed") };
+        let RuleResult::Success { name, output } = result else {
+            panic!("Rule failed")
+        };
 
         assert_eq!(name, "Test");
         assert_eq!(output, "Test\n");

@@ -1,26 +1,24 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
+use crate::templates::TemplateString;
 use regex::Regex;
-use std::collections::HashMap;
-use crate::templates::replace_in_string;
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {
     name: String,
-    expression: String,
-    variables: HashMap<String, String>,
+    expression: TemplateString,
 }
 
 impl CommitMessageRegex {
-    pub fn new(name: String, expression: String, variables: HashMap<String, String>) -> Self {
-        Self { name, expression, variables }
+    pub fn new(name: String, expression: TemplateString) -> Self {
+        Self { name, expression }
     }
 }
 
 impl CompiledRule for CommitMessageRegex {
     fn check(&self, context: &dyn Context) -> anyhow::Result<RuleResult> {
         let commit_message = context.commit_msg()?;
-        let filled_expression = replace_in_string(self.expression.clone(), &self.variables)?;
+        let filled_expression = self.expression.to_string()?;
         let expression = Regex::new(&filled_expression)?;
 
         if expression.is_match(&commit_message) {
@@ -40,18 +38,17 @@ impl CompiledRule for CommitMessageRegex {
 #[cfg(test)]
 mod test {
     use crate::context::MockContext;
+    use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
-    use crate::rules::commit_message_regex::CommitMessageRegex;
-    
-    use std::collections::HashMap;
+
+    use crate::tmpl;
 
     #[test]
     fn test_commit_message_regex() {
         let rule = CommitMessageRegex::new(
             "Test".to_string(),
-            r"^Test".to_string(),
-            HashMap::new(),
+            tmpl!("^Test"),
         );
         let mut context = MockContext::new();
         context
@@ -73,8 +70,7 @@ mod test {
     fn test_commit_message_regex_failure() {
         let rule = CommitMessageRegex::new(
             "Test".to_string(),
-            r"^Test".to_string(),
-            HashMap::new(),
+            tmpl!("^Test"),
         );
         let mut context = MockContext::new();
         context
@@ -96,8 +92,7 @@ mod test {
     fn test_commit_message_regex_error() {
         let rule = CommitMessageRegex::new(
             "Test".to_string(),
-            r"^Test".to_string(),
-            HashMap::new(),
+            tmpl!("^Test"),
         );
         let mut context = MockContext::new();
         context

@@ -1,29 +1,26 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use std::collections::HashMap;
-use crate::templates::replace_in_string;
+use crate::templates::TemplateString;
 use anyhow::Result;
 
 #[derive(Debug)]
 pub struct CommitMessageSuffix {
     name: String,
-    prefix: String,
-    variables: HashMap<String, String>,
+    prefix: TemplateString,
 }
 
 impl CommitMessageSuffix {
-    pub fn new(name: String, prefix: String, variables: HashMap<String, String>) -> Self {
+    pub fn new(name: String, prefix: TemplateString) -> Self {
         Self {
             name,
             prefix,
-            variables,
         }
     }
 }
 
 impl CompiledRule for CommitMessageSuffix {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let processed_prefix = replace_in_string(&self.prefix, &self.variables)?;
+        let processed_prefix = self.prefix.to_string()?;
         let commit_message = ctx.commit_msg()?;
         if commit_message.ends_with(&processed_prefix) {
             Ok(RuleResult::Success {
@@ -41,16 +38,16 @@ impl CompiledRule for CommitMessageSuffix {
 
 #[cfg(test)]
 mod tests {
-    use assertor::{assert_that, EqualityAssertion};
     use super::*;
     use crate::context::MockContext;
+    use crate::tmpl;
+    use assertor::{assert_that, EqualityAssertion};
 
     #[test]
     fn test_commit_message_suffix() {
         let rule = CommitMessageSuffix::new(
             "commit_message_suffix".to_string(),
-            "feat".to_string(),
-            HashMap::new(),
+            tmpl!("feat"),
         );
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg().returning(|| Ok("my commit message feat".to_string()));
@@ -64,8 +61,7 @@ mod tests {
     fn test_commit_message_suffix_failure() {
         let rule = CommitMessageSuffix::new(
             "commit_message_suffix".to_string(),
-            "feat".to_string(),
-            HashMap::new(),
+            tmpl!("feat"),
         );
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg().returning(|| Ok("my commit message".to_string()));

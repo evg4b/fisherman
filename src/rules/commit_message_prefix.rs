@@ -1,29 +1,23 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use std::collections::HashMap;
-use crate::templates::replace_in_string;
+use crate::templates::TemplateString;
 use anyhow::Result;
 
 #[derive(Debug)]
 pub struct CommitMessagePrefix {
     name: String,
-    prefix: String,
-    variables: HashMap<String, String>,
+    prefix: TemplateString,
 }
 
 impl CommitMessagePrefix {
-    pub fn new(name: String, prefix: String, variables: HashMap<String, String>) -> Self {
-        Self {
-            name,
-            prefix,
-            variables,
-        }
+    pub fn new(name: String, prefix: TemplateString) -> Self {
+        Self { name, prefix }
     }
 }
 
 impl CompiledRule for CommitMessagePrefix {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let processed_prefix = replace_in_string(&self.prefix, &self.variables)?;
+        let processed_prefix = self.prefix.to_string()?;
         let commit_message = ctx.commit_msg()?;
         if commit_message.starts_with(&processed_prefix) {
             Ok(RuleResult::Success {
@@ -33,7 +27,10 @@ impl CompiledRule for CommitMessagePrefix {
         } else {
             Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Commit message does not start with prefix: {}", processed_prefix),
+                message: format!(
+                    "Commit message does not start with prefix: {}",
+                    processed_prefix
+                ),
             })
         }
     }
@@ -41,39 +38,45 @@ impl CompiledRule for CommitMessagePrefix {
 
 #[cfg(test)]
 mod tests {
-    use assertor::{assert_that, EqualityAssertion};
     use super::*;
     use crate::context::MockContext;
+    use crate::tmpl;
+    use assertor::{assert_that, EqualityAssertion};
 
     #[test]
     fn test_commit_message_prefix() {
         let rule = CommitMessagePrefix::new(
             "commit_message_prefix".to_string(),
-            "feat".to_string(),
-            HashMap::new(),
+            tmpl!("feat"),
         );
         let mut ctx = MockContext::new();
-        ctx.expect_commit_msg().returning(|| Ok("feat: my commit message".to_string()));
-        
-        let RuleResult::Success{ name, output } = rule.check(&ctx).unwrap() else { panic!() };
+        ctx.expect_commit_msg()
+            .returning(|| Ok("feat: my commit message".to_string()));
+
+        let RuleResult::Success { name, output } = rule.check(&ctx).unwrap() else {
+            panic!()
+        };
 
         assert_that!(name).is_equal_to("commit_message_prefix".to_string());
         assert_that!(output).is_equal_to("feat".to_string());
     }
-    
+
     #[test]
     fn test_commit_message_prefix_failure() {
         let rule = CommitMessagePrefix::new(
             "commit_message_prefix".to_string(),
-            "feat".to_string(),
-            HashMap::new(),
+            tmpl!("feat".to_string()),
         );
         let mut ctx = MockContext::new();
-        ctx.expect_commit_msg().returning(|| Ok("fix: my commit message".to_string()));
-        
-        let RuleResult::Failure{ name, message } = rule.check(&ctx).unwrap() else { panic!() };
+        ctx.expect_commit_msg()
+            .returning(|| Ok("fix: my commit message".to_string()));
+
+        let RuleResult::Failure { name, message } = rule.check(&ctx).unwrap() else {
+            panic!()
+        };
 
         assert_that!(name).is_equal_to("commit_message_prefix".to_string());
-        assert_that!(message).is_equal_to("Commit message does not start with prefix: feat".to_string());
+        assert_that!(message)
+            .is_equal_to("Commit message does not start with prefix: feat".to_string());
     }
 }
