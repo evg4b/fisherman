@@ -61,7 +61,11 @@ pub enum RuleParams {
     #[serde(rename = "write-files")]
     CopyFiles { glob: String, destination: String },
     #[serde(rename = "delete-files")]
-    DeleteFiles { glob: String },
+    DeleteFiles {
+        glob: String,
+        #[serde(rename = "fail-if-not-found")]
+        fail_if_not_found: Option<bool>,
+    },
 }
 
 impl std::fmt::Display for Rule {
@@ -155,10 +159,11 @@ impl Rule {
                     t!(destination.clone()),
                 ))
             }
-            RuleParams::DeleteFiles { glob } => {
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
                 wrap!(DeleteFiles::new(
                     self.to_string(),
                     t!(glob.clone()),
+                    fail_if_not_found.unwrap_or(false),
                 ))
             }
         }
@@ -210,8 +215,8 @@ impl RuleParams {
             RuleParams::CopyFiles { glob, destination } => {
                 format!("copy files from {} to {}", glob, destination)
             }
-            RuleParams::DeleteFiles { glob } => {
-                format!("delete files matching {}", glob)
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
             }
         }
     }

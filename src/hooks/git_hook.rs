@@ -173,7 +173,7 @@ mod test_hook_install {
     use assert2::assert;
     use rstest::*;
     use std::path::PathBuf;
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     #[rstest]
     #[case(APPLYPATCH_MSG)]
@@ -204,9 +204,9 @@ mod test_hook_install {
     #[case(P4_POST_CHANGELIST)]
     #[case(P4_PRE_SUBMIT)]
     #[case(POST_INDEX_CHANGE)]
-    fn install_test(#[case] hook_name: &str) {
+    fn install_test(#[case] hook_name: &str) -> Result<()> {
         let hook = GitHook::from_str(hook_name, false).unwrap();
-        let dir = TempDir::new(format!("test_install_{}", hook_name).as_str()).unwrap();
+        let dir = TempDir::new()?;
 
         let mut ctx = MockContext::new();
         ctx.expect_hooks_dir()
@@ -214,13 +214,15 @@ mod test_hook_install {
         ctx.expect_bin()
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
-        hook.install(&ctx, false).unwrap();
+        hook.install(&ctx, false)?;
 
         let hook_path = dir.into_path().join(hook.to_string());
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
         assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
+
+        Ok(())
     }
 
     #[rstest]
@@ -252,9 +254,9 @@ mod test_hook_install {
     #[case(P4_POST_CHANGELIST)]
     #[case(P4_PRE_SUBMIT)]
     #[case(POST_INDEX_CHANGE)]
-    fn install_force_test(#[case] hook_name: &str) {
+    fn install_force_test(#[case] hook_name: &str) -> Result<()> {
         let hook = GitHook::from_str(hook_name, false).unwrap();
-        let dir = TempDir::new(format!("test_install_force_{}", hook_name).as_str()).unwrap();
+        let dir = TempDir::new()?;
 
         let mut ctx = MockContext::new();
         ctx.expect_hooks_dir()
@@ -263,9 +265,12 @@ mod test_hook_install {
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
         let original_hook_content = format!("test {}", hook_name);
-        fs::write(dir.path().join(hook.to_string()), &original_hook_content).unwrap();
+        fs::write(
+            dir.path().join(hook.to_string()),
+            original_hook_content.clone(),
+        )?;
 
-        hook.install(&ctx, true).unwrap();
+        hook.install(&ctx, true)?;
 
         let hook_path = dir.into_path().join(hook.to_string());
         let hook_bkp_path = hook_path.with_extension("bkp");
@@ -277,5 +282,7 @@ mod test_hook_install {
         assert!(hook_bkp_path.exists());
         assert!(hook_bkp_path.is_file());
         assert!(fs::read_to_string(hook_bkp_path).unwrap() == original_hook_content);
+
+        Ok(())
     }
 }
