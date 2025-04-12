@@ -120,10 +120,9 @@ impl Rule {
             } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
-                    path.clone(),
-                    content.clone(),
+                    tmpl!(path.clone(), variables.clone()),
+                    tmpl!(content.clone(), variables.clone()),
                     append.unwrap_or(false),
-                    variables,
                 ))
             }
         }
