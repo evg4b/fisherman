@@ -1,10 +1,10 @@
+use crate::templates::TemplateError;
 use std::collections::HashMap;
-use crate::templates::{replace_in_string, TemplateError};
 
 #[derive(Debug)]
 pub struct TemplateString<'a> {
-    pub template: String,
-    pub variables: &'a HashMap<String, String>,
+    template: String,
+    variables: &'a HashMap<String, String>,
 }
 
 impl TemplateString<'_> {
@@ -13,7 +13,26 @@ impl TemplateString<'_> {
     }
 
     pub fn to_string(&self) -> Result<String, TemplateError> {
-        replace_in_string(&self.template, self.variables)
+        let input = self.template.as_ref();
+        let mut result = self.template.clone();
+        let pattern = regex::Regex::new(r"\{\{(.*?)}}").unwrap();
+
+        for cap in pattern.captures_iter(input) {
+            if let Some(key) = cap.get(1) {
+                let key_str = key.as_str();
+                match self.variables.get(key_str) {
+                    Some(value) => {
+                        result = result.replace(&format!("{{{{{}}}}}", key_str), value);
+                    }
+                    None => {
+                        return Err(TemplateError::PlaceholderNotFound {
+                            placeholder: key_str.to_string(),
+                        });
+                    }
+                }
+            }
+        }
+        Ok(result)
     }
 }
 
@@ -23,45 +42,92 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    fn test_template_string_with_placeholders() {
-        let template = "Hello, {{name}}! Welcome to {{place}}.".to_string();
-        let mut variables = HashMap::new();
-        variables.insert("name".to_string(), "Alice".to_string());
-        variables.insert("place".to_string(), "Wonderland".to_string());
-
-        let template_string = TemplateString::new(template, &variables);
-        let result = template_string.to_string().unwrap();
-
-        assert_eq!(result, "Hello, Alice! Welcome to Wonderland.");
-    }
-
-    #[test]
-    fn test_template_string_without_placeholders() {
-        let template = "Hello, World!".to_string();
+    fn test_template_string_creation() {
         let variables = HashMap::new();
+        let template = TemplateString::new(String::from("test"), &variables);
 
-        let template_string = TemplateString::new(template, &variables);
-        let result = template_string.to_string().unwrap();
-
-        assert_eq!(result, "Hello, World!");
+        assert_eq!(template.template, "test");
+        assert_eq!(template.variables.len(), 0);
     }
 
     #[test]
-    fn test_template_string_with_missing_placeholder() {
-        let template = "Hello, {{name}}! Welcome to {{place}}.".to_string();
+    fn test_template_string_no_placeholders() {
+        let variables = HashMap::new();
+        let template = TemplateString::new(String::from("Hello, world!"), &variables);
+
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "Hello, world!");
+    }
+
+    #[test]
+    fn test_template_string_with_placeholders() {
         let mut variables = HashMap::new();
-        variables.insert("name".to_string(), "Alice".to_string());
-        // Missing "place" variable
+        variables.insert(String::from("name"), String::from("John"));
+        variables.insert(String::from("greeting"), String::from("Hello"));
 
-        let template_string = TemplateString::new(template, &variables);
-        let result = template_string.to_string();
+        let template = TemplateString::new(String::from("{{greeting}}, {{name}}!"), &variables);
 
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "Hello, John!");
+    }
+
+    #[test]
+    fn test_template_string_multiple_same_placeholders() {
+        let mut variables = HashMap::new();
+        variables.insert(String::from("name"), String::from("John"));
+
+        let template = TemplateString::new(String::from("Hello, {{name}}! How are you, {{name}}?"), &variables);
+
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "Hello, John! How are you, John?");
+    }
+
+    #[test]
+    fn test_template_string_missing_placeholder() {
+        let mut variables = HashMap::new();
+        variables.insert(String::from("greeting"), String::from("Hello"));
+
+        let template = TemplateString::new(String::from("{{greeting}}, {{name}}!"), &variables);
+
+        let result = template.to_string();
         assert!(result.is_err());
-        match result {
-            Err(TemplateError::PlaceholderNotFound { placeholder }) => {
-                assert_eq!(placeholder, "place");
-            }
+
+        match result.unwrap_err() {
+            TemplateError::PlaceholderNotFound { placeholder } => {
+                assert_eq!(placeholder, "name");
+            },
             _ => panic!("Expected PlaceholderNotFound error"),
         }
+    }
+
+    #[test]
+    fn test_template_string_empty_template() {
+        let variables = HashMap::new();
+        let template = TemplateString::new(String::from(""), &variables);
+
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_template_string_with_partial_placeholders() {
+        let mut variables = HashMap::new();
+        variables.insert(String::from("name"), String::from("John"));
+
+        let template = TemplateString::new(String::from("Hello, {{name}}!"), &variables);
+
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "Hello, John!");
+    }
+
+    #[test]
+    fn test_template_string_with_braces_in_value() {
+        let mut variables = HashMap::new();
+        variables.insert(String::from("value"), String::from("a {nested} value"));
+
+        let template = TemplateString::new(String::from("This is {{value}}"), &variables);
+
+        let result = template.to_string().unwrap();
+        assert_eq!(result, "This is a {nested} value");
     }
 }
