@@ -25,11 +25,42 @@ impl CompiledRule for BranchNameSuffix {
         } else {
             Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "Branch name does not end with suffix: {}",
-                    processed_prefix
-                ),
+                message: format!("Branch name does not end with suffix: {}", processed_prefix),
             })
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::context::MockContext;
+    use crate::tmpl;
+
+    #[test]
+    fn test_branch_name_suffix_success() -> anyhow::Result<()> {
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Ok("bugfix/my-feature".to_string()));
+
+        let result =
+            BranchNameSuffix::new("Test Rule".to_string(), tmpl!("feature")).check(&ctx)?;
+
+        assert!(matches!(result, RuleResult::Success { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_branch_name_suffix_failure() -> anyhow::Result<()> {
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Ok("bugfix/my-feature".to_string()));
+
+        let result = BranchNameSuffix::new("Test Rule".to_string(), tmpl!("suffix")).check(&ctx)?;
+
+        assert!(matches!(result, RuleResult::Failure { .. }));
+
+        Ok(())
     }
 }
