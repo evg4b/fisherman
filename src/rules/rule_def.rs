@@ -1,4 +1,7 @@
 use crate::context::Context;
+use crate::rules::branch_name_prefix::BranchNamePrefix;
+use crate::rules::branch_name_regex::BranchNameRegex;
+use crate::rules::branch_name_suffix::BranchNameSuffix;
 use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_regex::CommitMessageRegex;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
@@ -48,6 +51,12 @@ pub enum RuleParams {
         content: String,
         append: Option<bool>,
     },
+    #[serde(rename = "branch-name-regex")]
+    BranchNameRegex { regex: String },
+    #[serde(rename = "branch-name-prefix")]
+    BranchNamePrefix { prefix: String },
+    #[serde(rename = "branch-name-suffix")]
+    BranchNameSuffix { suffix: String },
 }
 
 impl std::fmt::Display for Rule {
@@ -125,6 +134,24 @@ impl Rule {
                     append.unwrap_or(false),
                 ))
             }
+            RuleParams::BranchNameRegex { regex, .. } => {
+                wrap!(BranchNameRegex::new(
+                    self.to_string(),
+                    tmpl!(regex.clone(), variables)
+                ))
+            }
+            RuleParams::BranchNamePrefix { prefix, .. } => {
+                wrap!(BranchNamePrefix::new(
+                    self.to_string(),
+                    tmpl!(prefix.clone(), variables),
+                ))
+            }
+            RuleParams::BranchNameSuffix { suffix, .. } => {
+                wrap!(BranchNameSuffix::new(
+                    self.to_string(),
+                    tmpl!(suffix.clone(), variables),
+                ))
+            }
         }
     }
 }
@@ -162,6 +189,15 @@ impl RuleParams {
             RuleParams::WriteFile { path, .. } => {
                 format!("write file to: {}", path)
             }
+            RuleParams::BranchNameRegex { regex, .. } => {
+                format!("branch name rule should match regex: {}", regex)
+            }
+            RuleParams::BranchNamePrefix { prefix, .. } => {
+                format!("branch name rule should start with: {}", prefix)
+            }
+            RuleParams::BranchNameSuffix { suffix, .. } => {
+                format!("branch name rule should end with: {}", suffix)
+            }
         }
     }
 }
@@ -174,4 +210,151 @@ fn prepare_variables(
     let mut variables = local.clone().unwrap_or_default();
     variables.extend(global);
     extract_variables(context, variables)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_exec_rule_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::ExecRule {
+                command: "echo".to_string(),
+                args: Some(vec!["Hello".to_string(), "World".to_string()]),
+                env: None,
+            },
+        };
+        assert_eq!(rule.to_string(), "exec echo Hello World");
+    }
+
+    #[test]
+    fn test_exec_rule_with_params_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::ExecRule {
+                command: "echo".to_string(),
+                args: Some(vec!["Hello".to_string(), "World".to_string()]),
+                env: Some(HashMap::from([("KEY".to_string(), "VALUE".to_string())])),
+            },
+        };
+        assert_eq!(rule.to_string(), "exec echo Hello World");
+    }
+
+    #[test]
+    fn test_commit_message_regex_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageRegex {
+                regex: r"^feat\(".to_string(),
+            },
+        };
+        assert_eq!(
+            rule.to_string(),
+            "commit message rule should match regex: ^feat\\("
+        );
+    }
+
+    #[test]
+    fn test_commit_message_prefix_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat: ".to_string(),
+            },
+        };
+        assert_eq!(
+            rule.to_string(),
+            "commit message rule should start with: feat: "
+        );
+    }
+
+    #[test]
+    fn test_commit_message_suffix_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageSuffix {
+                suffix: "Fixes #123".to_string(),
+            },
+        };
+        assert_eq!(
+            rule.to_string(),
+            "commit message rule should end with: Fixes #123"
+        );
+    }
+
+    #[test]
+    fn test_shell_script_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::ShellScript {
+                script: "echo 'Hello, World!'".to_string(),
+                env: None,
+            },
+        };
+        assert_eq!(rule.to_string(), "shell script:\necho 'Hello, World!'");
+    }
+
+    #[test]
+    fn test_write_file_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::WriteFile {
+                path: "/tmp/test.txt".to_string(),
+                content: "Hello, World!".to_string(),
+                append: Some(false),
+            },
+        };
+        assert_eq!(rule.to_string(), "write file to: /tmp/test.txt");
+    }
+
+    #[test]
+    fn test_branch_name_regex_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNameRegex {
+                regex: r"^feature/".to_string(),
+            },
+        };
+        assert_eq!(
+            rule.to_string(),
+            "branch name rule should match regex: ^feature/"
+        );
+    }
+
+    #[test]
+    fn test_branch_name_prefix_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNamePrefix {
+                prefix: "feature/".to_string(),
+            },
+        };
+        assert_eq!(
+            rule.to_string(),
+            "branch name rule should start with: feature/"
+        );
+    }
+
+    #[test]
+    fn test_branch_name_suffix_display() {
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNameSuffix {
+                suffix: "/v1".to_string(),
+            },
+        };
+        assert_eq!(rule.to_string(), "branch name rule should end with: /v1");
+    }
 }
