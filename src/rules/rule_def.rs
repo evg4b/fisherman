@@ -12,6 +12,9 @@ use crate::tmpl;
 use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
+use crate::rules::branch_name_prefix::BranchNamePrefix;
+use crate::rules::branch_name_regex::BranchNameRegex;
+use crate::rules::branch_name_suffix::BranchNameSuffix;
 
 #[derive(Debug, Deserialize, Clone)]
 #[serde(tag = "type")]
@@ -48,7 +51,15 @@ pub enum RuleParams {
         content: String,
         append: Option<bool>,
     },
+    #[serde(rename = "branch-name-regex")]
+    BranchNameRegex { regex: String },
+    #[serde(rename = "branch-name-prefix")]
+    BranchNamePrefix { prefix: String },
+    #[serde(rename = "branch-name-suffix")]
+    BranchNameSuffix { suffix: String },
 }
+
+
 
 impl std::fmt::Display for Rule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -125,6 +136,24 @@ impl Rule {
                     append.unwrap_or(false),
                 ))
             }
+            RuleParams::BranchNameRegex { regex, .. } => {
+                wrap!(BranchNameRegex::new(
+                    self.to_string(),
+                    tmpl!(regex.clone(), variables)
+                ))
+            }
+            RuleParams::BranchNamePrefix { prefix, .. } => {
+                wrap!(BranchNamePrefix::new(
+                    self.to_string(),
+                    tmpl!(prefix.clone(), variables),
+                ))
+            }
+            RuleParams::BranchNameSuffix { suffix, .. } => {
+                wrap!(BranchNameSuffix::new(
+                    self.to_string(),
+                    tmpl!(suffix.clone(), variables),
+                ))
+            }
         }
     }
 }
@@ -161,6 +190,15 @@ impl RuleParams {
             }
             RuleParams::WriteFile { path, .. } => {
                 format!("write file to: {}", path)
+            }
+            RuleParams::BranchNameRegex { regex, .. } => {
+                format!("branch name rule should match regex: {}", regex)
+            }
+            RuleParams::BranchNamePrefix { prefix, .. } => {
+                format!("branch name rule should start with: {}", prefix)
+            }
+            RuleParams::BranchNameSuffix { suffix, .. } => {
+                format!("branch name rule should end with: {}", suffix)
             }
         }
     }

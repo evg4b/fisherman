@@ -1,7 +1,7 @@
 use crate::context::Context;
+use crate::rules::helpers::match_expression;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
-use regex::Regex;
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {
@@ -17,20 +17,15 @@ impl CommitMessageRegex {
 
 impl CompiledRule for CommitMessageRegex {
     fn check(&self, context: &dyn Context) -> anyhow::Result<RuleResult> {
-        let commit_message = context.commit_msg()?;
-        let filled_expression = self.expression.to_string()?;
-        let expression = Regex::new(&filled_expression)?;
-
-        if expression.is_match(&commit_message) {
-            Ok(RuleResult::Success {
+        match match_expression(&self.expression, &context.commit_msg()?)? {
+            true => Ok(RuleResult::Success {
                 name: self.name.clone(),
                 output: String::new(),
-            })
-        } else {
-            Ok(RuleResult::Failure {
+            }),
+            false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!("Commit message does not match regex: {}", self.name),
-            })
+            }),
         }
     }
 }
@@ -46,10 +41,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex() {
-        let rule = CommitMessageRegex::new(
-            "Test".to_string(),
-            tmpl!("^Test"),
-        );
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -68,10 +60,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_failure() {
-        let rule = CommitMessageRegex::new(
-            "Test".to_string(),
-            tmpl!("^Test"),
-        );
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -90,10 +79,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_error() {
-        let rule = CommitMessageRegex::new(
-            "Test".to_string(),
-            tmpl!("^Test"),
-        );
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
