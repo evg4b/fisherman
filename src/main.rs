@@ -8,9 +8,9 @@ mod configuration;
 mod context;
 mod hooks;
 mod rules;
+mod scripting;
 mod templates;
 mod ui;
-mod scripting;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)]
