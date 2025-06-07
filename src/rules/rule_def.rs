@@ -75,9 +75,9 @@ impl Rule {
     pub fn compile(
         &self,
         context: &impl Context,
-        global_extract: Vec<String>,
+        global_extract: &Vec<String>,
     ) -> Result<Option<Box<dyn CompiledRule>>> {
-        let variables = prepare_variables(context, global_extract, &self.extract)?;
+        let variables = prepare_variables(context, global_extract.to_owned(), &self.extract)?;
 
         if let Some(expression) = &self.when {
             if !expression.check(&variables)? {

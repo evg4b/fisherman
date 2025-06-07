@@ -12,14 +12,12 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
 
     match config.hooks.get(hook) {
         Some(rules) => {
-            let rules_to_exec = rules.iter()
-                .filter_map(|rule| {
-                    rule.compile(context, config.extract.clone()).unwrap()
-                });
-
-            let results: Vec<RuleResult> = rules_to_exec
-                .map(|rule| rule.check(context).unwrap())
-                .collect();
+            let mut results: Vec<RuleResult> = vec![];
+            for rule in rules.iter() {
+                if let Some(compiled_rule) = rule.compile(context, &config.extract)? {
+                    results.push(compiled_rule.check(context)?);
+                }
+            }
 
             for rule in results.iter() {
                 match rule {
@@ -35,7 +33,9 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
                 }
             }
 
-            if results.iter().any(|r| matches!(r, RuleResult::Failure { .. }))
+            if results
+                .iter()
+                .any(|r| matches!(r, RuleResult::Failure { .. }))
             {
                 exit(1);
             }
@@ -45,4 +45,3 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
 
     Ok(())
 }
-

@@ -50,9 +50,9 @@ impl CompiledRule for WriteFile {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
+    use std::collections::HashMap;
     use std::fs;
 
     use crate::tmpl;

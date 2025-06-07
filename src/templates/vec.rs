@@ -1,6 +1,6 @@
-use crate::templates::{TemplateError};
-use std::collections::HashMap;
+use crate::templates::TemplateError;
 use crate::tmpl;
+use std::collections::HashMap;
 
 pub fn replace_in_vac(input: &[String], values: &HashMap<String, String>) -> Result<Vec<String>, TemplateError> {
     let transformed: Vec<String> = input
