@@ -1,6 +1,6 @@
 use crate::commands::Commands;
 use crate::context::GitRepoContext;
-use clap::Parser;
+use clap::{command, Parser};
 use std::env;
 
 mod commands;

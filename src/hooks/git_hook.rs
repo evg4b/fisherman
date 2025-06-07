@@ -1,9 +1,10 @@
 use crate::hooks::errors::HookError;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
+use clap::builder::PossibleValue;
 
 const APPLYPATCH_MSG: &str = "applypatch-msg";
 const PRE_APPLYPATCH: &str = "pre-applypatch";
@@ -36,99 +37,65 @@ const POST_INDEX_CHANGE: &str = "post-index-change";
 
 #[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, ValueEnum)]
 pub enum GitHook {
-    #[serde(rename="applypatch-msg")]
+    #[serde(rename = "applypatch-msg")]
     ApplypatchMsg,
-    #[serde(rename="pre-applypatch")]
+    #[serde(rename = "pre-applypatch")]
     PreApplypatch,
-    #[serde(rename="post-applypatch")]
+    #[serde(rename = "post-applypatch")]
     PostApplypatch,
-    #[serde(rename="pre-commit")]
+    #[serde(rename = "pre-commit")]
     PreCommit,
-    #[serde(rename="pre-merge-commit")]
+    #[serde(rename = "pre-merge-commit")]
     PreMergeCommit,
-    #[serde(rename="prepare-commit-msg")]
+    #[serde(rename = "prepare-commit-msg")]
     PrepareCommitMsg,
-    #[serde(rename="commit-msg")]
+    #[serde(rename = "commit-msg")]
     CommitMsg,
-    #[serde(rename="post-commit")]
+    #[serde(rename = "post-commit")]
     PostCommit,
-    #[serde(rename="pre-rebase")]
+    #[serde(rename = "pre-rebase")]
     PreRebase,
-    #[serde(rename="post-checkout")]
+    #[serde(rename = "post-checkout")]
     PostCheckout,
-    #[serde(rename="post-merge")]
+    #[serde(rename = "post-merge")]
     PostMerge,
-    #[serde(rename="pre-push")]
+    #[serde(rename = "pre-push")]
     PrePush,
-    #[serde(rename="pre-receive")]
+    #[serde(rename = "pre-receive")]
     PreReceive,
-    #[serde(rename="update")]
+    #[serde(rename = "update")]
     Update,
-    #[serde(rename="proc-receive")]
+    #[serde(rename = "proc-receive")]
     ProcReceive,
-    #[serde(rename="post-receive")]
+    #[serde(rename = "post-receive")]
     PostReceive,
-    #[serde(rename="post-update")]
+    #[serde(rename = "post-update")]
     PostUpdate,
-    #[serde(rename="reference-transaction")]
+    #[serde(rename = "reference-transaction")]
     ReferenceTransaction,
-    #[serde(rename="push-to-checkout")]
+    #[serde(rename = "push-to-checkout")]
     PushToCheckout,
-    #[serde(rename="pre-auto-gc")]
+    #[serde(rename = "pre-auto-gc")]
     PreAutoGc,
-    #[serde(rename="post-rewrite")]
+    #[serde(rename = "post-rewrite")]
     PostRewrite,
-    #[serde(rename="sendemail-validate")]
+    #[serde(rename = "sendemail-validate")]
     SendemailValidate,
-    #[serde(rename="fsmonitor-watchman")]
+    #[serde(rename = "fsmonitor-watchman")]
     FsmonitorWatchman,
-    #[serde(rename="p4-changelist")]
+    #[serde(rename = "p4-changelist")]
     P4Changelist,
-    #[serde(rename="p4-prepare-changelist")]
+    #[serde(rename = "p4-prepare-changelist")]
     P4PrepareChangelist,
-    #[serde(rename="p4-post-changelist")]
+    #[serde(rename = "p4-post-changelist")]
     P4PostChangelist,
-    #[serde(rename="p4-pre-submit")]
+    #[serde(rename = "p4-pre-submit")]
     P4PreSubmit,
-    #[serde(rename="post-index-change")]
+    #[serde(rename = "post-index-change")]
     PostIndexChange,
 }
 
 impl GitHook {
-    // Return all the git hooks
-    pub fn all() -> Vec<GitHook> {
-        vec![
-            GitHook::ApplypatchMsg,
-            GitHook::PreApplypatch,
-            GitHook::PostApplypatch,
-            GitHook::PreCommit,
-            GitHook::PreMergeCommit,
-            GitHook::PrepareCommitMsg,
-            GitHook::CommitMsg,
-            GitHook::PostCommit,
-            GitHook::PreRebase,
-            GitHook::PostCheckout,
-            GitHook::PostMerge,
-            GitHook::PrePush,
-            GitHook::PreReceive,
-            GitHook::Update,
-            GitHook::ProcReceive,
-            GitHook::PostReceive,
-            GitHook::PostUpdate,
-            GitHook::ReferenceTransaction,
-            GitHook::PushToCheckout,
-            GitHook::PreAutoGc,
-            GitHook::PostRewrite,
-            GitHook::SendemailValidate,
-            GitHook::FsmonitorWatchman,
-            GitHook::P4Changelist,
-            GitHook::P4PrepareChangelist,
-            GitHook::P4PostChangelist,
-            GitHook::P4PreSubmit,
-            GitHook::PostIndexChange,
-        ]
-    }
-
     // Convert the git hook enum to a string slice
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -204,7 +171,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{assert_that, EqualityAssertion};
+    use assertor::{EqualityAssertion, assert_that};
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;
