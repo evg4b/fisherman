@@ -18,6 +18,10 @@ impl ShellScript {
 }
 
 impl CompiledRule for ShellScript {
+    fn sync(&self) -> bool {
+        false
+    }
+
     fn check(&self, _: &dyn Context) -> Result<RuleResult> {
         let mut options = ScriptOptions::new();
         options.env_vars = Some(self.env.clone());

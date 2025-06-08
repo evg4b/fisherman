@@ -15,6 +15,10 @@ impl BranchNameRegex {
 }
 
 impl CompiledRule for BranchNameRegex {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
         match match_expression(&self.expression, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {

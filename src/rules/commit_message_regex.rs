@@ -16,6 +16,10 @@ impl CommitMessageRegex {
 }
 
 impl CompiledRule for CommitMessageRegex {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, context: &dyn Context) -> anyhow::Result<RuleResult> {
         match match_expression(&self.expression, &context.commit_msg()?)? {
             true => Ok(RuleResult::Success {

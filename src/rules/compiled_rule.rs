@@ -8,5 +8,6 @@ pub enum RuleResult {
 }
 
 pub trait CompiledRule {
+    fn sync(&self) -> bool;
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 }

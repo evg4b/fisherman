@@ -17,6 +17,10 @@ impl CommitMessageSuffix {
 }
 
 impl CompiledRule for CommitMessageSuffix {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         match check_suffix(&self.suffix, &ctx.commit_msg()?)? {
             true => Ok(RuleResult::Success {

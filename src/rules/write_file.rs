@@ -29,6 +29,10 @@ impl WriteFile {
 }
 
 impl CompiledRule for WriteFile {
+    fn sync(&self) -> bool {
+        false
+    }
+
     fn check(&self, _: &dyn Context) -> Result<RuleResult> {
         let content = self.content.to_string()?;
         let path = self.path.to_string()?;

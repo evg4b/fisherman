@@ -15,3 +15,5 @@ mod helpers;
 pub use crate::rules::compiled_rule::CompiledRule;
 pub use crate::rules::compiled_rule::RuleResult;
 pub use crate::rules::rule_def::Rule;
+#[allow(unused_imports)]
+pub use crate::rules::rule_def::RuleParams;

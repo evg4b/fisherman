@@ -17,6 +17,10 @@ impl CommitMessagePrefix {
 }
 
 impl CompiledRule for CommitMessagePrefix {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         match check_prefix(&self.prefix, &ctx.commit_msg()?)? {
             true => Ok(RuleResult::Success {

@@ -37,6 +37,10 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
+    fn sync(&self) -> bool {
+        false
+    }
+
     fn check(&self, _: &dyn Context) -> Result<RuleResult> {
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);

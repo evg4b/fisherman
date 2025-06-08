@@ -15,6 +15,10 @@ impl BranchNameSuffix {
 }
 
 impl CompiledRule for BranchNameSuffix {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
         match check_suffix(&self.suffix, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {

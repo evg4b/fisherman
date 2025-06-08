@@ -15,6 +15,10 @@ impl BranchNamePrefix {
 }
 
 impl CompiledRule for BranchNamePrefix {
+    fn sync(&self) -> bool {
+        true
+    }
+
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
         match check_prefix(&self.prefix, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {
