@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use crate::rules::helpers::check_prefix;
 
 #[derive(Debug)]
 pub struct CommitMessagePrefix {
@@ -17,21 +18,18 @@ impl CommitMessagePrefix {
 
 impl CompiledRule for CommitMessagePrefix {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let processed_prefix = self.prefix.to_string()?;
-        let commit_message = ctx.commit_msg()?;
-        if commit_message.starts_with(&processed_prefix) {
-            Ok(RuleResult::Success {
+        match check_prefix(&self.prefix, &ctx.commit_msg()?)? {
+            true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: processed_prefix,
-            })
-        } else {
-            Ok(RuleResult::Failure {
+                output: self.prefix.to_string()?,
+            }),
+            false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "Commit message does not start with prefix: {}",
-                    processed_prefix
+                    self.prefix.to_string()?
                 ),
-            })
+            }),
         }
     }
 }

@@ -4,7 +4,6 @@ use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
-use clap::builder::PossibleValue;
 
 const APPLYPATCH_MSG: &str = "applypatch-msg";
 const PRE_APPLYPATCH: &str = "pre-applypatch";

@@ -1,4 +1,5 @@
 use crate::context::Context;
+use crate::rules::helpers::check_suffix;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 
@@ -15,18 +16,18 @@ impl BranchNameSuffix {
 
 impl CompiledRule for BranchNameSuffix {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        let processed_prefix = self.suffix.to_string()?;
-        let branch_name = ctx.current_branch()?;
-        if branch_name.ends_with(&processed_prefix) {
-            Ok(RuleResult::Success {
+        match check_suffix(&self.suffix, &ctx.current_branch()?)? {
+            true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: processed_prefix,
-            })
-        } else {
-            Ok(RuleResult::Failure {
+                output: self.suffix.to_string()?,
+            }),
+            false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Branch name does not end with suffix: {}", processed_prefix),
-            })
+                message: format!(
+                    "Branch name does not end with suffix: {}",
+                    self.suffix.to_string()?
+                ),
+            }),
         }
     }
 }
