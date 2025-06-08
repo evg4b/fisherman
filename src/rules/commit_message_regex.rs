@@ -91,4 +91,10 @@ mod test {
         let result = rule.check(&context);
         assert!(result.is_err());
     }
+    
+    #[test]
+    fn test_sync() {
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
+        assert!(rule.sync());
+    }
 }

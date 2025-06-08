@@ -81,4 +81,10 @@ mod tests {
         assert_that!(message)
             .is_equal_to("Commit message does not start with prefix: feat".to_string());
     }
+    
+    #[test]
+    fn test_sync() {
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), tmpl!("feat"));
+        assert!(rule.sync());
+    }
 }

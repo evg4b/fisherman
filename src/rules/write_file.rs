@@ -206,4 +206,15 @@ mod tests {
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "Hello, world!");
     }
+
+    #[test]
+    fn test_sync() {
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            tmpl!("path/to/file.txt"),
+            tmpl!("content"),
+            false,
+        );
+        assert!(!rule.sync());
+    }
 }

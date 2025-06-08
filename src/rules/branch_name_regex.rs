@@ -38,18 +38,19 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use assertor::{assert_that, EqualityAssertion};
+    use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_branch_name_regex() -> anyhow::Result<()> {
-        let rule = BranchNameRegex::new(
-            "branch_name_regex".to_string(),
-            tmpl!(r"^feat/.*-feature$"),
-        );
+        let rule =
+            BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*-feature$"));
         let mut ctx = MockContext::new();
-        ctx.expect_current_branch().returning(|| Ok("feat/my-feature".to_string()));
+        ctx.expect_current_branch()
+            .returning(|| Ok("feat/my-feature".to_string()));
 
-        let RuleResult::Success { name, .. } = rule.check(&ctx)? else { panic!() };
+        let RuleResult::Success { name, .. } = rule.check(&ctx)? else {
+            panic!()
+        };
 
         assert_that!(name).is_equal_to("branch_name_regex".to_string());
 
@@ -58,18 +59,26 @@ mod tests {
 
     #[test]
     fn test_branch_name_regex_failure() -> anyhow::Result<()> {
-        let rule = BranchNameRegex::new(
-            "branch_name_regex".to_string(),
-            tmpl!(r"^feat/.*-bugfix$"),
-        );
+        let rule =
+            BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*-bugfix$"));
         let mut ctx = MockContext::new();
-        ctx.expect_current_branch().returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_current_branch()
+            .returning(|| Ok("bugfix/my-feature".to_string()));
 
-        let RuleResult::Failure { name, message } = rule.check(&ctx)? else { panic!() };
+        let RuleResult::Failure { name, message } = rule.check(&ctx)? else {
+            panic!()
+        };
 
         assert_that!(name).is_equal_to("branch_name_regex".to_string());
-        assert_that!(message).is_equal_to("Branch name does not match regex: branch_name_regex".to_string());
+        assert_that!(message)
+            .is_equal_to("Branch name does not match regex: branch_name_regex".to_string());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_sync() {
+        let rule = BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*$"));
+        assert!(rule.sync());
     }
 }

@@ -129,4 +129,14 @@ mod tests {
         assert_eq!(name, "Test");
         assert_eq!(output, "Test\n");
     }
+    
+    #[test]
+    fn test_sync() {
+        let script = ShellScript::new(
+            "Test".to_string(),
+            TemplateString::new("echo 'Test'".to_string(), HashMap::new()),
+            HashMap::new(),
+        );
+        assert!(!script.sync());
+    }
 }

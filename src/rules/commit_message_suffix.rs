@@ -74,4 +74,10 @@ mod tests {
         assert_that!(message)
             .is_equal_to("Commit message does not end with suffix: feat".to_string());
     }
+
+    #[test]
+    fn test_sync() {
+        let rule = CommitMessageSuffix::new("Test Rule".to_string(), tmpl!("suffix"));
+        assert!(rule.sync());
+    }
 }

@@ -76,4 +76,11 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_sync() {
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+
+        assert!(rule.sync());
+    }
 }

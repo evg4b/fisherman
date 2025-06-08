@@ -68,4 +68,10 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_sync() {
+        let rule = BranchNameSuffix::new("Test Rule".to_string(), tmpl!("suffix"));
+        assert!(rule.sync());
+    }
 }

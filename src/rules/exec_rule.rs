@@ -171,4 +171,16 @@ mod test {
         assert_that!(result.to_string())
             .is_equal_to("No such file or directory (os error 2)".to_string());
     }
+    
+    #[test]
+    fn test_sync() {
+        let rule = ExecRule::new(
+            "test".into(),
+            "echo".into(),
+            vec!["hello".into()],
+            HashMap::new(),
+            HashMap::new(),
+        );
+        assert!(!rule.sync());
+    }
 }
