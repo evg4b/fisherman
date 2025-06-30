@@ -3,6 +3,7 @@ mod hashmap;
 mod vec;
 mod template_legacy;
 mod tmpl_macro_legacy;
+mod template;
 
 pub use crate::templates::errors::TemplateError;
 pub use crate::templates::hashmap::replace_in_hashmap;
