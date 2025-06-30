@@ -10,6 +10,7 @@ use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
 use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use crate::tmpl_legacy;
 use anyhow::Result;
 use serde::Deserialize;
@@ -124,8 +125,8 @@ impl Rule {
             } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
-                    tmpl_legacy!(path.clone(), variables.clone()),
-                    tmpl_legacy!(content.clone(), variables.clone()),
+                    TemplateString::from(path.clone()),
+                    TemplateString::from(content.clone()),
                     append.unwrap_or(false),
                 ))
             }

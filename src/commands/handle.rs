@@ -72,10 +72,15 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::rules::RuleParams;
+    use std::collections::HashMap;
 
     #[test]
     fn test_compile_rules() -> Result<()> {
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
         let rules = vec![
             Rule {
                 when: None,
