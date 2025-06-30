@@ -1,17 +1,17 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 use anyhow::Result;
 use crate::rules::helpers::check_prefix;
 
 #[derive(Debug)]
 pub struct CommitMessagePrefix {
     name: String,
-    prefix: TemplateString,
+    prefix: TemplateStringLegacy,
 }
 
 impl CommitMessagePrefix {
-    pub fn new(name: String, prefix: TemplateString) -> Self {
+    pub fn new(name: String, prefix: TemplateStringLegacy) -> Self {
         Self { name, prefix }
     }
 }
@@ -42,14 +42,14 @@ impl CompiledRule for CommitMessagePrefix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use assertor::{assert_that, EqualityAssertion};
 
     #[test]
     fn test_commit_message_prefix() {
         let rule = CommitMessagePrefix::new(
             "commit_message_prefix".to_string(),
-            tmpl!("feat"),
+            tmpl_legacy!("feat"),
         );
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
@@ -67,7 +67,7 @@ mod tests {
     fn test_commit_message_prefix_failure() {
         let rule = CommitMessagePrefix::new(
             "commit_message_prefix".to_string(),
-            tmpl!("feat".to_string()),
+            tmpl_legacy!("feat".to_string()),
         );
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
@@ -84,7 +84,7 @@ mod tests {
     
     #[test]
     fn test_sync() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), tmpl!("feat"));
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), tmpl_legacy!("feat"));
         assert!(rule.sync());
     }
 }

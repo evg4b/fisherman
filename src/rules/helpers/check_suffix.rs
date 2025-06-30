@@ -1,6 +1,6 @@
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 
-pub fn check_suffix(suffix: &TemplateString, text: &str) -> anyhow::Result<bool> {
+pub fn check_suffix(suffix: &TemplateStringLegacy, text: &str) -> anyhow::Result<bool> {
     let filled_suffix = suffix.to_string()?;
     Ok(text.ends_with(&filled_suffix))
 }
@@ -8,13 +8,13 @@ pub fn check_suffix(suffix: &TemplateString, text: &str) -> anyhow::Result<bool>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use std::collections::HashMap;
 
     #[test]
     fn test_check_suffix() -> anyhow::Result<()> {
         let text = "Test commit message";
-        let suffix = tmpl!("message");
+        let suffix = tmpl_legacy!("message");
 
         assert!(check_suffix(&suffix, text)?);
 
@@ -24,7 +24,7 @@ mod tests {
     #[test]
     fn test_check_suffix_negative() -> anyhow::Result<()> {
         let text = "Test commit message";
-        let suffix = tmpl!("commit");
+        let suffix = tmpl_legacy!("commit");
 
         assert!(!check_suffix(&suffix, text)?);
 
@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn test_check_suffix_with_placeholders() -> anyhow::Result<()> {
         let text = "Test commit message";
-        let suffix = tmpl!(
+        let suffix = tmpl_legacy!(
             "{{suffix}}",
             HashMap::from([("suffix".to_string(), "message".to_string())])
         );

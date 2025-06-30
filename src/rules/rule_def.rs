@@ -11,7 +11,7 @@ use crate::rules::shell_script::ShellScript;
 use crate::rules::variables::extract_variables;
 use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
-use crate::tmpl;
+use crate::tmpl_legacy;
 use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -100,25 +100,25 @@ impl Rule {
             RuleParams::CommitMessageRegex { regex, .. } => {
                 wrap!(CommitMessageRegex::new(
                     self.to_string(),
-                    tmpl!(regex.clone(), variables)
+                    tmpl_legacy!(regex.clone(), variables)
                 ))
             }
             RuleParams::CommitMessagePrefix { prefix, .. } => {
                 wrap!(CommitMessagePrefix::new(
                     self.to_string(),
-                    tmpl!(prefix.clone(), variables),
+                    tmpl_legacy!(prefix.clone(), variables),
                 ))
             }
             RuleParams::CommitMessageSuffix { suffix, .. } => {
                 wrap!(CommitMessageSuffix::new(
                     self.to_string(),
-                    tmpl!(suffix.clone(), variables),
+                    tmpl_legacy!(suffix.clone(), variables),
                 ))
             }
             RuleParams::ShellScript { script, env, .. } => {
                 wrap!(ShellScript::new(
                     self.to_string(),
-                    tmpl!(script.clone(), variables.clone()),
+                    tmpl_legacy!(script.clone(), variables.clone()),
                     env.clone().unwrap_or_default(),
                 ))
             }
@@ -129,27 +129,27 @@ impl Rule {
             } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
-                    tmpl!(path.clone(), variables.clone()),
-                    tmpl!(content.clone(), variables.clone()),
+                    tmpl_legacy!(path.clone(), variables.clone()),
+                    tmpl_legacy!(content.clone(), variables.clone()),
                     append.unwrap_or(false),
                 ))
             }
             RuleParams::BranchNameRegex { regex, .. } => {
                 wrap!(BranchNameRegex::new(
                     self.to_string(),
-                    tmpl!(regex.clone(), variables)
+                    tmpl_legacy!(regex.clone(), variables)
                 ))
             }
             RuleParams::BranchNamePrefix { prefix, .. } => {
                 wrap!(BranchNamePrefix::new(
                     self.to_string(),
-                    tmpl!(prefix.clone(), variables),
+                    tmpl_legacy!(prefix.clone(), variables),
                 ))
             }
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 wrap!(BranchNameSuffix::new(
                     self.to_string(),
-                    tmpl!(suffix.clone(), variables),
+                    tmpl_legacy!(suffix.clone(), variables),
                 ))
             }
         }

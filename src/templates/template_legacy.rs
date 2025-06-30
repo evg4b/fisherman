@@ -2,15 +2,15 @@ use crate::templates::TemplateError;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct TemplateString {
+pub struct TemplateStringLegacy {
     template: String,
     // TODO: Reduce memory consumption by using a link to the map instead of a copy
     variables: HashMap<String, String>,
 }
 
-impl TemplateString {
-    pub fn new(template: String, variables: HashMap<String, String>) -> TemplateString {
-        TemplateString { template, variables }
+impl TemplateStringLegacy {
+    pub fn new(template: String, variables: HashMap<String, String>) -> TemplateStringLegacy {
+        TemplateStringLegacy { template, variables }
     }
 
     pub fn to_string(&self) -> Result<String, TemplateError> {
@@ -40,13 +40,13 @@ impl TemplateString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use std::collections::HashMap;
 
     #[test]
     fn test_template_string_creation() {
         let variables = HashMap::new();
-        let template = tmpl!(String::from("test"), variables);
+        let template = tmpl_legacy!(String::from("test"), variables);
 
         assert_eq!(template.template, "test");
         assert_eq!(template.variables.len(), 0);
@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn test_template_string_no_placeholders() {
         let variables = HashMap::new();
-        let template = tmpl!(String::from("Hello, world!"), variables);
+        let template = tmpl_legacy!(String::from("Hello, world!"), variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "Hello, world!");
@@ -67,7 +67,7 @@ mod tests {
         variables.insert(String::from("name"), String::from("John"));
         variables.insert(String::from("greeting"), String::from("Hello"));
 
-        let template = tmpl!("{{greeting}}, {{name}}!", variables);
+        let template = tmpl_legacy!("{{greeting}}, {{name}}!", variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "Hello, John!");
@@ -78,7 +78,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("name"), String::from("John"));
 
-        let template = tmpl!(String::from("Hello, {{name}}! How are you, {{name}}?"), variables);
+        let template = tmpl_legacy!(String::from("Hello, {{name}}! How are you, {{name}}?"), variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "Hello, John! How are you, John?");
@@ -89,7 +89,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("greeting"), String::from("Hello"));
 
-        let template = tmpl!(String::from("{{greeting}}, {{name}}!"), variables);
+        let template = tmpl_legacy!(String::from("{{greeting}}, {{name}}!"), variables);
 
         let result = template.to_string();
         assert!(result.is_err());
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn test_template_string_empty_template() {
         let variables = HashMap::new();
-        let template = tmpl!(String::from(""), variables);
+        let template = tmpl_legacy!(String::from(""), variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "");
@@ -116,7 +116,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("name"), String::from("John"));
 
-        let template = tmpl!(String::from("Hello, {{name}}!"), variables);
+        let template = tmpl_legacy!(String::from("Hello, {{name}}!"), variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "Hello, John!");
@@ -127,7 +127,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("value"), String::from("a {nested} value"));
 
-        let template = tmpl!(String::from("This is {{value}}"), variables);
+        let template = tmpl_legacy!(String::from("This is {{value}}"), variables);
 
         let result = template.to_string().unwrap();
         assert_eq!(result, "This is a {nested} value");

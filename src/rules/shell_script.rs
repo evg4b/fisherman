@@ -1,18 +1,18 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 use anyhow::Result;
 use run_script::{run, ScriptOptions};
 use std::collections::HashMap;
 
 pub struct ShellScript {
     name: String,
-    script: TemplateString,
+    script: TemplateStringLegacy,
     env: HashMap<String, String>,
 }
 
 impl ShellScript {
-    pub fn new(name: String, script: TemplateString, env: HashMap<String, String>) -> Self {
+    pub fn new(name: String, script: TemplateStringLegacy, env: HashMap<String, String>) -> Self {
         Self { name, script, env }
     }
 }
@@ -49,14 +49,14 @@ mod tests {
     use crate::rules::shell_script::ShellScript;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
-    use crate::templates::TemplateString;
+    use crate::templates::TemplateStringLegacy;
     use std::collections::HashMap;
 
     #[test]
     fn test_shell_script() {
         let script = ShellScript::new(
             "Test".to_string(),
-            TemplateString::new("echo 'Test'".to_string(), HashMap::new()),
+            TemplateStringLegacy::new("echo 'Test'".to_string(), HashMap::new()),
             HashMap::new(),
         );
 
@@ -74,7 +74,7 @@ mod tests {
     fn test_shell_script_failure() {
         let script = ShellScript::new(
             "Test".to_string(),
-            TemplateString::new("exit 1".to_string(), HashMap::new()),
+            TemplateStringLegacy::new("exit 1".to_string(), HashMap::new()),
             HashMap::new(),
         );
 
@@ -95,7 +95,7 @@ mod tests {
 
         let script = ShellScript::new(
             "Test".to_string(),
-            TemplateString::new("echo 'Hello {{name}}'".to_string(), variables.clone()),
+            TemplateStringLegacy::new("echo 'Hello {{name}}'".to_string(), variables.clone()),
             HashMap::new(),
         );
 
@@ -116,7 +116,7 @@ mod tests {
 
         let script = ShellScript::new(
             "Test".to_string(),
-            TemplateString::new("echo $TEST".to_string(), HashMap::new()),
+            TemplateStringLegacy::new("echo $TEST".to_string(), HashMap::new()),
             env,
         );
 
@@ -134,7 +134,7 @@ mod tests {
     fn test_sync() {
         let script = ShellScript::new(
             "Test".to_string(),
-            TemplateString::new("echo 'Test'".to_string(), HashMap::new()),
+            TemplateStringLegacy::new("echo 'Test'".to_string(), HashMap::new()),
             HashMap::new(),
         );
         assert!(!script.sync());

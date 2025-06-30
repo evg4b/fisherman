@@ -1,5 +1,5 @@
 use crate::templates::TemplateError;
-use crate::tmpl;
+use crate::tmpl_legacy;
 use std::collections::HashMap;
 
 pub fn replace_in_hashmap(
@@ -8,7 +8,7 @@ pub fn replace_in_hashmap(
 ) -> Result<HashMap<String, String>, TemplateError> {
     let transformed: HashMap<String, String> = input
         .iter()
-        .map(|(k, v)| match tmpl!(v, values.clone()).to_string() {
+        .map(|(k, v)| match tmpl_legacy!(v, values.clone()).to_string() {
             Ok(v) => Ok((k.clone(), v)),
             Err(e) => match e {
                 TemplateError::PlaceholderNotFound { placeholder } => {

@@ -1,12 +1,12 @@
 use crate::templates::TemplateError;
-use crate::tmpl;
+use crate::tmpl_legacy;
 use std::collections::HashMap;
 
 pub fn replace_in_vac(input: &[String], values: &HashMap<String, String>) -> Result<Vec<String>, TemplateError> {
     let transformed: Vec<String> = input
         .iter()
         .map(|v| {
-            tmpl!(v, values.clone()).to_string()
+            tmpl_legacy!(v, values.clone()).to_string()
         })
         .collect::<Result<Vec<String>, TemplateError>>()?;
 

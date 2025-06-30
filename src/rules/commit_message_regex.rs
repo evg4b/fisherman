@@ -1,16 +1,16 @@
 use crate::context::Context;
 use crate::rules::helpers::match_expression;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {
     name: String,
-    expression: TemplateString,
+    expression: TemplateStringLegacy,
 }
 
 impl CommitMessageRegex {
-    pub fn new(name: String, expression: TemplateString) -> Self {
+    pub fn new(name: String, expression: TemplateStringLegacy) -> Self {
         Self { name, expression }
     }
 }
@@ -41,11 +41,11 @@ mod test {
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
 
-    use crate::tmpl;
+    use crate::tmpl_legacy;
 
     #[test]
     fn test_commit_message_regex() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -64,7 +64,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_failure() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_error() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -94,7 +94,7 @@ mod test {
     
     #[test]
     fn test_sync() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
         assert!(rule.sync());
     }
 }

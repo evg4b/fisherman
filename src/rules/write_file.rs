@@ -1,22 +1,22 @@
 use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 use anyhow::Result;
 use std::fs::OpenOptions;
 use std::io::Write;
 
 pub struct WriteFile {
     name: String,
-    path: TemplateString,
-    content: TemplateString,
+    path: TemplateStringLegacy,
+    content: TemplateStringLegacy,
     append: bool,
 }
 
 impl WriteFile {
     pub fn new(
         name: String,
-        path: TemplateString,
-        content: TemplateString,
+        path: TemplateStringLegacy,
+        content: TemplateStringLegacy,
         append: bool,
     ) -> WriteFile {
         WriteFile {
@@ -59,7 +59,7 @@ mod tests {
     use std::collections::HashMap;
     use std::fs;
 
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use tempdir::TempDir;
 
     #[test]
@@ -71,8 +71,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content, variables.clone()),
+            tmpl_legacy!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl_legacy!(content, variables.clone()),
             false,
         );
 
@@ -101,8 +101,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl_legacy!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl_legacy!(content.clone(), variables.clone()),
             false,
         );
 
@@ -131,8 +131,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl_legacy!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl_legacy!(content.clone(), variables.clone()),
             true,
         );
 
@@ -161,8 +161,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl_legacy!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl_legacy!(content.clone(), variables.clone()),
             false,
         );
 
@@ -189,8 +189,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            tmpl_legacy!(path.to_str().as_ref().unwrap(), variables.clone()),
+            tmpl_legacy!(content.clone(), variables.clone()),
             false,
         );
 
@@ -211,8 +211,8 @@ mod tests {
     fn test_sync() {
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!("path/to/file.txt"),
-            tmpl!("content"),
+            tmpl_legacy!("path/to/file.txt"),
+            tmpl_legacy!("content"),
             false,
         );
         assert!(!rule.sync());

@@ -1,17 +1,17 @@
 use crate::context::Context;
 use crate::rules::helpers::check_suffix;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 use anyhow::Result;
 
 #[derive(Debug)]
 pub struct CommitMessageSuffix {
     name: String,
-    suffix: TemplateString,
+    suffix: TemplateStringLegacy,
 }
 
 impl CommitMessageSuffix {
-    pub fn new(name: String, suffix: TemplateString) -> Self {
+    pub fn new(name: String, suffix: TemplateStringLegacy) -> Self {
         Self { name, suffix }
     }
 }
@@ -42,12 +42,12 @@ impl CompiledRule for CommitMessageSuffix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl!("feat"));
+        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl!("feat"));
+        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), tmpl!("suffix"));
+        let rule = CommitMessageSuffix::new("Test Rule".to_string(), tmpl_legacy!("suffix"));
         assert!(rule.sync());
     }
 }

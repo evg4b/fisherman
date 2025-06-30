@@ -1,15 +1,15 @@
 use crate::context::Context;
 use crate::rules::helpers::match_expression;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 
 pub struct BranchNameRegex {
     name: String,
-    expression: TemplateString,
+    expression: TemplateStringLegacy,
 }
 
 impl BranchNameRegex {
-    pub fn new(name: String, expression: TemplateString) -> Self {
+    pub fn new(name: String, expression: TemplateStringLegacy) -> Self {
         Self { name, expression }
     }
 }
@@ -37,13 +37,13 @@ impl CompiledRule for BranchNameRegex {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_branch_name_regex() -> anyhow::Result<()> {
         let rule =
-            BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*-feature$"));
+            BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*-feature$"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_failure() -> anyhow::Result<()> {
         let rule =
-            BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*-bugfix$"));
+            BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*-bugfix$"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNameRegex::new("branch_name_regex".to_string(), tmpl!(r"^feat/.*$"));
+        let rule = BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*$"));
         assert!(rule.sync());
     }
 }

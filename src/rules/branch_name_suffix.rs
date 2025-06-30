@@ -1,15 +1,15 @@
 use crate::context::Context;
 use crate::rules::helpers::check_suffix;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 
 pub struct BranchNameSuffix {
     name: String,
-    suffix: TemplateString,
+    suffix: TemplateStringLegacy,
 }
 
 impl BranchNameSuffix {
-    pub fn new(name: String, suffix: TemplateString) -> Self {
+    pub fn new(name: String, suffix: TemplateStringLegacy) -> Self {
         Self { name, suffix }
     }
 }
@@ -40,7 +40,7 @@ impl CompiledRule for BranchNameSuffix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
 
     #[test]
     fn test_branch_name_suffix_success() -> anyhow::Result<()> {
@@ -49,7 +49,7 @@ mod tests {
             .returning(|| Ok("bugfix/my-feature".to_string()));
 
         let result =
-            BranchNameSuffix::new("Test Rule".to_string(), tmpl!("feature")).check(&ctx)?;
+            BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("feature")).check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
@@ -62,7 +62,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
 
-        let result = BranchNameSuffix::new("Test Rule".to_string(), tmpl!("suffix")).check(&ctx)?;
+        let result = BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("suffix")).check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNameSuffix::new("Test Rule".to_string(), tmpl!("suffix"));
+        let rule = BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("suffix"));
         assert!(rule.sync());
     }
 }

@@ -1,15 +1,15 @@
 use crate::context::Context;
 use crate::rules::helpers::check_prefix;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateString;
+use crate::templates::TemplateStringLegacy;
 
 pub struct BranchNamePrefix {
     name: String,
-    prefix: TemplateString,
+    prefix: TemplateStringLegacy,
 }
 
 impl BranchNamePrefix {
-    pub fn new(name: String, prefix: TemplateString) -> Self {
+    pub fn new(name: String, prefix: TemplateStringLegacy) -> Self {
         Self { name, prefix }
     }
 }
@@ -40,12 +40,12 @@ impl CompiledRule for BranchNamePrefix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use crate::tmpl_legacy;
     use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_branch_name_prefix() -> anyhow::Result<()> {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl_legacy!("feat/"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_branch_name_prefix_failure() -> anyhow::Result<()> {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl_legacy!("feat/"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl_legacy!("feat/"));
 
         assert!(rule.sync());
     }
