@@ -10,4 +10,5 @@ pub trait Context {
     fn current_branch(&self) -> Result<String>;
     fn commit_msg(&self) -> Result<String>;
     fn set_commit_msg_path(&mut self, message_file: PathBuf);
+    fn configuration(&self) -> Result<crate::configuration::Configuration>;
 }

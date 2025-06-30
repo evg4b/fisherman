@@ -4,6 +4,7 @@ use git2::Repository;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::configuration::Configuration;
 
 pub struct GitRepoContext {
     repo: Repository,
@@ -41,6 +42,10 @@ impl Context for GitRepoContext {
 
     fn set_commit_msg_path(&mut self, message_file: PathBuf) {
         self.message_file = Some(message_file);
+    }
+
+    fn configuration(&self) -> Result<Configuration> {
+        Configuration::load(self.repo_path())
     }
 }
 

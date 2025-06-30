@@ -41,7 +41,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl_legacy;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
 
     #[test]
     fn test_branch_name_prefix() -> anyhow::Result<()> {

@@ -1,4 +1,3 @@
-use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::rules::{CompiledRule, Rule, RuleResult};
@@ -9,7 +8,7 @@ use std::process::exit;
 type RulesBucket = Vec<Box<dyn CompiledRule>>;
 
 pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
-    let config = Configuration::load(context.repo_path())?;
+    let config = context.configuration()?;
     println!("{}", hook_display(hook, config.files));
 
     match config.hooks.get(hook) {

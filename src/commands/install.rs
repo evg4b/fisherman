@@ -1,4 +1,3 @@
-use crate::configuration::Configuration;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::ui::logo;
@@ -15,7 +14,7 @@ pub fn install_command(
 
     let selected_hooks = match hooks {
         Some(hooks) => hooks,
-        None => Configuration::load(context.repo_path())?
+        None => context.configuration()?
             .get_configured_hooks()
             .unwrap_or_else(|| GitHook::value_variants().into()),
     };
