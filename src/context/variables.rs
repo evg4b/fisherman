@@ -30,7 +30,7 @@ impl VariableSource {
     }
 }
 
-pub(crate) fn transform_array(arr: &Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex>>> {
+fn transform_array(arr: &Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex>>> {
     let mut map: HashMap<VariableSource, Vec<Regex>> = HashMap::new();
 
     for entry in arr {

@@ -13,7 +13,7 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
 
     match config.hooks.get(hook) {
         Some(rules) => {
-            let (sync_rules, async_rules) = compile_rules(context, &config.extract, rules)?;
+            let (sync_rules, async_rules) = compile_rules(context, rules)?;
 
             let mut results: Vec<RuleResult> = vec![];
 
@@ -52,15 +52,11 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
     Ok(())
 }
 
-fn compile_rules(
-    context: &impl Context,
-    extract: &Vec<String>,
-    rules: &[Rule],
-) -> Result<(RulesBucket, RulesBucket)> {
+fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket, RulesBucket)> {
     let mut sync_rules: RulesBucket = vec![];
     let mut async_rules: RulesBucket = vec![];
     for rule in rules.iter() {
-        if let Some(compiled_rule) = rule.compile(context, extract)? {
+        if let Some(compiled_rule) = rule.compile(context)? {
             if compiled_rule.sync() {
                 sync_rules.push(compiled_rule);
             } else {
@@ -98,7 +94,7 @@ mod tests {
             },
         ];
 
-        let (sync_rules, async_rules) = compile_rules(&context, &vec![], &rules)?;
+        let (sync_rules, async_rules) = compile_rules(&context, &rules)?;
 
         assert_eq!(sync_rules.len(), 1);
         assert_eq!(async_rules.len(), 1);

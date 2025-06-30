@@ -8,7 +8,6 @@ use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
-use crate::rules::variables::extract_variables;
 use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
 use crate::tmpl_legacy;
@@ -72,12 +71,8 @@ macro_rules! wrap {
 }
 
 impl Rule {
-    pub fn compile(
-        &self,
-        context: &impl Context,
-        global_extract: &Vec<String>,
-    ) -> Result<Option<Box<dyn CompiledRule>>> {
-        let variables = prepare_variables(context, global_extract.to_owned(), &self.extract)?;
+    pub fn compile(&self, context: &impl Context) -> Result<Option<Box<dyn CompiledRule>>> {
+        let variables = context.variables(self.extract.as_ref().unwrap_or(&vec![]))?;
 
         if let Some(expression) = &self.when {
             if !expression.check(&variables)? {
@@ -200,16 +195,6 @@ impl RuleParams {
             }
         }
     }
-}
-
-fn prepare_variables(
-    context: &impl Context,
-    global: Vec<String>,
-    local: &Option<Vec<String>>,
-) -> Result<HashMap<String, String>> {
-    let mut variables = local.clone().unwrap_or_default();
-    variables.extend(global);
-    extract_variables(context, variables)
 }
 
 #[cfg(test)]
