@@ -33,10 +33,10 @@ impl Expression {
     pub fn check(&self, variables: &HashMap<String, String>) -> Result<bool> {
         let engine = ENGINE.take();
 
-        let mut scope = Scope::new();
+        let mut scope = Scope::with_capacity(variables.len());
 
         variables.iter().for_each(|(key, value)| {
-            scope.push(key.clone(), value.clone());
+            scope.push(key.to_owned(), value.to_owned());
         });
 
         match engine.eval_expression_with_scope::<bool>(&mut scope, &self.condition) {

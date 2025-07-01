@@ -1,4 +1,5 @@
 use crate::context::Context;
+use crate::rules::helpers::compile_tmpl::compile_tmpl;
 use crate::templates::TemplateString;
 
 pub fn check_suffix(
@@ -6,9 +7,7 @@ pub fn check_suffix(
     suffix: &TemplateString,
     text: &str,
 ) -> anyhow::Result<bool> {
-    let variables = ctx.variables(&[])?;
-    let filled_suffix = suffix.to_string(&variables)?;
-    Ok(text.ends_with(&filled_suffix))
+    Ok(text.ends_with(&compile_tmpl(ctx, suffix, &[])?))
 }
 
 #[cfg(test)]

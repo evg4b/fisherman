@@ -18,7 +18,7 @@ impl TemplateString {
 
     pub fn to_string(&self, variables: &HashMap<String, String>) -> Result<String, TemplateError> {
         let input = self.template.as_ref();
-        let mut result = self.template.clone();
+        let mut result = self.template.to_owned();
         let pattern = regex::Regex::new(r"\{\{(.*?)}}").unwrap();
 
         for cap in pattern.captures_iter(input) {

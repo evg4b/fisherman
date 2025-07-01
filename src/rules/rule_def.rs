@@ -86,9 +86,9 @@ impl Rule {
             } => {
                 wrap!(ExecRule::new(
                     self.to_string(),
-                    command.clone(),
-                    args.clone().unwrap_or_default(),
-                    env.clone().unwrap_or_default(),
+                    command.to_owned(),
+                    args.to_owned().unwrap_or_default(),
+                    env.to_owned().unwrap_or_default(),
                     variables,
                 ))
             }
@@ -113,8 +113,8 @@ impl Rule {
             RuleParams::ShellScript { script, env, .. } => {
                 wrap!(ShellScript::new(
                     self.to_string(),
-                    t!(script.clone()),
-                    env.clone().unwrap_or_default(),
+                    t!(script.to_owned()),
+                    env.to_owned().unwrap_or_default(),
                 ))
             }
             RuleParams::WriteFile {
@@ -158,7 +158,7 @@ impl RuleParams {
                             if arg.contains(" ") {
                                 format!("\"{}\"", arg.replace("\"", "\\\""))
                             } else {
-                                arg.clone()
+                                arg.to_owned()
                             }
                         })
                         .collect::<Vec<String>>()
@@ -179,7 +179,7 @@ impl RuleParams {
                 format!("shell script:\n{}", script)
             }
             RuleParams::WriteFile { path, .. } => {
-                format!("write file to: {}", path)
+                format!("write a file to: {}", path)
             }
             RuleParams::BranchNameRegex { regex, .. } => {
                 format!("branch name rule should match regex: {}", regex)
@@ -295,7 +295,7 @@ mod tests {
                 append: Some(false),
             },
         };
-        assert_eq!(rule.to_string(), "write file to: /tmp/test.txt");
+        assert_eq!(rule.to_string(), "write a file to: /tmp/test.txt");
     }
 
     #[test]

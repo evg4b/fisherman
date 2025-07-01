@@ -42,7 +42,7 @@ impl Commands {
     pub fn run(&self, context: &mut impl Context) -> Result<()> {
         match self {
             Commands::Install { force, hooks } => {
-                install_command(context, hooks.clone(), *force)
+                install_command(context, hooks.to_owned(), *force)
             },
             Commands::Handle { hook, message } => {
                 if let Some(message) = message {

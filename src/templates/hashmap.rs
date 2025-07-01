@@ -14,7 +14,7 @@ pub fn replace_in_hashmap(
                 TemplateError::PlaceholderNotFound { placeholder } => {
                     Err(TemplateError::PlaceholderNotFoundForKey {
                         placeholder,
-                        key: k.clone(),
+                        key: k.to_owned(),
                     })
                 }
                 _ => Err(e),

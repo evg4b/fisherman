@@ -1,4 +1,5 @@
 use crate::context::Context;
+use crate::rules::helpers::compile_tmpl::compile_tmpl;
 use crate::templates::TemplateString;
 use regex::Regex;
 
@@ -7,9 +8,7 @@ pub fn match_expression(
     expression: &TemplateString,
     text: &str,
 ) -> anyhow::Result<bool> {
-    let variables = ctx.variables(&[])?;
-    let filled_expression = expression.to_string(&variables)?;
-    let regex = Regex::new(&filled_expression)?;
+    let regex = Regex::new(&compile_tmpl(ctx, expression, &[])?)?;
     Ok(regex.is_match(text))
 }
 
