@@ -23,13 +23,13 @@ impl CompiledRule for BranchNameSuffix {
         match check_suffix(ctx, &self.suffix, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.suffix.to_string(&ctx.variables(&vec![])?)?,
+                output: self.suffix.to_string(&ctx.variables(&[])?)?,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "Branch name does not end with suffix: {}",
-                    self.suffix.to_string(&ctx.variables(&vec![])?)?
+                    self.suffix.to_string(&ctx.variables(&[])?)?
                 ),
             }),
         }
@@ -38,18 +38,21 @@ impl CompiledRule for BranchNameSuffix {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl_legacy;
+    use crate::t;
 
     #[test]
     fn test_branch_name_suffix_success() -> anyhow::Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result =
-            BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("feature")).check(&ctx)?;
+            BranchNameSuffix::new("Test Rule".to_string(), t!("feature")).check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
@@ -61,9 +64,11 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result =
-            BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("suffix")).check(&ctx)?;
+            BranchNameSuffix::new("Test Rule".to_string(), t!("suffix")).check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
@@ -72,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNameSuffix::new("Test Rule".to_string(), tmpl_legacy!("suffix"));
+        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
         assert!(rule.sync());
     }
 }

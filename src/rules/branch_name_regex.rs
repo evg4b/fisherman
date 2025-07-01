@@ -35,18 +35,21 @@ impl CompiledRule for BranchNameRegex {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl_legacy;
+    use crate::t;
     use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_branch_name_regex() -> anyhow::Result<()> {
         let rule =
-            BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*-feature$"));
+            BranchNameRegex::new("branch_name_regex".to_string(), t!(r"^feat/.*-feature$"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Success { name, .. } = rule.check(&ctx)? else {
             panic!()
@@ -60,10 +63,12 @@ mod tests {
     #[test]
     fn test_branch_name_regex_failure() -> anyhow::Result<()> {
         let rule =
-            BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*-bugfix$"));
+            BranchNameRegex::new("branch_name_regex".to_string(), t!(r"^feat/.*-bugfix$"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Failure { name, message } = rule.check(&ctx)? else {
             panic!()
@@ -78,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNameRegex::new("branch_name_regex".to_string(), tmpl_legacy!(r"^feat/.*$"));
+        let rule = BranchNameRegex::new("branch_name_regex".to_string(), t!(r"^feat/.*$"));
         assert!(rule.sync());
     }
 }

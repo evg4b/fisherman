@@ -36,12 +36,12 @@ impl CompiledRule for CommitMessageRegex {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
     use crate::context::MockContext;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
     use crate::rules::commit_message_regex::CommitMessageRegex;
-
-    use crate::{t, tmpl_legacy};
+    use crate::t;
 
     #[test]
     fn test_commit_message_regex() {
@@ -50,6 +50,8 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Ok("Test commit message".to_string()));
+        context.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {
@@ -69,6 +71,8 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Ok("Invalid commit message".to_string()));
+        context.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {

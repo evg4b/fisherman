@@ -27,7 +27,7 @@ impl CompiledRule for CommitMessagePrefix {
                 name: self.name.clone(),
                 output: self.prefix.to_string(
                     // TODO: incorrect
-                    &ctx.variables(&vec![])?,
+                    &ctx.variables(&[])?,
                 )?,
             }),
             false => Ok(RuleResult::Failure {
@@ -36,7 +36,7 @@ impl CompiledRule for CommitMessagePrefix {
                     "Commit message does not start with prefix: {}",
                     self.prefix.to_string(
                         // TODO: incorrect
-                        &ctx.variables(&vec![])?,
+                        &ctx.variables(&[])?,
                     )?
                 ),
             }),
@@ -46,6 +46,7 @@ impl CompiledRule for CommitMessagePrefix {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::t;
@@ -57,6 +58,8 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Success { name, output } = rule.check(&ctx).unwrap() else {
             panic!()
@@ -72,6 +75,8 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Failure { name, message } = rule.check(&ctx).unwrap() else {
             panic!()

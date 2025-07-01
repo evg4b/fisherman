@@ -6,7 +6,7 @@ pub fn check_prefix(
     prefix: &TemplateString,
     text: &str,
 ) -> anyhow::Result<bool> {
-    let variables = ctx.variables(&vec![])?;
+    let variables = ctx.variables(&[])?;
     let filled_prefix = prefix.to_string(&variables)?;
     Ok(text.starts_with(&filled_prefix))
 }

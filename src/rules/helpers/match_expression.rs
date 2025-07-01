@@ -7,7 +7,7 @@ pub fn match_expression(
     expression: &TemplateString,
     text: &str,
 ) -> anyhow::Result<bool> {
-    let variables = ctx.variables(&vec![])?;
+    let variables = ctx.variables(&[])?;
     let filled_expression = expression.to_string(&variables)?;
     let regex = Regex::new(&filled_expression)?;
     Ok(regex.is_match(text))
@@ -16,15 +16,19 @@ pub fn match_expression(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tmpl_legacy;
+    use crate::context::MockContext;
+    use crate::t;
     use std::collections::HashMap;
 
     #[test]
     fn test_match_expression_plain_text() -> anyhow::Result<()> {
         let text = "Test commit message";
-        let expression = tmpl_legacy!("^Test");
+        let expression = t!("^Test");
 
-        assert!(match_expression(&expression, text)?);
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::new()));
+
+        assert!(match_expression(&context, &expression, text)?);
 
         Ok(())
     }
@@ -32,9 +36,12 @@ mod tests {
     #[test]
     fn test_match_expression_negative() -> anyhow::Result<()> {
         let text = "Another commit message";
-        let expression = tmpl_legacy!("^Test.*");
+        let expression = t!("^Test.*");
 
-        assert!(!match_expression(&expression, text)?);
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::new()));
+
+        assert!(!match_expression(&context, &expression, text)?);
 
         Ok(())
     }
@@ -42,12 +49,14 @@ mod tests {
     #[test]
     fn test_match_expression_with_placeholders() -> anyhow::Result<()> {
         let text = "Test commit message";
-        let expression = tmpl_legacy!(
-            "^{{prefix}}",
-            HashMap::from([("prefix".to_string(), "Test".to_string())])
-        );
+        let expression = t!("^{{prefix}}");
 
-        assert!(match_expression(&expression, text)?);
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::from([("prefix".to_string(), "Test".to_string())])));
+
+        assert!(match_expression(&context, &expression, text)?);
 
         Ok(())
     }

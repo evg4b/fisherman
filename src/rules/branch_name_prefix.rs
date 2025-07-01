@@ -23,13 +23,13 @@ impl CompiledRule for BranchNamePrefix {
         match check_prefix(ctx, &self.prefix, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.prefix.to_string(&ctx.variables(&vec![])?)?,
+                output: self.prefix.to_string(&ctx.variables(&[])?)?,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "Branch name does not start with prefix: {}",
-                    self.prefix.to_string(&ctx.variables(&vec![])?,)?
+                    self.prefix.to_string(&ctx.variables(&[])?,)?
                 ),
             }),
         }
@@ -38,6 +38,7 @@ impl CompiledRule for BranchNamePrefix {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::t;
@@ -49,6 +50,8 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Success { name, .. } = rule.check(&ctx)? else {
             panic!()
@@ -65,6 +68,8 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Failure { name, message } = rule.check(&ctx)? else {
             panic!()
