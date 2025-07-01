@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::helpers::check_prefix;
+use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
@@ -22,23 +22,17 @@ impl CompiledRule for CommitMessagePrefix {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        match check_prefix(ctx, &self.prefix, &ctx.commit_msg()?)? {
+        let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
+        let commit_msg = ctx.commit_msg()?;
+
+        match commit_msg.starts_with(&prefix) {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.prefix.to_string(
-                    // TODO: incorrect
-                    &ctx.variables(&[])?,
-                )?,
+                output: None,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "Commit message does not start with prefix: {}",
-                    self.prefix.to_string(
-                        // TODO: incorrect
-                        &ctx.variables(&[])?,
-                    )?
-                ),
+                message: format!("Commit message does not start with prefix: {}", prefix),
             }),
         }
     }
@@ -46,11 +40,11 @@ impl CompiledRule for CommitMessagePrefix {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::t;
     use assertor::{EqualityAssertion, assert_that};
+    use std::collections::HashMap;
 
     #[test]
     fn test_commit_message_prefix() {
@@ -66,7 +60,7 @@ mod tests {
         };
 
         assert_that!(name).is_equal_to("commit_message_prefix".to_string());
-        assert_that!(output).is_equal_to("feat".to_string());
+        assert_eq!(output, None);
     }
 
     #[test]

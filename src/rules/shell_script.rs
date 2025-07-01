@@ -2,7 +2,7 @@ use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use run_script::{ScriptOptions, run};
+use run_script::{run, ScriptOptions};
 use std::collections::HashMap;
 
 pub struct ShellScript {
@@ -39,7 +39,7 @@ impl CompiledRule for ShellScript {
 
         Ok(RuleResult::Success {
             name: self.name.clone(),
-            output,
+            output: Some(output),
         })
     }
 }
@@ -47,9 +47,9 @@ impl CompiledRule for ShellScript {
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
+    use crate::rules::shell_script::ShellScript;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
-    use crate::rules::shell_script::ShellScript;
     use crate::t;
     use std::collections::HashMap;
 
@@ -66,7 +66,7 @@ mod tests {
         };
 
         assert_eq!(name, "Test");
-        assert_eq!(output, "Test\n");
+        assert_eq!(output.unwrap(), "Test\n");
     }
 
     #[test]
@@ -106,7 +106,7 @@ mod tests {
         };
 
         assert_eq!(name, "Test");
-        assert_eq!(output, "Hello Test\n");
+        assert_eq!(output.unwrap(), "Hello Test\n");
     }
 
     #[test]
@@ -125,7 +125,7 @@ mod tests {
         };
 
         assert_eq!(name, "Test");
-        assert_eq!(output, "Test\n");
+        assert_eq!(output.unwrap(), "Test\n");
     }
 
     #[test]

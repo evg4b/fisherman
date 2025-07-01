@@ -1,7 +1,8 @@
 use crate::context::Context;
-use crate::rules::helpers::match_expression;
+use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
+use regex::Regex;
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {
@@ -20,15 +21,18 @@ impl CompiledRule for CommitMessageRegex {
         true
     }
 
-    fn check(&self, context: &dyn Context) -> anyhow::Result<RuleResult> {
-        match match_expression(context, &self.expression, &context.commit_msg()?)? {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+        let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
+        let commit_msg = ctx.commit_msg()?;
+
+        match expression.is_match(&commit_msg) {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: String::new(),
+                output: None,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Commit message does not match regex: {}", self.name),
+                message: format!("Commit message does not match regex: {}", expression),
             }),
         }
     }
@@ -36,12 +40,12 @@ impl CompiledRule for CommitMessageRegex {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
     use crate::context::MockContext;
+    use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
-    use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::t;
+    use std::collections::HashMap;
 
     #[test]
     fn test_commit_message_regex() {
@@ -50,13 +54,14 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Ok("Test commit message".to_string()));
-        context.expect_variables()
+        context
+            .expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {
                 assert_eq!(name, "Test");
-                assert_eq!(output, "");
+                assert_eq!(output, None);
             }
             RuleResult::Failure { name, message } => {
                 panic!("Expected success, got failure: {} - {}", name, message);
@@ -71,16 +76,17 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Ok("Invalid commit message".to_string()));
-        context.expect_variables()
+        context
+            .expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {
-                panic!("Expected failure, got success: {} - {}", name, output);
+                panic!("Expected failure, got success: {} - {:?}", name, output);
             }
             RuleResult::Failure { name, message } => {
                 assert_eq!(name, "Test");
-                assert_eq!(message, "Commit message does not match regex: Test");
+                assert_eq!(message, "Commit message does not match regex: ^Test");
             }
         }
     }
@@ -92,6 +98,8 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Error")));
+        context.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context);
         assert!(result.is_err());
     }

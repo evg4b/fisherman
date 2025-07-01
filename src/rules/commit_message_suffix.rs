@@ -1,5 +1,4 @@
 use crate::context::Context;
-use crate::rules::helpers::check_suffix;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
@@ -22,17 +21,17 @@ impl CompiledRule for CommitMessageSuffix {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        match check_suffix(ctx, &self.suffix, &ctx.commit_msg()?)? {
+        let suffix = self.suffix.to_string(&ctx.variables(&[])?)?;
+        let commit_msg = ctx.commit_msg()?;
+
+        match commit_msg.ends_with(&suffix) {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.suffix.to_string(&ctx.variables(&[])?)?,
+                output: None,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "Commit message does not end with suffix: {}",
-                    self.suffix.to_string(&ctx.variables(&[])?)?
-                ),
+                message: format!("Commit message does not end with the suffix: {}", suffix),
             }),
         }
     }
@@ -40,11 +39,11 @@ impl CompiledRule for CommitMessageSuffix {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::t;
     use assertor::{EqualityAssertion, assert_that};
+    use std::collections::HashMap;
 
     #[test]
     fn test_commit_message_suffix() {
@@ -64,8 +63,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule =
-            CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
+        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
@@ -78,7 +76,7 @@ mod tests {
 
         assert_that!(name).is_equal_to("commit_message_suffix".to_string());
         assert_that!(message)
-            .is_equal_to("Commit message does not end with suffix: feat".to_string());
+            .is_equal_to("Commit message does not end with the suffix: feat".to_string());
     }
 
     #[test]

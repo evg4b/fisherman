@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::helpers::check_prefix;
+use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 
@@ -20,17 +20,17 @@ impl CompiledRule for BranchNamePrefix {
     }
 
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        match check_prefix(ctx, &self.prefix, &ctx.current_branch()?)? {
+        let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
+        let branch_name = ctx.current_branch()?;
+
+        match branch_name.starts_with(&prefix) {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.prefix.to_string(&ctx.variables(&[])?)?,
+                output: None,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "Branch name does not start with prefix: {}",
-                    self.prefix.to_string(&ctx.variables(&[])?,)?
-                ),
+                message: format!("Branch name does not start with prefix: {}", prefix),
             }),
         }
     }
@@ -38,11 +38,11 @@ impl CompiledRule for BranchNamePrefix {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
+    use std::collections::HashMap;
 
     #[test]
     fn test_branch_name_prefix() -> anyhow::Result<()> {

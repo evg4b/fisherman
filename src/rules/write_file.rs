@@ -48,7 +48,7 @@ impl CompiledRule for WriteFile {
 
         Ok(RuleResult::Success {
             name: self.name.clone(),
-            output: "".to_string(),
+            output: None,
         })
     }
 }
@@ -57,10 +57,10 @@ impl CompiledRule for WriteFile {
 mod tests {
     use super::*;
     use crate::context::MockContext;
+    use crate::t;
     use std::collections::HashMap;
     use std::fs;
     use tempdir::TempDir;
-    use crate::t;
 
     #[test]
     fn write_file_when_file_doesnt_exist() {
@@ -86,7 +86,7 @@ mod tests {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, content);
@@ -119,7 +119,7 @@ mod tests {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, content);
@@ -151,7 +151,7 @@ mod tests {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "TestHello, world!");
@@ -186,7 +186,7 @@ mod tests {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(dir.path().join("test.txt")).unwrap();
         assert_eq!(file_content, content);
@@ -220,7 +220,7 @@ mod tests {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "Hello, world!");

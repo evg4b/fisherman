@@ -29,9 +29,11 @@ pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
                 match rule {
                     RuleResult::Success { name, output } => {
                         println!("{} executed successfully", name);
-                        if !output.is_empty() {
-                            println!("{}", output);
-                        }
+                        if let Some(value) = output {
+                            if !value.is_empty() {
+                                println!("{}", value);
+                            }
+                        };
                     }
                     RuleResult::Failure { message, name } => {
                         eprintln!("{}: {}", name, message);

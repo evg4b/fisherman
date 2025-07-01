@@ -3,7 +3,7 @@ use anyhow::Result;
 
 #[derive(Debug)]
 pub enum RuleResult {
-    Success { name: String, output: String, },
+    Success { name: String, output: Option<String>, },
     Failure { name: String, message: String },
 }
 
