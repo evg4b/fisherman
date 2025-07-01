@@ -1,17 +1,17 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateStringLegacy;
-use anyhow::Result;
 use crate::rules::helpers::check_prefix;
+use crate::rules::{CompiledRule, RuleResult};
+use crate::templates::TemplateString;
+use anyhow::Result;
 
 #[derive(Debug)]
 pub struct CommitMessagePrefix {
     name: String,
-    prefix: TemplateStringLegacy,
+    prefix: TemplateString,
 }
 
 impl CommitMessagePrefix {
-    pub fn new(name: String, prefix: TemplateStringLegacy) -> Self {
+    pub fn new(name: String, prefix: TemplateString) -> Self {
         Self { name, prefix }
     }
 }
@@ -22,16 +22,22 @@ impl CompiledRule for CommitMessagePrefix {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        match check_prefix(&self.prefix, &ctx.commit_msg()?)? {
+        match check_prefix(ctx, &self.prefix, &ctx.commit_msg()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.prefix.to_string()?,
+                output: self.prefix.to_string(
+                    // TODO: incorrect
+                    &ctx.variables(&vec![])?,
+                )?,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "Commit message does not start with prefix: {}",
-                    self.prefix.to_string()?
+                    self.prefix.to_string(
+                        // TODO: incorrect
+                        &ctx.variables(&vec![])?,
+                    )?
                 ),
             }),
         }
@@ -42,15 +48,12 @@ impl CompiledRule for CommitMessagePrefix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl_legacy;
-    use assertor::{assert_that, EqualityAssertion};
+    use crate::t;
+    use assertor::{EqualityAssertion, assert_that};
 
     #[test]
     fn test_commit_message_prefix() {
-        let rule = CommitMessagePrefix::new(
-            "commit_message_prefix".to_string(),
-            tmpl_legacy!("feat"),
-        );
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
@@ -65,10 +68,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_failure() {
-        let rule = CommitMessagePrefix::new(
-            "commit_message_prefix".to_string(),
-            tmpl_legacy!("feat".to_string()),
-        );
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
@@ -81,10 +81,10 @@ mod tests {
         assert_that!(message)
             .is_equal_to("Commit message does not start with prefix: feat".to_string());
     }
-    
+
     #[test]
     fn test_sync() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), tmpl_legacy!("feat"));
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
         assert!(rule.sync());
     }
 }

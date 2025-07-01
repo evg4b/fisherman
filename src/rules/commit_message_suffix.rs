@@ -1,17 +1,17 @@
 use crate::context::Context;
 use crate::rules::helpers::check_suffix;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateStringLegacy;
+use crate::templates::TemplateString;
 use anyhow::Result;
 
 #[derive(Debug)]
 pub struct CommitMessageSuffix {
     name: String,
-    suffix: TemplateStringLegacy,
+    suffix: TemplateString,
 }
 
 impl CommitMessageSuffix {
-    pub fn new(name: String, suffix: TemplateStringLegacy) -> Self {
+    pub fn new(name: String, suffix: TemplateString) -> Self {
         Self { name, suffix }
     }
 }
@@ -22,16 +22,16 @@ impl CompiledRule for CommitMessageSuffix {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        match check_suffix(&self.suffix, &ctx.commit_msg()?)? {
+        match check_suffix(ctx, &self.suffix, &ctx.commit_msg()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.suffix.to_string()?,
+                output: self.suffix.to_string(&ctx.variables(&vec![])?)?,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "Commit message does not end with suffix: {}",
-                    self.suffix.to_string()?
+                    self.suffix.to_string(&ctx.variables(&vec![])?)?
                 ),
             }),
         }
@@ -43,11 +43,12 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl_legacy;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
+        let rule =
+            CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -61,7 +62,8 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
+        let rule =
+            CommitMessageSuffix::new("commit_message_suffix".to_string(), tmpl_legacy!("feat"));
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));

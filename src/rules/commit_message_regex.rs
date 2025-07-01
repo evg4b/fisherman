@@ -1,16 +1,16 @@
 use crate::context::Context;
 use crate::rules::helpers::match_expression;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateStringLegacy;
+use crate::templates::TemplateString;
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {
     name: String,
-    expression: TemplateStringLegacy,
+    expression: TemplateString,
 }
 
 impl CommitMessageRegex {
-    pub fn new(name: String, expression: TemplateStringLegacy) -> Self {
+    pub fn new(name: String, expression: TemplateString) -> Self {
         Self { name, expression }
     }
 }
@@ -21,7 +21,7 @@ impl CompiledRule for CommitMessageRegex {
     }
 
     fn check(&self, context: &dyn Context) -> anyhow::Result<RuleResult> {
-        match match_expression(&self.expression, &context.commit_msg()?)? {
+        match match_expression(context, &self.expression, &context.commit_msg()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
                 output: String::new(),
@@ -37,15 +37,15 @@ impl CompiledRule for CommitMessageRegex {
 #[cfg(test)]
 mod test {
     use crate::context::MockContext;
-    use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
     use crate::rules::RuleResult;
+    use crate::rules::commit_message_regex::CommitMessageRegex;
 
-    use crate::tmpl_legacy;
+    use crate::{t, tmpl_legacy};
 
     #[test]
     fn test_commit_message_regex() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -64,7 +64,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_failure() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_commit_message_regex_error() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
@@ -91,10 +91,10 @@ mod test {
         let result = rule.check(&context);
         assert!(result.is_err());
     }
-    
+
     #[test]
     fn test_sync() {
-        let rule = CommitMessageRegex::new("Test".to_string(), tmpl_legacy!("^Test"));
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
         assert!(rule.sync());
     }
 }

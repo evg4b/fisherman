@@ -34,7 +34,7 @@ impl CompiledRule for WriteFile {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&vec![])?;
+        let variables = ctx.variables(&[])?;
         let content = self.content.to_string(&variables)?;
         let path = self.path.to_string(&variables)?;
 
@@ -60,6 +60,7 @@ mod tests {
     use std::collections::HashMap;
     use std::fs;
     use tempdir::TempDir;
+    use crate::t;
 
     #[test]
     fn write_file_when_file_doesnt_exist() {
@@ -69,8 +70,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from(path.to_str().unwrap()),
-            TemplateString::from(content.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
@@ -102,8 +103,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from(path.to_str().unwrap()),
-            TemplateString::from(content.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
@@ -135,8 +136,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from(path.to_str().unwrap()),
-            TemplateString::from(content.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             true,
         );
 
@@ -174,8 +175,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from(path.to_str().unwrap()),
-            TemplateString::from(content.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
@@ -199,8 +200,8 @@ mod tests {
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from(path.to_str().unwrap()),
-            TemplateString::from(content.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
@@ -229,8 +230,8 @@ mod tests {
     fn test_sync() {
         let rule = WriteFile::new(
             "write_file".to_string(),
-            TemplateString::from("path/to/file.txt"),
-            TemplateString::from("content"),
+            t!("path/to/file.txt"),
+            t!("content"),
             false,
         );
         assert!(!rule.sync());

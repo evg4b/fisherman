@@ -50,8 +50,8 @@ impl Context for GitRepoContext {
         Configuration::load(self.repo_path())
     }
 
-    fn variables(&self, additional: &Vec<String>) -> Result<HashMap<String, String>> {
-        let mut variables = additional.clone();
+    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
+        let mut variables = additional.to_vec();
         variables.extend(self.configuration()?.extract);
         extract_variables(self, &variables)
     }

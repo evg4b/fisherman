@@ -1,15 +1,15 @@
 use crate::context::Context;
 use crate::rules::helpers::match_expression;
 use crate::rules::{CompiledRule, RuleResult};
-use crate::templates::TemplateStringLegacy;
+use crate::templates::TemplateString;
 
 pub struct BranchNameRegex {
     name: String,
-    expression: TemplateStringLegacy,
+    expression: TemplateString,
 }
 
 impl BranchNameRegex {
-    pub fn new(name: String, expression: TemplateStringLegacy) -> Self {
+    pub fn new(name: String, expression: TemplateString) -> Self {
         Self { name, expression }
     }
 }
@@ -20,7 +20,7 @@ impl CompiledRule for BranchNameRegex {
     }
 
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        match match_expression(&self.expression, &ctx.current_branch()?)? {
+        match match_expression(ctx, &self.expression, &ctx.current_branch()?)? {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
                 output: String::new(),

@@ -30,7 +30,7 @@ impl VariableSource {
     }
 }
 
-fn transform_array(arr: &Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex>>> {
+fn transform_array(arr: &[String]) -> Result<HashMap<VariableSource, Vec<Regex>>> {
     let mut map: HashMap<VariableSource, Vec<Regex>> = HashMap::new();
 
     for entry in arr {
@@ -49,7 +49,7 @@ fn transform_array(arr: &Vec<String>) -> Result<HashMap<VariableSource, Vec<Rege
 
 pub fn extract_variables(
     ctx: &impl Context,
-    extract: &Vec<String>,
+    extract: &[String],
 ) -> Result<HashMap<String, String>> {
     let expressions = transform_array(extract)?;
     let mut variables = HashMap::with_capacity(expressions.len());
@@ -95,7 +95,7 @@ mod extract_variables_tests {
     #[test]
     fn accept_empty_vec() {
         let context = &MockContext::new();
-        let result = extract_variables(context, &vec![]).unwrap();
+        let result = extract_variables(context, &[]).unwrap();
         assert_that!(result).is_equal_to(HashMap::new());
     }
     

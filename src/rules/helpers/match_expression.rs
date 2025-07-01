@@ -1,8 +1,14 @@
-use crate::templates::TemplateStringLegacy;
+use crate::context::Context;
+use crate::templates::TemplateString;
 use regex::Regex;
 
-pub fn match_expression(expression: &TemplateStringLegacy, text: &str) -> anyhow::Result<bool> {
-    let filled_expression = expression.to_string()?;
+pub fn match_expression(
+    ctx: &dyn Context,
+    expression: &TemplateString,
+    text: &str,
+) -> anyhow::Result<bool> {
+    let variables = ctx.variables(&vec![])?;
+    let filled_expression = expression.to_string(&variables)?;
     let regex = Regex::new(&filled_expression)?;
     Ok(regex.is_match(text))
 }

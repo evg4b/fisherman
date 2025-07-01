@@ -1,7 +1,9 @@
-use crate::templates::TemplateStringLegacy;
+use crate::context::Context;
+use crate::templates::TemplateString;
 
-pub fn check_suffix(suffix: &TemplateStringLegacy, text: &str) -> anyhow::Result<bool> {
-    let filled_suffix = suffix.to_string()?;
+pub fn check_suffix(ctx: &dyn Context, suffix: &TemplateString, text: &str) -> anyhow::Result<bool> {
+    let variables = ctx.variables(&vec![])?;
+    let filled_suffix = suffix.to_string(&variables)?;
     Ok(text.ends_with(&filled_suffix))
 }
 
