@@ -1,58 +1,76 @@
+use crate::commands::command::CliCommand;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::rules::{CompiledRule, Rule, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
+use clap::Parser;
+use std::path::PathBuf;
 use std::process::exit;
 
-type RulesBucket = Vec<Box<dyn CompiledRule>>;
+#[derive(Debug, Parser)]
+pub struct HandleCommand {
+    /// The hook to handle
+    #[arg(value_enum)]
+    hook: GitHook,
+    /// The commit message file path
+    message: Option<String>,
+}
 
-pub fn handle_command(context: &impl Context, hook: &GitHook) -> Result<()> {
-    let config = context.configuration()?;
-    println!("{}", hook_display(hook, config.files));
+impl CliCommand for HandleCommand {
+    fn exec(&self, context: &mut impl Context) -> Result<()> {
+        if let Some(message) = self.message.to_owned() {
+            context.set_commit_msg_path(PathBuf::from(message));
+        }
 
-    match config.hooks.get(hook) {
-        Some(rules) => {
-            let (sync_rules, async_rules) = compile_rules(context, rules)?;
+        let config = context.configuration()?;
+        println!("{}", hook_display(&self.hook, config.files));
 
-            let mut results: Vec<RuleResult> = vec![];
+        match config.hooks.get(&self.hook) {
+            Some(rules) => {
+                let (sync_rules, async_rules) = compile_rules(context, rules)?;
 
-            for rule in sync_rules {
-                results.push(rule.check(context)?);
-            }
+                let mut results: Vec<RuleResult> = vec![];
 
-            for rule in async_rules {
-                results.push(rule.check(context)?);
-            }
+                for rule in sync_rules {
+                    results.push(rule.check(context)?);
+                }
 
-            for rule in results.iter() {
-                match rule {
-                    RuleResult::Success { name, output } => {
-                        println!("{} executed successfully", name);
-                        if let Some(value) = output {
-                            if !value.is_empty() {
-                                println!("{}", value);
-                            }
-                        };
-                    }
-                    RuleResult::Failure { message, name } => {
-                        eprintln!("{}: {}", name, message);
+                for rule in async_rules {
+                    results.push(rule.check(context)?);
+                }
+
+                for rule in results.iter() {
+                    match rule {
+                        RuleResult::Success { name, output } => {
+                            println!("{} executed successfully", name);
+                            if let Some(value) = output {
+                                if !value.is_empty() {
+                                    println!("{}", value);
+                                }
+                            };
+                        }
+                        RuleResult::Failure { message, name } => {
+                            eprintln!("{}: {}", name, message);
+                        }
                     }
                 }
-            }
 
-            if results
-                .iter()
-                .any(|r| matches!(r, RuleResult::Failure { .. }))
-            {
-                exit(1);
+                if results
+                    .iter()
+                    .any(|r| matches!(r, RuleResult::Failure { .. }))
+                {
+                    exit(1);
+                }
             }
-        }
-        None => println!("No rules found for hook {}", hook),
-    };
+            None => println!("No rules found for hook {}", self.hook),
+        };
 
-    Ok(())
+        Ok(())
+    }
 }
+
+type RulesBucket = Vec<Box<dyn CompiledRule>>;
 
 fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket, RulesBucket)> {
     let mut sync_rules: RulesBucket = vec![];

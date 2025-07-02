@@ -73,7 +73,7 @@ pub fn extract_variables(
                     }
 
                     bail!(
-                        "The expression \"{}\" does not match the source \"{:}\"",
+                        "The expression \"{}\" does not match the source \"{}\"",
                         expression,
                         source
                     );

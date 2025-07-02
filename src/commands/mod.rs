@@ -1,59 +1,32 @@
+mod command;
 mod explain;
 mod handle;
 mod install;
 
+pub use crate::commands::command::CliCommand;
+pub use crate::commands::explain::ExplainCommand;
+pub use crate::commands::handle::HandleCommand;
+pub use crate::commands::install::InstallCommand;
 use crate::context::Context;
-use crate::hooks::GitHook;
 use anyhow::Result;
 use clap::Subcommand;
-pub use explain::explain_command;
-pub use handle::handle_command;
-pub use install::install_command;
-use std::path::PathBuf;
 
-#[derive(Subcommand)]
-pub enum Commands {
+#[derive(Subcommand, Debug)]
+pub enum Command {
     /// Install hooks for the repository
-    Install {
-        /// Force the initialization of the hooks (override existing hooks)
-        #[arg(short, long)]
-        force: bool,
-        /// List of hooks to install (if not provided, only the configured
-        /// hooks will be installed or all hooks if no configuration is found)
-        hooks: Option<Vec<GitHook>>,
-    },
+    Install(InstallCommand),
     /// Handle a hook
-    Handle {
-        /// The hook to handle
-        #[arg(value_enum)]
-        hook: GitHook,
-        /// The commit message file path
-        message: Option<String>,
-    },
+    Handle(HandleCommand),
     /// Explain a hook behavior
-    Explain {
-        /// The hook to explain
-        #[arg(value_enum)]
-        hook: GitHook,
-    },
+    Explain(ExplainCommand),
 }
 
-impl Commands {
-    pub fn run(&self, context: &mut impl Context) -> Result<()> {
+impl CliCommand for Command {
+    fn exec(&self, context: &mut impl Context) -> Result<()> {
         match self {
-            Commands::Install { force, hooks } => {
-                install_command(context, hooks.to_owned(), *force)
-            },
-            Commands::Handle { hook, message } => {
-                if let Some(message) = message {
-                    context.set_commit_msg_path(PathBuf::from(message));
-                }
-
-                handle_command(context, hook)
-            },
-            Commands::Explain { hook } => {
-                explain_command(context, hook)
-            },
+            Command::Install(cmd) => cmd.exec(context),
+            Command::Handle(cmd) => cmd.exec(context),
+            Command::Explain(cmd) => cmd.exec(context),
         }
     }
 }
