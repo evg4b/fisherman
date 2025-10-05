@@ -44,10 +44,8 @@ impl CliCommand for HandleCommand {
                     match rule {
                         RuleResult::Success { name, output } => {
                             println!("{} executed successfully", name);
-                            if let Some(value) = output {
-                                if !value.is_empty() {
-                                    println!("{}", value);
-                                }
+                            if let Some(value) = output && !value.is_empty() {
+                                println!("{}", value);
                             };
                         }
                         RuleResult::Failure { message, name } => {

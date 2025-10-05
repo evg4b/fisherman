@@ -1,12 +1,12 @@
 use crate::configuration::Configuration;
+use crate::context::variables::extract_variables;
 use crate::context::Context;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use git2::Repository;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::context::variables::extract_variables;
 
 pub struct GitRepoContext {
     repo: Repository,

@@ -1,5 +1,5 @@
 use crate::hooks::errors::HookError;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
@@ -170,7 +170,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;
@@ -263,11 +263,7 @@ mod test_hook_install {
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
         let original_hook_content = format!("test {}", hook_name);
-        fs::write(
-            dir.path().join(hook.to_string()),
-            &original_hook_content,
-        )
-        .unwrap();
+        fs::write(dir.path().join(hook.to_string()), &original_hook_content).unwrap();
 
         hook.install(&ctx, true).unwrap();
 

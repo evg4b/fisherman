@@ -76,8 +76,7 @@ mod tests {
         };
 
         assert_that!(name).is_equal_to("branch_name_prefix".to_string());
-        assert_that!(message)
-            .is_equal_to("Branch name must start with: feat/".to_string());
+        assert_that!(message).is_equal_to("Branch name must start with: feat/".to_string());
 
         Ok(())
     }

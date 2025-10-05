@@ -98,7 +98,8 @@ mod test {
         context
             .expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Error")));
-        context.expect_variables()
+        context
+            .expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context);
         assert!(result.is_err());

@@ -3,8 +3,14 @@ use anyhow::Result;
 
 #[derive(Debug)]
 pub enum RuleResult {
-    Success { name: String, output: Option<String>, },
-    Failure { name: String, message: String },
+    Success {
+        name: String,
+        output: Option<String>,
+    },
+    Failure {
+        name: String,
+        message: String,
+    },
 }
 
 pub trait CompiledRule {

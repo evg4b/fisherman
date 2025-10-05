@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use crate::configuration::Configuration;
 use anyhow::Result;
 use mockall::automock;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 #[automock]
@@ -13,5 +13,5 @@ pub trait Context {
     fn commit_msg(&self) -> Result<String>;
     fn set_commit_msg_path(&mut self, message_file: PathBuf);
     fn configuration(&self) -> Result<Configuration>;
-    fn variables(&self, additional: &[String]) ->  Result<HashMap<String, String>>;
+    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>>;
 }

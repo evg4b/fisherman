@@ -23,7 +23,5 @@ pub fn hook_display(hook: &GitHook, files: Vec<PathBuf>) -> String {
 }
 
 fn get(files: &[PathBuf], index: usize) -> &str {
-    files.get(index)
-        .and_then(|p| p.to_str())
-        .unwrap_or("")
+    files.get(index).and_then(|p| p.to_str()).unwrap_or("")
 }

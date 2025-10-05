@@ -54,7 +54,7 @@ impl Configuration {
         if self.hooks.is_empty() {
             return None;
         }
-        
+
         Some(self.hooks.keys().cloned().collect())
     }
 }

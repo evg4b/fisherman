@@ -165,13 +165,11 @@ mod tests {
         let content = "Hello, world!".to_string();
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| {
-                let mut variables = HashMap::new();
-                variables.insert("FILE_NAME".to_string(), "test".to_string());
-                Ok(variables)
-            });
+        context.expect_variables().returning(|_| {
+            let mut variables = HashMap::new();
+            variables.insert("FILE_NAME".to_string(), "test".to_string());
+            Ok(variables)
+        });
 
         let rule = WriteFile::new(
             "write_file".to_string(),
@@ -205,15 +203,12 @@ mod tests {
             false,
         );
 
-
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| {
-                let mut variables = HashMap::new();
-                variables.insert("WHO".to_string(), "world".to_string());
-                Ok(variables)
-            });
+        context.expect_variables().returning(|_| {
+            let mut variables = HashMap::new();
+            variables.insert("WHO".to_string(), "world".to_string());
+            Ok(variables)
+        });
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {

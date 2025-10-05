@@ -67,7 +67,7 @@ impl CompiledRule for ExecRule {
 mod test {
     use super::*;
     use crate::context::MockContext;
-    use assertor::{EqualityAssertion, StringAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion, StringAssertion};
     use std::collections::HashMap;
 
     #[test]

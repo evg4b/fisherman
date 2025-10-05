@@ -42,7 +42,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use assertor::{EqualityAssertion, assert_that};
+    use assertor::{assert_that, EqualityAssertion};
     use std::collections::HashMap;
 
     #[test]
@@ -75,8 +75,7 @@ mod tests {
         };
 
         assert_that!(name).is_equal_to("commit_message_suffix".to_string());
-        assert_that!(message)
-            .is_equal_to("Commit message must end with: feat".to_string());
+        assert_that!(message).is_equal_to("Commit message must end with: feat".to_string());
     }
 
     #[test]

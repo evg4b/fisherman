@@ -16,7 +16,10 @@ impl VariableSource {
             "branch?" => Ok(VariableSource::Branch { optional: true }),
             "repo_path" => Ok(VariableSource::RepoPath { optional: false }),
             "repo_path?" => Ok(VariableSource::RepoPath { optional: true }),
-            _ => bail!("Unknown source: '{}'. Use 'branch', 'branch?', 'repo_path', or 'repo_path?'", s),
+            _ => bail!(
+                "Unknown source: '{}'. Use 'branch', 'branch?', 'repo_path', or 'repo_path?'",
+                s
+            ),
         }
     }
 
@@ -72,11 +75,7 @@ pub fn extract_variables(
                         continue;
                     }
 
-                    bail!(
-                        "Pattern '{}' doesn't match '{}'",
-                        expression,
-                        source
-                    );
+                    bail!("Pattern '{}' doesn't match '{}'", expression, source);
                 }
             }
         }
@@ -98,79 +97,79 @@ mod extract_variables_tests {
         let result = extract_variables(context, &[]).unwrap();
         assert_that!(result).is_equal_to(HashMap::new());
     }
-    
+
     #[test]
     fn extract_variables_from_branch() {
         let mut context = MockContext::new();
         context
             .expect_current_branch()
             .returning(|| Ok("master".to_string()));
-    
+
         let extract = vec!["branch:m(?P<part>.*)".to_string()];
-    
+
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
-    
+
         assert_that!(result).has_length(1);
         assert_that!(result["part"]).is_equal_to("aster".to_string())
     }
-    
+
     #[test]
     fn extract_variables_from_path() {
         let mut context = MockContext::new();
         let path = Path::new("/path/to/repo").to_path_buf();
         context.expect_repo_path().return_const(path);
-    
+
         let extract = vec!["repo_path:^/path/(?P<demo>.*)/repo$".to_string()];
-    
+
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
-    
+
         assert_that!(result).has_length(1);
         assert_that!(result["demo"]).is_equal_to("to".to_string())
     }
-    
+
     #[test]
     fn extract_multiple_variables() {
         let mut context = MockContext::new();
         let path = Path::new("/path/to/repo").to_path_buf();
         context.expect_repo_path().return_const(path);
-    
+
         let extract = vec!["repo_path:^/(?P<S1>.\\S+)/(?P<S2>.\\S+)/(?P<S3>.\\S+)$".to_string()];
-    
+
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
-    
+
         assert_that!(result).has_length(3);
         assert_that!(result["S1"]).is_equal_to("path".to_string());
         assert_that!(result["S2"]).is_equal_to("to".to_string());
         assert_that!(result["S3"]).is_equal_to("repo".to_string());
     }
-    
+
     #[test]
     fn should_return_error_when_expression_doesnt_match() {
         let mut context = MockContext::new();
         context
             .expect_current_branch()
             .returning(|| Ok("master".to_string()));
-    
+
         let extract = vec!["branch:^.&".to_string()];
-    
+
         let error = extract_variables(&context, &extract);
-    
+
         assert_that!(error).is_err();
         assert_that!(error.unwrap_err().to_string())
             .is_equal_to("Pattern '^.&' doesn't match 'master'".to_string());
     }
-    
+
     #[test]
     fn should_return_not_error_when_expression_is_optional() {
         let mut context = MockContext::new();
         context
             .expect_current_branch()
             .returning(|| Ok("master".to_string()));
-    
+
         let extract = vec!["branch?:^.&".to_string()];
-    
+
         let result = extract_variables(&context, &extract).unwrap();
-    
+
         assert_that!(result).has_length(0);
     }
 

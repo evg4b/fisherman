@@ -43,8 +43,8 @@ impl TemplateString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
     use crate::t;
+    use std::collections::HashMap;
 
     #[test]
     fn test_template_string_creation() {

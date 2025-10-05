@@ -74,10 +74,8 @@ impl Rule {
     pub fn compile(&self, context: &impl Context) -> Result<Option<Box<dyn CompiledRule>>> {
         let variables = context.variables(self.extract.as_ref().unwrap_or(&vec![]))?;
 
-        if let Some(expression) = &self.when {
-            if !expression.check(&variables)? {
-                return Ok(None);
-            }
+        if let Some(expression) = &self.when && !expression.check(&variables)? {
+            return Ok(None);
         }
 
         match &self.params {
