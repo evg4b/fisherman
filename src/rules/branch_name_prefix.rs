@@ -41,7 +41,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use assertor::{assert_that, EqualityAssertion};
+    use assert2::assert;
     use std::collections::HashMap;
 
     #[test]
@@ -57,7 +57,7 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("branch_name_prefix".to_string());
+        assert!(name == "branch_name_prefix");
 
         Ok(())
     }
@@ -75,8 +75,8 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("branch_name_prefix".to_string());
-        assert_that!(message).is_equal_to("Branch name must start with: feat/".to_string());
+        assert!(name == "branch_name_prefix");
+        assert!(message == "Branch name must start with: feat/");
 
         Ok(())
     }

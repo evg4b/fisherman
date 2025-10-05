@@ -42,7 +42,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use assertor::{assert_that, EqualityAssertion};
+    use assert2::assert;
     use std::collections::HashMap;
 
     #[test]
@@ -58,7 +58,7 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("branch_name_regex".to_string());
+        assert!(name == "branch_name_regex");
 
         Ok(())
     }
@@ -76,9 +76,8 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("branch_name_regex".to_string());
-        assert_that!(message)
-            .is_equal_to("Branch name must match pattern: ^feat/.*-bugfix$".to_string());
+        assert!(name == "branch_name_regex");
+        assert!(message == "Branch name must match pattern: ^feat/.*-bugfix$");
 
         Ok(())
     }

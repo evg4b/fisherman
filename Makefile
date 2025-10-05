@@ -1,7 +1,7 @@
 default: lint test build
 
 lint:
-	cargo clippy --fix --allow-dirty --allow-staged
+	cargo clippy --all-targets --all-features --fix --allow-dirty
 
 test:
 	cargo test

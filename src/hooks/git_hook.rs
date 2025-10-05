@@ -170,7 +170,7 @@ mod test_hook_install {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
-    use assertor::{assert_that, EqualityAssertion};
+    use assert2::assert;
     use rstest::*;
     use std::path::PathBuf;
     use tempdir::TempDir;
@@ -220,7 +220,7 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert_that!(fs::read_to_string(hook_path).unwrap()).is_equal_to(hook.content(&ctx));
+        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
     }
 
     #[rstest]
@@ -272,10 +272,10 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert_that!(fs::read_to_string(hook_path).unwrap()).is_equal_to(hook.content(&ctx));
+        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
 
         assert!(hook_bkp_path.exists());
         assert!(hook_bkp_path.is_file());
-        assert_that!(fs::read_to_string(hook_bkp_path).unwrap()).is_equal_to(original_hook_content);
+        assert!(fs::read_to_string(hook_bkp_path).unwrap() == original_hook_content);
     }
 }

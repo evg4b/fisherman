@@ -67,7 +67,7 @@ impl CompiledRule for ExecRule {
 mod test {
     use super::*;
     use crate::context::MockContext;
-    use assertor::{assert_that, EqualityAssertion, StringAssertion};
+    use assert2::assert;
     use std::collections::HashMap;
 
     #[test]
@@ -85,8 +85,8 @@ mod test {
             panic!("Expected Success, but got {:?}", result)
         };
 
-        assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output.unwrap()).is_equal_to("hello\n".to_string());
+        assert!(name == "test");
+        assert!(output.unwrap() == "hello\n");
     }
 
     #[test]
@@ -107,8 +107,8 @@ mod test {
             panic!("Expected Success, but got {:?}", result)
         };
 
-        assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output.unwrap()).contains("HELLO=world".to_string());
+        assert!(name == "test");
+        assert!(output.unwrap().contains("HELLO=world"));
     }
 
     #[test]
@@ -129,8 +129,8 @@ mod test {
             panic!("Expected Success, but got {:?}", result)
         };
 
-        assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output.unwrap()).is_equal_to("hello world\n".to_string());
+        assert!(name == "test");
+        assert!(output.unwrap() == "hello world\n");
     }
 
     #[test]
@@ -151,9 +151,8 @@ mod test {
             panic!("Expected Success, but got {:?}", result)
         };
 
-        assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(message)
-            .is_equal_to("cat: ./unknown.txt: No such file or directory\n".to_string());
+        assert!(name == "test");
+        assert!(message == "cat: ./unknown.txt: No such file or directory\n");
     }
 
     #[test]
@@ -168,8 +167,7 @@ mod test {
 
         let result = rule.check(&MockContext::new()).err().unwrap();
 
-        assert_that!(result.to_string())
-            .is_equal_to("No such file or directory (os error 2)".to_string());
+        assert!(result.to_string() == "No such file or directory (os error 2)");
     }
 
     #[test]

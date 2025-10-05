@@ -43,7 +43,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use assertor::{assert_that, EqualityAssertion};
+    use assert2::assert;
     use std::collections::HashMap;
 
     #[test]
@@ -59,7 +59,7 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("commit_message_prefix".to_string());
+        assert!(name == "commit_message_prefix");
         assert_eq!(output, None);
     }
 
@@ -76,8 +76,8 @@ mod tests {
             panic!()
         };
 
-        assert_that!(name).is_equal_to("commit_message_prefix".to_string());
-        assert_that!(message).is_equal_to("Commit message must start with: feat".to_string());
+        assert!(name == "commit_message_prefix");
+        assert!(message == "Commit message must start with: feat");
     }
 
     #[test]

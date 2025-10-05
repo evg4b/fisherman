@@ -88,14 +88,14 @@ pub fn extract_variables(
 mod extract_variables_tests {
     use super::*;
     use crate::context::MockContext;
-    use assertor::*;
+    use assert2::assert;
     use std::path::Path;
 
     #[test]
     fn accept_empty_vec() {
         let context = &MockContext::new();
         let result = extract_variables(context, &[]).unwrap();
-        assert_that!(result).is_equal_to(HashMap::new());
+        assert!(result.is_empty());
     }
 
     #[test]
@@ -109,8 +109,8 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert_that!(result).has_length(1);
-        assert_that!(result["part"]).is_equal_to("aster".to_string())
+        assert!(result.len() == 1);
+        assert!(result["part"] == "aster");
     }
 
     #[test]
@@ -123,8 +123,8 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert_that!(result).has_length(1);
-        assert_that!(result["demo"]).is_equal_to("to".to_string())
+        assert!(result.len() == 1);
+        assert!(result["demo"] == "to");
     }
 
     #[test]
@@ -137,10 +137,10 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert_that!(result).has_length(3);
-        assert_that!(result["S1"]).is_equal_to("path".to_string());
-        assert_that!(result["S2"]).is_equal_to("to".to_string());
-        assert_that!(result["S3"]).is_equal_to("repo".to_string());
+        assert!(result.len() == 3);
+        assert!(result["S1"] == "path");
+        assert!(result["S2"] == "to");
+        assert!(result["S3"] == "repo");
     }
 
     #[test]
@@ -154,9 +154,8 @@ mod extract_variables_tests {
 
         let error = extract_variables(&context, &extract);
 
-        assert_that!(error).is_err();
-        assert_that!(error.unwrap_err().to_string())
-            .is_equal_to("Pattern '^.&' doesn't match 'master'".to_string());
+        assert!(error.is_err());
+        assert!(error.unwrap_err().to_string() == "Pattern '^.&' doesn't match 'master'");
     }
 
     #[test]
@@ -170,7 +169,7 @@ mod extract_variables_tests {
 
         let result = extract_variables(&context, &extract).unwrap();
 
-        assert_that!(result).has_length(0);
+        assert!(result.is_empty());
     }
 
     #[test]
@@ -184,7 +183,7 @@ mod extract_variables_tests {
 
         let result = extract_variables(&context, &extract).unwrap();
 
-        assert_that!(result).has_length(1);
-        assert_that!(result["IssueNumber"]).is_equal_to("CLIC-48484".to_string());
+        assert!(result.len() == 1);
+        assert!(result["IssueNumber"] == "CLIC-48484");
     }
 }
