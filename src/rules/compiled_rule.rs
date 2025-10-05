@@ -13,7 +13,7 @@ pub enum RuleResult {
     },
 }
 
-pub trait CompiledRule {
+pub trait CompiledRule: Send + Sync {
     fn sync(&self) -> bool;
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 }

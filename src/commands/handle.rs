@@ -5,8 +5,10 @@ use crate::rules::{CompiledRule, Rule, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
+use rayon::prelude::*;
 use std::path::PathBuf;
 use std::process::exit;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Parser)]
 pub struct HandleCommand {
@@ -36,9 +38,16 @@ impl CliCommand for HandleCommand {
                     results.push(rule.check(context)?);
                 }
 
-                for rule in async_rules {
-                    results.push(rule.check(context)?);
-                }
+                let context_lock = Arc::new(Mutex::new(context));
+                let async_results: Result<Vec<_>> = async_rules
+                    .par_iter()
+                    .map(|rule| {
+                        let ctx = context_lock.lock().unwrap();
+                        rule.check(&**ctx)
+                    })
+                    .collect();
+
+                results.extend(async_results?);
 
                 for rule in &results {
                     match rule {
@@ -123,6 +132,149 @@ mod tests {
         assert_eq!(async_rules.len(), 1);
         assert!(sync_rules[0].sync());
         assert!(!async_rules[0].sync());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parallel_async_rules_execution() -> Result<()> {
+        use std::sync::{Arc, Mutex};
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        // Create multiple async rules that will run in parallel
+        let rules = vec![
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Task 1'".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Task 2'".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Task 3'".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Task 4'".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Task 5'".to_string(),
+                },
+            },
+        ];
+
+        let (_, async_rules) = compile_rules(&context, &rules)?;
+        assert_eq!(async_rules.len(), 5);
+
+        // Execute async rules in parallel
+        let context_lock = Arc::new(Mutex::new(&mut context));
+        let async_results: Result<Vec<_>> = async_rules
+            .par_iter()
+            .map(|rule| {
+                let ctx = context_lock.lock().unwrap();
+                rule.check(&**ctx)
+            })
+            .collect();
+
+        // Verify all rules succeeded
+        let results = async_results?;
+        assert_eq!(results.len(), 5);
+        for result in &results {
+            assert!(matches!(result, RuleResult::Success { .. }));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parallel_async_rules_with_failures() -> Result<()> {
+        use std::sync::{Arc, Mutex};
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        // Create rules with mixed success/failure
+        let rules = vec![
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Success'".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "exit 1".to_string(),
+                },
+            },
+            Rule {
+                when: None,
+                extract: None,
+                params: RuleParams::ShellScript {
+                    env: None,
+                    script: "echo 'Another success'".to_string(),
+                },
+            },
+        ];
+
+        let (_, async_rules) = compile_rules(&context, &rules)?;
+
+        let context_lock = Arc::new(Mutex::new(&mut context));
+        let async_results: Result<Vec<_>> = async_rules
+            .par_iter()
+            .map(|rule| {
+                let ctx = context_lock.lock().unwrap();
+                rule.check(&**ctx)
+            })
+            .collect();
+
+        let results = async_results?;
+        assert_eq!(results.len(), 3);
+
+        // Count successes and failures
+        let successes = results
+            .iter()
+            .filter(|r| matches!(r, RuleResult::Success { .. }))
+            .count();
+        let failures = results
+            .iter()
+            .filter(|r| matches!(r, RuleResult::Failure { .. }))
+            .count();
+
+        assert_eq!(successes, 2);
+        assert_eq!(failures, 1);
 
         Ok(())
     }
