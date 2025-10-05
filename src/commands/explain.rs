@@ -1,20 +1,30 @@
-use crate::configuration::Configuration;
+use crate::commands::command::CliCommand;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::ui::hook_display;
 use anyhow::Result;
+use clap::Parser;
 
-pub fn explain_command(context: &impl Context, hook: &GitHook) -> Result<()> {
-    let config = Configuration::load(context.repo_path())?;
+#[derive(Debug, Parser)]
+pub struct ExplainCommand {
+    /// The hook to explain
+    #[arg(value_enum)]
+    hook: GitHook,
+}
 
-    println!("{}", hook_display(hook, config.files));
+impl CliCommand for ExplainCommand {
+    fn exec(&self, context: &mut impl Context) -> Result<()> {
+        let config = context.configuration()?;
 
-    match config.hooks.get(hook) {
-        Some(rules) => {
-            rules.iter().for_each(|rule| println!("{}", rule));
-        }
-        None => println!("No rules found for hook {}", hook),
-    };
+        println!("{}", hook_display(&self.hook, config.files));
 
-    Ok(())
+        match config.hooks.get(&self.hook) {
+            Some(rules) => {
+                rules.iter().for_each(|rule| println!("{}", rule));
+            }
+            None => println!("No rules found for hook {}", self.hook),
+        };
+
+        Ok(())
+    }
 }

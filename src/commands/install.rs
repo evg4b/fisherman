@@ -1,30 +1,39 @@
-use crate::configuration::Configuration;
+use crate::commands::command::CliCommand;
 use crate::context::Context;
 use crate::hooks::GitHook;
 use crate::ui::logo;
 use anyhow::Result;
-use clap::ValueEnum;
+use clap::{Parser, ValueEnum};
 use std::fs;
 
-pub fn install_command(
-    context: &impl Context,
+#[derive(Debug, Parser)]
+pub struct InstallCommand {
+    /// List of hooks to install (if not provided, only the configured
+    /// hooks will be installed or all hooks if no configuration is found)
     hooks: Option<Vec<GitHook>>,
+    /// Force the initialization of the hooks (override existing hooks)
+    #[arg(short, long)]
     force: bool,
-) -> Result<()> {
-    println!("{}", logo());
+}
 
-    let selected_hooks = match hooks {
-        Some(hooks) => hooks,
-        None => Configuration::load(context.repo_path())?
-            .get_configured_hooks()
-            .unwrap_or_else(|| GitHook::value_variants().into()),
-    };
+impl CliCommand for InstallCommand {
+    fn exec(&self, context: &mut impl Context) -> Result<()> {
+        println!("{}", logo());
 
-    fs::create_dir_all(context.hooks_dir())?;
-    for hook in selected_hooks {
-        hook.install(context, force)?;
-        println!("Hook {} installed", hook);
+        let selected_hooks = match self.hooks.to_owned() {
+            Some(hooks) => hooks,
+            None => context
+                .configuration()?
+                .get_configured_hooks()
+                .unwrap_or_else(|| GitHook::value_variants().into()),
+        };
+
+        fs::create_dir_all(context.hooks_dir())?;
+        for hook in selected_hooks {
+            hook.install(context, self.force)?;
+            println!("Hook {} installed", hook);
+        }
+
+        Ok(())
     }
-
-    Ok(())
 }

@@ -27,7 +27,7 @@ impl Configuration {
         let files = find_config_files(path)?;
 
         let mut instance = Figment::new();
-        for file in files.clone() {
+        for file in files.iter() {
             let extension = match file.extension().and_then(OsStr::to_str) {
                 Some(ext) => ext,
                 None => bail!(ConfigurationError::UnknownConfigFileExtension),

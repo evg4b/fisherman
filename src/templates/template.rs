@@ -4,24 +4,27 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub struct TemplateString {
     template: String,
-    // TODO: Reduce memory consumption by using a link to the map instead of a copy
-    variables: HashMap<String, String>,
 }
 
 impl TemplateString {
-    pub fn new(template: String, variables: HashMap<String, String>) -> TemplateString {
-        TemplateString { template, variables }
+    pub fn from<T>(template: T) -> Self
+    where
+        T: Into<String>,
+    {
+        TemplateString {
+            template: template.into(),
+        }
     }
 
-    pub fn to_string(&self) -> Result<String, TemplateError> {
+    pub fn to_string(&self, variables: &HashMap<String, String>) -> Result<String, TemplateError> {
         let input = self.template.as_ref();
-        let mut result = self.template.clone();
+        let mut result = self.template.to_owned();
         let pattern = regex::Regex::new(r"\{\{(.*?)}}").unwrap();
 
         for cap in pattern.captures_iter(input) {
             if let Some(key) = cap.get(1) {
                 let key_str = key.as_str();
-                match self.variables.get(key_str) {
+                match variables.get(key_str) {
                     Some(value) => {
                         result = result.replace(&format!("{{{{{}}}}}", key_str), value);
                     }
@@ -40,24 +43,22 @@ impl TemplateString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tmpl;
     use std::collections::HashMap;
+    use crate::t;
 
     #[test]
     fn test_template_string_creation() {
-        let variables = HashMap::new();
-        let template = tmpl!(String::from("test"), variables);
+        let template = t!("test");
 
         assert_eq!(template.template, "test");
-        assert_eq!(template.variables.len(), 0);
     }
 
     #[test]
     fn test_template_string_no_placeholders() {
         let variables = HashMap::new();
-        let template = tmpl!(String::from("Hello, world!"), variables);
+        let template = t!("Hello, world!");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "Hello, world!");
     }
 
@@ -67,9 +68,9 @@ mod tests {
         variables.insert(String::from("name"), String::from("John"));
         variables.insert(String::from("greeting"), String::from("Hello"));
 
-        let template = tmpl!("{{greeting}}, {{name}}!", variables);
+        let template = t!("{{greeting}}, {{name}}!");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "Hello, John!");
     }
 
@@ -78,9 +79,9 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("name"), String::from("John"));
 
-        let template = tmpl!(String::from("Hello, {{name}}! How are you, {{name}}?"), variables);
+        let template = t!("Hello, {{name}}! How are you, {{name}}?");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "Hello, John! How are you, John?");
     }
 
@@ -89,9 +90,9 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("greeting"), String::from("Hello"));
 
-        let template = tmpl!(String::from("{{greeting}}, {{name}}!"), variables);
+        let template = t!("{{greeting}}, {{name}}!");
 
-        let result = template.to_string();
+        let result = template.to_string(&variables);
         assert!(result.is_err());
 
         match result.unwrap_err() {
@@ -105,9 +106,9 @@ mod tests {
     #[test]
     fn test_template_string_empty_template() {
         let variables = HashMap::new();
-        let template = tmpl!(String::from(""), variables);
+        let template = t!("");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "");
     }
 
@@ -116,9 +117,9 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("name"), String::from("John"));
 
-        let template = tmpl!(String::from("Hello, {{name}}!"), variables);
+        let template = t!("Hello, {{name}}!");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "Hello, John!");
     }
 
@@ -127,9 +128,9 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert(String::from("value"), String::from("a {nested} value"));
 
-        let template = tmpl!(String::from("This is {{value}}"), variables);
+        let template = t!("This is {{value}}");
 
-        let result = template.to_string().unwrap();
+        let result = template.to_string(&variables).unwrap();
         assert_eq!(result, "This is a {nested} value");
     }
 }

@@ -1,9 +1,12 @@
+use crate::configuration::Configuration;
 use crate::context::Context;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use git2::Repository;
+use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::context::variables::extract_variables;
 
 pub struct GitRepoContext {
     repo: Repository,
@@ -42,6 +45,16 @@ impl Context for GitRepoContext {
     fn set_commit_msg_path(&mut self, message_file: PathBuf) {
         self.message_file = Some(message_file);
     }
+
+    fn configuration(&self) -> Result<Configuration> {
+        Configuration::load(self.repo_path())
+    }
+
+    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
+        let mut variables = additional.to_vec();
+        variables.extend(self.configuration()?.extract);
+        extract_variables(self, &variables)
+    }
 }
 
 impl GitRepoContext {
@@ -49,7 +62,12 @@ impl GitRepoContext {
         let repo = Repository::open(cwd.clone())?;
         let bin = std::env::current_exe()?;
 
-        Ok(Self { repo, cwd, bin, message_file: None })
+        Ok(Self {
+            repo,
+            cwd,
+            bin,
+            message_file: None,
+        })
     }
 }
 

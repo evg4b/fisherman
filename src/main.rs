@@ -1,4 +1,4 @@
-use crate::commands::Commands;
+use crate::commands::{CliCommand, Command};
 use crate::context::GitRepoContext;
 use clap::{Parser, command};
 use std::env;
@@ -12,11 +12,11 @@ mod scripting;
 mod templates;
 mod ui;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(author, version, about, long_about)]
 struct Cli {
-    #[command(subcommand)]
-    command: Commands,
+    #[clap(subcommand)]
+    command: Command,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
 
     let context = &mut GitRepoContext::new(env::current_dir()?)?;
 
-    match cli.command.run(context) {
+    match cli.command.exec(context) {
         Ok(_) => Ok(()),
         Err(err) => {
             eprintln!("Error: {}", err);

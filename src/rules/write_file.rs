@@ -33,9 +33,10 @@ impl CompiledRule for WriteFile {
         false
     }
 
-    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
-        let content = self.content.to_string()?;
-        let path = self.path.to_string()?;
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        let variables = ctx.variables(&[])?;
+        let content = self.content.to_string(&variables)?;
+        let path = self.path.to_string(&variables)?;
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -47,7 +48,7 @@ impl CompiledRule for WriteFile {
 
         Ok(RuleResult::Success {
             name: self.name.clone(),
-            output: "".to_string(),
+            output: None,
         })
     }
 }
@@ -56,10 +57,9 @@ impl CompiledRule for WriteFile {
 mod tests {
     use super::*;
     use crate::context::MockContext;
+    use crate::t;
     use std::collections::HashMap;
     use std::fs;
-
-    use crate::tmpl;
     use tempdir::TempDir;
 
     #[test]
@@ -67,23 +67,26 @@ mod tests {
         let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
-        let variables = HashMap::new();
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content, variables.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, content);
@@ -97,23 +100,26 @@ mod tests {
         fs::write(&path, "Test").unwrap();
 
         let content = "Hello, world!".to_string();
-        let variables = HashMap::new();
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, content);
@@ -127,23 +133,25 @@ mod tests {
         fs::write(&path, "Test").unwrap();
 
         let content = "Hello, world!".to_string();
-        let variables = HashMap::new();
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             true,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "TestHello, world!");
@@ -156,24 +164,29 @@ mod tests {
         let path = dir.path().join("{{FILE_NAME}}.txt");
         let content = "Hello, world!".to_string();
 
-        let mut variables = HashMap::new();
-        variables.insert("FILE_NAME".to_string(), "test".to_string());
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| {
+                let mut variables = HashMap::new();
+                variables.insert("FILE_NAME".to_string(), "test".to_string());
+                Ok(variables)
+            });
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
-        let context = MockContext::new();
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(dir.path().join("test.txt")).unwrap();
         assert_eq!(file_content, content);
@@ -184,24 +197,30 @@ mod tests {
         let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
         let path = dir.path().join("test.txt");
         let content = "Hello, {{WHO}}!".to_string();
-        let mut variables = HashMap::new();
-        variables.insert("WHO".to_string(), "world".to_string());
 
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!(path.to_str().as_ref().unwrap(), variables.clone()),
-            tmpl!(content.clone(), variables.clone()),
+            t!(path.to_str().unwrap()),
+            t!(content.clone()),
             false,
         );
 
-        let context = MockContext::new();
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| {
+                let mut variables = HashMap::new();
+                variables.insert("WHO".to_string(), "world".to_string());
+                Ok(variables)
+            });
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
             panic!("Rule failed")
         };
         assert_eq!(name, "write_file");
-        assert_eq!(output, "");
+        assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "Hello, world!");
@@ -211,8 +230,8 @@ mod tests {
     fn test_sync() {
         let rule = WriteFile::new(
             "write_file".to_string(),
-            tmpl!("path/to/file.txt"),
-            tmpl!("content"),
+            t!("path/to/file.txt"),
+            t!("content"),
             false,
         );
         assert!(!rule.sync());

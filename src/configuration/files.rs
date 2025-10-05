@@ -10,7 +10,7 @@ pub fn find_config_files(path: &Path) -> Result<Vec<PathBuf>> {
         let files = resolve_configs(location_path);
         match files.len() {
             0 => continue,
-            1 => config_files.push(files[0].clone()),
+            1 => config_files.push(files[0].to_owned()),
             _ => bail!(ConfigurationError::MultipleConfigFiles { files }),
         }
     }

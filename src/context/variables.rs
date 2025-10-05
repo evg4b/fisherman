@@ -30,7 +30,7 @@ impl VariableSource {
     }
 }
 
-fn transform_array(arr: Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex>>> {
+fn transform_array(arr: &[String]) -> Result<HashMap<VariableSource, Vec<Regex>>> {
     let mut map: HashMap<VariableSource, Vec<Regex>> = HashMap::new();
 
     for entry in arr {
@@ -49,7 +49,7 @@ fn transform_array(arr: Vec<String>) -> Result<HashMap<VariableSource, Vec<Regex
 
 pub fn extract_variables(
     ctx: &impl Context,
-    extract: Vec<String>,
+    extract: &[String],
 ) -> Result<HashMap<String, String>> {
     let expressions = transform_array(extract)?;
     let mut variables = HashMap::with_capacity(expressions.len());
@@ -73,7 +73,7 @@ pub fn extract_variables(
                     }
 
                     bail!(
-                        "The expression \"{}\" does not match the source \"{:}\"",
+                        "The expression \"{}\" does not match the source \"{}\"",
                         expression,
                         source
                     );
@@ -95,7 +95,7 @@ mod extract_variables_tests {
     #[test]
     fn accept_empty_vec() {
         let context = &MockContext::new();
-        let result = extract_variables(context, vec![]).unwrap();
+        let result = extract_variables(context, &[]).unwrap();
         assert_that!(result).is_equal_to(HashMap::new());
     }
     
@@ -108,7 +108,7 @@ mod extract_variables_tests {
     
         let extract = vec!["branch:m(?P<part>.*)".to_string()];
     
-        let result: HashMap<String, String> = extract_variables(&context, extract).unwrap();
+        let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
     
         assert_that!(result).has_length(1);
         assert_that!(result["part"]).is_equal_to("aster".to_string())
@@ -122,7 +122,7 @@ mod extract_variables_tests {
     
         let extract = vec!["repo_path:^/path/(?P<demo>.*)/repo$".to_string()];
     
-        let result: HashMap<String, String> = extract_variables(&context, extract).unwrap();
+        let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
     
         assert_that!(result).has_length(1);
         assert_that!(result["demo"]).is_equal_to("to".to_string())
@@ -136,7 +136,7 @@ mod extract_variables_tests {
     
         let extract = vec!["repo_path:^/(?P<S1>.\\S+)/(?P<S2>.\\S+)/(?P<S3>.\\S+)$".to_string()];
     
-        let result: HashMap<String, String> = extract_variables(&context, extract).unwrap();
+        let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
     
         assert_that!(result).has_length(3);
         assert_that!(result["S1"]).is_equal_to("path".to_string());
@@ -153,7 +153,7 @@ mod extract_variables_tests {
     
         let extract = vec!["branch:^.&".to_string()];
     
-        let error = extract_variables(&context, extract);
+        let error = extract_variables(&context, &extract);
     
         assert_that!(error).is_err();
         assert_that!(error.unwrap_err().to_string())
@@ -169,7 +169,7 @@ mod extract_variables_tests {
     
         let extract = vec!["branch?:^.&".to_string()];
     
-        let result = extract_variables(&context, extract).unwrap();
+        let result = extract_variables(&context, &extract).unwrap();
     
         assert_that!(result).has_length(0);
     }
@@ -183,7 +183,7 @@ mod extract_variables_tests {
 
         let extract = vec!["branch?:^(?<IssueNumber>CLIC-\\d+)-.*$".to_string()];
 
-        let result = extract_variables(&context, extract).unwrap();
+        let result = extract_variables(&context, &extract).unwrap();
 
         assert_that!(result).has_length(1);
         assert_that!(result["IssueNumber"]).is_equal_to("CLIC-48484".to_string());

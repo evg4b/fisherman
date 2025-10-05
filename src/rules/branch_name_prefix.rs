@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::helpers::check_prefix;
+use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 
@@ -20,17 +20,17 @@ impl CompiledRule for BranchNamePrefix {
     }
 
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        match check_prefix(&self.prefix, &ctx.current_branch()?)? {
+        let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
+        let branch_name = ctx.current_branch()?;
+
+        match branch_name.starts_with(&prefix) {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: self.prefix.to_string()?,
+                output: None,
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "Branch name does not start with prefix: {}",
-                    self.prefix.to_string()?
-                ),
+                message: format!("Branch name does not start with prefix: {}", prefix),
             }),
         }
     }
@@ -40,15 +40,18 @@ impl CompiledRule for BranchNamePrefix {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
-    use assertor::{EqualityAssertion, assert_that};
+    use crate::t;
+    use assertor::{assert_that, EqualityAssertion};
+    use std::collections::HashMap;
 
     #[test]
     fn test_branch_name_prefix() -> anyhow::Result<()> {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Success { name, .. } = rule.check(&ctx)? else {
             panic!()
@@ -61,10 +64,12 @@ mod tests {
 
     #[test]
     fn test_branch_name_prefix_failure() -> anyhow::Result<()> {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let RuleResult::Failure { name, message } = rule.check(&ctx)? else {
             panic!()
@@ -79,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), tmpl!("feat/"));
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
 
         assert!(rule.sync());
     }

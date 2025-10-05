@@ -1,5 +1,5 @@
+use crate::t;
 use crate::templates::TemplateError;
-use crate::tmpl;
 use std::collections::HashMap;
 
 pub fn replace_in_hashmap(
@@ -8,13 +8,13 @@ pub fn replace_in_hashmap(
 ) -> Result<HashMap<String, String>, TemplateError> {
     let transformed: HashMap<String, String> = input
         .iter()
-        .map(|(k, v)| match tmpl!(v, values.clone()).to_string() {
-            Ok(v) => Ok((k.clone(), v)),
+        .map(|(k, v)| match t!(v).to_string(values) {
+            Ok(v) => Ok((k.to_owned(), v)),
             Err(e) => match e {
                 TemplateError::PlaceholderNotFound { placeholder } => {
                     Err(TemplateError::PlaceholderNotFoundForKey {
                         placeholder,
-                        key: k.clone(),
+                        key: k.to_owned(),
                     })
                 }
                 _ => Err(e),

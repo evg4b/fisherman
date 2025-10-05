@@ -8,10 +8,9 @@ use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
-use crate::rules::variables::extract_variables;
 use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
-use crate::tmpl;
+use crate::t;
 use anyhow::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -72,12 +71,8 @@ macro_rules! wrap {
 }
 
 impl Rule {
-    pub fn compile(
-        &self,
-        context: &impl Context,
-        global_extract: &Vec<String>,
-    ) -> Result<Option<Box<dyn CompiledRule>>> {
-        let variables = prepare_variables(context, global_extract.to_owned(), &self.extract)?;
+    pub fn compile(&self, context: &impl Context) -> Result<Option<Box<dyn CompiledRule>>> {
+        let variables = context.variables(self.extract.as_ref().unwrap_or(&vec![]))?;
 
         if let Some(expression) = &self.when {
             if !expression.check(&variables)? {
@@ -91,35 +86,35 @@ impl Rule {
             } => {
                 wrap!(ExecRule::new(
                     self.to_string(),
-                    command.clone(),
-                    args.clone().unwrap_or_default(),
-                    env.clone().unwrap_or_default(),
+                    command.to_owned(),
+                    args.to_owned().unwrap_or_default(),
+                    env.to_owned().unwrap_or_default(),
                     variables,
                 ))
             }
             RuleParams::CommitMessageRegex { regex, .. } => {
                 wrap!(CommitMessageRegex::new(
                     self.to_string(),
-                    tmpl!(regex.clone(), variables)
+                    t!(regex.to_owned())
                 ))
             }
             RuleParams::CommitMessagePrefix { prefix, .. } => {
                 wrap!(CommitMessagePrefix::new(
                     self.to_string(),
-                    tmpl!(prefix.clone(), variables),
+                    t!(prefix.to_owned()),
                 ))
             }
             RuleParams::CommitMessageSuffix { suffix, .. } => {
                 wrap!(CommitMessageSuffix::new(
                     self.to_string(),
-                    tmpl!(suffix.clone(), variables),
+                    t!(suffix.to_owned()),
                 ))
             }
             RuleParams::ShellScript { script, env, .. } => {
                 wrap!(ShellScript::new(
                     self.to_string(),
-                    tmpl!(script.clone(), variables.clone()),
-                    env.clone().unwrap_or_default(),
+                    t!(script.to_owned()),
+                    env.to_owned().unwrap_or_default(),
                 ))
             }
             RuleParams::WriteFile {
@@ -129,27 +124,24 @@ impl Rule {
             } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
-                    tmpl!(path.clone(), variables.clone()),
-                    tmpl!(content.clone(), variables.clone()),
+                    t!(path.to_owned()),
+                    t!(content.to_owned()),
                     append.unwrap_or(false),
                 ))
             }
             RuleParams::BranchNameRegex { regex, .. } => {
-                wrap!(BranchNameRegex::new(
-                    self.to_string(),
-                    tmpl!(regex.clone(), variables)
-                ))
+                wrap!(BranchNameRegex::new(self.to_string(), t!(regex.to_owned())))
             }
             RuleParams::BranchNamePrefix { prefix, .. } => {
                 wrap!(BranchNamePrefix::new(
                     self.to_string(),
-                    tmpl!(prefix.clone(), variables),
+                    t!(prefix.to_owned()),
                 ))
             }
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 wrap!(BranchNameSuffix::new(
                     self.to_string(),
-                    tmpl!(suffix.clone(), variables),
+                    t!(suffix.to_owned()),
                 ))
             }
         }
@@ -166,7 +158,7 @@ impl RuleParams {
                             if arg.contains(" ") {
                                 format!("\"{}\"", arg.replace("\"", "\\\""))
                             } else {
-                                arg.clone()
+                                arg.to_owned()
                             }
                         })
                         .collect::<Vec<String>>()
@@ -187,7 +179,7 @@ impl RuleParams {
                 format!("shell script:\n{}", script)
             }
             RuleParams::WriteFile { path, .. } => {
-                format!("write file to: {}", path)
+                format!("write a file to: {}", path)
             }
             RuleParams::BranchNameRegex { regex, .. } => {
                 format!("branch name rule should match regex: {}", regex)
@@ -200,16 +192,6 @@ impl RuleParams {
             }
         }
     }
-}
-
-fn prepare_variables(
-    context: &impl Context,
-    global: Vec<String>,
-    local: &Option<Vec<String>>,
-) -> Result<HashMap<String, String>> {
-    let mut variables = local.clone().unwrap_or_default();
-    variables.extend(global);
-    extract_variables(context, variables)
 }
 
 #[cfg(test)]
@@ -313,7 +295,7 @@ mod tests {
                 append: Some(false),
             },
         };
-        assert_eq!(rule.to_string(), "write file to: /tmp/test.txt");
+        assert_eq!(rule.to_string(), "write a file to: /tmp/test.txt");
     }
 
     #[test]

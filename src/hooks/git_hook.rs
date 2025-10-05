@@ -135,7 +135,7 @@ impl GitHook {
         if hook_exists && !force {
             bail!(HookError::AlreadyExists {
                 name: self.as_str(),
-                hook: hook_path.clone()
+                hook: hook_path.to_owned()
             });
         }
 
@@ -265,7 +265,7 @@ mod test_hook_install {
         let original_hook_content = format!("test {}", hook_name);
         fs::write(
             dir.path().join(hook.to_string()),
-            original_hook_content.clone(),
+            &original_hook_content,
         )
         .unwrap();
 

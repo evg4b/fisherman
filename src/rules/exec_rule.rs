@@ -53,7 +53,7 @@ impl CompiledRule for ExecRule {
         match output.status.success() {
             true => Ok(RuleResult::Success {
                 name: self.name.clone(),
-                output: String::from_utf8_lossy(&output.stdout).to_string(),
+                output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
@@ -67,7 +67,7 @@ impl CompiledRule for ExecRule {
 mod test {
     use super::*;
     use crate::context::MockContext;
-    use assertor::{assert_that, EqualityAssertion, StringAssertion};
+    use assertor::{EqualityAssertion, StringAssertion, assert_that};
     use std::collections::HashMap;
 
     #[test]
@@ -86,7 +86,7 @@ mod test {
         };
 
         assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output).is_equal_to("hello\n".to_string());
+        assert_that!(output.unwrap()).is_equal_to("hello\n".to_string());
     }
 
     #[test]
@@ -108,7 +108,7 @@ mod test {
         };
 
         assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output).contains("HELLO=world".to_string());
+        assert_that!(output.unwrap()).contains("HELLO=world".to_string());
     }
 
     #[test]
@@ -130,7 +130,7 @@ mod test {
         };
 
         assert_that!(name).is_equal_to("test".to_string());
-        assert_that!(output).is_equal_to("hello world\n".to_string());
+        assert_that!(output.unwrap()).is_equal_to("hello world\n".to_string());
     }
 
     #[test]
@@ -171,7 +171,7 @@ mod test {
         assert_that!(result.to_string())
             .is_equal_to("No such file or directory (os error 2)".to_string());
     }
-    
+
     #[test]
     fn test_sync() {
         let rule = ExecRule::new(
