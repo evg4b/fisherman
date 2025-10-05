@@ -10,7 +10,7 @@ impl fmt::Display for HookError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             HookError::AlreadyExists { hook, name } => {
-                write!(f, "Hook {} already exists ({})", name, hook.display())
+                write!(f, "Hook '{}' already installed at {}", name, hook.display())
             }
         }
     }

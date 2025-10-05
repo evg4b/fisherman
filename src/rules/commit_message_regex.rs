@@ -32,7 +32,7 @@ impl CompiledRule for CommitMessageRegex {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Commit message does not match regex: {}", expression),
+                message: format!("Commit message must match pattern: {}", expression),
             }),
         }
     }
@@ -86,7 +86,7 @@ mod test {
             }
             RuleResult::Failure { name, message } => {
                 assert_eq!(name, "Test");
-                assert_eq!(message, "Commit message does not match regex: ^Test");
+                assert_eq!(message, "Commit message must match pattern: ^Test");
             }
         }
     }

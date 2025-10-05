@@ -39,7 +39,7 @@ impl Context for GitRepoContext {
             return Ok(message);
         }
 
-        bail!("This action does not support commit message extraction");
+        bail!("Commit message not available for this hook");
     }
 
     fn set_commit_msg_path(&mut self, message_file: PathBuf) {

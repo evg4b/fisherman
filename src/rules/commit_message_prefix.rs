@@ -32,7 +32,7 @@ impl CompiledRule for CommitMessagePrefix {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Commit message does not start with prefix: {}", prefix),
+                message: format!("Commit message must start with: {}", prefix),
             }),
         }
     }
@@ -78,7 +78,7 @@ mod tests {
 
         assert_that!(name).is_equal_to("commit_message_prefix".to_string());
         assert_that!(message)
-            .is_equal_to("Commit message does not start with prefix: feat".to_string());
+            .is_equal_to("Commit message must start with: feat".to_string());
     }
 
     #[test]

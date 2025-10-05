@@ -41,7 +41,7 @@ impl Expression {
 
         match engine.eval_expression_with_scope::<bool>(&mut scope, &self.condition) {
             Ok(result) => Ok(result),
-            Err(err) => Err(anyhow::anyhow!("Error: {}", err)),
+            Err(err) => Err(anyhow::anyhow!("Expression error: {}", err)),
         }
     }
 }
@@ -69,7 +69,7 @@ mod tests {
         let a = Expression::new("1 >").check(&HashMap::new()).unwrap_err();
         assert_eq!(
             a.to_string(),
-            "Error: Syntax error: Script is incomplete (line 1, position 4)"
+            "Expression error: Syntax error: Script is incomplete (line 1, position 4)"
         );
     }
 

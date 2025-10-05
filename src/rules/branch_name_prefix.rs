@@ -30,7 +30,7 @@ impl CompiledRule for BranchNamePrefix {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Branch name does not start with prefix: {}", prefix),
+                message: format!("Branch name must start with: {}", prefix),
             }),
         }
     }
@@ -77,7 +77,7 @@ mod tests {
 
         assert_that!(name).is_equal_to("branch_name_prefix".to_string());
         assert_that!(message)
-            .is_equal_to("Branch name does not start with prefix: feat/".to_string());
+            .is_equal_to("Branch name must start with: feat/".to_string());
 
         Ok(())
     }

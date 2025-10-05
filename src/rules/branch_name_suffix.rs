@@ -30,7 +30,7 @@ impl CompiledRule for BranchNameSuffix {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Branch name does not end with the suffix: {}", suffix),
+                message: format!("Branch name must end with: {}", suffix),
             }),
         }
     }

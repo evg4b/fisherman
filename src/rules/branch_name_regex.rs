@@ -31,7 +31,7 @@ impl CompiledRule for BranchNameRegex {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Branch name does not match regex: {}", expression),
+                message: format!("Branch name must match pattern: {}", expression),
             }),
         }
     }
@@ -78,7 +78,7 @@ mod tests {
 
         assert_that!(name).is_equal_to("branch_name_regex".to_string());
         assert_that!(message)
-            .is_equal_to("Branch name does not match regex: ^feat/.*-bugfix$".to_string());
+            .is_equal_to("Branch name must match pattern: ^feat/.*-bugfix$".to_string());
 
         Ok(())
     }

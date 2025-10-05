@@ -16,7 +16,7 @@ impl VariableSource {
             "branch?" => Ok(VariableSource::Branch { optional: true }),
             "repo_path" => Ok(VariableSource::RepoPath { optional: false }),
             "repo_path?" => Ok(VariableSource::RepoPath { optional: true }),
-            _ => bail!("Invalid variable source: {}", s),
+            _ => bail!("Unknown source: '{}'. Use 'branch', 'branch?', 'repo_path', or 'repo_path?'", s),
         }
     }
 
@@ -40,7 +40,7 @@ fn transform_array(arr: &[String]) -> Result<HashMap<VariableSource, Vec<Regex>>
                 let key = VariableSource::from_str(key)?;
                 map.entry(key).or_default().push(expression);
             }
-            None => bail!("Invalid extract format"),
+            None => bail!("Invalid format. Use 'source:regex' (e.g., 'branch:^feat/.*')"),
         }
     }
 
@@ -73,7 +73,7 @@ pub fn extract_variables(
                     }
 
                     bail!(
-                        "The expression \"{}\" does not match the source \"{}\"",
+                        "Pattern '{}' doesn't match '{}'",
                         expression,
                         source
                     );
@@ -157,7 +157,7 @@ mod extract_variables_tests {
     
         assert_that!(error).is_err();
         assert_that!(error.unwrap_err().to_string())
-            .is_equal_to("The expression \"^.&\" does not match the source \"master\"".to_string());
+            .is_equal_to("Pattern '^.&' doesn't match 'master'".to_string());
     }
     
     #[test]

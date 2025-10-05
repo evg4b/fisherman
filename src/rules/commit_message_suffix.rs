@@ -31,7 +31,7 @@ impl CompiledRule for CommitMessageSuffix {
             }),
             false => Ok(RuleResult::Failure {
                 name: self.name.clone(),
-                message: format!("Commit message does not end with the suffix: {}", suffix),
+                message: format!("Commit message must end with: {}", suffix),
             }),
         }
     }
@@ -76,7 +76,7 @@ mod tests {
 
         assert_that!(name).is_equal_to("commit_message_suffix".to_string());
         assert_that!(message)
-            .is_equal_to("Commit message does not end with the suffix: feat".to_string());
+            .is_equal_to("Commit message must end with: feat".to_string());
     }
 
     #[test]
