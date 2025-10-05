@@ -5,8 +5,10 @@ use crate::rules::{CompiledRule, Rule, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
+use rayon::prelude::*;
 use std::path::PathBuf;
 use std::process::exit;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Parser)]
 pub struct HandleCommand {
@@ -36,9 +38,16 @@ impl CliCommand for HandleCommand {
                     results.push(rule.check(context)?);
                 }
 
-                for rule in async_rules {
-                    results.push(rule.check(context)?);
-                }
+                let context_lock = Arc::new(Mutex::new(context));
+                let async_results: Result<Vec<_>> = async_rules
+                    .par_iter()
+                    .map(|rule| {
+                        let ctx = context_lock.lock().unwrap();
+                        rule.check(&**ctx)
+                    })
+                    .collect();
+
+                results.extend(async_results?);
 
                 for rule in &results {
                     match rule {
@@ -126,4 +135,5 @@ mod tests {
 
         Ok(())
     }
+
 }
