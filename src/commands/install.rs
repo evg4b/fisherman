@@ -20,8 +20,8 @@ impl CliCommand for InstallCommand {
     fn exec(&self, context: &mut impl Context) -> Result<()> {
         println!("{}", logo());
 
-        let selected_hooks = match self.hooks.to_owned() {
-            Some(hooks) => hooks,
+        let selected_hooks = match self.hooks.as_ref() {
+            Some(hooks) => hooks.clone(),
             None => context
                 .configuration()?
                 .get_configured_hooks()

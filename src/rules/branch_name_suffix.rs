@@ -78,4 +78,30 @@ mod tests {
         let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
         assert!(rule.sync());
     }
+
+    #[test]
+    fn test_branch_name_suffix_variables_error() {
+        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Ok("my-suffix".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_branch_name_suffix_branch_error() {
+        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Err(anyhow::anyhow!("Branch error")));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
+    }
 }

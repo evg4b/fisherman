@@ -83,7 +83,7 @@ mod tests {
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
@@ -116,7 +116,7 @@ mod tests {
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
@@ -148,7 +148,7 @@ mod tests {
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
@@ -181,7 +181,7 @@ mod tests {
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
@@ -212,7 +212,7 @@ mod tests {
         let result = rule.check(&context).unwrap();
 
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
@@ -230,5 +230,80 @@ mod tests {
             false,
         );
         assert!(!rule.sync());
+    }
+
+    #[test]
+    fn test_write_file_variables_error() {
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            t!("path/to/file.txt"),
+            t!("content"),
+            false,
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_write_file_path_template_error() {
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            t!("{{missing}}/file.txt"),
+            t!("content"),
+            false,
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_write_file_content_template_error() {
+        let dir = TempDir::new("write_file_template_error").unwrap();
+        let path = dir.path().join("test.txt");
+
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            t!(path.to_str().unwrap()),
+            t!("{{missing}}"),
+            false,
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_write_file_io_error() {
+        let rule = WriteFile::new(
+            "write_file".to_string(),
+            t!("/invalid/path/that/does/not/exist/file.txt"),
+            t!("content"),
+            false,
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
     }
 }

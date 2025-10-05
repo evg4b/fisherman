@@ -37,7 +37,7 @@ fn transform_array(arr: &[String]) -> Result<HashMap<VariableSource, Vec<Regex>>
     let mut map: HashMap<VariableSource, Vec<Regex>> = HashMap::new();
 
     for entry in arr {
-        match entry.split_once(":") {
+        match entry.split_once(':') {
             Some((key, value)) => {
                 let expression = Regex::new(value)?;
                 let key = VariableSource::from_str(key)?;
@@ -65,8 +65,8 @@ pub fn extract_variables(
             match captures {
                 Some(captures) => {
                     names.flatten().for_each(|name| {
-                        if let Some(demo) = captures.name(name) {
-                            variables.insert(name.to_string(), demo.as_str().to_string());
+                        if let Some(captured_value) = captures.name(name) {
+                            variables.insert(name.to_string(), captured_value.as_str().to_string());
                         }
                     });
                 }
@@ -173,7 +173,7 @@ mod extract_variables_tests {
     }
 
     #[test]
-    fn should_return_not_error_when_eфывфывxpression_is_optional() {
+    fn should_extract_variables_when_optional_expression_matches() {
         let mut context = MockContext::new();
         context
             .expect_current_branch()

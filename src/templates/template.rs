@@ -1,5 +1,9 @@
 use crate::templates::TemplateError;
 use std::collections::HashMap;
+use std::sync::LazyLock;
+
+static TEMPLATE_PATTERN: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new(r"\{\{(.*?)}}").unwrap());
 
 #[derive(Debug)]
 pub struct TemplateString {
@@ -11,17 +15,16 @@ impl TemplateString {
     where
         T: Into<String>,
     {
-        TemplateString {
+        Self {
             template: template.into(),
         }
     }
 
     pub fn to_string(&self, variables: &HashMap<String, String>) -> Result<String, TemplateError> {
         let input = self.template.as_ref();
-        let mut result = self.template.to_owned();
-        let pattern = regex::Regex::new(r"\{\{(.*?)}}").unwrap();
+        let mut result = self.template.clone();
 
-        for cap in pattern.captures_iter(input) {
+        for cap in TEMPLATE_PATTERN.captures_iter(input) {
             if let Some(key) = cap.get(1) {
                 let key_str = key.as_str();
                 match variables.get(key_str) {

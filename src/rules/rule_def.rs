@@ -84,35 +84,35 @@ impl Rule {
             } => {
                 wrap!(ExecRule::new(
                     self.to_string(),
-                    command.to_owned(),
-                    args.to_owned().unwrap_or_default(),
-                    env.to_owned().unwrap_or_default(),
+                    command.clone(),
+                    args.clone().unwrap_or_default(),
+                    env.clone().unwrap_or_default(),
                     variables,
                 ))
             }
             RuleParams::CommitMessageRegex { regex, .. } => {
                 wrap!(CommitMessageRegex::new(
                     self.to_string(),
-                    t!(regex.to_owned())
+                    t!(regex.clone())
                 ))
             }
             RuleParams::CommitMessagePrefix { prefix, .. } => {
                 wrap!(CommitMessagePrefix::new(
                     self.to_string(),
-                    t!(prefix.to_owned()),
+                    t!(prefix.clone()),
                 ))
             }
             RuleParams::CommitMessageSuffix { suffix, .. } => {
                 wrap!(CommitMessageSuffix::new(
                     self.to_string(),
-                    t!(suffix.to_owned()),
+                    t!(suffix.clone()),
                 ))
             }
             RuleParams::ShellScript { script, env, .. } => {
                 wrap!(ShellScript::new(
                     self.to_string(),
-                    t!(script.to_owned()),
-                    env.to_owned().unwrap_or_default(),
+                    t!(script.clone()),
+                    env.clone().unwrap_or_default(),
                 ))
             }
             RuleParams::WriteFile {
@@ -122,24 +122,24 @@ impl Rule {
             } => {
                 wrap!(WriteFile::new(
                     self.to_string(),
-                    t!(path.to_owned()),
-                    t!(content.to_owned()),
+                    t!(path.clone()),
+                    t!(content.clone()),
                     append.unwrap_or(false),
                 ))
             }
             RuleParams::BranchNameRegex { regex, .. } => {
-                wrap!(BranchNameRegex::new(self.to_string(), t!(regex.to_owned())))
+                wrap!(BranchNameRegex::new(self.to_string(), t!(regex.clone())))
             }
             RuleParams::BranchNamePrefix { prefix, .. } => {
                 wrap!(BranchNamePrefix::new(
                     self.to_string(),
-                    t!(prefix.to_owned()),
+                    t!(prefix.clone()),
                 ))
             }
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 wrap!(BranchNameSuffix::new(
                     self.to_string(),
-                    t!(suffix.to_owned()),
+                    t!(suffix.clone()),
                 ))
             }
         }
@@ -153,10 +153,10 @@ impl RuleParams {
                 let args_str = args.as_ref().map_or(String::new(), |args| {
                     args.iter()
                         .map(|arg| {
-                            if arg.contains(" ") {
-                                format!("\"{}\"", arg.replace("\"", "\\\""))
+                            if arg.contains(' ') {
+                                format!("\"{}\"", arg.replace('"', "\\\""))
                             } else {
-                                arg.to_owned()
+                                arg.clone()
                             }
                         })
                         .collect::<Vec<String>>()
@@ -336,5 +336,307 @@ mod tests {
             },
         };
         assert_eq!(rule.to_string(), "branch name rule should end with: /v1");
+    }
+
+    #[test]
+    fn test_compile_exec_rule() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::ExecRule {
+                command: "echo".to_string(),
+                args: Some(vec!["test".to_string()]),
+                env: Some(HashMap::from([("KEY".to_string(), "VALUE".to_string())])),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_with_when_condition_true() {
+        use crate::context::MockContext;
+        use crate::scripting::Expression;
+
+        let mut vars = HashMap::new();
+        vars.insert("branch".to_string(), "main".to_string());
+
+        let rule = Rule {
+            when: Some(Expression::new("branch == \"main\"")),
+            extract: None,
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_with_when_condition_false() {
+        use crate::context::MockContext;
+        use crate::scripting::Expression;
+
+        let mut vars = HashMap::new();
+        vars.insert("branch".to_string(), "develop".to_string());
+
+        let rule = Rule {
+            when: Some(Expression::new("branch == \"main\"")),
+            extract: None,
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_compile_with_extract() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: Some(vec!["branch".to_string(), "ticket".to_string()]),
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_commit_message_regex() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageRegex {
+                regex: "^feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_commit_message_suffix() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageSuffix {
+                suffix: "done".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_shell_script() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::ShellScript {
+                script: "echo test".to_string(),
+                env: Some(HashMap::from([("KEY".to_string(), "VALUE".to_string())])),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_write_file() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::WriteFile {
+                path: "/tmp/test.txt".to_string(),
+                content: "content".to_string(),
+                append: Some(true),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_branch_name_regex() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNameRegex {
+                regex: "^feature/".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_branch_name_prefix() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNamePrefix {
+                prefix: "feature/".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_branch_name_suffix() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::BranchNameSuffix {
+                suffix: "/v1".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_rule_params_name_exec_with_args_containing_spaces() {
+        let params = RuleParams::ExecRule {
+            command: "echo".to_string(),
+            args: Some(vec!["Hello World".to_string(), "test".to_string()]),
+            env: None,
+        };
+        assert_eq!(params.name(), "exec echo \"Hello World\" test");
+    }
+
+    #[test]
+    fn test_rule_params_name_exec_with_args_containing_quotes() {
+        let params = RuleParams::ExecRule {
+            command: "echo".to_string(),
+            args: Some(vec!["Say \"Hello\"".to_string()]),
+            env: None,
+        };
+        assert_eq!(params.name(), "exec echo \"Say \\\"Hello\\\"\"");
+    }
+
+    #[test]
+    fn test_rule_params_name_exec_without_args() {
+        let params = RuleParams::ExecRule {
+            command: "echo".to_string(),
+            args: None,
+            env: None,
+        };
+        assert_eq!(params.name(), "exec echo ");
+    }
+
+    #[test]
+    fn test_compile_variables_error() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.compile(&ctx);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_compile_when_expression_error() {
+        use crate::context::MockContext;
+        use crate::scripting::Expression;
+
+        let rule = Rule {
+            when: Some(Expression::new("invalid expression !!!")),
+            extract: None,
+            params: RuleParams::CommitMessagePrefix {
+                prefix: "feat".to_string(),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx);
+        assert!(result.is_err());
     }
 }

@@ -20,10 +20,12 @@ impl CliCommand for ExplainCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                rules.iter().for_each(|rule| println!("{}", rule));
+                for rule in rules {
+                    println!("{rule}");
+                }
             }
             None => println!("No rules found for hook {}", self.hook),
-        };
+        }
 
         Ok(())
     }

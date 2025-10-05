@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::compiled_rule::{CompiledRule, RuleResult};
-use crate::templates::{replace_in_hashmap, replace_in_vac};
+use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
@@ -46,7 +46,7 @@ impl CompiledRule for ExecRule {
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
 
         let output = Command::new(self.command.clone())
-            .args(replace_in_vac(&self.args, &self.variables)?)
+            .args(replace_in_vec(&self.args, &self.variables)?)
             .envs(env_map)
             .output()?;
 
@@ -82,9 +82,8 @@ mod test {
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result)
+            unreachable!("Expected Success");
         };
-
         assert!(name == "test");
         assert!(output.unwrap() == "hello\n");
     }
@@ -104,9 +103,8 @@ mod test {
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result)
+            unreachable!("Expected Success");
         };
-
         assert!(name == "test");
         assert!(output.unwrap().contains("HELLO=world"));
     }
@@ -126,9 +124,8 @@ mod test {
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result)
+            unreachable!("Expected Success");
         };
-
         assert!(name == "test");
         assert!(output.unwrap() == "hello world\n");
     }
@@ -148,9 +145,8 @@ mod test {
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Failure { name, message } = result else {
-            panic!("Expected Success, but got {:?}", result)
+            unreachable!("Expected Failure");
         };
-
         assert!(name == "test");
         assert!(message == "cat: ./unknown.txt: No such file or directory\n");
     }
@@ -180,5 +176,36 @@ mod test {
             HashMap::new(),
         );
         assert!(!rule.sync());
+    }
+
+    #[test]
+    fn test_exec_rule_env_template_error() {
+        let mut env = HashMap::new();
+        env.insert("VAR".into(), "{{missing}}".into());
+
+        let rule = ExecRule::new(
+            "test".into(),
+            "echo".into(),
+            vec![],
+            env,
+            HashMap::new(),
+        );
+
+        let result = rule.check(&MockContext::new());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_exec_rule_args_template_error() {
+        let rule = ExecRule::new(
+            "test".into(),
+            "echo".into(),
+            vec!["{{missing}}".into()],
+            HashMap::new(),
+            HashMap::new(),
+        );
+
+        let result = rule.check(&MockContext::new());
+        assert!(result.is_err());
     }
 }

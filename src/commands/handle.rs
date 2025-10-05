@@ -19,7 +19,7 @@ pub struct HandleCommand {
 
 impl CliCommand for HandleCommand {
     fn exec(&self, context: &mut impl Context) -> Result<()> {
-        if let Some(message) = self.message.to_owned() {
+        if let Some(message) = &self.message {
             context.set_commit_msg_path(PathBuf::from(message));
         }
 
@@ -40,16 +40,16 @@ impl CliCommand for HandleCommand {
                     results.push(rule.check(context)?);
                 }
 
-                for rule in results.iter() {
+                for rule in &results {
                     match rule {
                         RuleResult::Success { name, output } => {
-                            println!("{} executed successfully", name);
+                            println!("{name} executed successfully");
                             if let Some(value) = output && !value.is_empty() {
-                                println!("{}", value);
-                            };
+                                println!("{value}");
+                            }
                         }
                         RuleResult::Failure { message, name } => {
-                            eprintln!("{}: {}", name, message);
+                            eprintln!("{name}: {message}");
                         }
                     }
                 }
@@ -62,7 +62,7 @@ impl CliCommand for HandleCommand {
                 }
             }
             None => println!("No rules found for hook {}", self.hook),
-        };
+        }
 
         Ok(())
     }

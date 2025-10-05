@@ -2,7 +2,7 @@ use crate::t;
 use crate::templates::TemplateError;
 use std::collections::HashMap;
 
-pub fn replace_in_vac(
+pub fn replace_in_vec(
     input: &[String],
     values: &HashMap<String, String>,
 ) -> Result<Vec<String>, TemplateError> {
@@ -15,19 +15,19 @@ pub fn replace_in_vac(
 }
 
 #[cfg(test)]
-mod replace_in_vac_test {
+mod replace_in_vec_test {
     use super::*;
     use std::collections::HashMap;
 
     #[test]
-    fn should_replace_placeholders_in_vac() {
+    fn should_replace_placeholders_in_vec() {
         let mut values = HashMap::new();
         values.insert("name".to_string(), "World".to_string());
         values.insert("greeting".to_string(), "Hello".to_string());
 
         let input = vec!["{{name}}".to_string(), "{{greeting}}".to_string()];
 
-        let result = replace_in_vac(&input, &values).unwrap();
+        let result = replace_in_vec(&input, &values).unwrap();
         assert_eq!(result[0], "World");
         assert_eq!(result[1], "Hello");
     }
@@ -39,7 +39,7 @@ mod replace_in_vac_test {
 
         let input = vec!["{{name}}".to_string(), "{{greeting}}".to_string()];
 
-        let result = replace_in_vac(&input, &values);
+        let result = replace_in_vec(&input, &values);
         assert!(result.is_err());
     }
 }

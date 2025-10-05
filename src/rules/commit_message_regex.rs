@@ -110,4 +110,32 @@ mod test {
         let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
         assert!(rule.sync());
     }
+
+    #[test]
+    fn test_commit_message_regex_variables_error() {
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
+        let mut context = MockContext::new();
+        context
+            .expect_commit_msg()
+            .returning(|| Ok("Test message".to_string()));
+        context
+            .expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_commit_message_regex_invalid_regex() {
+        let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test["));
+        let mut context = MockContext::new();
+        context
+            .expect_commit_msg()
+            .returning(|| Ok("Test message".to_string()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
 }

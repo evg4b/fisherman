@@ -62,9 +62,8 @@ mod tests {
 
         let result = script.check(&context).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
-
         assert_eq!(name, "Test");
         assert_eq!(output.unwrap(), "Test\n");
     }
@@ -78,9 +77,8 @@ mod tests {
 
         let result = script.check(&context).unwrap();
         let RuleResult::Failure { name, message } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Failure");
         };
-
         assert_eq!(name, "Test");
         assert_eq!(message, "exit code: 1");
     }
@@ -102,9 +100,8 @@ mod tests {
 
         let result = script.check(&context).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
-
         assert_eq!(name, "Test");
         assert_eq!(output.unwrap(), "Hello Test\n");
     }
@@ -121,9 +118,8 @@ mod tests {
 
         let result = script.check(&context).unwrap();
         let RuleResult::Success { name, output } = result else {
-            panic!("Rule failed")
+            unreachable!("Expected Success");
         };
-
         assert_eq!(name, "Test");
         assert_eq!(output.unwrap(), "Test\n");
     }
@@ -132,5 +128,29 @@ mod tests {
     fn test_sync() {
         let script = ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new());
         assert!(!script.sync());
+    }
+
+    #[test]
+    fn test_shell_script_variables_error() {
+        let script = ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new());
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = script.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_shell_script_template_error() {
+        let script = ShellScript::new("Test".to_string(), t!("echo '{{missing}}'"), HashMap::new());
+
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::new()));
+
+        let result = script.check(&context);
+        assert!(result.is_err());
     }
 }

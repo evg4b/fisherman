@@ -53,10 +53,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let RuleResult::Success { name, .. } = rule.check(&ctx)? else {
-            panic!()
+        let result = rule.check(&ctx)?;
+        let RuleResult::Success { name, .. } = result else {
+            unreachable!("Expected Success");
         };
-
         assert!(name == "branch_name_prefix");
 
         Ok(())
@@ -71,10 +71,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let RuleResult::Failure { name, message } = rule.check(&ctx)? else {
-            panic!()
+        let result = rule.check(&ctx)?;
+        let RuleResult::Failure { name, message } = result else {
+            unreachable!("Expected Failure");
         };
-
         assert!(name == "branch_name_prefix");
         assert!(message == "Branch name must start with: feat/");
 
@@ -86,5 +86,31 @@ mod tests {
         let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
 
         assert!(rule.sync());
+    }
+
+    #[test]
+    fn test_branch_name_prefix_variables_error() {
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Ok("feat/my-feature".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_branch_name_prefix_branch_error() {
+        let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch()
+            .returning(|| Err(anyhow::anyhow!("Branch error")));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
     }
 }

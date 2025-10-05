@@ -55,10 +55,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let RuleResult::Success { name, output } = rule.check(&ctx).unwrap() else {
-            panic!()
+        let result = rule.check(&ctx).unwrap();
+        let RuleResult::Success { name, output } = result else {
+            unreachable!("Expected Success");
         };
-
         assert!(name == "commit_message_prefix");
         assert_eq!(output, None);
     }
@@ -72,10 +72,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let RuleResult::Failure { name, message } = rule.check(&ctx).unwrap() else {
-            panic!()
+        let result = rule.check(&ctx).unwrap();
+        let RuleResult::Failure { name, message } = result else {
+            unreachable!("Expected Failure");
         };
-
         assert!(name == "commit_message_prefix");
         assert!(message == "Commit message must start with: feat");
     }
@@ -84,5 +84,31 @@ mod tests {
     fn test_sync() {
         let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
         assert!(rule.sync());
+    }
+
+    #[test]
+    fn test_commit_message_prefix_variables_error() {
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+        let mut ctx = MockContext::new();
+        ctx.expect_commit_msg()
+            .returning(|| Ok("feat: message".to_string()));
+        ctx.expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_commit_message_prefix_commit_msg_error() {
+        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+        let mut ctx = MockContext::new();
+        ctx.expect_commit_msg()
+            .returning(|| Err(anyhow::anyhow!("Commit message error")));
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.check(&ctx);
+        assert!(result.is_err());
     }
 }

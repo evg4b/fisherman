@@ -25,9 +25,9 @@ fn main() -> anyhow::Result<()> {
     let context = &mut GitRepoContext::new(env::current_dir()?)?;
 
     match cli.command.exec(context) {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(err) => {
-            eprintln!("Error: {}", err);
+            eprintln!("Error: {err}");
             std::process::exit(1);
         }
     }
