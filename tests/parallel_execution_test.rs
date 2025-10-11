@@ -1,12 +1,11 @@
 mod common;
 
-use common::{FishermanBinary, GitTestRepo};
+use common::TestContext;
 use std::time::Instant;
 
 #[test]
 fn parallel_multiple_write_files() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.pre-commit]]
@@ -35,29 +34,19 @@ path = "file5.txt"
 content = "content 5"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.setup_and_install(config);
+    ctx.handle_success("pre-commit");
 
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "All write-file rules should execute successfully"
-    );
-
-    assert!(repo.file_exists("file1.txt"));
-    assert!(repo.file_exists("file2.txt"));
-    assert!(repo.file_exists("file3.txt"));
-    assert!(repo.file_exists("file4.txt"));
-    assert!(repo.file_exists("file5.txt"));
+    assert!(ctx.repo.file_exists("file1.txt"));
+    assert!(ctx.repo.file_exists("file2.txt"));
+    assert!(ctx.repo.file_exists("file3.txt"));
+    assert!(ctx.repo.file_exists("file4.txt"));
+    assert!(ctx.repo.file_exists("file5.txt"));
 }
 
 #[test]
 fn parallel_multiple_exec_rules() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     #[cfg(windows)]
     let config = r#"
@@ -95,23 +84,13 @@ command = "echo"
 args = ["3"]
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
-
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "All exec rules should execute successfully"
-    );
+    ctx.setup_and_install(config);
+    ctx.handle_success("pre-commit");
 }
 
 #[test]
 fn parallel_multiple_shell_scripts() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     #[cfg(windows)]
     let config = r#"
@@ -143,23 +122,13 @@ type = "shell"
 script = "echo 'script3'"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
-
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "All shell scripts should execute successfully"
-    );
+    ctx.setup_and_install(config);
+    ctx.handle_success("pre-commit");
 }
 
 #[test]
 fn parallel_mixed_async_rules() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     #[cfg(windows)]
     let config = r#"
@@ -205,25 +174,16 @@ path = "output2.txt"
 content = "another write"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.setup_and_install(config);
+    ctx.handle_success("pre-commit");
 
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "All async rules should execute successfully"
-    );
-    assert!(repo.file_exists("output1.txt"));
-    assert!(repo.file_exists("output2.txt"));
+    assert!(ctx.repo.file_exists("output1.txt"));
+    assert!(ctx.repo.file_exists("output2.txt"));
 }
 
 #[test]
 fn parallel_one_fails_stops_all() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     #[cfg(windows)]
     let config = r#"
@@ -260,23 +220,13 @@ path = "should-not-exist.txt"
 content = "should not be created"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
-
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        !handle_output.status.success(),
-        "Hook should fail when one async rule fails"
-    );
+    ctx.setup_and_install(config);
+    ctx.handle_failure("pre-commit");
 }
 
 #[test]
 fn sync_rules_execute_before_async() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     #[cfg(windows)]
     let config = r#"
@@ -312,26 +262,16 @@ path = "async.txt"
 content = "async rule"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.setup_and_install(config);
+    ctx.repo.create_branch("feature/test");
 
-    binary.install(repo.path(), false);
-
-    repo.create_branch("feature/test");
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "Sync rules should execute before async rules"
-    );
-    assert!(repo.file_exists("async.txt"));
+    ctx.handle_success("pre-commit");
+    assert!(ctx.repo.file_exists("async.txt"));
 }
 
 #[test]
 fn sync_rule_fails_hook_fails() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.pre-commit]]
@@ -339,26 +279,16 @@ type = "branch-name-prefix"
 prefix = "feature/"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.setup_and_install(config);
+    ctx.repo.create_branch("bugfix/test");
 
-    binary.install(repo.path(), false);
-
-    repo.create_branch("bugfix/test");
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        !handle_output.status.success(),
-        "Hook should fail when sync rule fails"
-    );
+    ctx.handle_failure("pre-commit");
 }
 
 #[test]
 #[cfg(not(windows))]
 fn parallel_performance_benefit() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.pre-commit]]
@@ -382,13 +312,10 @@ type = "shell"
 script = "sleep 0.1"
 "#;
 
-    repo.create_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
-
-    binary.install(repo.path(), false);
+    ctx.setup_and_install(config);
 
     let start = Instant::now();
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = ctx.handle("pre-commit");
     let duration = start.elapsed();
 
     assert!(handle_output.status.success());
