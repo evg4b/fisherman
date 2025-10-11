@@ -54,6 +54,14 @@ impl GitTestRepo {
         self.create_file(".fisherman.toml", config);
     }
 
+    pub fn create_yaml_config(&self, config: &str) {
+        self.create_file(".fisherman.yaml", config);
+    }
+
+    pub fn create_json_config(&self, config: &str) {
+        self.create_file(".fisherman.json", config);
+    }
+
     pub fn create_local_config(&self, config: &str) {
         self.create_file(".git/.fisherman.toml", config);
     }
