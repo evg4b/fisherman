@@ -1,6 +1,6 @@
 mod common;
 
-use common::TestContext;
+use common::test_context::TestContext;
 
 #[test]
 fn template_branch_variable_in_message_prefix() {

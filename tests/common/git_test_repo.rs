@@ -1,9 +1,10 @@
+#![allow(dead_code)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use tempdir::TempDir;
 
-#[allow(dead_code)]
 pub struct GitTestRepo {
     temp_dir: TempDir,
 }

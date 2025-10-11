@@ -1,10 +1,11 @@
+#![allow(dead_code)]
+
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use std::sync::Once;
 
 static COMPILE: Once = Once::new();
 
-#[allow(dead_code)]
 pub struct FishermanBinary {
     path: PathBuf,
 }

@@ -1,6 +1,6 @@
 mod common;
 
-use common::{test_context::{echo_config, fail_config, shell_config}, TestContext, FishermanBinary, GitTestRepo};
+use common::{test_context::{echo_config, fail_config, TestContext}, FishermanBinary, GitTestRepo};
 
 #[test]
 fn exec_rule_success() {
