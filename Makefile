@@ -6,6 +6,15 @@ lint:
 test:
 	cargo test
 
+test-unit:
+	cargo test --lib
+
+test-integration:
+	cargo build --release
+	cargo test --test '*' --release -- --test-threads=1
+
+test-all: test-unit test-integration
+
 build:
 	cargo build --release
 
@@ -14,3 +23,6 @@ install:
 
 coverage:
 	cargo llvm-cov --open
+
+coverage-integration:
+	cargo llvm-cov --release --test '*' -- --test-threads=1
