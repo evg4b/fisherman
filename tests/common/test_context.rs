@@ -21,7 +21,8 @@ impl TestContext {
     /// Creates a config, initializes the repo with a file and commit, and installs hooks
     pub fn setup_with_config(&self, config: &str) -> Output {
         self.repo.create_config(config);
-        self.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+        self.repo
+            .git_history(&[("initial", &[("test.txt", "initial")])]);
         self.binary.install(self.repo.path(), false)
     }
 
@@ -41,10 +42,8 @@ impl TestContext {
             String::from_utf8_lossy(&output.stderr)
         );
     }
-    
-    // ========== Git-based hook testing (recommended approach) ==========
-    // These methods trigger hooks through actual git commands instead of
-    // calling fisherman directly, testing the real-world scenario.
+
+    // ========== Git-based hook testing (real git commands) ==========
 
     /// Commit allowing empty (useful for testing hooks without file changes)
     pub fn git_commit_allow_empty(&self, message: &str) -> Output {
@@ -74,6 +73,61 @@ impl TestContext {
     pub fn git_checkout_new_branch(&self, name: &str) -> Output {
         self.repo.checkout_new_branch(name)
     }
+
+    // ========== Direct fisherman invocations ==========
+
+    /// Handle a hook and return the output
+    pub fn handle(&self, hook: &str) -> Output {
+        self.binary.handle(hook, self.repo.path(), &[])
+    }
+
+    /// Handle a hook and assert it succeeded
+    pub fn handle_success(&self, hook: &str) {
+        let output = self.handle(hook);
+        assert!(
+            output.status.success(),
+            "Hook '{}' should succeed: {}",
+            hook,
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    /// Handle a hook and assert it failed
+    pub fn handle_failure(&self, hook: &str) {
+        let output = self.handle(hook);
+        assert!(
+            !output.status.success(),
+            "Hook '{}' should fail",
+            hook
+        );
+    }
+
+    /// Handle commit-msg hook with a message
+    pub fn handle_commit_msg(&self, message: &str) -> Output {
+        self.repo.write_commit_msg_file(message);
+        let msg_path = self.repo.commit_msg_file_path();
+        self.binary
+            .handle("commit-msg", self.repo.path(), &[msg_path.to_str().unwrap()])
+    }
+
+    /// Handle commit-msg hook and assert success
+    pub fn handle_commit_msg_success(&self, message: &str) {
+        let output = self.handle_commit_msg(message);
+        assert!(
+            output.status.success(),
+            "commit-msg hook should succeed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    /// Handle commit-msg hook and assert failure
+    pub fn handle_commit_msg_failure(&self, message: &str) {
+        let output = self.handle_commit_msg(message);
+        assert!(
+            !output.status.success(),
+            "commit-msg hook should fail"
+        );
+    }
 }
 
 impl Default for TestContext {
@@ -90,4 +144,87 @@ pub fn assert_stderr_contains(stderr: &str, expected: &[&str], context: &str) {
         "{}: expected stderr to contain one of {:?}, got: {}",
         context, expected, stderr
     );
+}
+
+/// Platform-specific config helper for exec commands
+#[cfg(windows)]
+pub fn echo_config(hook: &str, text: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "exec"
+command = "cmd"
+args = ["/C", "echo", "{}"]
+"#,
+        hook, text
+    )
+}
+
+/// Platform-specific config helper for exec commands
+#[cfg(not(windows))]
+pub fn echo_config(hook: &str, text: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "exec"
+command = "echo"
+args = ["{}"]
+"#,
+        hook, text
+    )
+}
+
+/// Platform-specific config helper for failing exec commands
+#[cfg(windows)]
+pub fn fail_config(hook: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "exec"
+command = "cmd"
+args = ["/C", "exit", "1"]
+"#,
+        hook
+    )
+}
+
+/// Platform-specific config helper for failing exec commands
+#[cfg(not(windows))]
+pub fn fail_config(hook: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "exec"
+command = "false"
+"#,
+        hook
+    )
+}
+
+/// Platform-specific config helper for shell scripts
+#[cfg(windows)]
+pub fn shell_config(hook: &str, script: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "shell"
+script = "{}"
+"#,
+        hook, script
+    )
+}
+
+/// Platform-specific config helper for shell scripts
+#[cfg(not(windows))]
+pub fn shell_config(hook: &str, script: &str) -> String {
+    format!(
+        r#"
+[[hooks.{}]]
+type = "shell"
+script = """
+{}
+"""
+"#,
+        hook, script
+    )
 }
