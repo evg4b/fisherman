@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::{FishermanBinary, GitTestRepo};
 use std::process::Output;
 

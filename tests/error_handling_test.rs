@@ -16,7 +16,7 @@ regex = ".*"
     repo.create_config(invalid_config);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let _install_output = binary.install(repo.path(), false);
     // Should fail or handle gracefully
     // The exact behavior depends on implementation
 }
@@ -37,7 +37,7 @@ hooks:
     repo.create_yaml_config(invalid_config);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let _install_output = binary.install(repo.path(), false);
     // Should fail or handle gracefully
 }
 
@@ -170,7 +170,7 @@ type = "message-regex"
     repo.create_config(config);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let _install_output = binary.install(repo.path(), false);
     // Should fail during config parsing or installation
 }
 
@@ -188,7 +188,7 @@ some_field = "value"
     repo.create_config(config);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let _install_output = binary.install(repo.path(), false);
     // Should fail during config parsing or installation
 }
 
@@ -233,7 +233,7 @@ content = "test"
 
     binary.install(repo.path(), false);
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let _handle_output = binary.handle("pre-commit", repo.path(), &[]);
     // Might fail depending on permissions
     // This tests error handling for file system errors
 }

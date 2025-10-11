@@ -1,6 +1,6 @@
 mod common;
 
-use common::TestContext;
+use common::test_context::TestContext;
 use std::time::Instant;
 
 #[test]
