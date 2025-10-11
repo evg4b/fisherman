@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use tempdir::TempDir;
 
+#[allow(dead_code)]
 pub struct GitTestRepo {
     temp_dir: TempDir,
     global_config_dir: Option<TempDir>,
@@ -13,16 +14,12 @@ pub struct GitTestRepo {
 
 impl GitTestRepo {
     pub fn new() -> Self {
-        let temp_dir = TempDir::new("fisherman_test")
-            .expect("Failed to create temp directory");
-        
+        let temp_dir = TempDir::new("fisherman_test").expect("Failed to create temp directory");
         let repo = Self {
             temp_dir,
             global_config_dir: None,
         };
 
-        println!("{}", repo.temp_dir.path().to_str().unwrap());
-        
         repo.git(&["init"]);
         repo.git(&["config", "user.name", "Test User"]);
         repo.git(&["config", "user.email", "test@example.com"]);
@@ -34,7 +31,8 @@ impl GitTestRepo {
     /// Enable global config support by creating a temporary home directory
     pub fn with_global_config(&mut self) -> &mut Self {
         if self.global_config_dir.is_none() {
-            let global_dir = TempDir::new("fisherman_global").expect("Failed to create global config dir");
+            let global_dir =
+                TempDir::new("fisherman_global").expect("Failed to create global config dir");
             self.global_config_dir = Some(global_dir);
         }
         self
@@ -43,7 +41,11 @@ impl GitTestRepo {
     /// Get the global config directory path (creates it if needed)
     pub fn global_config_path(&mut self) -> PathBuf {
         self.with_global_config();
-        self.global_config_dir.as_ref().unwrap().path().to_path_buf()
+        self.global_config_dir
+            .as_ref()
+            .unwrap()
+            .path()
+            .to_path_buf()
     }
 
     /// Set HOME environment variable to point to our test global config dir
@@ -128,6 +130,14 @@ impl GitTestRepo {
         self.git(&["commit", "-m", message])
     }
 
+    pub fn commit_allow_empty(&self, message: &str) -> Output {
+        self.git(&["commit", "--allow-empty", "-m", message])
+    }
+
+    pub fn commit_with_hooks_allow_empty(&self, message: &str) -> Output {
+        self.commit_allow_empty(message)
+    }
+
     pub fn create_branch(&self, name: &str) {
         let output = self.git(&["checkout", "-b", name]);
         assert!(
@@ -146,6 +156,10 @@ impl GitTestRepo {
         );
     }
 
+    pub fn checkout_new_branch(&self, name: &str) -> Output {
+        self.git(&["checkout", "-b", name])
+    }
+
     pub fn current_branch(&self) -> String {
         let output = self.git(&["branch", "--show-current"]);
         String::from_utf8_lossy(&output.stdout).trim().to_string()
@@ -160,30 +174,7 @@ impl GitTestRepo {
         fs::read_to_string(hook_path).expect("Failed to read hook file")
     }
 
-    /// Commit allowing empty (triggers hooks even without changes)
-    pub fn commit_with_hooks_allow_empty(&self, message: &str) -> Output {
-        self.git(&["commit", "--allow-empty", "-m", message])
-    }
-
-    /// Create and checkout a new branch (triggers post-checkout hook)
-    pub fn checkout_new_branch(&self, name: &str) -> Output {
-        self.git(&["checkout", "-b", name])
-    }
-
     /// Creates a Git history with multiple commits and files
-    ///
-    /// # Example
-    /// ```
-    /// repo.git_history(&[
-    ///     ("Initial commit", &[
-    ///         ("README.md", "# Project"),
-    ///         ("src/main.rs", "fn main() {}"),
-    ///     ]),
-    ///     ("Add tests", &[
-    ///         ("tests/test.rs", "#[test] fn test() {}"),
-    ///     ]),
-    /// ]);
-    /// ```
     pub fn git_history(&self, commits: &[(&str, &[(&str, &str)])]) {
         for (message, files) in commits {
             for (path, content) in *files {
@@ -197,6 +188,15 @@ impl GitTestRepo {
                 String::from_utf8_lossy(&output.stderr)
             );
         }
+    }
+
+    pub fn write_commit_msg_file(&self, message: &str) {
+        let msg_path = self.path().join(".git/COMMIT_EDITMSG");
+        fs::write(msg_path, message).expect("Failed to write commit message file");
+    }
+
+    pub fn commit_msg_file_path(&self) -> PathBuf {
+        self.path().join(".git/COMMIT_EDITMSG")
     }
 }
 
@@ -238,31 +238,36 @@ impl<'a> ConfigBuilder<'a> {
 
     /// Add a global config
     pub fn global(mut self, content: &str) -> Self {
-        self.configs.push((ConfigScope::Global, ConfigFormat::Toml, content.to_string()));
+        self.configs
+            .push((ConfigScope::Global, ConfigFormat::Toml, content.to_string()));
         self
     }
 
     /// Add a repository config (default scope)
     pub fn repository(mut self, content: &str) -> Self {
-        self.configs.push((ConfigScope::Repository, ConfigFormat::Toml, content.to_string()));
+        self.configs
+            .push((ConfigScope::Repository, ConfigFormat::Toml, content.to_string()));
         self
     }
 
     /// Add a repository config with specific format
     pub fn repository_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
-        self.configs.push((ConfigScope::Repository, format, content.to_string()));
+        self.configs
+            .push((ConfigScope::Repository, format, content.to_string()));
         self
     }
 
     /// Add a local config (.git/.fisherman.toml)
     pub fn local(mut self, content: &str) -> Self {
-        self.configs.push((ConfigScope::Local, ConfigFormat::Toml, content.to_string()));
+        self.configs
+            .push((ConfigScope::Local, ConfigFormat::Toml, content.to_string()));
         self
     }
 
     /// Add a local config with specific format
     pub fn local_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
-        self.configs.push((ConfigScope::Local, format, content.to_string()));
+        self.configs
+            .push((ConfigScope::Local, format, content.to_string()));
         self
     }
 
@@ -291,7 +296,10 @@ impl<'a> ConfigBuilder<'a> {
                 (ConfigScope::Local, ConfigFormat::Json) => {
                     self.repo.create_local_json_config(&content);
                 }
-                _ => panic!("Unsupported config scope/format combination: {:?}/{:?}", scope, format),
+                _ => panic!(
+                    "Unsupported config scope/format combination: {:?}/{:?}",
+                    scope, format
+                ),
             }
         }
     }

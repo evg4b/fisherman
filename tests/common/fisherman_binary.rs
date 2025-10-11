@@ -6,6 +6,7 @@ use std::sync::Once;
 
 static COMPILE: Once = Once::new();
 
+#[allow(dead_code)]
 pub struct FishermanBinary {
     path: PathBuf,
 }
@@ -54,12 +55,19 @@ impl FishermanBinary {
         self.run(&args, working_dir)
     }
 
+    pub fn handle(&self, hook: &str, working_dir: &Path, extra_args: &[&str]) -> Output {
+        let mut args = vec!["handle", hook];
+        args.extend_from_slice(extra_args);
+        self.run(&args, working_dir)
+    }
+
     pub fn explain(&self, hook: &str, working_dir: &Path) -> Output {
         self.run(&["explain", hook], working_dir)
     }
 
     fn binary_path() -> PathBuf {
-        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let mut path = PathBuf::from(manifest_dir);
         path.push("target");
         path.push("release");
         path.push(Self::binary_name());
