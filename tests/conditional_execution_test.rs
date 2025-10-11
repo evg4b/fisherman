@@ -18,8 +18,7 @@ when = "Type == \"feature\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -50,8 +49,7 @@ when = "Type == \"feature\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -82,8 +80,7 @@ when = "is_def_var(\"Feature\")"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -111,8 +108,7 @@ when = "is_def_var(\"Feature\")"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -143,8 +139,7 @@ when = "Type == \"feature\" && Priority == \"high\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -175,8 +170,7 @@ when = "Type == \"feature\" && Priority == \"high\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -204,8 +198,7 @@ when = "Type == \"hotfix\" || Type == \"bugfix\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -233,8 +226,7 @@ when = "Type != \"feature\""
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -273,8 +265,7 @@ content = "Always executed"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
