@@ -19,8 +19,14 @@ impl TestContext {
     /// Creates a config, initializes the repo with a file and commit, and installs hooks
     pub fn setup_with_config(&self, config: &str) -> Output {
         self.repo.create_config(config);
-        self.repo.create_file("test.txt", "initial");
-        let _ = self.repo.commit("initial");
+        self.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+        self.binary.install(self.repo.path(), false)
+    }
+
+    /// Creates a config with custom git history and installs hooks
+    pub fn setup_with_history(&self, config: &str, history: &[(&str, &[(&str, &str)])]) -> Output {
+        self.repo.create_config(config);
+        self.repo.git_history(history);
         self.binary.install(self.repo.path(), false)
     }
 
