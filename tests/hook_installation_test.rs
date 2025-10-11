@@ -256,3 +256,110 @@ content = "local level"
         "Local level config should be executed"
     );
 }
+
+#[test]
+fn install_pre_push_hook() {
+    let binary = FishermanBinary::build();
+    let repo = GitTestRepo::new();
+
+    let config = r#"
+[[hooks.pre-push]]
+type = "branch-name-regex"
+regex = ".*"
+"#;
+
+    repo.create_config(config);
+
+    let install_output = binary.install(repo.path(), false);
+
+    assert!(
+        install_output.status.success(),
+        "Installation should succeed: {}",
+        String::from_utf8_lossy(&install_output.stderr)
+    );
+
+    assert!(repo.hook_exists("pre-push"));
+    let hook_content = repo.read_hook("pre-push");
+    assert!(hook_content.contains("fisherman handle pre-push"));
+}
+
+#[test]
+fn install_post_commit_hook() {
+    let binary = FishermanBinary::build();
+    let repo = GitTestRepo::new();
+
+    let config = r#"
+[[hooks.post-commit]]
+type = "write-file"
+path = "post-commit-ran.txt"
+content = "Post commit hook executed"
+"#;
+
+    repo.create_config(config);
+
+    let install_output = binary.install(repo.path(), false);
+
+    assert!(
+        install_output.status.success(),
+        "Installation should succeed: {}",
+        String::from_utf8_lossy(&install_output.stderr)
+    );
+
+    assert!(repo.hook_exists("post-commit"));
+}
+
+#[test]
+fn install_prepare_commit_msg_hook() {
+    let binary = FishermanBinary::build();
+    let repo = GitTestRepo::new();
+
+    let config = r#"
+[[hooks.prepare-commit-msg]]
+type = "write-file"
+path = "prepare-ran.txt"
+content = "Prepare commit msg hook executed"
+"#;
+
+    repo.create_config(config);
+
+    let install_output = binary.install(repo.path(), false);
+
+    assert!(
+        install_output.status.success(),
+        "Installation should succeed: {}",
+        String::from_utf8_lossy(&install_output.stderr)
+    );
+
+    assert!(repo.hook_exists("prepare-commit-msg"));
+}
+
+#[test]
+fn backup_file_contains_original_hook() {
+    let binary = FishermanBinary::build();
+    let repo = GitTestRepo::new();
+
+    let config = r#"
+[[hooks.pre-commit]]
+type = "branch-name-regex"
+regex = ".*"
+"#;
+
+    let original_hook_content = "#!/bin/sh\necho original hook\nexit 0";
+    repo.create_config(config);
+    repo.create_file(".git/hooks/pre-commit", original_hook_content);
+
+    let install_output = binary.install(repo.path(), true);
+
+    assert!(
+        install_output.status.success(),
+        "Installation should succeed with --force: {}",
+        String::from_utf8_lossy(&install_output.stderr)
+    );
+
+    assert!(repo.hook_exists("pre-commit.bkp"));
+    let backup_content = repo.read_hook("pre-commit.bkp");
+    assert_eq!(
+        backup_content, original_hook_content,
+        "Backup should contain original hook content"
+    );
+}
