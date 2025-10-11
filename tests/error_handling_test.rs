@@ -14,8 +14,7 @@ regex = ".*"
 "#;
 
     repo.create_config(invalid_config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     // Should fail or handle gracefully
@@ -36,8 +35,7 @@ hooks:
 "#;
 
     repo.create_yaml_config(invalid_config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     // Should fail or handle gracefully
@@ -55,8 +53,7 @@ regex = "(?P<unclosed"  # Invalid regex
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -89,8 +86,7 @@ regex = "[invalid("  # Invalid regex
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -119,8 +115,7 @@ content = "test"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -147,8 +142,7 @@ content = "Value: {{UndefinedVar}}"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -174,8 +168,7 @@ type = "message-regex"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     // Should fail during config parsing or installation
@@ -193,8 +186,7 @@ some_field = "value"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     // Should fail during config parsing or installation
@@ -213,8 +205,7 @@ args = ["test"]
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -238,8 +229,7 @@ content = "test"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -254,8 +244,7 @@ fn empty_config_file() {
     let repo = GitTestRepo::new();
 
     repo.create_config("");
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     assert!(
@@ -281,8 +270,7 @@ when = "Type == "  # Invalid syntax
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
 

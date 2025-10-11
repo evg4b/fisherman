@@ -200,8 +200,7 @@ suffix = "-dev"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     assert!(install_output.status.success());
@@ -239,8 +238,7 @@ content = "local level"
 
     repo.create_config(repo_config);
     repo.create_local_config(local_config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
