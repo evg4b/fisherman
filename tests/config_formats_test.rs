@@ -1,11 +1,10 @@
 mod common;
 
-use common::{FishermanBinary, GitTestRepo};
+use common::TestContext;
 
 #[test]
 fn yaml_config_format() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 hooks:
@@ -15,26 +14,24 @@ hooks:
       content: YAML config works
 "#;
 
-    repo.create_yaml_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo.create_yaml_config(config);
+    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let install_output = ctx.binary.install(ctx.repo.path(), false);
     assert!(
         install_output.status.success(),
         "Installation should succeed with YAML config: {}",
         String::from_utf8_lossy(&install_output.stderr)
     );
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-    assert!(handle_output.status.success());
-    assert!(repo.file_exists("yaml-test.txt"));
-    assert_eq!(repo.read_file("yaml-test.txt"), "YAML config works");
+    ctx.handle_success("pre-commit");
+    assert!(ctx.repo.file_exists("yaml-test.txt"));
+    assert_eq!(ctx.repo.read_file("yaml-test.txt"), "YAML config works");
 }
 
 #[test]
 fn json_config_format() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 {
@@ -50,26 +47,24 @@ fn json_config_format() {
 }
 "#;
 
-    repo.create_json_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo.create_json_config(config);
+    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    let install_output = binary.install(repo.path(), false);
+    let install_output = ctx.binary.install(ctx.repo.path(), false);
     assert!(
         install_output.status.success(),
         "Installation should succeed with JSON config: {}",
         String::from_utf8_lossy(&install_output.stderr)
     );
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-    assert!(handle_output.status.success());
-    assert!(repo.file_exists("json-test.txt"));
-    assert_eq!(repo.read_file("json-test.txt"), "JSON config works");
+    ctx.handle_success("pre-commit");
+    assert!(ctx.repo.file_exists("json-test.txt"));
+    assert_eq!(ctx.repo.read_file("json-test.txt"), "JSON config works");
 }
 
 #[test]
 fn yaml_with_templates() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 extract:
@@ -81,21 +76,19 @@ hooks:
       content: "Branch type: {{Type}}"
 "#;
 
-    repo.create_yaml_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo.create_yaml_config(config);
+    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    binary.install(repo.path(), false);
-    repo.create_branch("feature/test");
+    ctx.binary.install(ctx.repo.path(), false);
+    ctx.repo.create_branch("feature/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-    assert!(handle_output.status.success());
-    assert_eq!(repo.read_file("output.txt"), "Branch type: feature");
+    ctx.handle_success("pre-commit");
+    assert_eq!(ctx.repo.read_file("output.txt"), "Branch type: feature");
 }
 
 #[test]
 fn json_with_conditional() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 {
@@ -113,21 +106,19 @@ fn json_with_conditional() {
 }
 "#;
 
-    repo.create_json_config(config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo.create_json_config(config);
+    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
-    binary.install(repo.path(), false);
-    repo.create_branch("feature/test");
+    ctx.binary.install(ctx.repo.path(), false);
+    ctx.repo.create_branch("feature/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-    assert!(handle_output.status.success());
-    assert!(repo.file_exists("conditional.txt"));
+    ctx.handle_success("pre-commit");
+    assert!(ctx.repo.file_exists("conditional.txt"));
 }
 
 #[test]
 fn multiple_config_formats_error() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     // Create both TOML and YAML configs
     let toml_config = r#"
@@ -145,15 +136,15 @@ hooks:
       content: YAML
 "#;
 
-    repo.create_config(toml_config);
-    repo.create_yaml_config(yaml_config);
-    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo.create_config(toml_config);
+    ctx.repo.create_yaml_config(yaml_config);
+    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     // Installation or handling should fail with multiple config formats
-    let install_output = binary.install(repo.path(), false);
+    let install_output = ctx.binary.install(ctx.repo.path(), false);
 
     if install_output.status.success() {
-        let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+        let handle_output = ctx.handle("pre-commit");
         assert!(
             !handle_output.status.success(),
             "Should fail when multiple config formats are present"
