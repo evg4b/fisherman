@@ -1,6 +1,6 @@
 mod common;
 
-use common::TestContext;
+use common::test_context::TestContext;
 
 #[test]
 fn pre_push_hook_execution() {
@@ -56,7 +56,7 @@ fn empty_hooks_array_succeeds() {
 "#;
 
     // Empty or minimal config should still allow installation
-    let install_output = ctx.setup_with_config(config);
+    let _install_output = ctx.setup_with_config(config);
     // This may succeed or fail depending on implementation
     // Just verify it doesn't crash
 }
