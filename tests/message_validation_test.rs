@@ -1,11 +1,10 @@
 mod common;
 
-use common::{FishermanBinary, GitTestRepo};
+use common::TestContext;
 
 #[test]
 fn message_regex_valid_pattern() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -13,33 +12,13 @@ type = "message-regex"
 regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("feat: add new feature");
-
-    let install_output = binary.install(repo.path(), false);
-    assert!(install_output.status.success(), "Installation failed");
-    assert!(repo.hook_exists("commit-msg"));
-
-    repo.write_commit_msg_file("feat: valid commit message");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(
-        handle_output.status.success(),
-        "Hook should succeed with valid message: {}",
-        String::from_utf8_lossy(&handle_output.stderr)
-    );
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_success("feat: valid commit message");
 }
 
 #[test]
 fn message_regex_invalid_pattern() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -47,31 +26,13 @@ type = "message-regex"
 regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial commit");
-
-    let install_output = binary.install(repo.path(), false);
-    assert!(install_output.status.success());
-
-    repo.write_commit_msg_file("invalid commit message");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(
-        !handle_output.status.success(),
-        "Hook should fail with invalid message"
-    );
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_failure("invalid commit message");
 }
 
 #[test]
 fn message_prefix_valid() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -79,27 +40,13 @@ type = "message-prefix"
 prefix = "feat: "
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("feat: add feature");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_success("feat: add feature");
 }
 
 #[test]
 fn message_prefix_invalid() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -107,27 +54,13 @@ type = "message-prefix"
 prefix = "feat: "
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("fix: wrong prefix");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(!handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_failure("fix: wrong prefix");
 }
 
 #[test]
 fn message_suffix_valid() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -135,27 +68,13 @@ type = "message-suffix"
 suffix = " [skip ci]"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("commit message [skip ci]");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_success("commit message [skip ci]");
 }
 
 #[test]
 fn message_suffix_invalid() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -163,27 +82,13 @@ type = "message-suffix"
 suffix = " [skip ci]"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("commit message without suffix");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(!handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_failure("commit message without suffix");
 }
 
 #[test]
 fn message_multiple_rules_all_pass() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -199,27 +104,13 @@ type = "message-regex"
 regex = ".*feature.*"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("feat: add new feature [done]");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_success("feat: add new feature [done]");
 }
 
 #[test]
 fn message_multiple_rules_one_fails() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
@@ -231,19 +122,6 @@ type = "message-suffix"
 suffix = " [done]"
 "#;
 
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    repo.write_commit_msg_file("feat: missing suffix");
-    let msg_path = repo.commit_msg_file_path();
-    let handle_output = binary.handle(
-        "commit-msg",
-        repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(!handle_output.status.success());
+    ctx.setup_and_install(config);
+    ctx.handle_commit_msg_failure("feat: missing suffix");
 }

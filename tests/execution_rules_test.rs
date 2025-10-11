@@ -1,75 +1,23 @@
 mod common;
 
-use common::{FishermanBinary, GitTestRepo};
+use common::{test_context::{echo_config, fail_config, shell_config}, TestContext, FishermanBinary, GitTestRepo};
 
 #[test]
 fn exec_rule_success() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
+    let config = echo_config("pre-commit", "test");
 
-    #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "test"]
-"#;
-
-    #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["test"]
-"#;
-
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        handle_output.status.success(),
-        "Hook should succeed when command exits with 0: {}",
-        String::from_utf8_lossy(&handle_output.stderr)
-    );
+    ctx.setup_and_install(&config);
+    ctx.handle_success("pre-commit");
 }
 
 #[test]
 fn exec_rule_failure() {
-    let binary = FishermanBinary::build();
-    let repo = GitTestRepo::new();
+    let ctx = TestContext::new();
+    let config = fail_config("pre-commit");
 
-    #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "exit", "1"]
-"#;
-
-    #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "false"
-"#;
-
-    repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
-
-    binary.install(repo.path(), false);
-
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
-
-    assert!(
-        !handle_output.status.success(),
-        "Hook should fail when command exits with non-zero"
-    );
+    ctx.setup_and_install(&config);
+    ctx.handle_failure("pre-commit");
 }
 
 #[test]
