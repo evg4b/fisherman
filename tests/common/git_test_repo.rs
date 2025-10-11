@@ -121,6 +121,35 @@ impl GitTestRepo {
     pub fn commit_msg_file_path(&self) -> PathBuf {
         self.path().join(".git/COMMIT_EDITMSG")
     }
+
+    /// Creates a Git history with multiple commits and files
+    ///
+    /// # Example
+    /// ```
+    /// repo.git_history(&[
+    ///     ("Initial commit", &[
+    ///         ("README.md", "# Project"),
+    ///         ("src/main.rs", "fn main() {}"),
+    ///     ]),
+    ///     ("Add tests", &[
+    ///         ("tests/test.rs", "#[test] fn test() {}"),
+    ///     ]),
+    /// ]);
+    /// ```
+    pub fn git_history(&self, commits: &[(&str, &[(&str, &str)])]) {
+        for (message, files) in commits {
+            for (path, content) in *files {
+                self.create_file(path, content);
+            }
+            let output = self.commit(message);
+            assert!(
+                output.status.success(),
+                "Failed to create commit '{}': {}",
+                message,
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+    }
 }
 
 impl Default for GitTestRepo {

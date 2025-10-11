@@ -16,8 +16,7 @@ prefix = "{{Type}}: [{{Ticket}}] "
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -53,8 +52,7 @@ content = "Current feature: {{Feature}}"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -85,8 +83,7 @@ content = "Repository: {{RepoName}}"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -117,8 +114,7 @@ content = "Type: {{Type}}, Ticket: {{Ticket}}, Repo: {{RepoName}}"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -161,8 +157,7 @@ args = ["{{Feature}}"]
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -192,8 +187,7 @@ content = "Feature: {{Feature}}"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -219,8 +213,7 @@ regex = "^.+$"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 

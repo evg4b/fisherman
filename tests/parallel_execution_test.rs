@@ -36,8 +36,7 @@ content = "content 5"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -97,8 +96,7 @@ args = ["3"]
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -146,8 +144,7 @@ script = "echo 'script3'"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -209,8 +206,7 @@ content = "another write"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -265,8 +261,7 @@ content = "should not be created"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -318,8 +313,7 @@ content = "async rule"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -346,8 +340,7 @@ prefix = "feature/"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -390,8 +383,7 @@ script = "sleep 0.1"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 

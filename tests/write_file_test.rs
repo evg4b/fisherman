@@ -15,8 +15,7 @@ content = "test content"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -99,8 +98,7 @@ content = "simple content"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -138,8 +136,7 @@ content = "content 3"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 
@@ -167,8 +164,7 @@ content = "Line 1\nLine 2\nLine 3"
 "#;
 
     repo.create_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
 

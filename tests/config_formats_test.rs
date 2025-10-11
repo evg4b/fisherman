@@ -16,8 +16,7 @@ hooks:
 "#;
 
     repo.create_yaml_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     assert!(
@@ -52,8 +51,7 @@ fn json_config_format() {
 "#;
 
     repo.create_json_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
     assert!(
@@ -84,8 +82,7 @@ hooks:
 "#;
 
     repo.create_yaml_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
     repo.create_branch("feature/test");
@@ -117,8 +114,7 @@ fn json_with_conditional() {
 "#;
 
     repo.create_json_config(config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
     repo.create_branch("feature/test");
@@ -151,8 +147,7 @@ hooks:
 
     repo.create_config(toml_config);
     repo.create_yaml_config(yaml_config);
-    repo.create_file("test.txt", "initial");
-    let _ = repo.commit("initial");
+    repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     // Installation or handling should fail with multiple config formats
     let install_output = binary.install(repo.path(), false);
