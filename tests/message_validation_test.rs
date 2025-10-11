@@ -1,6 +1,6 @@
 mod common;
 
-use common::TestContext;
+use common::test_context::TestContext;
 
 #[test]
 fn message_regex_valid_pattern() {

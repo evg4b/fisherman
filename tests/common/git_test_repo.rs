@@ -6,7 +6,6 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use tempdir::TempDir;
 
-#[allow(dead_code)]
 pub struct GitTestRepo {
     temp_dir: TempDir,
     global_config_dir: Option<TempDir>,
@@ -172,22 +171,6 @@ impl GitTestRepo {
     pub fn read_hook(&self, hook_name: &str) -> String {
         let hook_path = self.path().join(".git/hooks").join(hook_name);
         fs::read_to_string(hook_path).expect("Failed to read hook file")
-    }
-
-    /// Creates a Git history with multiple commits and files
-    pub fn git_history(&self, commits: &[(&str, &[(&str, &str)])]) {
-        for (message, files) in commits {
-            for (path, content) in *files {
-                self.create_file(path, content);
-            }
-            let output = self.commit(message);
-            assert!(
-                output.status.success(),
-                "Failed to create commit '{}': {}",
-                message,
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
     }
 
     pub fn write_commit_msg_file(&self, message: &str) {

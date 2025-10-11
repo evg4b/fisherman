@@ -6,7 +6,6 @@ use std::sync::Once;
 
 static COMPILE: Once = Once::new();
 
-#[allow(dead_code)]
 pub struct FishermanBinary {
     path: PathBuf,
 }

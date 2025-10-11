@@ -1,6 +1,6 @@
 mod common;
 
-use common::TestContext;
+use common::test_context::TestContext;
 
 #[test]
 fn write_file_creates_new_file() {
