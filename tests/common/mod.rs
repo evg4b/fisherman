@@ -4,3 +4,7 @@ pub mod test_context;
 
 pub use git_test_repo::GitTestRepo;
 pub use fisherman_binary::FishermanBinary;
+
+// Re-export for scoped config tests
+#[allow(unused_imports)]
+pub use git_test_repo::{ConfigBuilder, ConfigFormat};
