@@ -26,7 +26,7 @@ hooks:
         String::from_utf8_lossy(&install_output.stderr)
     );
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("yaml-test.txt"));
     assert_eq!(ctx.repo.read_file("yaml-test.txt"), "YAML config works");
 }
@@ -61,7 +61,7 @@ fn json_config_format() {
         String::from_utf8_lossy(&install_output.stderr)
     );
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("json-test.txt"));
     assert_eq!(ctx.repo.read_file("json-test.txt"), "JSON config works");
 }
@@ -88,7 +88,7 @@ hooks:
     ctx.binary.install(ctx.repo.path(), false);
     ctx.repo.create_branch("feature/test");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert_eq!(ctx.repo.read_file("output.txt"), "Branch type: feature");
 }
 
@@ -120,7 +120,7 @@ fn json_with_conditional() {
     ctx.binary.install(ctx.repo.path(), false);
     ctx.repo.create_branch("feature/test");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("conditional.txt"));
 }
 
@@ -154,7 +154,7 @@ hooks:
     let install_output = ctx.binary.install(ctx.repo.path(), false);
 
     if install_output.status.success() {
-        let handle_output = ctx.handle("pre-commit");
+        let handle_output = ctx.git_commit_allow_empty("test commit");
         assert!(
             !handle_output.status.success(),
             "Should fail when multiple config formats are present"

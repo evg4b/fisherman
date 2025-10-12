@@ -26,7 +26,7 @@ when = "Type == \"feature\""
 
     repo.create_branch("feature/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(
@@ -59,7 +59,7 @@ when = "Type == \"feature\""
 
     repo.create_branch("bugfix/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(
@@ -92,7 +92,7 @@ when = "is_def_var(\"Feature\")"
 
     repo.create_branch("feature/auth");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(repo.file_exists("feature.txt"));
@@ -122,7 +122,7 @@ when = "is_def_var(\"Feature\")"
 
     repo.create_branch("bugfix/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(
@@ -155,7 +155,7 @@ when = "Type == \"feature\" && Priority == \"high\""
 
     repo.create_branch("feature/high");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(
@@ -188,7 +188,7 @@ when = "Type == \"feature\" && Priority == \"high\""
 
     repo.create_branch("feature/low");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(!repo.file_exists("urgent.txt"));
@@ -218,7 +218,7 @@ when = "Type == \"hotfix\" || Type == \"bugfix\""
 
     repo.create_branch("hotfix/urgent");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(repo.file_exists("production.txt"));
@@ -248,7 +248,7 @@ when = "Type != \"feature\""
 
     repo.create_branch("bugfix/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(repo.file_exists("not-feature.txt"));
@@ -289,7 +289,7 @@ content = "Always executed"
 
     repo.create_branch("feature/test");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(repo.file_exists("feature.txt"));
