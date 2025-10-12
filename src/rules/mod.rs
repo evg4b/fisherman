@@ -11,8 +11,6 @@ mod rule_def;
 mod shell_script;
 mod write_file;
 
-pub use crate::rules::compiled_rule::CompiledRule;
-pub use crate::rules::compiled_rule::RuleResult;
-pub use crate::rules::rule_def::Rule;
+pub use crate::rules::compiled_rule::{CompiledRule, RuleResult};
 #[allow(unused_imports)]
-pub use crate::rules::rule_def::RuleParams;
+pub use crate::rules::rule_def::{RuleParams, Rule};

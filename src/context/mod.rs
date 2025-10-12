@@ -1,10 +1,9 @@
-#[allow(clippy::module_inception)]
-mod context;
+mod context_trait;
 mod git_repo_context;
 mod variables;
 
-pub use context::Context;
+pub use context_trait::Context;
 pub use git_repo_context::GitRepoContext;
 
 #[cfg(test)]
-pub use context::MockContext;
+pub use context_trait::MockContext;
