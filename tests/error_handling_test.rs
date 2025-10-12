@@ -66,13 +66,7 @@ regex = "(?P<unclosed"  # Invalid regex
 
     if install_output.status.success() {
         // If installation succeeds, handling should fail
-        repo.write_commit_msg_file("test message");
-        let msg_path = repo.commit_msg_file_path();
-        let handle_output = binary.handle(
-            "commit-msg",
-            repo.path(),
-            &[msg_path.to_str().unwrap()],
-        );
+        let handle_output = repo.commit_with_hooks_allow_empty("test message");
 
         assert!(
             !handle_output.status.success(),
