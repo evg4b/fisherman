@@ -246,40 +246,27 @@ impl<'a> ConfigBuilder<'a> {
 
     /// Add a global config
     pub fn global(mut self, content: &str) -> Self {
-<<<<<<< HEAD
         self.configs
             .push((ConfigScope::Global, ConfigFormat::Toml, content.to_string()));
-=======
-        self.configs.push((ConfigScope::Global, ConfigFormat::Toml, content.to_string()));
->>>>>>> dae19c2 (Add flexible config system and comprehensive scoped config tests)
         self
     }
 
     /// Add a repository config (default scope)
     pub fn repository(mut self, content: &str) -> Self {
-<<<<<<< HEAD
         self.configs
             .push((ConfigScope::Repository, ConfigFormat::Toml, content.to_string()));
-=======
-        self.configs.push((ConfigScope::Repository, ConfigFormat::Toml, content.to_string()));
->>>>>>> dae19c2 (Add flexible config system and comprehensive scoped config tests)
         self
     }
 
     /// Add a repository config with specific format
     pub fn repository_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
-<<<<<<< HEAD
         self.configs
             .push((ConfigScope::Repository, format, content.to_string()));
-=======
-        self.configs.push((ConfigScope::Repository, format, content.to_string()));
->>>>>>> dae19c2 (Add flexible config system and comprehensive scoped config tests)
         self
     }
 
     /// Add a local config (.git/.fisherman.toml)
     pub fn local(mut self, content: &str) -> Self {
-<<<<<<< HEAD
         self.configs
             .push((ConfigScope::Local, ConfigFormat::Toml, content.to_string()));
         self
@@ -289,9 +276,6 @@ impl<'a> ConfigBuilder<'a> {
     pub fn local_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
         self.configs
             .push((ConfigScope::Local, format, content.to_string()));
-=======
-        self.configs.push((ConfigScope::Local, ConfigFormat::Toml, content.to_string()));
->>>>>>> dae19c2 (Add flexible config system and comprehensive scoped config tests)
         self
     }
 
@@ -314,7 +298,6 @@ impl<'a> ConfigBuilder<'a> {
                 (ConfigScope::Local, ConfigFormat::Toml) => {
                     self.repo.create_local_config(&content);
                 }
-<<<<<<< HEAD
                 (ConfigScope::Local, ConfigFormat::Yaml) => {
                     self.repo.create_local_yaml_config(&content);
                 }
@@ -325,9 +308,6 @@ impl<'a> ConfigBuilder<'a> {
                     "Unsupported config scope/format combination: {:?}/{:?}",
                     scope, format
                 ),
-=======
-                _ => panic!("Unsupported config scope/format combination: {:?}/{:?}", scope, format),
->>>>>>> dae19c2 (Add flexible config system and comprehensive scoped config tests)
             }
         }
     }
