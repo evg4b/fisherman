@@ -2,6 +2,8 @@ mod common;
 
 use common::{test_context::{echo_config, fail_config, TestContext}, FishermanBinary, GitTestRepo};
 
+/// Tests that exec rule executes successfully when command exits with code 0.
+/// Verifies basic command execution functionality using echo command.
 #[test]
 fn exec_rule_success() {
     let ctx = TestContext::new();
@@ -11,6 +13,8 @@ fn exec_rule_success() {
     ctx.handle_success("pre-commit");
 }
 
+/// Tests that exec rule fails appropriately when command exits with non-zero code.
+/// Verifies that command failures are detected and propagate as hook failures.
 #[test]
 fn exec_rule_failure() {
     let ctx = TestContext::new();
@@ -20,6 +24,8 @@ fn exec_rule_failure() {
     ctx.handle_failure("pre-commit");
 }
 
+/// Tests that exec rule properly passes environment variables to executed command.
+/// Verifies that custom env variables are available in the command's environment.
 #[test]
 fn exec_rule_with_env() {
     let binary = FishermanBinary::build();
@@ -57,6 +63,8 @@ env = { TEST_VAR = "test_value" }
     );
 }
 
+/// Tests that shell script rule executes successfully when script exits with code 0.
+/// Verifies basic shell script execution on both Windows and Unix platforms.
 #[test]
 fn shell_script_success() {
     let binary = FishermanBinary::build();
@@ -94,6 +102,8 @@ exit 0
     );
 }
 
+/// Tests that shell script rule fails when script exits with non-zero code.
+/// Verifies that shell script failures properly abort the hook execution.
 #[test]
 fn shell_script_failure() {
     let binary = FishermanBinary::build();
@@ -129,6 +139,8 @@ exit 1
     );
 }
 
+/// Tests that shell script can access custom environment variables defined in config.
+/// Verifies environment variable propagation to shell execution context.
 #[test]
 fn shell_script_with_env() {
     let binary = FishermanBinary::build();
@@ -171,6 +183,8 @@ env = { CUSTOM_VAR = "custom_value" }
     );
 }
 
+/// Tests that exec and shell rules can be configured together and both execute successfully.
+/// Verifies compatibility and correct execution order of mixed rule types.
 #[test]
 fn exec_and_shell_mixed() {
     let binary = FishermanBinary::build();

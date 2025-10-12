@@ -2,6 +2,8 @@ mod common;
 
 use common::test_context::TestContext;
 
+/// Tests that message-regex rule passes when commit message matches the specified pattern.
+/// Verifies regex validation accepts messages following conventional commit format.
 #[test]
 fn message_regex_valid_pattern() {
     let ctx = TestContext::new();
@@ -16,6 +18,8 @@ regex = "^(feat|fix|docs|test):\\s.+"
     ctx.handle_commit_msg_success("feat: valid commit message");
 }
 
+/// Tests that message-regex rule fails when commit message doesn't match required pattern.
+/// Verifies that non-conforming messages are properly rejected by regex validation.
 #[test]
 fn message_regex_invalid_pattern() {
     let ctx = TestContext::new();
@@ -30,6 +34,8 @@ regex = "^(feat|fix|docs|test):\\s.+"
     ctx.handle_commit_msg_failure("invalid commit message");
 }
 
+/// Tests that message-prefix rule passes when message starts with the configured prefix.
+/// Verifies simple prefix matching for enforcing commit message conventions.
 #[test]
 fn message_prefix_valid() {
     let ctx = TestContext::new();
@@ -44,6 +50,8 @@ prefix = "feat: "
     ctx.handle_commit_msg_success("feat: add feature");
 }
 
+/// Tests that message-prefix rule fails when message doesn't start with required prefix.
+/// Verifies that messages with incorrect or missing prefix are rejected.
 #[test]
 fn message_prefix_invalid() {
     let ctx = TestContext::new();
@@ -58,6 +66,8 @@ prefix = "feat: "
     ctx.handle_commit_msg_failure("fix: wrong prefix");
 }
 
+/// Tests that message-suffix rule passes when message ends with the configured suffix.
+/// Verifies suffix matching for enforcing commit message tags like [skip ci].
 #[test]
 fn message_suffix_valid() {
     let ctx = TestContext::new();
@@ -72,6 +82,8 @@ suffix = " [skip ci]"
     ctx.handle_commit_msg_success("commit message [skip ci]");
 }
 
+/// Tests that message-suffix rule fails when message doesn't end with required suffix.
+/// Verifies that messages missing the expected suffix are properly rejected.
 #[test]
 fn message_suffix_invalid() {
     let ctx = TestContext::new();
@@ -86,6 +98,8 @@ suffix = " [skip ci]"
     ctx.handle_commit_msg_failure("commit message without suffix");
 }
 
+/// Tests that multiple message validation rules all pass when message satisfies all criteria.
+/// Verifies that prefix, suffix, and regex rules can be combined successfully.
 #[test]
 fn message_multiple_rules_all_pass() {
     let ctx = TestContext::new();
@@ -108,6 +122,8 @@ regex = ".*feature.*"
     ctx.handle_commit_msg_success("feat: add new feature [done]");
 }
 
+/// Tests that hook fails when one of multiple message rules doesn't pass.
+/// Verifies that all validation rules must succeed for the hook to pass.
 #[test]
 fn message_multiple_rules_one_fails() {
     let ctx = TestContext::new();

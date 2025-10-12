@@ -2,6 +2,8 @@ mod common;
 
 use common::test_context::TestContext;
 
+/// Tests that template variables extracted from branch name work in message-prefix rule.
+/// Verifies variable extraction and template rendering for commit message validation.
 #[test]
 fn template_branch_variable_in_message_prefix() {
     let ctx = TestContext::new();
@@ -20,6 +22,8 @@ prefix = "{{Type}}: [{{Ticket}}] "
     ctx.handle_commit_msg_success("feature: [PROJ-123] add new feature");
 }
 
+/// Tests that template variables from branch name are correctly substituted in write-file content.
+/// Verifies variable extraction and file content rendering with extracted values.
 #[test]
 fn template_branch_variable_in_write_file() {
     let ctx = TestContext::new();
@@ -44,6 +48,8 @@ content = "Current feature: {{Feature}}"
     );
 }
 
+/// Tests that repository path can be extracted and used in template variables.
+/// Verifies repo_path extraction pattern works and renders in file content.
 #[test]
 fn template_repo_path_variable() {
     let ctx = TestContext::new();
@@ -66,6 +72,8 @@ content = "Repository: {{RepoName}}"
     assert!(content.starts_with("Repository: "));
 }
 
+/// Tests that multiple variables from different sources can be extracted and used together.
+/// Verifies simultaneous branch and repo_path variable extraction and template rendering.
 #[test]
 fn template_multiple_variables() {
     let ctx = TestContext::new();
@@ -94,6 +102,8 @@ content = "Type: {{Type}}, Ticket: {{Ticket}}, Repo: {{RepoName}}"
     assert!(content.contains("Repo: "));
 }
 
+/// Tests that template variables work in exec command arguments.
+/// Verifies variable substitution in command-line arguments for exec rules.
 #[test]
 fn template_in_exec_command() {
     let ctx = TestContext::new();
@@ -124,6 +134,8 @@ args = ["{{Feature}}"]
     ctx.handle_success("pre-commit");
 }
 
+/// Tests that optional variables (branch?) are extracted when pattern matches.
+/// Verifies optional extraction syntax works correctly when branch name matches pattern.
 #[test]
 fn template_optional_variable_present() {
     let ctx = TestContext::new();
@@ -144,6 +156,8 @@ content = "Feature: {{Feature}}"
     assert_eq!(ctx.repo.read_file("output.txt"), "Feature: auth");
 }
 
+/// Tests that optional variables (branch?) don't cause failure when pattern doesn't match.
+/// Verifies that optional extraction allows hook to proceed even when variable isn't extracted.
 #[test]
 fn template_optional_variable_missing() {
     let ctx = TestContext::new();
