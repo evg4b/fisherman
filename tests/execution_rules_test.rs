@@ -9,24 +9,22 @@ fn exec_rule_success() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = config! {
-        hooks: {
-            "pre-commit" => [
-                exec!("cmd", args: ["/C", "echo", "test"]),
-            ]
-        }
-    };
+    let config = r#"
+[[hooks.pre-commit]]
+type = "exec"
+command = "cmd"
+args = ["/C", "echo", "test"]
+"#;
 
     #[cfg(not(windows))]
-    let config = config! {
-        hooks: {
-            "pre-commit" => [
-                exec!("echo", args: ["test"]),
-            ]
-        }
-    };
+    let config = r#"
+[[hooks.pre-commit]]
+type = "exec"
+command = "echo"
+args = ["test"]
+"#;
 
-    ctx.setup_and_install(&config);
+    ctx.setup_and_install(config);
     let output = ctx.handle("pre-commit");
     assert!(output.status.success());
 
@@ -41,24 +39,21 @@ fn exec_rule_failure() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = config! {
-        hooks: {
-            "pre-commit" => [
-                exec!("cmd", args: ["/C", "exit", "1"]),
-            ]
-        }
-    };
+    let config = r#"
+[[hooks.pre-commit]]
+type = "exec"
+command = "cmd"
+args = ["/C", "exit", "1"]
+"#;
 
     #[cfg(not(windows))]
-    let config = config! {
-        hooks: {
-            "pre-commit" => [
-                exec!("false"),
-            ]
-        }
-    };
+    let config = r#"
+[[hooks.pre-commit]]
+type = "exec"
+command = "false"
+"#;
 
-    ctx.setup_and_install(&config);
+    ctx.setup_and_install(config);
     let output = ctx.handle("pre-commit");
     assert!(!output.status.success());
 
