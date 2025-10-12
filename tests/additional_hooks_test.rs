@@ -1,13 +1,19 @@
 mod common;
 
-use common::test_context::{TestContext, write_file_config, branch_prefix_config};
+use common::test_context::TestContext;
 
 /// Tests that post-merge hook executes successfully.
 /// Verifies that post-merge hooks are properly supported and execute write-file rules.
 #[test]
 fn post_merge_hook_execution() {
     let ctx = TestContext::new();
-    let config = write_file_config("post-merge", "merge-executed.txt", "post-merge ran");
+    let config = config! {
+        hooks: {
+            "post-merge" => [
+                write_file!("merge-executed.txt", "post-merge ran"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     let output = ctx.binary.handle("post-merge", ctx.repo.path(), &[]);
@@ -25,7 +31,13 @@ fn post_merge_hook_execution() {
 #[test]
 fn post_checkout_hook_execution() {
     let ctx = TestContext::new();
-    let config = write_file_config("post-checkout", "checkout-executed.txt", "post-checkout ran");
+    let config = config! {
+        hooks: {
+            "post-checkout" => [
+                write_file!("checkout-executed.txt", "post-checkout ran"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     let output = ctx.binary.handle("post-checkout", ctx.repo.path(), &[]);
@@ -43,7 +55,13 @@ fn post_checkout_hook_execution() {
 #[test]
 fn pre_receive_hook_execution() {
     let ctx = TestContext::new();
-    let config = write_file_config("pre-receive", "receive-executed.txt", "pre-receive ran");
+    let config = config! {
+        hooks: {
+            "pre-receive" => [
+                write_file!("receive-executed.txt", "pre-receive ran"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     let output = ctx.binary.handle("pre-receive", ctx.repo.path(), &[]);
@@ -61,7 +79,13 @@ fn pre_receive_hook_execution() {
 #[test]
 fn very_long_branch_name() {
     let ctx = TestContext::new();
-    let config = branch_prefix_config("pre-commit", "feature/");
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_prefix!("feature/"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
 
