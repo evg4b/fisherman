@@ -1,13 +1,30 @@
 mod common;
 
-use common::{test_context::{echo_config, fail_config, TestContext}, FishermanBinary, GitTestRepo};
+use common::{test_context::TestContext, FishermanBinary, GitTestRepo};
 
 /// Tests that exec rule executes successfully when command exits with code 0.
 /// Verifies basic command execution functionality using echo command.
 #[test]
 fn exec_rule_success() {
     let ctx = TestContext::new();
-    let config = echo_config("pre-commit", "test");
+
+    #[cfg(windows)]
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                exec!("cmd", args: ["/C", "echo", "test"]),
+            ]
+        }
+    };
+
+    #[cfg(not(windows))]
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                exec!("echo", args: ["test"]),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     let output = ctx.handle("pre-commit");
@@ -22,7 +39,24 @@ fn exec_rule_success() {
 #[test]
 fn exec_rule_failure() {
     let ctx = TestContext::new();
-    let config = fail_config("pre-commit");
+
+    #[cfg(windows)]
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                exec!("cmd", args: ["/C", "exit", "1"]),
+            ]
+        }
+    };
+
+    #[cfg(not(windows))]
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                exec!("false"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     let output = ctx.handle("pre-commit");
