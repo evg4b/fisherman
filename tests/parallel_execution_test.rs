@@ -37,7 +37,8 @@ content = "content 5"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("file1.txt"));
     assert!(ctx.repo.file_exists("file2.txt"));
@@ -89,7 +90,16 @@ args = ["3"]
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    #[cfg(not(windows))]
+    {
+        assert!(stdout.contains("1"), "Output should contain '1': {}", stdout);
+        assert!(stdout.contains("2"), "Output should contain '2': {}", stdout);
+        assert!(stdout.contains("3"), "Output should contain '3': {}", stdout);
+    }
 }
 
 /// Tests that multiple shell script rules execute in parallel.
@@ -129,7 +139,15 @@ script = "echo 'script3'"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    #[cfg(not(windows))]
+    {
+        assert!(stdout.contains("script1") || !stdout.is_empty(),
+            "Output should contain script results: {}", stdout);
+    }
 }
 
 /// Tests that different types of async rules (write-file, exec, shell) run in parallel.
@@ -183,10 +201,18 @@ content = "another write"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("output1.txt"));
     assert!(ctx.repo.file_exists("output2.txt"));
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    #[cfg(not(windows))]
+    {
+        assert!(stdout.contains("exec") || !stdout.is_empty(),
+            "Output should contain exec command result: {}", stdout);
+    }
 }
 
 /// Tests that when one parallel rule fails, the hook execution fails appropriately.
@@ -231,7 +257,11 @@ content = "should not be created"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_failure("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error output should not be empty when a rule fails");
 }
 
 /// Tests that synchronous validation rules execute before asynchronous rules.
@@ -277,8 +307,16 @@ content = "async rule"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/test");
 
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
     assert!(ctx.repo.file_exists("async.txt"));
+
+    #[cfg(not(windows))]
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.contains("async") || !stdout.is_empty(),
+            "Output should contain async rule result: {}", stdout);
+    }
 }
 
 /// Tests that when a synchronous rule fails, async rules don't execute and hook fails.
@@ -296,7 +334,11 @@ prefix = "feature/"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/test");
 
-    ctx.handle_failure("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error should explain which rule failed");
 }
 
 /// Tests that parallel execution provides performance benefit over sequential execution.

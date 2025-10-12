@@ -1,6 +1,7 @@
 mod common;
 
 use common::{FishermanBinary, GitTestRepo};
+use common::test_context::assert_stderr_contains;
 
 /// Tests that invalid TOML syntax in configuration file fails gracefully without crashing.
 /// Verifies error handling when TOML has missing closing brackets or malformed structure.
@@ -77,6 +78,9 @@ regex = "(?P<unclosed"  # Invalid regex
             !handle_output.status.success(),
             "Hook should fail with invalid regex"
         );
+
+        let stderr = String::from_utf8_lossy(&handle_output.stderr);
+        assert!(!stderr.is_empty(), "Error message should explain regex issue");
     }
 }
 
@@ -105,6 +109,9 @@ regex = "[invalid("  # Invalid regex
             !handle_output.status.success(),
             "Hook should fail with invalid regex"
         );
+
+        let stderr = String::from_utf8_lossy(&handle_output.stderr);
+        assert!(!stderr.is_empty(), "Error message should explain regex issue");
     }
 }
 
@@ -136,6 +143,9 @@ content = "test"
             !handle_output.status.success(),
             "Hook should fail with invalid extract regex"
         );
+
+        let stderr = String::from_utf8_lossy(&handle_output.stderr);
+        assert!(!stderr.is_empty(), "Error message should explain extract regex issue: {}", stderr);
     }
 }
 
@@ -165,6 +175,10 @@ content = "Value: {{UndefinedVar}}"
             !handle_output.status.success(),
             "Hook should fail with undefined template variable"
         );
+
+        let stderr = String::from_utf8_lossy(&handle_output.stderr);
+        assert_stderr_contains(&stderr, &["UndefinedVar", "variable", "template"],
+            "Error should mention the undefined variable");
     }
 }
 
@@ -232,6 +246,10 @@ args = ["test"]
         !handle_output.status.success(),
         "Hook should fail when exec command is not found"
     );
+
+    let stderr = String::from_utf8_lossy(&handle_output.stderr);
+    assert_stderr_contains(&stderr, &["nonexistent-command-12345", "not found", "No such"],
+        "Error should mention the command that wasn't found");
 }
 
 /// Tests error handling when write-file rule attempts to write to an invalid or restricted path.
@@ -305,5 +323,8 @@ when = "Type == "  # Invalid syntax
             !handle_output.status.success(),
             "Hook should fail with invalid when condition"
         );
+
+        let stderr = String::from_utf8_lossy(&handle_output.stderr);
+        assert!(!stderr.is_empty(), "Error should explain syntax issue in when condition");
     }
 }

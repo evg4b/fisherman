@@ -1,6 +1,6 @@
 mod common;
 
-use common::test_context::TestContext;
+use common::test_context::{TestContext, assert_stderr_contains};
 
 /// Tests that message-regex rule passes when commit message matches the specified pattern.
 /// Verifies regex validation accepts messages following conventional commit format.
@@ -31,7 +31,12 @@ regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_failure("invalid commit message");
+
+    let output = ctx.handle_commit_msg("invalid commit message");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error should explain message validation failure");
 }
 
 /// Tests that message-prefix rule passes when message starts with the configured prefix.
@@ -63,7 +68,13 @@ prefix = "feat: "
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_failure("fix: wrong prefix");
+
+    let output = ctx.handle_commit_msg("fix: wrong prefix");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_stderr_contains(&stderr, &["message", "prefix", "feat:"],
+        "Error should explain prefix validation failure");
 }
 
 /// Tests that message-suffix rule passes when message ends with the configured suffix.
@@ -95,7 +106,13 @@ suffix = " [skip ci]"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_failure("commit message without suffix");
+
+    let output = ctx.handle_commit_msg("commit message without suffix");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_stderr_contains(&stderr, &["message", "suffix", "[skip ci]"],
+        "Error should explain suffix validation failure");
 }
 
 /// Tests that multiple message validation rules all pass when message satisfies all criteria.
@@ -139,5 +156,10 @@ suffix = " [done]"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_failure("feat: missing suffix");
+
+    let output = ctx.handle_commit_msg("feat: missing suffix");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error should explain which rule failed");
 }
