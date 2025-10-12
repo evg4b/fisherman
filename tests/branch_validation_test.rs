@@ -15,7 +15,7 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/new-feature");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that branch-name-regex rule fails when branch name doesn't match the pattern.
@@ -32,7 +32,7 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("invalid_branch");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -53,7 +53,7 @@ prefix = "feature/"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/test-branch");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that branch-name-prefix rule fails when branch name has wrong prefix.
@@ -70,7 +70,7 @@ prefix = "feature/"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/wrong-prefix");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -91,7 +91,7 @@ suffix = "-v1"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature-v1");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that branch-name-suffix rule fails when branch name has wrong suffix.
@@ -108,7 +108,7 @@ suffix = "-v1"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature-v2");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -137,7 +137,7 @@ regex = "^feature/[a-z-]+-dev$"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/new-feature-dev");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that when multiple branch validation rules are configured, the hook fails if any
@@ -159,7 +159,7 @@ suffix = "-dev"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/missing-suffix");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);

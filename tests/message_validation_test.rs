@@ -15,7 +15,7 @@ regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("feat: valid commit message");
+    ctx.git_commit_allow_empty_success("feat: valid commit message");
 }
 
 /// Tests that message-regex rule fails when commit message doesn't match required pattern.
@@ -32,7 +32,7 @@ regex = "^(feat|fix|docs|test):\\s.+"
 
     ctx.setup_and_install(config);
 
-    let output = ctx.handle_commit_msg("invalid commit message");
+    let output = ctx.git_commit_allow_empty("invalid commit message");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -52,7 +52,7 @@ prefix = "feat: "
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("feat: add feature");
+    ctx.git_commit_allow_empty_success("feat: add feature");
 }
 
 /// Tests that message-prefix rule fails when message doesn't start with required prefix.
@@ -69,7 +69,7 @@ prefix = "feat: "
 
     ctx.setup_and_install(config);
 
-    let output = ctx.handle_commit_msg("fix: wrong prefix");
+    let output = ctx.git_commit_allow_empty("fix: wrong prefix");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -90,7 +90,7 @@ suffix = " [skip ci]"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("commit message [skip ci]");
+    ctx.git_commit_allow_empty_success("commit message [skip ci]");
 }
 
 /// Tests that message-suffix rule fails when message doesn't end with required suffix.
@@ -107,7 +107,7 @@ suffix = " [skip ci]"
 
     ctx.setup_and_install(config);
 
-    let output = ctx.handle_commit_msg("commit message without suffix");
+    let output = ctx.git_commit_allow_empty("commit message without suffix");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -136,7 +136,7 @@ regex = ".*feature.*"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("feat: add new feature [done]");
+    ctx.git_commit_allow_empty_success("feat: add new feature [done]");
 }
 
 /// Tests that hook fails when one of multiple message rules doesn't pass.
@@ -157,7 +157,7 @@ suffix = " [done]"
 
     ctx.setup_and_install(config);
 
-    let output = ctx.handle_commit_msg("feat: missing suffix");
+    let output = ctx.git_commit_allow_empty("feat: missing suffix");
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);

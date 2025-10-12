@@ -36,7 +36,7 @@ content = "local rule"
 
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(
         output.status.success(),
         "Both repo and local configs should execute: {}",
@@ -89,7 +89,7 @@ content = "fourth"
 
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     // All 4 rules should have executed
@@ -128,7 +128,7 @@ content = "local config"
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("from-repo.txt"));
@@ -168,7 +168,7 @@ regex = ".*"
     assert!(ctx.repo.hook_exists("pre-commit"));
     assert!(ctx.repo.hook_exists("commit-msg"));
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
     assert!(ctx.repo.file_exists("pre-commit-repo.txt"));
 }
@@ -204,7 +204,7 @@ content = "from toml"
 
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("yaml-config.txt"));
@@ -237,7 +237,7 @@ content = "Type: {{Type}}"
 
     ctx.repo.create_branch("feature/test");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     let content = ctx.repo.read_file("branch-type.txt");
@@ -270,7 +270,7 @@ content = "{{Feature}}"
 
     ctx.repo.create_branch("feature/auth");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     let content = ctx.repo.read_file("feature.txt");
@@ -312,7 +312,7 @@ content = "always executed"
 
     ctx.repo.create_branch("feature/test");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("features-only.txt"), "Conditional rule should execute");
@@ -340,7 +340,7 @@ content = "repository only"
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
     assert!(ctx.repo.file_exists("repo-only.txt"));
 }
@@ -366,7 +366,7 @@ content = "local only"
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
     assert!(ctx.repo.file_exists("local-only.txt"));
 }
@@ -393,7 +393,7 @@ hooks:
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
     assert!(ctx.repo.file_exists("local-yaml.txt"));
 
@@ -427,7 +427,7 @@ fn local_config_json_format() {
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
     assert!(ctx.repo.file_exists("local-json.txt"));
 
@@ -465,7 +465,7 @@ hooks:
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("from-toml.txt"));
@@ -507,7 +507,7 @@ hooks:
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
     assert!(ctx.repo.file_exists("from-json.txt"));
@@ -546,7 +546,7 @@ suffix = "-dev"
     // Branch matches local config suffix but not repository config prefix
     ctx.repo.create_branch("bugfix/test-dev");
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success(), "Hook should fail when repository validation fails");
 
     let stderr = String::from_utf8_lossy(&output.stderr);

@@ -169,6 +169,40 @@ impl GitTestRepo {
         self.path().join(".git/COMMIT_EDITMSG")
     }
 
+    /// Commit with a message (triggers pre-commit and commit-msg hooks)
+    /// Returns the output, allowing tests to check for hook failures
+    pub fn commit_with_hooks(&self, message: &str) -> Output {
+        // Stage any changes
+        let add_output = self.git(&["add", "."]);
+        if !add_output.status.success() {
+            eprintln!("Warning: git add failed: {}", String::from_utf8_lossy(&add_output.stderr));
+        }
+
+        // Commit with message (this will trigger hooks)
+        self.git(&["commit", "-m", message])
+    }
+
+    /// Commit allowing empty (triggers hooks even without changes)
+    pub fn commit_with_hooks_allow_empty(&self, message: &str) -> Output {
+        self.git(&["commit", "--allow-empty", "-m", message])
+    }
+
+    /// Checkout a branch (triggers post-checkout hook if configured)
+    pub fn checkout_with_hooks(&self, branch: &str) -> Output {
+        self.git(&["checkout", branch])
+    }
+
+    /// Create and checkout a new branch (triggers post-checkout hook)
+    pub fn checkout_new_branch(&self, name: &str) -> Output {
+        self.git(&["checkout", "-b", name])
+    }
+
+    /// Push to remote (would trigger pre-push hook if configured)
+    /// Note: This requires a remote to be set up
+    pub fn push_with_hooks(&self, remote: &str, branch: &str) -> Output {
+        self.git(&["push", remote, branch])
+    }
+
     /// Creates a Git history with multiple commits and files
     ///
     /// # Example
