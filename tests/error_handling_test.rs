@@ -2,6 +2,8 @@ mod common;
 
 use common::{FishermanBinary, GitTestRepo};
 
+/// Tests that invalid TOML syntax in configuration file fails gracefully without crashing.
+/// Verifies error handling when TOML has missing closing brackets or malformed structure.
 #[test]
 fn invalid_toml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
@@ -21,6 +23,8 @@ regex = ".*"
     // The exact behavior depends on implementation
 }
 
+/// Tests that invalid YAML syntax in configuration file fails gracefully.
+/// Verifies error handling when YAML has incorrect indentation or formatting issues.
 #[test]
 fn invalid_yaml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
@@ -41,6 +45,8 @@ hooks:
     // Should fail or handle gracefully
 }
 
+/// Tests that message-regex rule with invalid regex pattern fails appropriately.
+/// Verifies that malformed regex patterns (unclosed groups) are detected and rejected.
 #[test]
 fn invalid_regex_in_message_rule() {
     let binary = FishermanBinary::build();
@@ -74,6 +80,8 @@ regex = "(?P<unclosed"  # Invalid regex
     }
 }
 
+/// Tests that branch-name-regex rule with invalid regex pattern fails appropriately.
+/// Verifies that malformed regex patterns are detected during rule compilation or execution.
 #[test]
 fn invalid_regex_in_branch_rule() {
     let binary = FishermanBinary::build();
@@ -100,6 +108,8 @@ regex = "[invalid("  # Invalid regex
     }
 }
 
+/// Tests that invalid regex in extract configuration fails during variable extraction.
+/// Verifies error handling when extract patterns have malformed regex syntax.
 #[test]
 fn invalid_regex_in_extract() {
     let binary = FishermanBinary::build();
@@ -129,6 +139,8 @@ content = "test"
     }
 }
 
+/// Tests that templates referencing undefined variables fail during rule compilation.
+/// Verifies that template rendering errors are caught when variables are not extracted.
 #[test]
 fn template_with_undefined_variable() {
     let binary = FishermanBinary::build();
@@ -156,6 +168,8 @@ content = "Value: {{UndefinedVar}}"
     }
 }
 
+/// Tests that rules with missing required fields fail during configuration parsing.
+/// Verifies validation of rule configuration structure and required parameters.
 #[test]
 fn missing_required_field_in_rule() {
     let binary = FishermanBinary::build();
@@ -174,6 +188,8 @@ type = "message-regex"
     // Should fail during config parsing or installation
 }
 
+/// Tests that unknown rule types in configuration fail during parsing.
+/// Verifies that only valid rule type values are accepted in configuration.
 #[test]
 fn unknown_rule_type() {
     let binary = FishermanBinary::build();
@@ -192,6 +208,8 @@ some_field = "value"
     // Should fail during config parsing or installation
 }
 
+/// Tests that exec rule fails when the specified command does not exist.
+/// Verifies proper error handling for missing or invalid executables.
 #[test]
 fn exec_command_not_found() {
     let binary = FishermanBinary::build();
@@ -216,6 +234,8 @@ args = ["test"]
     );
 }
 
+/// Tests error handling when write-file rule attempts to write to an invalid or restricted path.
+/// Verifies filesystem permission errors are properly caught and reported.
 #[test]
 fn write_file_to_invalid_path() {
     let binary = FishermanBinary::build();
@@ -238,6 +258,8 @@ content = "test"
     // This tests error handling for file system errors
 }
 
+/// Tests that an empty configuration file is considered valid and does not cause errors.
+/// Verifies that fisherman can handle repositories with no configured hooks.
 #[test]
 fn empty_config_file() {
     let binary = FishermanBinary::build();
@@ -254,6 +276,8 @@ fn empty_config_file() {
     );
 }
 
+/// Tests that invalid Rhai syntax in when conditions fails during rule evaluation.
+/// Verifies that scripting syntax errors are detected and reported properly.
 #[test]
 fn when_condition_syntax_error() {
     let binary = FishermanBinary::build();

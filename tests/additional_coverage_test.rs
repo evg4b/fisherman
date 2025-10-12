@@ -2,6 +2,8 @@ mod common;
 
 use common::test_context::TestContext;
 
+/// Tests that pre-push hooks can be configured and executed successfully.
+/// Verifies that write-file rules work in pre-push hook context.
 #[test]
 fn pre_push_hook_execution() {
     let ctx = TestContext::new();
@@ -24,6 +26,8 @@ content = "pre-push hook ran"
     assert!(ctx.repo.file_exists("pre-push-executed.txt"));
 }
 
+/// Tests that post-commit hooks can be configured and executed successfully.
+/// Verifies that write-file rules work in post-commit hook context.
 #[test]
 fn post_commit_hook_execution() {
     let ctx = TestContext::new();
@@ -46,6 +50,8 @@ content = "post-commit hook ran"
     assert!(ctx.repo.file_exists("post-commit-executed.txt"));
 }
 
+/// Tests that configurations with empty or minimal hook definitions handle gracefully
+/// without crashing or producing errors.
 #[test]
 fn empty_hooks_array_succeeds() {
     let ctx = TestContext::new();
@@ -61,6 +67,9 @@ fn empty_hooks_array_succeeds() {
     // Just verify it doesn't crash
 }
 
+/// Tests that synchronous rules (branch validation) and asynchronous rules (write-file)
+/// can be mixed in the same hook and execute correctly. Sync rules run first, then async
+/// rules run in parallel.
 #[test]
 fn mixed_sync_and_async_rules_execute_correctly() {
     let ctx = TestContext::new();
@@ -94,6 +103,8 @@ content = "async rule 2"
     assert!(ctx.repo.file_exists("async2.txt"));
 }
 
+/// Tests that when a synchronous rule fails, the entire hook fails even if there are
+/// async rules configured. Verifies proper failure propagation from sync rules.
 #[test]
 fn sync_rule_failure_behavior() {
     let ctx = TestContext::new();
@@ -121,6 +132,8 @@ content = "write rule executed"
     // This test just verifies the hook fails correctly
 }
 
+/// Tests that multiple different rule types (regex, prefix, suffix, write-file) can be
+/// configured in a single hook and all execute successfully when their conditions are met.
 #[test]
 fn all_rule_types_in_one_hook() {
     let ctx = TestContext::new();
@@ -151,6 +164,8 @@ content = "all rules passed"
     assert!(ctx.repo.file_exists("all-rules.txt"));
 }
 
+/// Tests that complex boolean expressions with AND, OR, and NOT operators work correctly
+/// in conditional (when) expressions. Verifies multiple variables and nested logic.
 #[test]
 fn conditional_with_complex_boolean_logic() {
     let ctx = TestContext::new();
@@ -172,6 +187,8 @@ when = "(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && 
     assert!(ctx.repo.file_exists("urgent.txt"));
 }
 
+/// Tests that template variables can be used within message-suffix rules to dynamically
+/// construct expected suffixes based on extracted branch information.
 #[test]
 fn template_in_message_suffix() {
     let ctx = TestContext::new();
@@ -190,6 +207,8 @@ suffix = " [{{Ticket}}]"
     ctx.handle_commit_msg_success("Add new feature [PROJ-123]");
 }
 
+/// Tests that template variables extracted from repository path can be used in write-file
+/// content. Verifies repo_path extraction works correctly.
 #[test]
 fn template_in_branch_regex() {
     let ctx = TestContext::new();
@@ -211,6 +230,8 @@ content = "Repository: {{RepoName}}"
     assert!(content.starts_with("Repository: "));
 }
 
+/// Tests that multiple write-file rules can target the same file, with the first one
+/// creating/overwriting and subsequent ones appending content when append=true.
 #[test]
 fn multiple_write_files_to_same_location() {
     let ctx = TestContext::new();
@@ -237,6 +258,9 @@ append = true
     assert!(content.contains("Second write"));
 }
 
+/// Tests that rules with false conditional expressions are skipped and don't affect
+/// the hook result. Verifies that a message without required prefix passes when the
+/// conditional is false.
 #[test]
 fn conditional_false_doesnt_execute_with_valid_message() {
     let ctx = TestContext::new();
