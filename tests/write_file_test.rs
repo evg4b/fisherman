@@ -1,13 +1,19 @@
 mod common;
 
-use common::test_context::{TestContext, write_file_config, write_file_append_config};
+use common::test_context::TestContext;
 
 /// Tests that write-file rule creates a new file with specified content.
 /// Verifies basic file creation functionality in the repository directory.
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
-    let config = write_file_config("pre-commit", "output.txt", "test content");
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("output.txt", "test content"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
@@ -21,7 +27,13 @@ fn write_file_creates_new_file() {
 #[test]
 fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
-    let config = write_file_append_config("pre-commit", "output.txt", "new content", false);
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("output.txt", "new content", append: false),
+            ]
+        }
+    };
 
     ctx.setup_with_history(&config, &[("initial", &[
         ("test.txt", "initial"),
@@ -37,7 +49,13 @@ fn write_file_overwrites_existing() {
 #[test]
 fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
-    let config = write_file_append_config("pre-commit", "output.txt", "\\nappended content", true);
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("output.txt", "\\nappended content", append: true),
+            ]
+        }
+    };
 
     ctx.setup_with_history(&config, &[("initial", &[
         ("test.txt", "initial"),
@@ -56,7 +74,13 @@ fn write_file_appends_to_existing() {
 #[test]
 fn write_file_simple_path() {
     let ctx = TestContext::new();
-    let config = write_file_config("pre-commit", "simple.txt", "simple content");
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("simple.txt", "simple content"),
+            ]
+        }
+    };
 
     ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
@@ -70,25 +94,17 @@ fn write_file_simple_path() {
 #[test]
 fn write_file_multiple_files() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("output1.txt", "content 1"),
+                write_file!("output2.txt", "content 2"),
+                write_file!("output3.txt", "content 3"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output1.txt"
-content = "content 1"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output2.txt"
-content = "content 2"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output3.txt"
-content = "content 3"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
 
     assert!(ctx.repo.file_exists("output1.txt"));
@@ -104,15 +120,15 @@ content = "content 3"
 #[test]
 fn write_file_multiline_content() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("output.txt", "Line 1\\nLine 2\\nLine 3"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "Line 1\nLine 2\nLine 3"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
 
     assert_eq!(ctx.repo.read_file("output.txt"), "Line 1\nLine 2\nLine 3");
