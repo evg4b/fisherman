@@ -1,7 +1,7 @@
 mod common;
 
 use common::{ConfigBuilder, ConfigFormat, FishermanBinary};
-use common::test_context::{TestContext, write_file_config};
+use common::test_context::TestContext;
 
 // NOTE: Global config tests are not included because the `dirs` crate caches
 // the home directory, making it impossible to test global configs reliably
@@ -14,8 +14,21 @@ fn repository_and_local_config_merge() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let repo_config = write_file_config("pre-commit", "repo.txt", "repo rule");
-    let local_config = write_file_config("pre-commit", "local.txt", "local rule");
+    let repo_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("repo.txt", "repo rule"),
+            ]
+        }
+    };
+
+    let local_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("local.txt", "local rule"),
+            ]
+        }
+    };
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository(&repo_config)
@@ -96,8 +109,21 @@ fn local_and_repository_both_execute() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let repo_config = write_file_config("pre-commit", "from-repo.txt", "repository config");
-    let local_config = write_file_config("pre-commit", "from-local.txt", "local config");
+    let repo_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("from-repo.txt", "repository config"),
+            ]
+        }
+    };
+
+    let local_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("from-local.txt", "local config"),
+            ]
+        }
+    };
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository(&repo_config)
@@ -121,7 +147,14 @@ fn different_hooks_in_different_scopes() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let repo_config = write_file_config("pre-commit", "pre-commit-repo.txt", "repo pre-commit");
+    let repo_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("pre-commit-repo.txt", "repo pre-commit"),
+            ]
+        }
+    };
+
     let local_config = r#"
 [[hooks.commit-msg]]
 type = "message-regex"
@@ -161,7 +194,13 @@ hooks:
       content: from yaml
 "#;
 
-    let toml_config = write_file_config("pre-commit", "toml-config.txt", "from toml");
+    let toml_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("toml-config.txt", "from toml"),
+            ]
+        }
+    };
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository_with_format(ConfigFormat::Yaml, yaml_config)
@@ -294,7 +333,13 @@ fn repository_only_without_global() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let repo_config = write_file_config("pre-commit", "repo-only.txt", "repository only");
+    let repo_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("repo-only.txt", "repository only"),
+            ]
+        }
+    };
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository(&repo_config)
@@ -315,7 +360,13 @@ fn local_only_without_repository_config() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let local_config = write_file_config("pre-commit", "local-only.txt", "local only");
+    let local_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("local-only.txt", "local only"),
+            ]
+        }
+    };
 
     ConfigBuilder::new(&mut ctx.repo)
         .local(&local_config)
@@ -400,7 +451,13 @@ fn repository_toml_local_yaml() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
 
-    let toml_config = write_file_config("pre-commit", "from-toml.txt", "repository toml");
+    let toml_config = config! {
+        hooks: {
+            "pre-commit" => [
+                write_file!("from-toml.txt", "repository toml"),
+            ]
+        }
+    };
 
     let yaml_config = r#"
 hooks:
