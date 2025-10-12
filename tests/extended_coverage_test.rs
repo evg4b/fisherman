@@ -63,9 +63,7 @@ content = "Branch: {{Name}}"
 // prepare-commit-msg hook tests
 
 /// Tests that prepare-commit-msg hook executes correctly with basic write-file rule.
-/// Verifies that this hook type is properly supported and receives correct arguments.
-/// NOTE: prepare-commit-msg is called directly because Git triggers it before user edits the message,
-/// making it difficult to test through natural Git commands in an automated test environment.
+/// Verifies that this hook type is properly supported and triggered by Git commits.
 #[test]
 fn prepare_commit_msg_hook_execution() {
     let ctx = TestContext::new();
@@ -79,25 +77,13 @@ content = "prepare-commit-msg ran"
 
     ctx.setup_and_install(config);
 
-    let msg_path = ctx.repo.commit_msg_file_path();
-    let handle_output = ctx.binary.handle(
-        "prepare-commit-msg",
-        ctx.repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
-
-    assert!(
-        handle_output.status.success(),
-        "prepare-commit-msg should execute: {}",
-        String::from_utf8_lossy(&handle_output.stderr)
-    );
+    // Git automatically triggers prepare-commit-msg hook during commit
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("prepare-executed.txt"));
 }
 
 /// Tests that template variables are correctly rendered in prepare-commit-msg hook.
 /// Verifies variable extraction and template substitution work in this hook context.
-/// NOTE: prepare-commit-msg is called directly because Git triggers it before user edits the message,
-/// making it difficult to test through natural Git commands in an automated test environment.
 #[test]
 fn prepare_commit_msg_with_template_variable() {
     let ctx = TestContext::new();
@@ -114,14 +100,9 @@ content = "{{Type}}: [{{Ticket}}] "
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/PROJ-456");
 
-    let msg_path = ctx.repo.commit_msg_file_path();
-    let handle_output = ctx.binary.handle(
-        "prepare-commit-msg",
-        ctx.repo.path(),
-        &[msg_path.to_str().unwrap()],
-    );
+    // Git automatically triggers prepare-commit-msg hook during commit
+    ctx.git_commit_allow_empty_success("test commit");
 
-    assert!(handle_output.status.success());
     assert!(ctx.repo.file_exists("commit-template.txt"));
     let content = ctx.repo.read_file("commit-template.txt");
     assert_eq!(content, "feature: [PROJ-456] ");
