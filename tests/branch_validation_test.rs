@@ -7,14 +7,15 @@ use common::test_context::{TestContext, assert_stderr_contains};
 #[test]
 fn branch_name_regex_valid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_regex!("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("feature/new-feature");
     ctx.handle_success("pre-commit");
 }
@@ -24,14 +25,15 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 #[test]
 fn branch_name_regex_invalid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_regex!("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("invalid_branch");
 
     let output = ctx.handle("pre-commit");
@@ -47,14 +49,15 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 #[test]
 fn branch_name_prefix_valid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_prefix!("feature/"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("feature/test-branch");
     ctx.handle_success("pre-commit");
 }
@@ -64,14 +67,15 @@ prefix = "feature/"
 #[test]
 fn branch_name_prefix_invalid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_prefix!("feature/"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("bugfix/wrong-prefix");
 
     let output = ctx.handle("pre-commit");
@@ -87,14 +91,15 @@ prefix = "feature/"
 #[test]
 fn branch_name_suffix_valid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_suffix!("-v1"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-v1"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("feature-v1");
     ctx.handle_success("pre-commit");
 }
@@ -104,14 +109,15 @@ suffix = "-v1"
 #[test]
 fn branch_name_suffix_invalid() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_suffix!("-v1"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-v1"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("feature-v2");
 
     let output = ctx.handle("pre-commit");
@@ -127,22 +133,17 @@ suffix = "-v1"
 #[test]
 fn branch_name_multiple_rules_all_pass() {
     let ctx = TestContext::new();
+    let config = config! {
+        hooks: {
+            "pre-commit" => [
+                branch_prefix!("feature/"),
+                branch_suffix!("-dev"),
+                branch_regex!("^feature/[a-z-]+-dev$"),
+            ]
+        }
+    };
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-dev"
-
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^feature/[a-z-]+-dev$"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.repo.create_branch("feature/new-feature-dev");
     ctx.handle_success("pre-commit");
 }
