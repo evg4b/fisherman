@@ -105,6 +105,14 @@ impl GitTestRepo {
         self.create_file(".git/.fisherman.toml", config);
     }
 
+    pub fn create_local_yaml_config(&self, config: &str) {
+        self.create_file(".git/.fisherman.yaml", config);
+    }
+
+    pub fn create_local_json_config(&self, config: &str) {
+        self.create_file(".git/.fisherman.json", config);
+    }
+
     pub fn commit(&self, message: &str) -> Output {
         let add_output = self.git(&["add", "."]);
         assert!(
@@ -251,6 +259,12 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    /// Add a local config with specific format
+    pub fn local_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
+        self.configs.push((ConfigScope::Local, format, content.to_string()));
+        self
+    }
+
     /// Build all configurations
     pub fn build(self) {
         for (scope, format, content) in self.configs {
@@ -269,6 +283,12 @@ impl<'a> ConfigBuilder<'a> {
                 }
                 (ConfigScope::Local, ConfigFormat::Toml) => {
                     self.repo.create_local_config(&content);
+                }
+                (ConfigScope::Local, ConfigFormat::Yaml) => {
+                    self.repo.create_local_yaml_config(&content);
+                }
+                (ConfigScope::Local, ConfigFormat::Json) => {
+                    self.repo.create_local_json_config(&content);
                 }
                 _ => panic!("Unsupported config scope/format combination: {:?}/{:?}", scope, format),
             }
