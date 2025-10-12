@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
@@ -7,12 +8,16 @@ use tempdir::TempDir;
 
 pub struct GitTestRepo {
     temp_dir: TempDir,
+    global_config_dir: Option<TempDir>,
 }
 
 impl GitTestRepo {
     pub fn new() -> Self {
         let temp_dir = TempDir::new("fisherman_test").expect("Failed to create temp directory");
-        let repo = Self { temp_dir };
+        let repo = Self {
+            temp_dir,
+            global_config_dir: None,
+        };
 
         repo.git(&["init"]);
         repo.git(&["config", "user.name", "Test User"]);
@@ -20,6 +25,39 @@ impl GitTestRepo {
         repo.git(&["config", "commit.gpgsign", "false"]);
 
         repo
+    }
+
+    /// Enable global config support by creating a temporary home directory
+    pub fn with_global_config(&mut self) -> &mut Self {
+        if self.global_config_dir.is_none() {
+            let global_dir = TempDir::new("fisherman_global").expect("Failed to create global config dir");
+            self.global_config_dir = Some(global_dir);
+        }
+        self
+    }
+
+    /// Get the global config directory path (creates it if needed)
+    pub fn global_config_path(&mut self) -> PathBuf {
+        self.with_global_config();
+        self.global_config_dir.as_ref().unwrap().path().to_path_buf()
+    }
+
+    /// Set HOME environment variable to point to our test global config dir
+    pub fn use_global_config(&mut self) {
+        self.with_global_config();
+        let global_path = self.global_config_dir.as_ref().unwrap().path();
+        // SAFETY: This is only used in tests to set a temporary HOME directory.
+        // Tests run sequentially in the same process, and we're setting it to a valid path.
+        unsafe {
+            env::set_var("HOME", global_path);
+        }
+    }
+
+    /// Create a global config file
+    pub fn create_global_config(&mut self, config: &str) {
+        let global_path = self.global_config_path();
+        let config_path = global_path.join(".fisherman.toml");
+        fs::write(config_path, config).expect("Failed to write global config");
     }
 
     pub fn path(&self) -> &Path {
@@ -156,5 +194,84 @@ impl GitTestRepo {
 impl Default for GitTestRepo {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Represents configuration scope levels
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfigScope {
+    Global,
+    Repository,
+    Local,
+}
+
+/// Represents configuration file format
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfigFormat {
+    Toml,
+    Yaml,
+    Json,
+}
+
+/// Builder for creating multiple scoped configurations in tests
+pub struct ConfigBuilder<'a> {
+    repo: &'a mut GitTestRepo,
+    configs: Vec<(ConfigScope, ConfigFormat, String)>,
+}
+
+impl<'a> ConfigBuilder<'a> {
+    pub fn new(repo: &'a mut GitTestRepo) -> Self {
+        Self {
+            repo,
+            configs: Vec::new(),
+        }
+    }
+
+    /// Add a global config
+    pub fn global(mut self, content: &str) -> Self {
+        self.configs.push((ConfigScope::Global, ConfigFormat::Toml, content.to_string()));
+        self
+    }
+
+    /// Add a repository config (default scope)
+    pub fn repository(mut self, content: &str) -> Self {
+        self.configs.push((ConfigScope::Repository, ConfigFormat::Toml, content.to_string()));
+        self
+    }
+
+    /// Add a repository config with specific format
+    pub fn repository_with_format(mut self, format: ConfigFormat, content: &str) -> Self {
+        self.configs.push((ConfigScope::Repository, format, content.to_string()));
+        self
+    }
+
+    /// Add a local config (.git/.fisherman.toml)
+    pub fn local(mut self, content: &str) -> Self {
+        self.configs.push((ConfigScope::Local, ConfigFormat::Toml, content.to_string()));
+        self
+    }
+
+    /// Build all configurations
+    pub fn build(self) {
+        for (scope, format, content) in self.configs {
+            match (scope, format) {
+                (ConfigScope::Global, ConfigFormat::Toml) => {
+                    self.repo.create_global_config(&content);
+                }
+                (ConfigScope::Repository, ConfigFormat::Toml) => {
+                    self.repo.create_config(&content);
+                }
+                (ConfigScope::Repository, ConfigFormat::Yaml) => {
+                    self.repo.create_yaml_config(&content);
+                }
+                (ConfigScope::Repository, ConfigFormat::Json) => {
+                    self.repo.create_json_config(&content);
+                }
+                (ConfigScope::Local, ConfigFormat::Toml) => {
+                    self.repo.create_local_config(&content);
+                }
+                _ => panic!("Unsupported config scope/format combination: {:?}/{:?}", scope, format),
+            }
+        }
     }
 }
