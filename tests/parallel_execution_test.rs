@@ -3,6 +3,8 @@ mod common;
 use common::test_context::TestContext;
 use std::time::Instant;
 
+/// Tests that multiple write-file rules execute in parallel and create all target files.
+/// Verifies parallel execution of asynchronous rules completes successfully.
 #[test]
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
@@ -44,6 +46,8 @@ content = "content 5"
     assert!(ctx.repo.file_exists("file5.txt"));
 }
 
+/// Tests that multiple exec rules execute in parallel successfully.
+/// Verifies concurrent command execution works correctly across platforms.
 #[test]
 fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
@@ -88,6 +92,8 @@ args = ["3"]
     ctx.handle_success("pre-commit");
 }
 
+/// Tests that multiple shell script rules execute in parallel.
+/// Verifies that concurrent shell script execution completes without conflicts.
 #[test]
 fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
@@ -126,6 +132,8 @@ script = "echo 'script3'"
     ctx.handle_success("pre-commit");
 }
 
+/// Tests that different types of async rules (write-file, exec, shell) run in parallel.
+/// Verifies mixed async rule types can execute concurrently without issues.
 #[test]
 fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
@@ -181,6 +189,8 @@ content = "another write"
     assert!(ctx.repo.file_exists("output2.txt"));
 }
 
+/// Tests that when one parallel rule fails, the hook execution fails appropriately.
+/// Verifies error handling in parallel execution propagates failures correctly.
 #[test]
 fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
@@ -224,6 +234,8 @@ content = "should not be created"
     ctx.handle_failure("pre-commit");
 }
 
+/// Tests that synchronous validation rules execute before asynchronous rules.
+/// Verifies correct execution order with sync rules first, then parallel async rules.
 #[test]
 fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
@@ -269,6 +281,8 @@ content = "async rule"
     assert!(ctx.repo.file_exists("async.txt"));
 }
 
+/// Tests that when a synchronous rule fails, async rules don't execute and hook fails.
+/// Verifies early exit behavior when sync validation fails before async execution.
 #[test]
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
@@ -285,6 +299,8 @@ prefix = "feature/"
     ctx.handle_failure("pre-commit");
 }
 
+/// Tests that parallel execution provides performance benefit over sequential execution.
+/// Verifies that multiple sleep commands complete faster due to parallelization (Unix only).
 #[test]
 #[cfg(not(windows))]
 fn parallel_performance_benefit() {

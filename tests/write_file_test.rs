@@ -2,6 +2,8 @@ mod common;
 
 use common::test_context::TestContext;
 
+/// Tests that write-file rule creates a new file with specified content.
+/// Verifies basic file creation functionality in the repository directory.
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
@@ -20,6 +22,8 @@ content = "test content"
     assert_eq!(ctx.repo.read_file("output.txt"), "test content");
 }
 
+/// Tests that write-file rule with append=false overwrites existing file content.
+/// Verifies that existing file is replaced with new content when append is disabled.
 #[test]
 fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
@@ -41,6 +45,8 @@ append = false
     assert_eq!(ctx.repo.read_file("output.txt"), "new content");
 }
 
+/// Tests that write-file rule with append=true adds content to end of existing file.
+/// Verifies that append mode preserves existing content and adds new content.
 #[test]
 fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
@@ -65,6 +71,8 @@ append = true
     );
 }
 
+/// Tests that write-file rule works with simple filename paths without directories.
+/// Verifies file creation in repository root with basic path specification.
 #[test]
 fn write_file_simple_path() {
     let ctx = TestContext::new();
@@ -83,6 +91,8 @@ content = "simple content"
     assert_eq!(ctx.repo.read_file("simple.txt"), "simple content");
 }
 
+/// Tests that multiple write-file rules can create multiple distinct files.
+/// Verifies that each write-file rule executes independently and creates its target file.
 #[test]
 fn write_file_multiple_files() {
     let ctx = TestContext::new();
@@ -115,6 +125,8 @@ content = "content 3"
     assert_eq!(ctx.repo.read_file("output3.txt"), "content 3");
 }
 
+/// Tests that write-file rule correctly handles multiline content with newline characters.
+/// Verifies that file content preserves line breaks and formatting.
 #[test]
 fn write_file_multiline_content() {
     let ctx = TestContext::new();
