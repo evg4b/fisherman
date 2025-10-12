@@ -1,21 +1,15 @@
 mod common;
 
-use common::test_context::TestContext;
+use common::test_context::{TestContext, write_file_config, write_file_append_config};
 
 /// Tests that write-file rule creates a new file with specified content.
 /// Verifies basic file creation functionality in the repository directory.
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
+    let config = write_file_config("pre-commit", "output.txt", "test content");
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "test content"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
 
     assert!(ctx.repo.file_exists("output.txt"), "File should be created");
@@ -27,16 +21,9 @@ content = "test content"
 #[test]
 fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
+    let config = write_file_append_config("pre-commit", "output.txt", "new content", false);
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "new content"
-append = false
-"#;
-
-    ctx.setup_with_history(config, &[("initial", &[
+    ctx.setup_with_history(&config, &[("initial", &[
         ("test.txt", "initial"),
         ("output.txt", "old content")
     ])]);
@@ -50,16 +37,9 @@ append = false
 #[test]
 fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
+    let config = write_file_append_config("pre-commit", "output.txt", "\\nappended content", true);
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "\nappended content"
-append = true
-"#;
-
-    ctx.setup_with_history(config, &[("initial", &[
+    ctx.setup_with_history(&config, &[("initial", &[
         ("test.txt", "initial"),
         ("output.txt", "existing content")
     ])]);
@@ -76,15 +56,9 @@ append = true
 #[test]
 fn write_file_simple_path() {
     let ctx = TestContext::new();
+    let config = write_file_config("pre-commit", "simple.txt", "simple content");
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "simple.txt"
-content = "simple content"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config);
     ctx.handle_success("pre-commit");
 
     assert!(ctx.repo.file_exists("simple.txt"));

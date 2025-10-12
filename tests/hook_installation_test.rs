@@ -60,6 +60,12 @@ regex = ".*"
         !install_output.status.success(),
         "Installation should fail without --force when hook exists"
     );
+
+    let stderr = String::from_utf8_lossy(&install_output.stderr);
+    assert!(
+        stderr.contains("already installed") || stderr.contains("exist") || stderr.contains("force"),
+        "Error should mention existing hook and --force flag"
+    );
 }
 
 /// Tests that install with --force flag overwrites existing hooks and creates backup.
@@ -175,8 +181,9 @@ args = ["test"]
     );
 
     let output = String::from_utf8_lossy(&explain_output.stdout);
-    assert!(output.contains("branch name"));
-    assert!(output.contains("exec"));
+    assert!(output.contains("branch name"), "Output should contain branch name rule: {}", output);
+    assert!(output.contains("exec"), "Output should contain exec rule: {}", output);
+    assert!(output.contains("feature/"), "Output should show rule configuration details: {}", output);
 }
 
 /// Tests that install succeeds without errors when no configuration file exists.
