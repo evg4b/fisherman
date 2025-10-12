@@ -54,12 +54,6 @@ impl FishermanBinary {
         self.run(&args, working_dir)
     }
 
-    pub fn handle(&self, hook: &str, working_dir: &Path, extra_args: &[&str]) -> Output {
-        let mut args = vec!["handle", hook];
-        args.extend_from_slice(extra_args);
-        self.run(&args, working_dir)
-    }
-
     pub fn explain(&self, hook: &str, working_dir: &Path) -> Output {
         self.run(&["explain", hook], working_dir)
     }
