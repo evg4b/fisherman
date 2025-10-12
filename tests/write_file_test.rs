@@ -15,7 +15,7 @@ content = "test content"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output.txt"), "File should be created");
     assert_eq!(ctx.repo.read_file("output.txt"), "test content");
@@ -39,7 +39,7 @@ append = false
         ("output.txt", "old content")
     ])]);
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert_eq!(ctx.repo.read_file("output.txt"), "new content");
 }
 
@@ -61,7 +61,7 @@ append = true
         ("output.txt", "existing content")
     ])]);
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert_eq!(
         ctx.repo.read_file("output.txt"),
         "existing content\nappended content"
@@ -81,7 +81,7 @@ content = "simple content"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("simple.txt"));
     assert_eq!(ctx.repo.read_file("simple.txt"), "simple content");
@@ -110,7 +110,7 @@ content = "content 3"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output1.txt"));
     assert!(ctx.repo.file_exists("output2.txt"));
@@ -133,7 +133,7 @@ content = "Line 1\nLine 2\nLine 3"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("output.txt"), "Line 1\nLine 2\nLine 3");
 }
