@@ -10,7 +10,11 @@ fn exec_rule_success() {
     let config = echo_config("pre-commit", "test");
 
     ctx.setup_and_install(&config);
-    ctx.handle_success("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("test"), "Output should contain 'test': {}", stdout);
 }
 
 /// Tests that exec rule fails appropriately when command exits with non-zero code.
@@ -21,7 +25,11 @@ fn exec_rule_failure() {
     let config = fail_config("pre-commit");
 
     ctx.setup_and_install(&config);
-    ctx.handle_failure("pre-commit");
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error output should not be empty");
 }
 
 /// Tests that exec rule properly passes environment variables to executed command.
@@ -100,6 +108,12 @@ exit 0
         "Shell script should succeed: {}",
         String::from_utf8_lossy(&handle_output.stderr)
     );
+
+    #[cfg(not(windows))]
+    {
+        let stdout = String::from_utf8_lossy(&handle_output.stdout);
+        assert!(stdout.contains("Running shell script"), "Output should contain script message: {}", stdout);
+    }
 }
 
 /// Tests that shell script rule fails when script exits with non-zero code.
@@ -137,6 +151,9 @@ exit 1
         !handle_output.status.success(),
         "Shell script should fail with exit 1"
     );
+
+    let stderr = String::from_utf8_lossy(&handle_output.stderr);
+    assert!(!stderr.is_empty(), "Error output should not be empty when shell fails");
 }
 
 /// Tests that shell script can access custom environment variables defined in config.
@@ -225,4 +242,10 @@ script = "echo 'shell test'"
         handle_output.status.success(),
         "Both exec and shell rules should succeed"
     );
+
+    let stdout = String::from_utf8_lossy(&handle_output.stdout);
+    assert!(stdout.contains("exec test") || stdout.contains("1"),
+        "Output should contain exec command result: {}", stdout);
+    assert!(stdout.contains("shell test") || stdout.contains("shell"),
+        "Output should contain shell script result: {}", stdout);
 }

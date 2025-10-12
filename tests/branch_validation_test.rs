@@ -1,6 +1,6 @@
 mod common;
 
-use common::test_context::TestContext;
+use common::test_context::{TestContext, assert_stderr_contains};
 
 /// Tests that branch-name-regex rule passes when branch name matches the specified pattern.
 /// Verifies regex validation works with valid branch naming conventions.
@@ -33,7 +33,13 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("invalid_branch");
-    ctx.handle_failure("pre-commit");
+
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_stderr_contains(&stderr, &["branch", "invalid_branch", "regex"],
+        "Error should explain branch name validation failure");
 }
 
 /// Tests that branch-name-prefix rule passes when branch name starts with required prefix.
@@ -67,7 +73,13 @@ prefix = "feature/"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/wrong-prefix");
-    ctx.handle_failure("pre-commit");
+
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_stderr_contains(&stderr, &["branch", "prefix", "feature/"],
+        "Error should explain prefix validation failure");
 }
 
 /// Tests that branch-name-suffix rule passes when branch name ends with required suffix.
@@ -101,7 +113,13 @@ suffix = "-v1"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature-v2");
-    ctx.handle_failure("pre-commit");
+
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert_stderr_contains(&stderr, &["branch", "suffix", "-v1"],
+        "Error should explain suffix validation failure");
 }
 
 /// Tests that multiple branch validation rules (prefix, suffix, regex) can all pass together
@@ -147,5 +165,10 @@ suffix = "-dev"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/missing-suffix");
-    ctx.handle_failure("pre-commit");
+
+    let output = ctx.handle("pre-commit");
+    assert!(!output.status.success());
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty(), "Error should explain which rule failed");
 }
