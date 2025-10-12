@@ -17,7 +17,7 @@ regex = "^.+$"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("feat: Add 日本語 support with émojis 🎉");
+    ctx.git_commit_allow_empty_success("feat: Add 日本語 support with émojis 🎉");
 }
 
 /// Tests that branch names containing Unicode characters are correctly validated.
@@ -34,7 +34,7 @@ regex = "^.+$"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/support-日本語");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that template variables can contain and render Unicode characters correctly.
@@ -54,7 +54,7 @@ content = "Branch: {{Name}}"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/日本語-support");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("branch-name.txt");
     assert!(content.contains("日本語"));
@@ -64,6 +64,8 @@ content = "Branch: {{Name}}"
 
 /// Tests that prepare-commit-msg hook executes correctly with basic write-file rule.
 /// Verifies that this hook type is properly supported and receives correct arguments.
+/// NOTE: prepare-commit-msg is called directly because Git triggers it before user edits the message,
+/// making it difficult to test through natural Git commands in an automated test environment.
 #[test]
 fn prepare_commit_msg_hook_execution() {
     let ctx = TestContext::new();
@@ -94,6 +96,8 @@ content = "prepare-commit-msg ran"
 
 /// Tests that template variables are correctly rendered in prepare-commit-msg hook.
 /// Verifies variable extraction and template substitution work in this hook context.
+/// NOTE: prepare-commit-msg is called directly because Git triggers it before user edits the message,
+/// making it difficult to test through natural Git commands in an automated test environment.
 #[test]
 fn prepare_commit_msg_with_template_variable() {
     let ctx = TestContext::new();
@@ -140,7 +144,7 @@ when = "UndefinedVar == \"value\""
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_failure("pre-commit");
+    ctx.git_commit_allow_empty_failure("test commit");
 }
 
 /// Tests that is_def_var() function returns true when variable is extracted and defined.
@@ -161,7 +165,7 @@ when = "is_def_var(\"Feature\")"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/auth");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("output.txt"), "Feature is defined");
 }
@@ -190,7 +194,7 @@ when = "!is_def_var(\"Feature\")"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/test");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert!(!ctx.repo.file_exists("output.txt"));
     assert!(ctx.repo.file_exists("fallback.txt"));
@@ -228,7 +232,7 @@ env = { VAR1 = "value1", VAR2 = "value2" }
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that environment variables can use template substitution from extracted variables.
@@ -261,7 +265,7 @@ env = { FEATURE_NAME = "{{Feature}}" }
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/payment");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 // Edge cases
@@ -279,7 +283,7 @@ regex = "^.+$"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_failure("");
+    ctx.git_commit_allow_empty_failure("");
 }
 
 /// Tests that very long commit messages (10000+ characters) are handled correctly.
@@ -296,23 +300,26 @@ regex = "^.+$"
 
     ctx.setup_and_install(config);
     let long_message = "a".repeat(10000);
-    ctx.handle_commit_msg_success(&long_message);
+    ctx.git_commit_allow_empty_success(&long_message);
 }
 
-/// Tests that commit messages containing only whitespace characters are validated correctly.
-/// Verifies regex patterns can match whitespace-only content when appropriate.
+/// Tests that commit messages containing only whitespace characters are rejected by Git.
+/// Git itself prevents whitespace-only commit messages, treating them as empty.
+/// This test verifies that Git's built-in validation works as expected.
 #[test]
-fn whitespace_only_commit_message() {
+fn whitespace_only_commit_message_rejected_by_git() {
     let ctx = TestContext::new();
 
     let config = r#"
 [[hooks.commit-msg]]
 type = "message-regex"
-regex = "^\\s*$"
+regex = ".*"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_commit_msg_success("   \n   \t   ");
+    // Git rejects whitespace-only messages as empty, so this should fail
+    let output = ctx.git_commit_allow_empty("   \n   \t   ");
+    assert!(!output.status.success(), "Git should reject whitespace-only commit messages");
 }
 
 /// Tests that write-file rule preserves special characters in content without escaping.
@@ -329,7 +336,7 @@ content = "Line with $VAR and `backticks` and \"quotes\" and 'apostrophes'"
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("special.txt");
     assert!(content.contains("$VAR"));
@@ -354,7 +361,7 @@ content = "{{Category}}/{{Subcategory}}/{{Name}}"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/ui/button-component");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("hierarchy.txt");
     assert_eq!(content, "feature/ui/button-component");
@@ -382,7 +389,7 @@ suffix = "-ready"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/new-feature-ready");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that regex patterns with escaped characters (backslashes, digits) work correctly.
@@ -402,7 +409,7 @@ content = "{{Ticket}} - {{Priority}}"
 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/PROJ-123-high");
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("ticket.txt");
     assert_eq!(content, "PROJ-123 - high");

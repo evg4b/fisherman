@@ -4,6 +4,8 @@ use common::test_context::TestContext;
 
 /// Tests that post-merge hook executes successfully.
 /// Verifies that post-merge hooks are properly supported and execute write-file rules.
+/// NOTE: post-merge is called directly because it requires a complex merge operation setup
+/// to test through natural Git commands in test environment.
 #[test]
 fn post_merge_hook_execution() {
     let ctx = TestContext::new();
@@ -38,18 +40,20 @@ content = "post-checkout ran"
 "#;
 
     ctx.setup_and_install(config);
-    let output = ctx.binary.handle("post-checkout", ctx.repo.path(), &[]);
+
+    // Create and checkout a new branch - this triggers post-checkout hook
+    ctx.git_checkout_new_branch("test-branch");
 
     assert!(
-        output.status.success(),
-        "post-checkout hook should execute successfully: {}",
-        String::from_utf8_lossy(&output.stderr)
+        ctx.repo.file_exists("checkout-executed.txt"),
+        "post-checkout hook should create file"
     );
-    assert!(ctx.repo.file_exists("checkout-executed.txt"));
 }
 
 /// Tests that pre-receive hook executes successfully.
 /// Verifies that pre-receive hooks are properly supported.
+/// NOTE: pre-receive is a server-side hook called directly because it's triggered during
+/// git push on the remote server, which is complex to test in local test environment.
 #[test]
 fn pre_receive_hook_execution() {
     let ctx = TestContext::new();
@@ -88,7 +92,7 @@ prefix = "feature/"
     let long_name = format!("feature/{}", "a".repeat(192));
     ctx.repo.create_branch(&long_name);
 
-    let output = ctx.handle("pre-commit");
+    let output = ctx.git_commit_allow_empty("test commit");
     assert!(
         output.status.success(),
         "Should handle very long branch names: {}",
@@ -111,7 +115,7 @@ regex = "^feature/[a-z0-9._-]+$"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/test_feature.v1.2-beta");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 }
 
 /// Tests that write-file with append mode creates file if it doesn't exist.
@@ -129,7 +133,7 @@ append = true
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("new-file.txt"), "content");
 }
@@ -156,7 +160,7 @@ when = "Type == \"feature\" && is_def_var(\"Ticket\")"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/PROJ-789");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("context.txt");
     assert!(content.contains("feature: PROJ-789"));
@@ -206,7 +210,7 @@ content = "{{Type}}: {{Name}}"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/auth-system");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("extracted.txt");
     assert_eq!(content, "feature: auth-system");
@@ -227,7 +231,7 @@ regex = "^feat: .+"
     ctx.setup_and_install(config);
 
     let multiline_msg = "feat: add new feature\n\nThis is a longer description\nwith multiple lines";
-    ctx.handle_commit_msg_success(multiline_msg);
+    ctx.git_commit_allow_empty_success(multiline_msg);
 }
 
 /// Tests that optional extraction doesn't fail when pattern doesn't match.
@@ -248,7 +252,7 @@ content = "Hook executed"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/issue");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("executed.txt");
     assert_eq!(content, "Hook executed");

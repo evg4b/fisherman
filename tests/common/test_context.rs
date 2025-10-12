@@ -97,6 +97,78 @@ impl TestContext {
             "commit-msg hook should fail"
         );
     }
+
+    // ========== Git-based hook testing (recommended approach) ==========
+    // These methods trigger hooks through actual git commands instead of
+    // calling fisherman directly, testing the real-world scenario.
+
+    /// Commit using git (triggers pre-commit and commit-msg hooks)
+    pub fn git_commit(&self, message: &str) -> Output {
+        self.repo.commit_with_hooks(message)
+    }
+
+    /// Commit using git and assert success
+    pub fn git_commit_success(&self, message: &str) {
+        let output = self.git_commit(message);
+        assert!(
+            output.status.success(),
+            "Git commit should succeed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    /// Commit using git and assert failure
+    pub fn git_commit_failure(&self, message: &str) {
+        let output = self.git_commit(message);
+        assert!(
+            !output.status.success(),
+            "Git commit should fail due to hook"
+        );
+    }
+
+    /// Commit allowing empty (useful for testing hooks without file changes)
+    pub fn git_commit_allow_empty(&self, message: &str) -> Output {
+        self.repo.commit_with_hooks_allow_empty(message)
+    }
+
+    /// Commit allowing empty and assert success
+    pub fn git_commit_allow_empty_success(&self, message: &str) {
+        let output = self.git_commit_allow_empty(message);
+        assert!(
+            output.status.success(),
+            "Git commit (allow-empty) should succeed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    /// Commit allowing empty and assert failure
+    pub fn git_commit_allow_empty_failure(&self, message: &str) {
+        let output = self.git_commit_allow_empty(message);
+        assert!(
+            !output.status.success(),
+            "Git commit (allow-empty) should fail due to hook"
+        );
+    }
+
+    /// Checkout branch using git (triggers post-checkout hook if configured)
+    pub fn git_checkout(&self, branch: &str) -> Output {
+        self.repo.checkout_with_hooks(branch)
+    }
+
+    /// Checkout and assert success
+    pub fn git_checkout_success(&self, branch: &str) {
+        let output = self.git_checkout(branch);
+        assert!(
+            output.status.success(),
+            "Git checkout should succeed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    /// Create and checkout new branch using git
+    pub fn git_checkout_new_branch(&self, name: &str) -> Output {
+        self.repo.checkout_new_branch(name)
+    }
 }
 
 impl Default for TestContext {

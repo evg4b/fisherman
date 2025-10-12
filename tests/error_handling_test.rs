@@ -104,7 +104,7 @@ regex = "[invalid("  # Invalid regex
 
     if install_output.status.success() {
         // If installation succeeds, handling should fail
-        let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+        let handle_output = repo.commit_with_hooks_allow_empty("test commit");
         assert!(
             !handle_output.status.success(),
             "Hook should fail with invalid regex"
@@ -138,7 +138,7 @@ content = "test"
 
     if install_output.status.success() {
         // If installation succeeds, handling should fail
-        let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+        let handle_output = repo.commit_with_hooks_allow_empty("test commit");
         assert!(
             !handle_output.status.success(),
             "Hook should fail with invalid extract regex"
@@ -170,7 +170,7 @@ content = "Value: {{UndefinedVar}}"
 
     if install_output.status.success() {
         // If installation succeeds, handling should fail
-        let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+        let handle_output = repo.commit_with_hooks_allow_empty("test commit");
         assert!(
             !handle_output.status.success(),
             "Hook should fail with undefined template variable"
@@ -241,7 +241,7 @@ args = ["test"]
 
     binary.install(repo.path(), false);
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
     assert!(
         !handle_output.status.success(),
         "Hook should fail when exec command is not found"
@@ -271,7 +271,7 @@ content = "test"
 
     binary.install(repo.path(), false);
 
-    let _handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let _handle_output = repo.commit_with_hooks_allow_empty("test commit");
     // Might fail depending on permissions
     // This tests error handling for file system errors
 }
@@ -318,7 +318,7 @@ when = "Type == "  # Invalid syntax
 
     if install_output.status.success() {
         repo.create_branch("feature/test");
-        let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+        let handle_output = repo.commit_with_hooks_allow_empty("test commit");
         assert!(
             !handle_output.status.success(),
             "Hook should fail with invalid when condition"

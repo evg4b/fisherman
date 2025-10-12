@@ -4,6 +4,8 @@ use common::test_context::TestContext;
 
 /// Tests that pre-push hooks can be configured and executed successfully.
 /// Verifies that write-file rules work in pre-push hook context.
+/// NOTE: pre-push is called directly because it requires a remote repository setup,
+/// making it complex to test through natural `git push` commands in test environment.
 #[test]
 fn pre_push_hook_execution() {
     let ctx = TestContext::new();
@@ -41,12 +43,8 @@ content = "post-commit hook ran"
 
     ctx.setup_and_install(config);
 
-    let handle_output = ctx.binary.handle("post-commit", ctx.repo.path(), &[]);
-    assert!(
-        handle_output.status.success(),
-        "post-commit hook should execute successfully: {}",
-        String::from_utf8_lossy(&handle_output.stderr)
-    );
+    // post-commit runs automatically after a successful commit
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("post-commit-executed.txt"));
 }
 
@@ -97,7 +95,7 @@ content = "async rule 2"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/test-branch");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("async1.txt"));
     assert!(ctx.repo.file_exists("async2.txt"));
@@ -123,7 +121,7 @@ content = "write rule executed"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("bugfix/test");
 
-    let handle_output = ctx.handle("pre-commit");
+    let handle_output = ctx.git_commit_allow_empty("test commit");
 
     // Hook should fail due to sync rule failure
     assert!(!handle_output.status.success());
@@ -160,7 +158,7 @@ content = "all rules passed"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/new-test");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("all-rules.txt"));
 }
 
@@ -183,7 +181,7 @@ when = "(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && 
     ctx.setup_and_install(config);
     ctx.repo.create_branch("hotfix/low");
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("urgent.txt"));
 }
 
@@ -204,7 +202,7 @@ suffix = " [{{Ticket}}]"
     ctx.setup_and_install(config);
     ctx.repo.create_branch("feature/PROJ-123");
 
-    ctx.handle_commit_msg_success("Add new feature [PROJ-123]");
+    ctx.git_commit_allow_empty_success("Add new feature [PROJ-123]");
 }
 
 /// Tests that template variables extracted from repository path can be used in write-file
@@ -224,7 +222,7 @@ content = "Repository: {{RepoName}}"
 
     ctx.setup_and_install(config);
 
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("repo-check.txt"));
     let content = ctx.repo.read_file("repo-check.txt");
     assert!(content.starts_with("Repository: "));
@@ -251,7 +249,7 @@ append = true
 "#;
 
     ctx.setup_and_install(config);
-    ctx.handle_success("pre-commit");
+    ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("output.txt");
     assert!(content.contains("First write"));
@@ -278,5 +276,5 @@ when = "Type == \"feature\""
     ctx.repo.create_branch("bugfix/test");
 
     // Message doesn't have the prefix, but the condition is false, so it should pass
-    ctx.handle_commit_msg_success("bugfix: fix the bug");
+    ctx.git_commit_allow_empty_success("bugfix: fix the bug");
 }

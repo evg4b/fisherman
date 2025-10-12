@@ -232,7 +232,7 @@ suffix = "-dev"
 
     repo.create_branch("feature/test-dev");
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(
         handle_output.status.success(),
@@ -267,7 +267,7 @@ content = "local level"
 
     binary.install(repo.path(), false);
 
-    let handle_output = binary.handle("pre-commit", repo.path(), &[]);
+    let handle_output = repo.commit_with_hooks_allow_empty("test commit");
 
     assert!(handle_output.status.success());
     assert!(
