@@ -79,7 +79,9 @@ mod tests {
             true,
         );
 
-        let result = rule.check(&MockContext::new())?;
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
         assert!(!file_path.exists());
@@ -95,7 +97,9 @@ mod tests {
             true,
         );
 
-        let result = rule.check(&MockContext::new())?;
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
 
         match result {
             RuleResult::Failure { name, message } => {
@@ -116,7 +120,8 @@ mod tests {
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -141,7 +146,8 @@ mod tests {
             true,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -160,7 +166,8 @@ mod tests {
             true,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());

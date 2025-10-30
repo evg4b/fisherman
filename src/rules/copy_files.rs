@@ -118,13 +118,15 @@ mod tests {
         );
 
         // Run the rule
-        let result = rule.check(&MockContext::new())?;
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 
         assert_that!(name).is_equal_to("copy-test".to_string());
-        assert_that!(output).is_equal_to("Copied 1 files".to_string());
+        assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
 
         // Check that file was copied
         let copied_file = std::fs::read_to_string(temp_dest.path().join("test.txt"))?;
@@ -157,13 +159,15 @@ mod tests {
         );
 
         // Run the rule
-        let result = rule.check(&MockContext::new())?;
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 
         assert_that!(name).is_equal_to("copy-test-no-src".to_string());
-        assert_that!(output).is_equal_to("Copied 1 files".to_string());
+        assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
 
         // Check that file was copied
         let copied_file = std::fs::read_to_string(temp_dest.path().join("test-no-src.txt"))?;
@@ -200,13 +204,15 @@ mod tests {
             tmpl!(temp_dest.path().to_str().unwrap().to_string()),
         );
 
-        let result = rule.check(&MockContext::new())?;
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
         let RuleResult::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 
         assert_that!(name).is_equal_to("no-matches".to_string());
-        assert_that!(output).is_equal_to("Copied 0 files".to_string());
+        assert_that!(output).is_equal_to(Some("Copied 0 files".to_string()));
 
         Ok(())
     }

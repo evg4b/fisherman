@@ -76,7 +76,8 @@ mod tests {
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
@@ -107,7 +108,8 @@ mod tests {
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
@@ -138,7 +140,8 @@ mod tests {
             true,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
@@ -160,13 +163,6 @@ mod tests {
         let path = dir.path().join("{{FILE_NAME}}.txt");
         let content = "Hello, world!".to_string();
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| {
-            let mut variables = HashMap::new();
-            variables.insert("FILE_NAME".to_string(), "test".to_string());
-            Ok(variables)
-        });
-
         let rule = WriteFile::new(
             "write_file".to_string(),
             t!(path.to_str().unwrap()),
@@ -174,7 +170,12 @@ mod tests {
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| {
+            let mut variables = HashMap::new();
+            variables.insert("FILE_NAME".to_string(), "test".to_string());
+            Ok(variables)
+        });
         let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
@@ -202,7 +203,12 @@ mod tests {
             false,
         );
 
-        let context = MockContext::new();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| {
+            let mut variables = HashMap::new();
+            variables.insert("WHO".to_string(), "world".to_string());
+            Ok(variables)
+        });
         let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
@@ -266,7 +272,7 @@ mod tests {
 
     #[test]
     fn test_write_file_content_template_error() {
-        let dir = TempDir::new("write_file_template_error").unwrap();
+        let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.txt");
 
         let rule = WriteFile::new(
