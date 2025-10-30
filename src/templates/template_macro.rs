@@ -4,3 +4,10 @@ macro_rules! t {
         $crate::templates::TemplateString::from($template.to_string())
     };
 }
+
+#[macro_export]
+macro_rules! tmpl {
+    ($template:expr) => {
+        $crate::templates::TemplateString::from($template.to_string())
+    };
+}

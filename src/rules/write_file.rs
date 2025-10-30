@@ -60,11 +60,12 @@ mod tests {
     use crate::t;
     use std::collections::HashMap;
     use std::fs;
-    use tempdir::TempDir;
+    use anyhow::Result;
+    use tempfile::TempDir;
 
     #[test]
-    fn write_file_when_file_doesnt_exist() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_file_doesnt_exist() -> Result<()> {
+        let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
 
@@ -76,11 +77,8 @@ mod tests {
         );
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.check(&context).unwrap();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -88,16 +86,18 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_file_exists() {
-        let dir = TempDir::new("write_file_when_file_exists").unwrap();
+    fn write_file_when_file_exists() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test").unwrap();
+        fs::write(&path, "Test")?;
 
         let content = "Hello, world!".to_string();
 
@@ -109,11 +109,8 @@ mod tests {
         );
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.check(&context).unwrap();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -121,16 +118,18 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn append_file_when_file_exists() {
-        let dir = TempDir::new("write_file_when_file_exists").unwrap();
+    fn append_file_when_file_exists() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test").unwrap();
+        fs::write(&path, "Test")?;
 
         let content = "Hello, world!".to_string();
 
@@ -142,10 +141,8 @@ mod tests {
         );
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context).unwrap();
+        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -153,23 +150,18 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, "TestHello, world!");
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_path_template_literal() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_path_template_literal() -> Result<()> {
+        let dir = TempDir::new()?;
 
         let path = dir.path().join("{{FILE_NAME}}.txt");
         let content = "Hello, world!".to_string();
-
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| {
-            let mut variables = HashMap::new();
-            variables.insert("FILE_NAME".to_string(), "test".to_string());
-            Ok(variables)
-        });
 
         let rule = WriteFile::new(
             "write_file".to_string(),
@@ -178,7 +170,13 @@ mod tests {
             false,
         );
 
-        let result = rule.check(&context).unwrap();
+        let mut context = MockContext::new();
+        context.expect_variables().returning(|_| {
+            let mut variables = HashMap::new();
+            variables.insert("FILE_NAME".to_string(), "test".to_string());
+            Ok(variables)
+        });
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -186,13 +184,15 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(dir.path().join("test.txt")).unwrap();
+        let file_content = fs::read_to_string(dir.path().join("test.txt"))?;
         assert_eq!(file_content, content);
+
+        Ok(())
     }
 
     #[test]
-    fn write_file_when_content_template_literal() {
-        let dir = TempDir::new("write_file_when_file_doesnt_exist").unwrap();
+    fn write_file_when_content_template_literal() -> Result<()> {
+        let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, {{WHO}}!".to_string();
 
@@ -209,7 +209,7 @@ mod tests {
             variables.insert("WHO".to_string(), "world".to_string());
             Ok(variables)
         });
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context)?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -219,6 +219,8 @@ mod tests {
 
         let file_content = fs::read_to_string(path).unwrap();
         assert_eq!(file_content, "Hello, world!");
+
+        Ok(())
     }
 
     #[test]
@@ -270,7 +272,7 @@ mod tests {
 
     #[test]
     fn test_write_file_content_template_error() {
-        let dir = TempDir::new("write_file_template_error").unwrap();
+        let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.txt");
 
         let rule = WriteFile::new(

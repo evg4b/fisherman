@@ -10,6 +10,8 @@ mod helpers;
 mod rule_def;
 mod shell_script;
 mod write_file;
+mod copy_files;
+mod delete_files;
 
 pub use crate::rules::compiled_rule::CompiledRule;
 pub use crate::rules::compiled_rule::RuleResult;
