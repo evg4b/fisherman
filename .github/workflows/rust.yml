@@ -79,10 +79,17 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./target/nextest/default/junit.xml
-  cross:
+  
+  cross-compilation:
+    name: ${{ matrix.platform.target }} [release]
+    strategy:
+      matrix:
+        platform:
+          - target: x86_64-unknown-linux-musl
+
     runs-on: ubuntu-latest
     container:
-      image: evg4b/rust-aarch64-unknown-linux-gnu
+      image: evg4b/rust-${{ matrix.platform.target }}
       volumes:
         - .:/app
     steps:
@@ -90,3 +97,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Run a command in the container
         run: cargo build --target aarch64-unknown-linux-gnu
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.target }}-release
+          path: target/*/release/rust-cross-compilation*
