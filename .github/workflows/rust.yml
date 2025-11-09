@@ -10,78 +10,70 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Cache Cargo dependencies
-  #     uses: actions/cache@v4
-  #     with:
-  #       path: |
-  #         ~/.cargo/registry
-  #         ~/.cargo/git
-  #         target
-  #       key: build-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-  #       restore-keys: |
-  #         cargo-${{ runner.os }}-
-  #   - name: Build
-  #     run: cargo build --verbose
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Cache Cargo dependencies
-  #     uses: actions/cache@v4
-  #     with:
-  #       path: |
-  #         ~/.cargo/registry
-  #         ~/.cargo/git
-  #         target
-  #       key: lint-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-  #       restore-keys: |
-  #         cargo-${{ runner.os }}-
-  #   - name: Lint
-  #     run: cargo clippy --all-targets --all-features -- -D warnings
-  # test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: dtolnay/rust-toolchain@nightly
-  #       with:
-  #         components: llvm-tools-preview
-  #     - uses: taiki-e/install-action@cargo-llvm-cov
-  #     - uses: taiki-e/install-action@nextest
-  #     - name: Cache Cargo dependencies
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cargo/registry
-  #           ~/.cargo/git
-  #           target
-  #         key: test-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-  #         restore-keys: |
-  #           cargo-${{ runner.os }}-
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Cache Cargo dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: lint-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          cargo-${{ runner.os }}-
+    - name: Lint
+      run: cargo clippy --all-targets --all-features -- -D warnings
 
-  #     - name: Collect coverage data (including doctests)
-  #       run: |
-  #         cargo llvm-cov --no-report nextest
-  #         cargo llvm-cov report --doctests --lcov --output-path lcov.info
-  #     - name: Codecov
-  #       uses: codecov/codecov-action@v5
-  #       env:
-  #         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  #       with:
-  #         verbose: true
-  #         fail_ci_if_error: true
-  #     - name: Upload test results to Codecov
-  #       if: ${{ !cancelled() }}
-  #       uses: codecov/test-results-action@v1
-  #       with:
-  #         token: ${{ secrets.CODECOV_TOKEN }}
-  #         files: ./target/nextest/default/junit.xml
+  test:
+    name: test ${{ matrix.platform.target }}
+    strategy:
+      matrix:
+        platform: 
+          - macos-latest
+          - windows-latest
+          - ubuntu-latest
 
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: taiki-e/install-action@nextest
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: test-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
 
-  build-cross:
+      - name: Collect coverage data (including doctests)
+        run: |
+          cargo llvm-cov --no-report nextest
+          cargo llvm-cov report --doctests --lcov --output-path lcov.info
+      - name: Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          verbose: true
+          fail_ci_if_error: true
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./target/nextest/default/junit.xml
+
+  cross-compilation:
     name: build ${{ matrix.platform.target }}
     strategy:
       matrix:
@@ -132,42 +124,3 @@ jobs:
         with:
           path: target
           key: ${{ matrix.platform.target }}
-  
-  # cross-compilation:
-  #   name: ${{ matrix.platform.target }} [debug]
-  #   strategy:
-  #     matrix:
-  #       platform:
-  #         - target: aarch64-unknown-linux-gnu
-  #         - target: x86_64-pc-windows-gnu
-
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: evg4b/rust-${{ matrix.platform.target }}
-  #     volumes:
-  #       - .:/app
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Restore cache
-  #       id: cache-primes-restore
-  #       uses: actions/cache/restore@v4
-  #       with:
-  #         path: target
-  #         key: ${{ matrix.platform.target }}
-
-  #     - name: Run a command in the container
-  #       run: cargo build --target ${{ matrix.platform.target }}
-
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: ${{ matrix.platform.target }}-debug
-  #         path: target/${{ matrix.platform.target }}/debug/fisherman*
-      
-  #     - name: Save cache
-  #       id: cache-primes-save
-  #       uses: actions/cache/save@v4
-  #       with:
-  #         path: target
-  #         key: ${{ matrix.platform.target }}
