@@ -32,5 +32,8 @@ serde_json = "1.0.140"
 # Install libssl-dev:arm64, see <https://github.com/cross-rs/cross/blob/main/docs/custom_images.md#adding-dependencies-to-existing-images>
 pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH",
-    "apt-get update && apt-get --assume-yes install libssl-dev:$CROSS_DEB_ARCH"
+    "apt-get update && apt-get --assume-yes install libssl-dev:$CROSS_DEB_ARCH",
+    "export PKG_CONFIG_ALLOW_CROSS=1",
+    "export OPENSSL_LIB_DIR=/usr/lib/aarch64-linux-gnu",
+    "export OPENSSL_INCLUDE_DIR=/usr/include"
 ]
