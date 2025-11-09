@@ -81,11 +81,11 @@ jobs:
           files: ./target/nextest/default/junit.xml
   
   cross-compilation:
-    name: ${{ matrix.platform.target }} [release]
+    name: ${{ matrix.platform.target }} [debug]
     strategy:
       matrix:
         platform:
-          - target: x86_64-unknown-linux-musl
+          - target: aarch64-unknown-linux-gnu
 
     runs-on: ubuntu-latest
     container:
@@ -96,8 +96,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run a command in the container
-        run: cargo build --target aarch64-unknown-linux-gnu
+        run: cargo build --target ${{ matrix.platform.target }}
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform.target }}-release
-          path: target/*/release/rust-cross-compilation*
+          name: ${{ matrix.platform.target }}-debug
+          path: target/*/debug/rust-cross-compilation*
