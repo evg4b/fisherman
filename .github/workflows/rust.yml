@@ -100,4 +100,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform.target }}-debug
-          path: target/*/debug/rust-cross-compilation*
+          path: target/${{ matrix.platform.target }}/debug/fisherman*
