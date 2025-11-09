@@ -99,9 +99,11 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
+      
       - name: Install cross
         run: cargo install cross --locked
-      - name: Build with cross
+
+      - name: Build ${{ matrix.target }} with cross
         run: cross build --release --target ${{ matrix.target }}
   
   # cross-compilation:
