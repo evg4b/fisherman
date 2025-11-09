@@ -97,14 +97,14 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
+          target: ${{ matrix.platform.target }}
           override: true
       
       - name: Install cross
         run: cargo install cross --locked
 
-      - name: Build ${{ matrix.target }} with cross
-        run: cross build --release --target ${{ matrix.target }}
+      - name: Build ${{ matrix.platform.target }} with cross
+        run: cross build --release --target ${{ matrix.platform.target }}
   
   # cross-compilation:
   #   name: ${{ matrix.platform.target }} [debug]
