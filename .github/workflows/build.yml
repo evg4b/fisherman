@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  cross-compilation:
+    name: build ${{ matrix.platform.target }}
+    strategy:
+      matrix:
+        platform: 
+          - target: aarch64-apple-darwin
+            runs-on: macos-latest
+          - target: x86_64-apple-darwin
+            runs-on: macos-15-intel
+          - target: aarch64-pc-windows-msvc
+            runs-on: windows-11-arm
+          - target: x86_64-pc-windows-msvc
+            runs-on: windows-latest
+          - target: x86_64-unknown-linux-gnu
+            runs-on: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            runs-on: ubuntu-24.04-arm
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ matrix.platform.target }}-build
+
+      - name: Build ${{ matrix.platform.target }} with cross
+        run: cargo build --release --target ${{ matrix.platform.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.target }}-release
+          path: target/${{ matrix.platform.target }}/release/fisherman*

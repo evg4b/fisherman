@@ -26,3 +26,4 @@ Cargo.lock
 .fisherman.json
 *.profraw
 *.html
+.vscode

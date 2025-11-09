@@ -20,12 +20,19 @@
     </a>
 </div>
 
-# Getting Started
+> **Note:** Fisherman is still in development, so you use it at your own risk.
 
-Fisherman can be installed via [Cargo](https://doc.rust-lang.org/cargo/#the-cargo-book):
+## Install using Cargo
+
+You can install Fisherman via [Cargo](https://doc.rust-lang.org/cargo/#the-cargo-book):
 
 ```bash
 cargo install --git https://github.com/evg4b/fisherman.git
 ```
 
-> **Note:** Fisherman is still in development, so it is not recommended to use it in production.
+## Install Precompiled Binaries
+
+1.	Go to the [Build](https://github.com/evg4b/fisherman/actions/workflows/build.yml?query=branch%3Amaster+is%3Asuccess) workflow.
+2.	Select the latest successful run.
+3.	Scroll down to the Artifacts section.
+4.	Download the binaries matching your system and architecture.

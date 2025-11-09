@@ -1,0 +1,102 @@
+name: Analize and Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ matrix.platform.target }}-lint
+    - name: Lint
+      run: cargo clippy --all-targets --all-features -- -D warnings
+    - name: Report
+      run: cargo clippy --all-targets --all-features --message-format=json > clippy.json
+    - uses: actions/upload-artifact@v4
+      with:
+        name: clippy.json
+        path: clippy.json
+
+  test:
+    name: test ${{ matrix.platform.name }}
+    strategy:
+      matrix:
+        platform: 
+          # - name: macos
+          #   runs-on: macos-latest
+          - name: windows
+            runs-on: windows-latest
+          - name: lunix
+            runs-on: ubuntu-latest
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ matrix.platform.target.name }}-test
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: taiki-e/install-action@nextest
+      - name: Collect coverage data
+        run: |
+          cargo llvm-cov --no-report nextest
+          cargo llvm-cov report --lcov --output-path ${{ matrix.platform.name }}-lcov.info
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.name }}-coverage
+          path: ${{ matrix.platform.name }}-lcov.info
+
+  sonarqube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-coverage
+          path: windows-lcov.info
+      - uses: actions/download-artifact@v4
+        with:
+          name: lunix-coverage
+          # path: lunix-lcov.info
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: macos-coverage
+      #     path: macos-lcov.info
+      - uses: actions/download-artifact@v4
+        with:
+          name: clippy.json
+          # path: clippy.json
+      # - run: cat macos-lcov.info
+      - run: ls lunix-lcov.info
+      - run: ls windows-lcov.info
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
