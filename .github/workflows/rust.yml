@@ -91,6 +91,11 @@ jobs:
           - target: x86_64-apple-darwin
             runs-on: macos-15-intel
 
+          - target: arm64ec-pc-windows-msvc
+            runs-on: windows-11-arm
+          - target: x86_64-pc-windows-msvc
+            runs-on: windows-latest
+
           # - target: aarch64-unknown-linux-gnu
           #   runs-on: ubuntu-latest
           # - target: x86_64-pc-windows-gnu
@@ -104,12 +109,9 @@ jobs:
           toolchain: stable
           target: ${{ matrix.platform.target }}
           override: true
-      
-      - name: Install cross
-        run: cargo install cross --locked
 
       - name: Build ${{ matrix.platform.target }} with cross
-        run: cross build --release --target ${{ matrix.platform.target }}
+        run: cargo build --release --target ${{ matrix.platform.target }}
   
   # cross-compilation:
   #   name: ${{ matrix.platform.target }} [debug]
