@@ -14,3 +14,6 @@ install:
 
 coverage:
 	cargo llvm-cov --open
+
+container:
+    docker run -it --rm -v "$(pwd)":/app -w /app rust:latest bash
