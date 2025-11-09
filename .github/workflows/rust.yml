@@ -82,17 +82,14 @@ jobs:
   cross:
     runs-on: ubuntu-latest
     container:
-      # Используем локальный Dockerfile
-      build:
-        context: .
-        file: docker/Dockerfile.aarch64-unknown-linux-gnu
-        args:
-          # можно передать аргументы сборки, если нужно
-          TARGET_ARCH: aarch64-unknown-linux-gnu
+      image: node:16-alpine # Specify the Docker image to use
+      options: --user root # Optional: Add Docker run options
+      ports:
+        - 8080:8080 # Optional: Expose ports
+      volumes:
+        - my_volume:/data # Optional: Mount volumes
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: llvm-tools-preview
-      - name: build project
-        run: cd app && cargo build --target aarch64-unknown-linux-gnu --release
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run a command in the container
+        run: node -v
