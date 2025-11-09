@@ -88,8 +88,8 @@ jobs:
         platform: 
           - target: aarch64-apple-darwin
             runs-on: macos-latest
-          # - target: x86_64-apple-darwin
-          #   runs-on: macos-latest
+          - target: x86_64-apple-darwin
+            runs-on: macos-latest
 
           # - target: aarch64-unknown-linux-gnu
           #   runs-on: ubuntu-latest
@@ -108,8 +108,13 @@ jobs:
       - name: Install cross
         run: cargo install cross --locked
 
-      - name: Install dependencies
+      - name: Install OpenSSL (arm64)
+        if: matrix.platform.target == 'aarch64-apple-darwin'
         run: brew install openssl
+
+      - name: Install OpenSSL (Intel)
+        if: matrix.platform.target == 'x86_64-apple-darwin'
+        run: brew install openssl@3
 
       - name: Build ${{ matrix.platform.target }} with cross
         run: cross build --release --target ${{ matrix.platform.target }}
