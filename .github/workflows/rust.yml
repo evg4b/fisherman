@@ -82,14 +82,11 @@ jobs:
   cross:
     runs-on: ubuntu-latest
     container:
-      image: node:16-alpine # Specify the Docker image to use
-      options: --user root # Optional: Add Docker run options
-      ports:
-        - 8080:8080 # Optional: Expose ports
+      image: evg4b/rust-aarch64-unknown-linux-gnu
       volumes:
-        - my_volume:/data # Optional: Mount volumes
+        - .:/app
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Run a command in the container
-        run: node -v
+        run: cargo build --target aarch64-unknown-linux-gnu
