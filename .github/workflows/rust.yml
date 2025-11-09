@@ -79,42 +79,66 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./target/nextest/default/junit.xml
-  
-  cross-compilation:
+
+
+  build-cross:
     name: ${{ matrix.platform.target }} [debug]
     strategy:
       matrix:
-        platform:
+        platform: 
           - target: aarch64-unknown-linux-gnu
+            runs-on: ubuntu-latest
           - target: x86_64-pc-windows-gnu
-
+            runs-on: windows-latest
     runs-on: ubuntu-latest
-    container:
-      image: evg4b/rust-${{ matrix.platform.target }}
-      volumes:
-        - .:/app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Restore cache
-        id: cache-primes-restore
-        uses: actions/cache/restore@v4
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          path: target
-          key: ${{ matrix.platform.target }}
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      - name: Install cross
+        run: cargo install cross --locked
+      - name: Build with cross
+        run: cross build --release --target ${{ matrix.target }}
+  
+  # cross-compilation:
+  #   name: ${{ matrix.platform.target }} [debug]
+  #   strategy:
+  #     matrix:
+  #       platform:
+  #         - target: aarch64-unknown-linux-gnu
+  #         - target: x86_64-pc-windows-gnu
 
-      - name: Run a command in the container
-        run: cargo build --target ${{ matrix.platform.target }}
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: evg4b/rust-${{ matrix.platform.target }}
+  #     volumes:
+  #       - .:/app
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform.target }}-debug
-          path: target/${{ matrix.platform.target }}/debug/fisherman*
+  #     - name: Restore cache
+  #       id: cache-primes-restore
+  #       uses: actions/cache/restore@v4
+  #       with:
+  #         path: target
+  #         key: ${{ matrix.platform.target }}
+
+  #     - name: Run a command in the container
+  #       run: cargo build --target ${{ matrix.platform.target }}
+
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ${{ matrix.platform.target }}-debug
+  #         path: target/${{ matrix.platform.target }}/debug/fisherman*
       
-      - name: Save cache
-        id: cache-primes-save
-        uses: actions/cache/save@v4
-        with:
-          path: target
-          key: ${{ matrix.platform.target }}
+  #     - name: Save cache
+  #       id: cache-primes-save
+  #       uses: actions/cache/save@v4
+  #       with:
+  #         path: target
+  #         key: ${{ matrix.platform.target }}
