@@ -96,9 +96,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Restore cache
+        id: cache-primes-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: target
+          key: ${{ matrix.platform.target }}
+
       - name: Run a command in the container
         run: cargo build --target ${{ matrix.platform.target }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform.target }}-debug
           path: target/${{ matrix.platform.target }}/debug/fisherman*
+      
+      - name: Save cache
+        id: cache-primes-save
+        uses: actions/cache/save@v4
+        with:
+          path: target
+          key: ${{ matrix.platform.target }}
