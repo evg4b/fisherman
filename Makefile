@@ -4,7 +4,7 @@
 CARGO = cargo
 DOCKER = docker
 PWD = $(shell pwd)
-DOCKER_IMAGE_PREFIX = builder
+DOCKER_IMAGE_PREFIX = evg4b/rust
 DOCKERFILE_DIR = docker
 
 # ===========================================
@@ -76,4 +76,21 @@ release-aarch64-unknown-linux-gnu:
 container-aarch64-unknown-linux-gnu:
 	@echo "Starting interactive container..."
 	$(call docker_build_run,aarch64-unknown-linux-gnu,bash)
+
+# ===========================================
+# x86_64-pc-windows-gnu
+# ===========================================
+.PHONY: debug-x86_64-pc-windows-gnu
+debug-x86_64-pc-windows-gnu:
+	$(call docker_build_run,x86_64-pc-windows-gnu,$(CARGO) build --target x86_64-pc-windows-gnu)
+
+.PHONY: debug-x86_64-pc-windows-gnu
+release-x86_64-pc-windows-gnu:
+	$(call docker_build_run,x86_64-pc-windows-gnu,$(CARGO) build --target x86_64-pc-windows-gnu --release)
+
+.PHONY: container-x86_64-pc-windows-gnu
+container-x86_64-pc-windows-gnu:
+	@echo "Starting interactive container..."
+	$(call docker_build_run,x86_64-pc-windows-gnu,bash)
+
 

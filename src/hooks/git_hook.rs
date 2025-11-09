@@ -3,6 +3,7 @@ use anyhow::{bail, Result};
 use clap::ValueEnum;
 use serde::Deserialize;
 use std::fs;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
 const APPLYPATCH_MSG: &str = "applypatch-msg";
@@ -145,8 +146,20 @@ impl GitHook {
         }
 
         fs::write(hook_path, self.content(context))?;
-        fs::set_permissions(hook_path, fs::Permissions::from_mode(0o755))?;
+        GitHook::set_executable(hook_path)?;
 
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    fn set_executable(path: &std::path::Path) -> std::io::Result<()> {
+        use std::fs;
+        let perm = fs::Permissions::from_mode(0o755);
+        fs::set_permissions(path, perm)
+    }
+
+    #[cfg(windows)]
+    fn set_executable(_path: &std::path::Path) -> std::io::Result<()> {
         Ok(())
     }
 
