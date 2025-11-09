@@ -102,7 +102,15 @@ jobs:
           #   runs-on: windows-latest
     runs-on: ${{ matrix.platform.runs-on }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: target
+          key: ${{ matrix.platform.target }}
+      
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -112,6 +120,12 @@ jobs:
 
       - name: Build ${{ matrix.platform.target }} with cross
         run: cargo build --release --target ${{ matrix.platform.target }}
+
+      - name: Save cache
+        uses: actions/cache/save@v4
+        with:
+          path: target
+          key: ${{ matrix.platform.target }}
   
   # cross-compilation:
   #   name: ${{ matrix.platform.target }} [debug]
