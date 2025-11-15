@@ -9,18 +9,19 @@
 </p>
 <hr>
 <div align="center">
-    <a href="https://github.com/evg4b/fisherman/actions/workflows/rust.yml">
-        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/rust.yml?branch=master&label=Build">
+    <a href="https://github.com/evg4b/fisherman/actions/workflows/build.yml">
+        <img alt="Build Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/build.yml?label=Build">
+    </a>
+    <a href="https://github.com/evg4b/fisherman/actions/workflows/analize.yml">
+        <img alt="Tests Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/analize.yml?label=Tests">
+    </a>
+    <a href="https://codecov.io/gh/evg4b/fisherman">
+        <img alt="Codecov" src="https://img.shields.io/codecov/c/github/evg4b/fisherman?label=Coverage">
     </a>
     <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
         <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
     </a>
-    <a href="https://codecov.io/gh/evg4b/fisherman">
-        <img alt="Codecov" src="https://img.shields.io/codecov/c/github/evg4b/fisherman?label=Coverage"> 
-    </a>
 </div>
-
-> **Note:** Fisherman is still in development, so you use it at your own risk.
 
 ## Install using Cargo
 
@@ -36,3 +37,5 @@ cargo install --git https://github.com/evg4b/fisherman.git
 2.	Select the latest successful run.
 3.	Scroll down to the Artifacts section.
 4.	Download the binaries matching your system and architecture.
+
+> **Note:** Fisherman is still in development, so you use it at your own risk.
