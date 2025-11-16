@@ -27,3 +27,4 @@ Cargo.lock
 *.profraw
 *.html
 .vscode
+*.csv

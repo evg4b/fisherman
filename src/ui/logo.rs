@@ -1,4 +1,3 @@
-
 pub fn logo() -> String {
     format!(
         r#"
@@ -14,4 +13,3 @@ pub fn logo() -> String {
         format!("Version: {}", env!("CARGO_PKG_VERSION"))
     )
 }
-
