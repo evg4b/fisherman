@@ -40,8 +40,8 @@ jobs:
     strategy:
       matrix:
         platform: 
-          - name: macos
-            runs-on: macos-latest
+          # - name: macos
+          #   runs-on: macos-latest
           - name: windows
             runs-on: windows-latest
           - name: linux
