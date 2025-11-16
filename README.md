@@ -10,20 +10,28 @@
 <hr>
 <div align="center">
     <a href="https://github.com/evg4b/fisherman/actions/workflows/build.yml">
-        <img alt="Build Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/build.yml?label=Build">
+        <img alt="Build Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/build.yml?label=Build&logo=github">
     </a>
     <a href="https://github.com/evg4b/fisherman/actions/workflows/analize.yml">
-        <img alt="Tests Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/analize.yml?label=Tests">
+        <img alt="Tests Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/analize.yml?label=Tests&logo=github">
     </a>
     <a title="SonarCloud code coverage" href="https://sonarcloud.io/component_measures?id=evg4b_fisherman&metric=coverage&view=list">
         <img alt="SonarCloud code coverage" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=coverage">
     </a>
     <a href="https://sonarcloud.io/component_measures?id=evg4b_fisherman&metric=coverage">
-        <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
+        <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License&logo=github">
     </a>
+    <br />
     <a title="SonarCloud lines of code" href="https://sonarcloud.io/code?id=evg4b_fisherman">
       <img alt="SonarCloud lines of code" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=ncloc">
     </a>
+    <a title="Quality Gate Status" href="https://sonarcloud.io/summary/new_code?id=evg4b_fisherman">
+      <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=alert_status">
+    </a>
+    <a title="Security Rating" href="https://sonarcloud.io/summary/new_code?id=evg4b_fisherman">
+      <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=security_rating">
+    </a>
+    
 </div>
 
 ## Install using Cargo
