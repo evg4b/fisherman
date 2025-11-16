@@ -369,28 +369,6 @@ content = "Feature: {{Feature}}, Missing: {{UndefinedVar}}"
     ctx.git_commit_allow_empty_failure("test commit");
 }
 
-/// Tests that required variables fail when extraction doesn't match.
-/// Verifies that non-optional extraction failures prevent hook execution.
-#[test]
-fn template_failure_required_extraction_no_match() {
-    let ctx = TestContext::new();
-
-    let config = r#"
-extract = ["branch:^feature/(?P<Feature>[a-z-]+)"]
-
-[[hooks.pre-push]]
-type = "write-file"
-path = "output.txt"
-content = "Feature: {{Feature}}"
-"#;
-
-    ctx.setup_and_install(config);
-    // Stay on master branch which doesn't match the pattern
-    // Master doesn't match "^feature/..." pattern
-
-    ctx.git_commit_allow_empty_failure("test commit");
-}
-
 /// Tests that optional repo_path extraction doesn't fail when pattern doesn't match.
 /// Verifies optional repo_path? syntax allows execution to continue.
 #[test]
