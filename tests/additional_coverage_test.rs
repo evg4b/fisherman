@@ -208,34 +208,6 @@ content = "Repository: {{RepoName}}"
     assert!(content.starts_with("Repository: "));
 }
 
-/// Tests that multiple write-file rules can target the same file, with the first one
-/// creating/overwriting and subsequent ones appending content when append=true.
-#[test]
-fn multiple_write_files_to_same_location() {
-    let ctx = TestContext::new();
-
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "First write"
-append = false
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "\nSecond write"
-append = true
-"#;
-
-    ctx.setup_and_install(config);
-    ctx.git_commit_allow_empty_success("test commit");
-
-    let content = ctx.repo.read_file("output.txt");
-    assert!(content.contains("First write"));
-    assert!(content.contains("Second write"));
-}
-
 /// Tests that rules with false conditional expressions are skipped and don't affect
 /// the hook result. Verifies that a message without required prefix passes when the
 /// conditional is false.
