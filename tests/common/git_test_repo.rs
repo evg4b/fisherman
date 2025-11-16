@@ -13,7 +13,9 @@ pub struct GitTestRepo {
 
 impl GitTestRepo {
     pub fn new() -> Self {
-        let temp_dir = TempDir::new("fisherman_test").expect("Failed to create temp directory");
+        let temp_dir = TempDir::new("fisherman_test")
+            .expect("Failed to create temp directory");
+        
         let repo = Self {
             temp_dir,
             global_config_dir: None,
