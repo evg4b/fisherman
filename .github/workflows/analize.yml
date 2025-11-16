@@ -23,7 +23,7 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           target/
-        key: ${{ matrix.platform.target }}-lint
+        key: ubuntu-latest-lint
     - name: Lint
       run: cargo clippy --all-targets --all-features -- -D warnings
     - name: Report
