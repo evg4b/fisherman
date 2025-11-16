@@ -44,7 +44,7 @@ jobs:
           #   runs-on: macos-latest
           - name: windows
             runs-on: windows-latest
-          - name: lunix
+          - name: linux
             runs-on: ubuntu-latest
 
     runs-on: ${{ matrix.platform.runs-on }}
@@ -84,7 +84,6 @@ jobs:
           pattern: "*"
           merge-multiple: true
           path: .
-      - run: ls
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
