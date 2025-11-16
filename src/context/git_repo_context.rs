@@ -36,7 +36,8 @@ impl Context for GitRepoContext {
     fn commit_msg(&self) -> Result<String> {
         if let Some(message_file) = self.message_file.as_ref() {
             let message = fs::read_to_string(message_file)?;
-            return Ok(message);
+            // Git adds trailing newlines to commit messages, strip them for validation
+            return Ok(message.trim_end().to_string());
         }
 
         bail!("Commit message not available for this hook");
