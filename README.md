@@ -15,11 +15,14 @@
     <a href="https://github.com/evg4b/fisherman/actions/workflows/analize.yml">
         <img alt="Tests Workflow" src="https://img.shields.io/github/actions/workflow/status/evg4b/fisherman/analize.yml?label=Tests">
     </a>
-    <a href="https://codecov.io/gh/evg4b/fisherman">
-        <img alt="Codecov" src="https://img.shields.io/codecov/c/github/evg4b/fisherman?label=Coverage">
+    <a title="SonarCloud code coverage" href="https://sonarcloud.io/component_measures?id=evg4b_fisherman&metric=coverage&view=list">
+        <img alt="SonarCloud code coverage" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=coverage">
     </a>
-    <a href="https://github.com/evg4b/fisherman/blob/master/LICENSE">
+    <a href="https://sonarcloud.io/component_measures?id=evg4b_fisherman&metric=coverage">
         <img alt="GitHub License" src="https://img.shields.io/github/license/evg4b/fisherman?label=License">
+    </a>
+    <a title="SonarCloud lines of code" href="https://sonarcloud.io/code?id=evg4b_fisherman">
+      <img alt="SonarCloud lines of code" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=ncloc">
     </a>
 </div>
 
