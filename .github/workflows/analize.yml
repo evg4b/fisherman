@@ -81,23 +81,10 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/download-artifact@v4
         with:
-          name: windows-coverage
-          path: windows-lcov.info
-      - uses: actions/download-artifact@v4
-        with:
-          name: lunix-coverage
-          # path: lunix-lcov.info
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: macos-coverage
-      #     path: macos-lcov.info
-      - uses: actions/download-artifact@v4
-        with:
-          name: clippy.json
-          # path: clippy.json
-      # - run: cat macos-lcov.info
-      - run: ls lunix-lcov.info
-      - run: ls windows-lcov.info
+          pattern: "*"
+          merge-multiple: true
+          path: .
+      - run: ls
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
