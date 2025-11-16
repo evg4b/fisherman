@@ -23,7 +23,7 @@ rhai = "1.21.0"
 rayon = "1.10"
 
 [dev-dependencies]
-rstest = "0.25.0"
+rstest = "0.26.1"
 tempdir = "0.3"
 assert2 = "0.3"
 serde_json = "1.0.140"
