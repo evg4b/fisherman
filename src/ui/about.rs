@@ -9,3 +9,24 @@ impl IntoResettable<StyledStr> for About {
         Resettable::Value(StyledStr::from(logo()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::builder::Resettable;
+
+    #[test]
+    fn about_into_resettable_returns_logo() {
+        let about = About {};
+        let res = about.into_resettable();
+
+        match res {
+            Resettable::Value(value) => {
+                assert_eq!(value.to_string(), logo());
+            }
+            other => {
+                panic!("Expected Resettable::Value, got {:?}", other);
+            }
+        }
+    }
+}
