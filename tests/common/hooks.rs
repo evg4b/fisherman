@@ -30,8 +30,9 @@ pub enum Hook {
     PostIndexChange,
 }
 
+#[allow(dead_code)]
 impl Hook {
-    /// Возвращает срез со всеми вариантами enum
+    #[allow(dead_code)]
     pub fn iter() -> &'static [Hook] {
         &[
             Hook::ApplypatchMsg,
@@ -65,7 +66,7 @@ impl Hook {
         ]
     }
 
-    /// Возвращает строковое значение, аналог serde(rename)
+    #[allow(dead_code)]
     pub fn as_str(&self) -> &'static str {
         match self {
             Hook::ApplypatchMsg => "applypatch-msg",

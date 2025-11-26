@@ -62,7 +62,7 @@ fn slash_h() {
     assert_help_output(&output.stdout);
 }
 
-fn assert_help_output(output: &Vec<u8>) {
+fn assert_help_output(output: &[u8]) {
     let output_string = String::from_utf8_lossy(output).to_string();
 
     assert!(
