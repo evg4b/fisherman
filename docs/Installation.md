@@ -1,14 +1,14 @@
 This guide covers how to install Fisherman on your system and get started with Git hook management.
 
-## Requirements
+# Requirements
 
 - **Rust** 1.70 or higher (for building from source)
 - **Git** 2.0 or higher
 - **Operating System**: Linux, macOS, or Windows (with WSL)
 
-## Installation Methods
+# Installation Methods
 
-### From Source (Recommended)
+## From Source (Recommended)
 
 Install Fisherman using Cargo, Rust's package manager:
 
@@ -24,7 +24,7 @@ This will:
 
 Make sure `~/.cargo/bin` is in your PATH.
 
-### Verify Installation
+## Verify Installation
 
 After installation, verify that Fisherman is available:
 
@@ -40,11 +40,11 @@ fisherman 0.0.1
 
 ---
 
-## Quick Start
+# Quick Start
 
 Once installed, follow these steps to start using Fisherman:
 
-### 1. Create a Configuration File
+## 1. Create a Configuration File
 
 Create a `.fisherman.toml` file in your Git repository:
 
@@ -53,7 +53,7 @@ cd /path/to/your/repo
 touch .fisherman.toml
 ```
 
-### 2. Configure Your Hooks
+## 2. Configure Your Hooks
 
 Edit `.fisherman.toml` with your preferred text editor:
 
@@ -70,7 +70,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|style|refactor|test|chore):\\s.+"
 ```
 
-### 3. Install Hooks
+## 3. Install Hooks
 
 Install the configured hooks into your repository:
 
@@ -80,7 +80,7 @@ fisherman install
 
 This creates executable hook scripts in `.git/hooks/` that call Fisherman with the appropriate hook name.
 
-### 4. Test Your Hooks
+## 4. Test Your Hooks
 
 Try making a commit to test your hooks:
 
@@ -93,11 +93,11 @@ If configured correctly, your hooks will execute and validate the commit.
 
 ---
 
-## Configuration Locations
+# Configuration Locations
 
-Fisherman supports three configuration scopes. See [Configuration](Configuration.md) for details.
+Fisherman supports three configuration scopes. See [Configuration](./Configuration) for details.
 
-### Global Configuration
+## Global Configuration
 
 Create a global configuration that applies to all repositories:
 
@@ -116,7 +116,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?:\\s.+"
 ```
 
-### Repository Configuration
+## Repository Configuration
 
 Create a repository-specific configuration:
 
@@ -127,7 +127,7 @@ touch .fisherman.toml
 
 This configuration is shared with all developers via Git.
 
-### Local Configuration
+## Local Configuration
 
 Create a local configuration (not shared via Git):
 
@@ -140,9 +140,9 @@ This is useful for personal preferences you don't want to commit to the reposito
 
 ---
 
-## Installing Hooks
+# Installing Hooks
 
-### Install All Configured Hooks
+## Install All Configured Hooks
 
 ```bash
 fisherman install
@@ -150,7 +150,7 @@ fisherman install
 
 This installs all hooks that have rules defined in your configuration files.
 
-### Install Specific Hooks
+## Install Specific Hooks
 
 ```bash
 fisherman install pre-commit commit-msg
@@ -158,7 +158,7 @@ fisherman install pre-commit commit-msg
 
 This installs only the specified hooks.
 
-### Force Install (Override Existing Hooks)
+## Force Install (Override Existing Hooks)
 
 ```bash
 fisherman install --force
@@ -168,7 +168,7 @@ This overwrites existing hook scripts. The original scripts are backed up with a
 
 ---
 
-## Uninstalling Hooks
+# Uninstalling Hooks
 
 To remove Fisherman hooks, simply delete the hook scripts from `.git/hooks/`:
 
@@ -190,7 +190,7 @@ mv commit-msg.bkp commit-msg
 
 ---
 
-## Updating Fisherman
+# Updating Fisherman
 
 To update Fisherman to the latest version:
 
@@ -209,17 +209,17 @@ This ensures the hook scripts point to the latest Fisherman binary.
 
 ---
 
-## Platform-Specific Notes
+# Platform-Specific Notes
 
-### Linux
-
-No special considerations. Fisherman should work out of the box.
-
-### macOS
+## Linux
 
 No special considerations. Fisherman should work out of the box.
 
-### Windows (WSL)
+## macOS
+
+No special considerations. Fisherman should work out of the box.
+
+## Windows (WSL)
 
 Fisherman should work in WSL (Windows Subsystem for Linux). Make sure you're using a Unix-style Git installation within
 WSL.
@@ -228,9 +228,9 @@ WSL.
 
 ---
 
-## Troubleshooting
+# Troubleshooting
 
-### `fisherman: command not found`
+## `fisherman: command not found`
 
 **Problem:** Cargo's binary directory is not in your PATH.
 
@@ -248,7 +248,7 @@ source ~/.zshrc
 
 ---
 
-### Permission Denied
+## Permission Denied
 
 **Problem:** Hook scripts don't have execute permissions.
 
@@ -262,7 +262,7 @@ chmod +x .git/hooks/commit-msg
 
 ---
 
-### Hooks Not Running
+## Hooks Not Running
 
 **Problem:** Hooks are installed but don't execute.
 
@@ -290,7 +290,7 @@ chmod +x .git/hooks/commit-msg
 
 ---
 
-### Cargo Installation Fails
+## Cargo Installation Fails
 
 **Problem:** `cargo install` fails with compilation errors.
 
@@ -315,21 +315,21 @@ chmod +x .git/hooks/commit-msg
 
 ---
 
-## Next Steps
+# Next Steps
 
 Now that Fisherman is installed:
 
-1. **Learn about configuration** - Read [Configuration](Configuration.md) to understand how to structure your
+1. **Learn about configuration** - Read [Configuration](./Configuration) to understand how to structure your
    `.fisherman.toml` files
-2. **Explore available rules** - Check [Rules Reference](Rules.md) for all available rule types
-3. **Use variables and templates** - Learn about [Variables and Templates](Variables-and-Templates.md) for dynamic
+2. **Explore available rules** - Check [Rules Reference](./Rules-reference) for all available rule types
+3. **Use variables and templates** - Learn about [Variables and Templates](./Variables-and-templates) for dynamic
    configurations
-4. **See examples** - Browse [Examples](Examples-of-usage.md) for real-world use cases
-5. **Understand Git hooks** - Read [Git Hooks](Git-Hooks.md) for information about available hooks
+4. **See examples** - Browse [Examples](./Examples-of-usage) for real-world use cases
+5. **Understand Git hooks** - Read [Git Hooks](./Git-hooks) for information about available hooks
 
 ---
 
-## Getting Help
+# Getting Help
 
 - **Documentation** - Check this wiki for comprehensive guides
 - **Issues** - Report bugs or request features at [GitHub Issues](https://github.com/evg4b/fisherman/issues)

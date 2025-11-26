@@ -1,7 +1,7 @@
 This document contains a quite complex example of how to use fisherman,
 which may not be entirely clear from the documentation.
 
-## Commit Message Validation Based on Branch Name
+# Commit Message Validation Based on Branch Name
 
 Extract an issue number from your branch name and automatically enforce it as a prefix in commit messages.
 
@@ -20,7 +20,7 @@ prefix = "{{IssueNumber}}: "
 - If the branch doesn't match the pattern, no prefix is required
 - The `?` in the extract rule makes this pattern optional
 
-## Add a Commit Message Prefix to Fork
+# Add a Commit Message Prefix to Fork
 
 [Fork](https://git-fork.com/) is a UI git client, and it has a commit message template feature.
 But it doesn't support dynamic templates based on the branch name or other variables.
@@ -54,7 +54,7 @@ content = ""
 - If it is not defined, the fisherman an empty string to the file `.git/commit_msg_template.txt`.
 - Fork will use this file as a commit message template.
 
-## Branch name validation
+# Branch name validation
 
 Ensure that your branch name follows a specific pattern, such as starting with `feature/` or `bugfix/` and
 does not contain non-ASCII characters.
@@ -71,7 +71,7 @@ expression = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
 - Rejects names with non-ASCII characters or incorrect prefixes
 - The `pre-push` hook ensures this validation before pushing changes and creates a pull request if the branch is valid.
 
-## Parallel Execution for Faster Pre-Commit Checks
+# Parallel Execution for Faster Pre-Commit Checks
 
 Run multiple time-consuming checks concurrently to speed up your pre-commit workflow.
 

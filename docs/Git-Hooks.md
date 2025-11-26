@@ -1,18 +1,18 @@
 Fisherman supports all standard Git hooks. This reference explains when each hook is triggered, what arguments it
 receives, and common use cases.
 
-## Overview
+# Overview
 
 Git hooks are scripts that Git executes before or after events such as commits, pushes, and merges. Fisherman intercepts
 these hooks and executes configured rules based on your `.fisherman.toml` configuration.
 
 ---
 
-## Client-Side Hooks
+# Client-Side Hooks
 
 Client-side hooks are triggered by local operations like committing and merging.
 
-### `pre-commit`
+## `pre-commit`
 
 **Triggered:** Before a commit is created (after staging files but before entering the commit message)
 
@@ -52,7 +52,7 @@ args = ["clippy", "--", "-D", "warnings"]
 
 ---
 
-### `prepare-commit-msg`
+## `prepare-commit-msg`
 
 **Triggered:** After the default commit message is generated but before the editor is opened
 
@@ -88,7 +88,7 @@ append = true
 
 ---
 
-### `commit-msg`
+## `commit-msg`
 
 **Triggered:** After the user enters a commit message but before the commit is created
 
@@ -122,7 +122,7 @@ prefix = "PROJ-"
 
 ---
 
-### `post-commit`
+## `post-commit`
 
 **Triggered:** After a commit is created
 
@@ -157,7 +157,7 @@ append = true
 
 ---
 
-### `pre-rebase`
+## `pre-rebase`
 
 **Triggered:** Before a rebase operation starts
 
@@ -190,7 +190,7 @@ fi
 
 ---
 
-### `post-checkout`
+## `post-checkout`
 
 **Triggered:** After checking out a branch or file
 
@@ -231,7 +231,7 @@ args = ["install"]
 
 ---
 
-### `post-merge`
+## `post-merge`
 
 **Triggered:** After a merge completes successfully
 
@@ -266,7 +266,7 @@ args = ["build"]
 
 ---
 
-### `pre-push`
+## `pre-push`
 
 **Triggered:** Before pushing commits to a remote
 
@@ -314,7 +314,7 @@ fi
 
 ---
 
-### `pre-applypatch`
+## `pre-applypatch`
 
 **Triggered:** Before applying a patch
 
@@ -332,7 +332,7 @@ fi
 
 ---
 
-### `applypatch-msg`
+## `applypatch-msg`
 
 **Triggered:** After extracting the patch message but before applying the patch
 
@@ -351,7 +351,7 @@ fi
 
 ---
 
-### `post-applypatch`
+## `post-applypatch`
 
 **Triggered:** After a patch is applied
 
@@ -368,7 +368,7 @@ fi
 
 ---
 
-### `pre-merge-commit`
+## `pre-merge-commit`
 
 **Triggered:** After a merge succeeds but before the merge commit is created
 
@@ -395,7 +395,7 @@ args = ["test"]
 
 ---
 
-### `post-rewrite`
+## `post-rewrite`
 
 **Triggered:** After commits are rewritten (e.g., `git commit --amend`, `git rebase`)
 
@@ -416,7 +416,7 @@ args = ["test"]
 
 ---
 
-### `pre-auto-gc`
+## `pre-auto-gc`
 
 **Triggered:** Before automatic garbage collection
 
@@ -433,11 +433,11 @@ args = ["test"]
 
 ---
 
-## Server-Side Hooks
+# Server-Side Hooks
 
 Server-side hooks are triggered by network operations and run on the Git server.
 
-### `pre-receive`
+## `pre-receive`
 
 **Triggered:** When receiving a push, before any references are updated
 
@@ -458,7 +458,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `update`
+## `update`
 
 **Triggered:** Once per ref being updated in a push
 
@@ -480,7 +480,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `post-receive`
+## `post-receive`
 
 **Triggered:** After all references are updated on the server
 
@@ -502,7 +502,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `post-update`
+## `post-update`
 
 **Triggered:** After all references are updated (similar to post-receive)
 
@@ -519,7 +519,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `push-to-checkout`
+## `push-to-checkout`
 
 **Triggered:** When pushing to a repository with a checked-out working directory
 
@@ -538,7 +538,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `proc-receive`
+## `proc-receive`
 
 **Triggered:** When receiving a push for refs matching `receive.procReceiveRefs`
 
@@ -557,7 +557,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `reference-transaction`
+## `reference-transaction`
 
 **Triggered:** At various points during a reference transaction
 
@@ -578,9 +578,9 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-## Other Hooks
+# Other Hooks
 
-### `post-index-change`
+## `post-index-change`
 
 **Triggered:** After the index (staging area) changes
 
@@ -601,7 +601,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `fsmonitor-watchman`
+## `fsmonitor-watchman`
 
 **Triggered:** When Git needs to know which files have changed (if fsmonitor is enabled)
 
@@ -621,7 +621,7 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-### `sendemail-validate`
+## `sendemail-validate`
 
 **Triggered:** Before sending an email via `git send-email`
 
@@ -640,11 +640,11 @@ Server-side hooks are triggered by network operations and run on the Git server.
 
 ---
 
-## Perforce Hooks
+# Perforce Hooks
 
 These hooks are specific to Git's Perforce (P4) integration.
 
-### `p4-changelist`
+## `p4-changelist`
 
 **Triggered:** When creating a Perforce changelist message
 
@@ -656,7 +656,7 @@ These hooks are specific to Git's Perforce (P4) integration.
 
 ---
 
-### `p4-prepare-changelist`
+## `p4-prepare-changelist`
 
 **Triggered:** After preparing the Perforce changelist message but before editor is opened
 
@@ -668,7 +668,7 @@ These hooks are specific to Git's Perforce (P4) integration.
 
 ---
 
-### `p4-post-changelist`
+## `p4-post-changelist`
 
 **Triggered:** After a Perforce changelist is submitted
 
@@ -680,7 +680,7 @@ These hooks are specific to Git's Perforce (P4) integration.
 
 ---
 
-### `p4-pre-submit`
+## `p4-pre-submit`
 
 **Triggered:** Before submitting to Perforce
 
@@ -692,7 +692,7 @@ These hooks are specific to Git's Perforce (P4) integration.
 
 ---
 
-## Commonly Used Hooks Summary
+# Commonly Used Hooks Summary
 
 For most projects, you'll primarily use these hooks:
 
@@ -707,7 +707,7 @@ For most projects, you'll primarily use these hooks:
 
 ---
 
-## Best Practices
+# Best Practices
 
 1. **Keep hooks fast** - Slow hooks interrupt developer workflow
 2. **Use appropriate hooks** - Match actions to the right hook lifecycle
@@ -720,9 +720,9 @@ For most projects, you'll primarily use these hooks:
 
 ---
 
-## See Also
+# See Also
 
-- [Configuration](Configuration.md) - How to configure hooks
-- [Rules Reference](Rules.md) - Available rule types
-- [Examples](Examples-of-usage.md) - Real-world examples
+- [Configuration](Configuration) - How to configure hooks
+- [Rules Reference](Rules) - Available rule types
+- [Examples](Examples-of-usage) - Real-world examples
 - [Git Hooks Documentation](https://git-scm.com/docs/githooks) - Official Git hooks reference

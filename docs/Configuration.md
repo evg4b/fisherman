@@ -1,6 +1,6 @@
 Fisherman supports a variety of configuration options to configure its behavior and customize the hooks it manages.
 
-## Configuration File Formats
+# Configuration File Formats
 
 Fisherman supports three configuration file formats:
 
@@ -10,13 +10,13 @@ Fisherman supports three configuration file formats:
 
 All formats are functionally equivalent - choose the one you prefer.
 
-## Configuration Scopes
+# Configuration Scopes
 
 Fisherman uses a hierarchical configuration system where multiple configuration files can be loaded in sequence. This
 allows you to define global rules that apply to all repositories, while still allowing repository-specific
 customization.
 
-### 1. Global Scope
+## 1. Global Scope
 
 **Location:** `~/.fisherman.toml` (in your home directory)
 
@@ -34,7 +34,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|style|refactor|test|chore):\\s.+"
 ```
 
-### 2. Repository Scope
+## 2. Repository Scope
 
 **Location:** `/path/to/repo/.fisherman.toml` (in the root of your Git repository)
 
@@ -52,7 +52,7 @@ command = "cargo"
 args = ["test"]
 ```
 
-### 3. Local Scope
+## 3. Local Scope
 
 **Location:** `/path/to/repo/.git/.fisherman.toml` (in the `.git` directory)
 
@@ -70,7 +70,7 @@ command = "notify-send"
 args = ["Running pre-commit hook"]
 ```
 
-### Configuration Merging
+## Configuration Merging
 
 When multiple configuration files exist, Fisherman loads them in this order:
 
@@ -81,9 +81,9 @@ When multiple configuration files exist, Fisherman loads them in this order:
 **Important:** Fisherman merges configurations by **concatenating** rules for each hook. Rules are executed in the order
 they appear across all configuration files.
 
-## Configuration File Structure
+# Configuration File Structure
 
-### Basic Structure
+## Basic Structure
 
 ```toml
 # Optional: Extract variables from context (branch name, repo path)
@@ -100,9 +100,9 @@ when = "<condition>"
 # ... rule-specific parameters
 ```
 
-### Top-Level Fields
+## Top-Level Fields
 
-#### `extract` (optional)
+## `extract` (optional)
 
 An array of variable extraction patterns. Each pattern extracts named groups from Git context (branch name or repository
 path) and makes them available to rules as template variables.
@@ -125,15 +125,15 @@ extract = [
 ]
 ```
 
-See [Variables and Templates](Variables-and-Templates.md) for more details.
+See [Variables and Templates](./Variables-and-templates) for more details.
 
-### Hook Configuration
+## Hook Configuration
 
-#### `[[hooks.<hook-name>]]`
+## `[[hooks.<hook-name>]]`
 
 Defines a rule for a specific Git hook. You can define multiple rules for the same hook - they will execute in sequence.
 
-**Supported hooks:** See [Git Hooks](Git-Hooks.md) for the complete list.
+**Supported hooks:** See [Git Hooks](./Git-hooks) for the complete list.
 
 **Example:**
 
@@ -149,15 +149,15 @@ command = "cargo"
 args = ["clippy"]
 ```
 
-### Rule Fields
+## Rule Fields
 
 All rules support these common fields:
 
-#### `type` (required)
+## `type` (required)
 
-The type of rule to execute. See [Rules Reference](Rules.md) for available rule types.
+The type of rule to execute. See [Rules Reference](./Rules-reference) for available rule types.
 
-#### `when` (optional)
+## `when` (optional)
 
 A conditional expression that determines if the rule should execute. The rule only runs if the expression evaluates to
 `true`.
@@ -171,9 +171,9 @@ when = "is_def_var(\"IssueNumber\")"
 prefix = "{{IssueNumber}}: "
 ```
 
-See [Variables and Templates](Variables-and-Templates.md) for expression syntax.
+See [Variables and Templates](./Variables-and-templates) for expression syntax.
 
-#### `extract` (optional)
+## `extract` (optional)
 
 Override the global `extract` configuration for this specific rule. If specified, only these extraction patterns will be
 available to the rule.
@@ -188,9 +188,9 @@ command = "echo"
 args = ["Working on feature: {{Feature}}"]
 ```
 
-## Configuration Examples
+# Configuration Examples
 
-### Minimal Configuration
+## Minimal Configuration
 
 ```toml
 # .fisherman.toml
@@ -200,7 +200,7 @@ command = "cargo"
 args = ["test"]
 ```
 
-### Multi-Hook Configuration
+## Multi-Hook Configuration
 
 ```toml
 # .fisherman.toml
@@ -223,7 +223,7 @@ type = "branch-name-regex"
 regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+$"
 ```
 
-### Configuration with Variables
+## Configuration with Variables
 
 ```toml
 # .fisherman.toml
@@ -241,7 +241,7 @@ command = "echo"
 args = ["Pushing changes for {{IssueNumber}}"]
 ```
 
-### YAML Configuration Example
+## YAML Configuration Example
 
 ```yaml
 # .fisherman.yaml
@@ -266,7 +266,7 @@ hooks:
       prefix: "{{IssueNumber}}: "
 ```
 
-### JSON Configuration Example
+## JSON Configuration Example
 
 ```json
 {
@@ -294,7 +294,7 @@ hooks:
 }
 ```
 
-## Configuration Best Practices
+# Configuration Best Practices
 
 1. **Start simple** - Begin with basic rules and add complexity as needed
 2. **Use global scope for common rules** - Avoid repeating the same rules in every repository
@@ -304,19 +304,19 @@ hooks:
 6. **Use conditional execution** - Make rules flexible with `when` expressions
 7. **Document complex rules** - Add comments to explain non-obvious configurations
 
-## Troubleshooting
+# Troubleshooting
 
-### Multiple Configuration Files
+## Multiple Configuration Files
 
 If you have multiple configuration files in the same scope (e.g., both `.fisherman.toml` and `.fisherman.yaml` in the
 same directory), Fisherman will return an error. Keep only one configuration file per scope.
 
-### Invalid Configuration
+## Invalid Configuration
 
 If your configuration file has syntax errors or invalid rule definitions, Fisherman will display an error message when
 you try to install hooks. Use a TOML/YAML/JSON validator to check your syntax.
 
-### Variables Not Available
+## Variables Not Available
 
 If variables extracted in the global configuration are not available in rules, make sure:
 
@@ -324,4 +324,4 @@ If variables extracted in the global configuration are not available in rules, m
 - The variable name in the template matches the named group in the regex
 - The `when` condition checks if the variable is defined before using it
 
-See [Variables and Templates](Variables-and-Templates.md) for more details.
+See [Variables and Templates](./Variables-and-templates) for more details.

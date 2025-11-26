@@ -1,7 +1,7 @@
 Fisherman provides several commands to help you manage Git hooks. This document outlines the available commands and
 their usage.
 
-## Commands Overview
+# Commands Overview
 
 | Command   | Purpose                                    | Can Abort Operation           |
 |-----------|--------------------------------------------|-------------------------------|
@@ -11,35 +11,35 @@ their usage.
 
 ---
 
-## `install` - Install Hooks
+# `install` - Install Hooks
 
 Installs Git hooks into your repository's `.git/hooks` directory based on your configuration files.
 
-### Syntax
+## Syntax
 
 ```bash
 fisherman install [OPTIONS] [HOOKS...]
 ```
 
-### Options
+## Options
 
 - `-f`, `--force` - Overwrite existing hook scripts. Original scripts are backed up with `.bkp` extension
 - `-h`, `--help` - Display help information
 
-### Arguments
+## Arguments
 
 - `HOOKS` (optional) - Space-separated list of specific hooks to install (e.g., `pre-commit`, `commit-msg`)
 
 If omitted, installs all hooks that have rules configured in your `.fisherman.toml` files.
 
-### Behavior
+## Behavior
 
 1. **Reads configuration** from all scopes (global, repository, local)
 2. **Creates hook scripts** in `.git/hooks/` for each configured hook
 3. **Sets execute permissions** on hook scripts automatically
 4. **Backs up existing hooks** when using `--force` (saved as `.bkp` files)
 
-### Examples
+## Examples
 
 **Install all configured hooks:**
 
@@ -65,12 +65,12 @@ fisherman install --force
 fisherman install --force pre-commit pre-push
 ```
 
-### Exit Codes
+## Exit Codes
 
 - `0` - Success
 - `1` - Error (e.g., not in a Git repository, configuration error)
 
-### Notes
+## Notes
 
 - Must be run from within a Git repository
 - Hooks are installed per-repository (not globally)
@@ -79,22 +79,22 @@ fisherman install --force pre-commit pre-push
 
 ---
 
-## `explain` - Explain Hook Configuration
+# `explain` - Explain Hook Configuration
 
 Displays detailed information about a specific hook's configuration, including all rules that will execute when the hook
 is triggered.
 
-### Syntax
+## Syntax
 
 ```bash
 fisherman explain <HOOK>
 ```
 
-### Arguments
+## Arguments
 
 - `HOOK` (required) - Name of the Git hook to explain (e.g., `pre-commit`, `commit-msg`)
 
-### Behavior
+## Behavior
 
 1. **Reads configuration** from all scopes (global, repository, local)
 2. **Displays hook information**:
@@ -104,7 +104,7 @@ fisherman explain <HOOK>
     - Rule types and parameters
 3. **Shows merged configuration** from all scopes
 
-### Examples
+## Examples
 
 **Explain pre-commit hook:**
 
@@ -118,7 +118,7 @@ fisherman explain pre-commit
 fisherman explain commit-msg
 ```
 
-### Output Format
+## Output Format
 
 ```
 Hook: pre-commit
@@ -132,12 +132,12 @@ Rules:
   3. exec cargo clippy -- -D warnings
 ```
 
-### Exit Codes
+## Exit Codes
 
 - `0` - Success
 - `1` - Error (e.g., invalid hook name, configuration error)
 
-### Notes
+## Notes
 
 - Does not execute any rules, only displays configuration
 - Useful for debugging configuration issues
@@ -145,23 +145,23 @@ Rules:
 
 ---
 
-## `handle` - Execute Hook (Internal Command)
+# `handle` - Execute Hook (Internal Command)
 
 Executes the specified hook and its associated rules. This command is primarily used internally when Git triggers a
 hook, but can be useful for testing or debugging.
 
-### Syntax
+## Syntax
 
 ```bash
 fisherman handle <HOOK> [ARGS...]
 ```
 
-### Arguments
+## Arguments
 
 - `HOOK` (required) - Name of the Git hook to execute (e.g., `pre-commit`, `commit-msg`)
 - `ARGS` (optional) - Arguments passed by Git to the hook (varies by hook type)
 
-### Behavior
+## Behavior
 
 1. **Reads configuration** from all scopes
 2. **Extracts variables** based on `extract` configuration
@@ -174,7 +174,7 @@ fisherman handle <HOOK> [ARGS...]
     - `0` if all rules pass
     - `1` if any rule fails (aborts Git operation for pre-hooks)
 
-### Examples
+## Examples
 
 **Manually trigger pre-commit hook:**
 
@@ -188,7 +188,7 @@ fisherman handle pre-commit
 fisherman handle commit-msg .git/COMMIT_EDITMSG
 ```
 
-### Output Format
+## Output Format
 
 ```
 Hook: pre-commit
@@ -209,12 +209,12 @@ Configured in:
 exec cargo test: some tests failed
 ```
 
-### Exit Codes
+## Exit Codes
 
 - `0` - All rules passed
 - `1` - One or more rules failed
 
-### Notes
+## Notes
 
 - **Internal use**: Typically called by Git hooks installed via `fisherman install`
 - **Manual testing**: Useful for testing hook configuration without triggering Git
@@ -222,7 +222,7 @@ exec cargo test: some tests failed
 - **Can abort operations**: For hooks that can abort Git operations (e.g., `pre-commit`, `commit-msg`, `pre-push`), a
   failure prevents the Git operation
 
-### Common Use Cases for Manual Testing
+## Common Use Cases for Manual Testing
 
 **Test pre-commit hook:**
 
@@ -249,14 +249,14 @@ fisherman handle commit-msg /tmp/test-commit-msg
 
 ---
 
-## Global Options
+# Global Options
 
 These options work with all commands:
 
 - `-h`, `--help` - Display help information for the command
 - `-V`, `--version` - Display Fisherman version information
 
-### Examples
+## Examples
 
 ```bash
 # Get help for install command
@@ -271,7 +271,7 @@ fisherman --version
 
 ---
 
-## Environment Variables
+# Environment Variables
 
 Fisherman respects these environment variables:
 
@@ -280,7 +280,7 @@ Fisherman respects these environment variables:
 
 ---
 
-## Exit Codes
+# Exit Codes
 
 All Fisherman commands use these exit codes:
 
@@ -289,9 +289,9 @@ All Fisherman commands use these exit codes:
 
 ---
 
-## Typical Workflow
+# Typical Workflow
 
-### Initial Setup
+## Initial Setup
 
 ```bash
 # 1. Create configuration
@@ -314,7 +314,7 @@ fisherman explain pre-commit
 fisherman explain commit-msg
 ```
 
-### Testing Hooks
+## Testing Hooks
 
 ```bash
 # Test hooks manually
@@ -322,7 +322,7 @@ fisherman handle pre-commit
 fisherman handle commit-msg .git/COMMIT_EDITMSG
 ```
 
-### Updating Configuration
+## Updating Configuration
 
 ```bash
 # 1. Edit configuration
@@ -338,9 +338,9 @@ fisherman handle pre-commit
 
 ---
 
-## Troubleshooting Commands
+# Troubleshooting Commands
 
-### Check Installed Hooks
+## Check Installed Hooks
 
 ```bash
 # List installed hooks
@@ -350,7 +350,7 @@ ls -la .git/hooks/
 cat .git/hooks/pre-commit
 ```
 
-### Verify Configuration
+## Verify Configuration
 
 ```bash
 # Explain all configured hooks
@@ -359,7 +359,7 @@ fisherman explain commit-msg
 fisherman explain pre-push
 ```
 
-### Test Hooks Manually
+## Test Hooks Manually
 
 ```bash
 # Test individual hooks
@@ -367,7 +367,7 @@ fisherman handle pre-commit
 fisherman handle commit-msg .git/COMMIT_EDITMSG
 ```
 
-### Check Hook Execution
+## Check Hook Execution
 
 ```bash
 # Add verbose output to see what's happening
@@ -376,9 +376,9 @@ git commit -v
 
 ---
 
-## See Also
+# See Also
 
-- [Installation](Installation.md) - How to install Fisherman
-- [Configuration](Configuration.md) - Configuration file format
-- [Rules Reference](Rules.md) - Available rule types
-- [Git Hooks](Git-Hooks.md) - Git hooks reference
+- [Installation](./Installation) - How to install Fisherman
+- [Configuration](./Configuration) - Configuration file format
+- [Rules Reference](./Rules-reference) - Available rule types
+- [Git Hooks](./Git-hooks) - Git hooks reference

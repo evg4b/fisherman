@@ -1,18 +1,16 @@
-# Rules Reference
-
 Fisherman provides a comprehensive set of rules for validating and automating Git hooks. Rules can be combined, use
 variables, and execute conditionally.
 
-## Common Rule Fields
+# Common Rule Fields
 
 All rules support these common fields:
 
 - **`type`** (required) - The rule type identifier
 - **`when`** (optional) - Conditional expression for executing the rule (
-  see [Variables and Templates](Variables-and-Templates.md))
+  see [Variables and Templates](./Variables-and-templates))
 - **`extract`** (optional) - Override global variable extraction for this rule
 
-## Execution Modes
+# Execution Modes
 
 Rules are executed in two modes:
 
@@ -49,11 +47,11 @@ If each rule takes 5 seconds, parallel execution completes in ~5 seconds instead
 
 ---
 
-## Commit Message Rules
+# Commit Message Rules
 
 Rules for validating and enforcing commit message formats. These rules are typically used with the `commit-msg` hook.
 
-### `message-regex`
+## `message-regex`
 
 Validates that the commit message matches a regular expression pattern.
 
@@ -88,7 +86,7 @@ regex = "^(PROJ-\\d+|NO-ISSUE):\\s.+"
 
 ---
 
-### `message-prefix`
+## `message-prefix`
 
 Validates that the commit message starts with a specific prefix.
 
@@ -125,7 +123,7 @@ prefix = "{{IssueNumber}}: "
 
 ---
 
-### `message-suffix`
+## `message-suffix`
 
 Validates that the commit message ends with a specific suffix.
 
@@ -162,12 +160,12 @@ suffix = " (by {{Username}})"
 
 ---
 
-## Branch Name Rules
+# Branch Name Rules
 
 Rules for validating branch naming conventions. These rules are typically used with the `pre-push` or `pre-commit`
 hooks.
 
-### `branch-name-regex`
+## `branch-name-regex`
 
 Validates that the current branch name matches a regular expression pattern.
 
@@ -207,7 +205,7 @@ regex = "^(PROJ-\\d+|main|develop)-.*$"
 
 ---
 
-### `branch-name-prefix`
+## `branch-name-prefix`
 
 Validates that the current branch name starts with a specific prefix.
 
@@ -233,7 +231,7 @@ prefix = "feature/"
 
 ---
 
-### `branch-name-suffix`
+## `branch-name-suffix`
 
 Validates that the current branch name ends with a specific suffix.
 
@@ -259,11 +257,11 @@ suffix = "-dev"
 
 ---
 
-## Execution Rules
+# Execution Rules
 
 Rules for executing external commands and scripts.
 
-### `exec`
+## `exec`
 
 Executes an external command with arguments and environment variables.
 
@@ -321,7 +319,7 @@ args = ["Running tests for {{Feature}}"]
 
 ---
 
-### `shell`
+## `shell`
 
 Executes a shell script with full shell features (pipes, redirections, variables, etc.).
 
@@ -394,11 +392,11 @@ script = "cargo test --features integration"
 
 ---
 
-## File System Rules
+# File System Rules
 
 Rules for file system operations.
 
-### `write-file`
+## `write-file`
 
 Writes content to a file, optionally appending to existing content.
 
@@ -457,11 +455,11 @@ append = true
 
 ---
 
-## Rule Combinations
+# Rule Combinations
 
 Rules can be combined to create sophisticated workflows:
 
-### Conditional Execution Based on Branch
+## Conditional Execution Based on Branch
 
 ```toml
 extract = ["branch?:^(?<IssueNumber>PROJ-\\d+)-.*$"]
@@ -480,7 +478,7 @@ command = "cargo"
 args = ["test", "--features", "integration"]
 ```
 
-### Multiple Validation Steps
+## Multiple Validation Steps
 
 ```toml
 # Check branch name format
@@ -505,7 +503,7 @@ type = "shell"
 script = "cargo fmt --check"
 ```
 
-### Dynamic Configuration
+## Dynamic Configuration
 
 ```toml
 extract = [
@@ -529,7 +527,7 @@ args = ["test"]
 
 ---
 
-## Best Practices
+# Best Practices
 
 1. **Start with simple rules** - Begin with basic validation before adding complex logic
 2. **Use meaningful rule names** - Comments help explain complex configurations
@@ -546,27 +544,27 @@ args = ["test"]
 
 ---
 
-## Troubleshooting
+# Troubleshooting
 
-### Rule Not Executing
+## Rule Not Executing
 
 - Check that the hook is configured for the correct Git hook
 - Verify the `when` condition evaluates to `true`
 - Ensure variables are extracted correctly
 - Use `fisherman explain <hook>` to see configured rules
 
-### Command Failures
+## Command Failures
 
 - Check command exists and is in PATH
 - Verify arguments are correct
 - Review environment variables
 - Test command manually outside Fisherman
 
-### Template Variables Not Working
+## Template Variables Not Working
 
 - Ensure variables are extracted with `extract`
 - Check variable names match regex named groups
 - Verify variable is defined before using (use `when` condition)
 - Use `{{variable}}` syntax, not `${variable}`
 
-See [Examples](Examples-of-usage.md) for more real-world use cases.
+See [Examples](./Examples-of-usage) for more real-world use cases.

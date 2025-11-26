@@ -8,13 +8,13 @@
   Small git hook management tool for developer.
 </p>
 
-## Overview
+# Overview
 
 Fisherman is a lightweight, declarative Git hook manager that simplifies automation of your local Git workflows.
 While many hook managers focus on basic tasks like running tests or linting code,
 Fisherman enables more sophisticated hook configurations with minimal effort.
 
-## Key Features
+# Key Features
 
 - ✅ **Declarative Configuration** - Define hooks using TOML, YAML, or JSON files
 - ✅ **Context-Aware Rules** - Create hooks that respond to branch names, file paths, and more
@@ -26,9 +26,9 @@ Fisherman enables more sophisticated hook configurations with minimal effort.
 - ✅ **Parallel Execution** - Async rules (exec, shell, write-file) run in parallel for faster hook execution
 - ✅ **Easy Installation** - Single binary, no runtime dependencies
 
-## Quick Start
+# Quick Start
 
-### Installation
+## Installation
 
 Install Fisherman using Cargo:
 
@@ -36,13 +36,13 @@ Install Fisherman using Cargo:
 cargo install --git https://github.com/evg4b/fisherman.git
 ```
 
-### Basic Usage
+## Basic Usage
 
 1. Create a configuration file in your repository (`.fisherman.toml`, `.fisherman.yaml`, or `.fisherman.json`)
 2. Define your hooks and rules
 3. Install the hooks with `fisherman install`
 
-### Example Configuration
+## Example Configuration
 
 ```toml
 # .fisherman.toml
@@ -59,7 +59,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|style|refactor|test|chore):\\s.+"
 ```
 
-### Install Hooks
+## Install Hooks
 
 ```bash
 # Install configured hooks
@@ -72,17 +72,17 @@ fisherman install pre-commit pre-push
 fisherman install --force
 ```
 
-## Documentation
+# Documentation
 
-- [Installation](./Installation.md) - How to install Fisherman
-- [CLI Commands](./CLI-Commands.md) - Command-line interface reference
-- [Configuration](./Configuration.md) - Configuration file format and scopes
-- [Rules Reference](./Rules.md) - Complete list of available rules
-- [Variables and Templates](./Variables-and-Templates.md) - How to use variables and templates
-- [Examples](./Examples-of-usage.md) - Common use cases and examples
-- [Git Hooks](./Git-Hooks.md) - Supported Git hooks reference
+- [Installation](./Installation) - How to install Fisherman
+- [CLI Commands](./CLI-commands) - Command-line interface reference
+- [Configuration](./Configuration) - Configuration file format and scopes
+- [Rules Reference](./Rules-reference) - Complete list of available rules
+- [Variables and Templates](./Variables-and-templates) - How to use variables and templates
+- [Examples](./Examples-of-usage) - Common use cases and examples
+- [Git Hooks](./Git-hooks) - Supported Git hooks reference
 
-## Why Fisherman?
+# Why Fisherman?
 
 Fisherman was designed to be:
 
@@ -92,11 +92,11 @@ Fisherman was designed to be:
 - **Portable** - Single binary written in Rust, no runtime dependencies
 - **Global** - Define rules once in your home directory for all repositories
 
-## Contributing
+# Contributing
 
 Contributions are welcome! Please check the [GitHub repository](https://github.com/evg4b/fisherman) for more
 information.
 
-## License
+# License
 
 MIT License - see the [LICENSE](https://github.com/evg4b/fisherman/blob/master/LICENSE) file for details.

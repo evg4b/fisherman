@@ -1,9 +1,7 @@
-# Variables and Templates
-
 Fisherman provides a powerful variable extraction and template system that allows you to extract information from your
 Git context (branch name, repository path) and use it throughout your hook configurations.
 
-## Overview
+# Overview
 
 Variables and templates enable:
 
@@ -13,11 +11,11 @@ Variables and templates enable:
 
 ---
 
-## Variable Extraction
+# Variable Extraction
 
 Variables are extracted from Git context using regex patterns with named capture groups.
 
-### Extraction Syntax
+## Extraction Syntax
 
 ```toml
 extract = ["<source>:<regex-pattern>"]
@@ -30,9 +28,9 @@ where:
 - `<source>` - The data source to extract from
 - `<regex>` - A regular expression with named capture groups
 
-### Supported Sources
+## Supported Sources
 
-#### `branch` - Current Branch Name (Required Match)
+## `branch` - Current Branch Name (Required Match)
 
 Extracts variables from the current Git branch name. If the pattern doesn't match, Fisherman will throw an error.
 
@@ -48,7 +46,7 @@ For branch `PROJ-1234-fix-bug`, this extracts:
 
 ---
 
-#### `branch?` - Current Branch Name (Optional Match)
+## `branch?` - Current Branch Name (Optional Match)
 
 Extracts variables from the branch name, but doesn't fail if the pattern doesn't match.
 
@@ -65,7 +63,7 @@ For branch `PROJ-1234-fix-bug`, this extracts:
 
 ---
 
-#### `repo_path` - Repository Path (Required Match)
+## `repo_path` - Repository Path (Required Match)
 
 Extracts variables from the absolute path to the repository. If the pattern doesn't match, Fisherman will throw an
 error.
@@ -82,7 +80,7 @@ For path `/home/john/projects/myrepo`, this extracts:
 
 ---
 
-#### `repo_path?` - Repository Path (Optional Match)
+## `repo_path?` - Repository Path (Optional Match)
 
 Extracts variables from the repository path, but doesn't fail if the pattern doesn't match.
 
@@ -99,7 +97,7 @@ For path `/home/john/projects/myrepo`, this extracts:
 
 ---
 
-### Multiple Extractions
+## Multiple Extractions
 
 You can extract multiple variables from different sources or using multiple patterns:
 
@@ -118,9 +116,9 @@ For branch `feature/123-new-widget` and path `/home/alice/projects/myapp`:
 
 ---
 
-### Extraction Examples
+## Extraction Examples
 
-#### Extract Issue Number from Branch
+## Extract Issue Number from Branch
 
 ```toml
 extract = ["branch?:^(?<IssueNumber>JIRA-\\d+)-.*$"]
@@ -134,7 +132,7 @@ extract = ["branch?:^(?<IssueNumber>JIRA-\\d+)-.*$"]
 
 ---
 
-#### Extract Multiple Parts from Branch
+## Extract Multiple Parts from Branch
 
 ```toml
 extract = ["branch?:^(?<Type>[^/]+)/(?<Project>[^/]+)/(?<Description>.*)$"]
@@ -148,7 +146,7 @@ extract = ["branch?:^(?<Type>[^/]+)/(?<Project>[^/]+)/(?<Description>.*)$"]
 
 ---
 
-#### Extract Username from Path
+## Extract Username from Path
 
 ```toml
 extract = ["repo_path?:^/home/(?<Username>[^/]+)/.*$"]
@@ -162,11 +160,11 @@ extract = ["repo_path?:^/home/(?<Username>[^/]+)/.*$"]
 
 ---
 
-## Template Substitution
+# Template Substitution
 
 Once variables are extracted, you can use them in your rules using the `{{variable}}` syntax.
 
-### Template Syntax
+## Template Syntax
 
 ```toml
 "{{VariableName}}"
@@ -180,9 +178,9 @@ Templates can be used in:
 - Commit message prefixes/suffixes
 - Shell scripts
 
-### Template Examples
+## Template Examples
 
-#### Simple Substitution
+## Simple Substitution
 
 ```toml
 extract = ["branch?:^(?<IssueNumber>PROJ-\\d+)-.*$"]
@@ -197,7 +195,7 @@ For branch `PROJ-1234-fix-bug`, commit messages must start with `PROJ-1234: `.
 
 ---
 
-#### Multiple Variables in Templates
+## Multiple Variables in Templates
 
 ```toml
 extract = ["branch?:^(?<Type>[^/]+)/(?<Issue>\\d+)-.*$"]
@@ -213,7 +211,7 @@ For branch `feature/123-new-widget`, outputs: `Working on feature issue #123`.
 
 ---
 
-#### Templates in Shell Scripts
+## Templates in Shell Scripts
 
 ```toml
 extract = ["branch?:^(?<IssueNumber>PROJ-\\d+)-.*$"]
@@ -229,7 +227,7 @@ curl -f "https://api.example.com/issues/{{IssueNumber}}"
 
 ---
 
-#### Templates in File Content
+## Templates in File Content
 
 ```toml
 extract = ["branch?:^(?<IssueNumber>PROJ-\\d+)-.*$"]
@@ -243,39 +241,39 @@ content = "{{IssueNumber}}: "
 
 ---
 
-## Conditional Expressions
+# Conditional Expressions
 
 The `when` parameter allows you to execute rules conditionally based on extracted variables and expressions.
 
-### Expression Syntax
+## Expression Syntax
 
 Fisherman uses the [Rhai scripting language](https://rhai.rs/) for expressions. Common operations:
 
-#### Check if Variable is Defined
+## Check if Variable is Defined
 
 ```toml
 when = "is_def_var(\"VariableName\")"
 ```
 
-#### Check if Variable is NOT Defined
+## Check if Variable is NOT Defined
 
 ```toml
 when = "!is_def_var(\"VariableName\")"
 ```
 
-#### Compare Variable Values
+## Compare Variable Values
 
 ```toml
 when = "is_def_var(\"Type\") && Type == \"feature\""
 ```
 
-#### Numeric Comparisons
+## Numeric Comparisons
 
 ```toml
 when = "is_def_var(\"IssueNumber\") && parse_int(IssueNumber) > 1000"
 ```
 
-#### Logical Operators
+## Logical Operators
 
 ```toml
 when = "is_def_var(\"Type\") && (Type == \"feature\" || Type == \"bugfix\")"
@@ -283,9 +281,9 @@ when = "is_def_var(\"Type\") && (Type == \"feature\" || Type == \"bugfix\")"
 
 ---
 
-### Conditional Expression Examples
+## Conditional Expression Examples
 
-#### Execute Only When Variable Exists
+## Execute Only When Variable Exists
 
 ```toml
 [[hooks.commit-msg]]
@@ -296,7 +294,7 @@ prefix = "{{IssueNumber}}: "
 
 ---
 
-#### Execute When Variable Doesn't Exist
+## Execute When Variable Doesn't Exist
 
 ```toml
 [[hooks.post-checkout]]
@@ -308,7 +306,7 @@ content = ""
 
 ---
 
-#### Execute Based on Variable Value
+## Execute Based on Variable Value
 
 ```toml
 extract = ["branch?:^(?<Type>[^/]+)/.*$"]
@@ -322,7 +320,7 @@ args = ["test", "--features", "integration"]
 
 ---
 
-#### Complex Conditions
+## Complex Conditions
 
 ```toml
 extract = [
@@ -337,11 +335,11 @@ script = "echo 'Warning: Old hotfix branch!'"
 
 ---
 
-## Available Expression Functions
+# Available Expression Functions
 
 Fisherman provides these functions for use in `when` expressions:
 
-### `is_def_var(variable_name)`
+## `is_def_var(variable_name)`
 
 Check if a variable is defined.
 
@@ -359,7 +357,7 @@ when = "is_def_var(\"IssueNumber\")"
 
 ---
 
-### `parse_int(string_value)`
+## `parse_int(string_value)`
 
 Parse a string to an integer.
 
@@ -377,7 +375,7 @@ when = "parse_int(IssueNumber) > 1000"
 
 ---
 
-### Standard Rhai Functions
+## Standard Rhai Functions
 
 Fisherman also supports standard Rhai functions and operators:
 
@@ -394,9 +392,9 @@ when = "is_def_var(\"Type\") && Type.starts_with(\"feature\")"
 
 ---
 
-## Complete Examples
+# Complete Examples
 
-### Example 1: Dynamic Commit Message Prefix
+## Example 1: Dynamic Commit Message Prefix
 
 ```toml
 # Extract issue number from branch name
@@ -416,7 +414,7 @@ prefix = "{{IssueNumber}}: "
 
 ---
 
-### Example 2: Conditional Test Execution
+## Example 2: Conditional Test Execution
 
 ```toml
 # Extract branch type
@@ -438,7 +436,7 @@ args = ["test", "--test", "integration"]
 
 ---
 
-### Example 3: Dynamic Commit Template for Git GUI
+## Example 3: Dynamic Commit Template for Git GUI
 
 ```toml
 # Extract issue number from branch
@@ -461,7 +459,7 @@ content = ""
 
 ---
 
-### Example 4: Multi-Team Repository
+## Example 4: Multi-Team Repository
 
 ```toml
 # Extract team and issue from branch
@@ -490,7 +488,7 @@ regex = "^\\[#{{Issue}}\\].*$"
 
 ---
 
-### Example 5: User-Specific Configuration
+## Example 5: User-Specific Configuration
 
 ```toml
 # Extract username from repository path
@@ -506,7 +504,7 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-## Best Practices
+# Best Practices
 
 1. **Use optional extraction (`?`) for flexibility** - Prevents errors when patterns don't match
 2. **Always check variables before using them** - Use `when = "is_def_var(\"Variable\")"` to avoid errors
@@ -519,9 +517,9 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-## Troubleshooting
+# Troubleshooting
 
-### Variable Not Extracted
+## Variable Not Extracted
 
 **Problem:** Variable is not available in rules
 
@@ -534,7 +532,7 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-### Template Not Substituted
+## Template Not Substituted
 
 **Problem:** Template `{{Variable}}` appears literally in output
 
@@ -547,7 +545,7 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-### Conditional Not Working
+## Conditional Not Working
 
 **Problem:** Rule executes when it shouldn't (or vice versa)
 
@@ -561,7 +559,7 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-### Pattern Matching Issues
+## Pattern Matching Issues
 
 **Problem:** Regex pattern doesn't match expected branches
 
@@ -574,8 +572,8 @@ args = ["Commit successful!", "Changes committed by {{Username}}"]
 
 ---
 
-## See Also
+# See Also
 
-- [Configuration](Configuration.md) - Configuration file structure and scopes
-- [Rules Reference](Rules.md) - Complete list of available rules
-- [Examples](Examples-of-usage.md) - Real-world usage examples
+- [Configuration](./Configuration) - Configuration file structure and scopes
+- [Rules Reference](./Rules-reference) - Complete list of available rules
+- [Examples](./Examples-of-usage) - Real-world usage examples
