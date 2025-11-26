@@ -2,7 +2,7 @@ name: Publish wiki
 on:
   push:
     branches: [master]
-    paths: [wiki/**, .github/workflows/publish-wiki.yml]
+    paths: [docs/**, .github/workflows/publish-wiki.yml]
 concurrency:
   group: wiki
   cancel-in-progress: true

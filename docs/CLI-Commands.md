@@ -1,5 +1,3 @@
-# CLI Commands
-
 Fisherman provides several commands to help you manage Git hooks. This document outlines the available commands and
 their usage.
 
@@ -384,12 +382,3 @@ git commit -v
 - [Configuration](Configuration.md) - Configuration file format
 - [Rules Reference](Rules.md) - Available rule types
 - [Git Hooks](Git-Hooks.md) - Git hooks reference
-
-
-
-
-
-
-
-
-

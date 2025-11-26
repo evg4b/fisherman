@@ -1,5 +1,3 @@
-# Git Hooks Reference
-
 Fisherman supports all standard Git hooks. This reference explains when each hook is triggered, what arguments it
 receives, and common use cases.
 

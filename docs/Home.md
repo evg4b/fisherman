@@ -74,13 +74,13 @@ fisherman install --force
 
 ## Documentation
 
-- [Installation](Installation.md) - How to install Fisherman
-- [CLI Commands](CLI-Commands.md) - Command-line interface reference
-- [Configuration](Configuration.md) - Configuration file format and scopes
-- [Rules Reference](Rules.md) - Complete list of available rules
-- [Variables and Templates](Variables-and-Templates.md) - How to use variables and templates
-- [Examples](Examples-of-usage.md) - Common use cases and examples
-- [Git Hooks](Git-Hooks.md) - Supported Git hooks reference
+- [Installation](./Installation.md) - How to install Fisherman
+- [CLI Commands](./CLI-Commands.md) - Command-line interface reference
+- [Configuration](./Configuration.md) - Configuration file format and scopes
+- [Rules Reference](./Rules.md) - Complete list of available rules
+- [Variables and Templates](./Variables-and-Templates.md) - How to use variables and templates
+- [Examples](./Examples-of-usage.md) - Common use cases and examples
+- [Git Hooks](./Git-Hooks.md) - Supported Git hooks reference
 
 ## Why Fisherman?
 

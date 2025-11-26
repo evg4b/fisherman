@@ -1,5 +1,3 @@
-# Configuration
-
 Fisherman supports a variety of configuration options to configure its behavior and customize the hooks it manages.
 
 ## Configuration File Formats

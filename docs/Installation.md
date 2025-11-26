@@ -1,5 +1,3 @@
-# Installation
-
 This guide covers how to install Fisherman on your system and get started with Git hook management.
 
 ## Requirements

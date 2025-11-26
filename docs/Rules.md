@@ -185,6 +185,11 @@ type = "branch-name-regex"
 regex = "^(feature|bugfix|hotfix|release)/[a-z0-9-]+$"
 ```
 
+<details open>
+  <summary>Click to collapse</summary>
+  This content will be visible by default.
+</details>
+
 **Example - Require Issue Prefix:**
 
 ```toml
