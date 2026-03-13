@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -10,6 +11,7 @@ pub struct WriteFile {
     path: TemplateString,
     content: TemplateString,
     append: bool,
+    variables: HashMap<String, String>,
 }
 
 impl WriteFile {
@@ -18,12 +20,14 @@ impl WriteFile {
         path: TemplateString,
         content: TemplateString,
         append: bool,
+        variables: HashMap<String, String>,
     ) -> WriteFile {
         WriteFile {
             name,
             path,
             content,
             append,
+            variables,
         }
     }
 }
@@ -33,10 +37,9 @@ impl CompiledRule for WriteFile {
         false
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&[])?;
-        let content = self.content.to_string(&variables)?;
-        let path = self.path.to_string(&variables)?;
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+        let content = self.content.to_string(&self.variables)?;
+        let path = self.path.to_string(&self.variables)?;
 
         let mut file = OpenOptions::new()
             .write(true)
@@ -58,9 +61,9 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
+    use anyhow::Result;
     use std::collections::HashMap;
     use std::fs;
-    use anyhow::Result;
     use tempfile::TempDir;
 
     #[test]
@@ -74,11 +77,10 @@ mod tests {
             t!(path.to_str().unwrap()),
             t!(content.clone()),
             false,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&MockContext::new())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -106,11 +108,10 @@ mod tests {
             t!(path.to_str().unwrap()),
             t!(content.clone()),
             false,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&MockContext::new())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -138,11 +139,10 @@ mod tests {
             t!(path.to_str().unwrap()),
             t!(content.clone()),
             true,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&MockContext::new())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -163,20 +163,18 @@ mod tests {
         let path = dir.path().join("{{FILE_NAME}}.txt");
         let content = "Hello, world!".to_string();
 
+        let mut variables = HashMap::new();
+        variables.insert("FILE_NAME".to_string(), "test".to_string());
+
         let rule = WriteFile::new(
             "write_file".to_string(),
             t!(path.to_str().unwrap()),
             t!(content.clone()),
             false,
+            variables,
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| {
-            let mut variables = HashMap::new();
-            variables.insert("FILE_NAME".to_string(), "test".to_string());
-            Ok(variables)
-        });
-        let result = rule.check(&context)?;
+        let result = rule.check(&MockContext::new())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -196,20 +194,18 @@ mod tests {
         let path = dir.path().join("test.txt");
         let content = "Hello, {{WHO}}!".to_string();
 
+        let mut variables = HashMap::new();
+        variables.insert("WHO".to_string(), "world".to_string());
+
         let rule = WriteFile::new(
             "write_file".to_string(),
             t!(path.to_str().unwrap()),
             t!(content.clone()),
             false,
+            variables,
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| {
-            let mut variables = HashMap::new();
-            variables.insert("WHO".to_string(), "world".to_string());
-            Ok(variables)
-        });
-        let result = rule.check(&context)?;
+        let result = rule.check(&MockContext::new())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -217,7 +213,7 @@ mod tests {
         assert_eq!(name, "write_file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path).unwrap();
+        let file_content = fs::read_to_string(path)?;
         assert_eq!(file_content, "Hello, world!");
 
         Ok(())
@@ -230,26 +226,9 @@ mod tests {
             t!("path/to/file.txt"),
             t!("content"),
             false,
+            HashMap::new(),
         );
         assert!(!rule.sync());
-    }
-
-    #[test]
-    fn test_write_file_variables_error() {
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!("path/to/file.txt"),
-            t!("content"),
-            false,
-        );
-
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
-
-        let result = rule.check(&context);
-        assert!(result.is_err());
     }
 
     #[test]
@@ -259,20 +238,16 @@ mod tests {
             t!("{{missing}}/file.txt"),
             t!("content"),
             false,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.check(&context);
+        let result = rule.check(&MockContext::new());
         assert!(result.is_err());
     }
 
     #[test]
-    fn test_write_file_content_template_error() {
-        let dir = TempDir::new().unwrap();
+    fn test_write_file_content_template_error() -> Result<()> {
+        let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
 
         let rule = WriteFile::new(
@@ -280,15 +255,13 @@ mod tests {
             t!(path.to_str().unwrap()),
             t!("{{missing}}"),
             false,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.check(&context);
+        let result = rule.check(&MockContext::new());
         assert!(result.is_err());
+
+        Ok(())
     }
 
     #[test]
@@ -298,14 +271,10 @@ mod tests {
             t!("/invalid/path/that/does/not/exist/file.txt"),
             t!("content"),
             false,
+            HashMap::new(),
         );
 
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.check(&context);
+        let result = rule.check(&MockContext::new());
         assert!(result.is_err());
     }
 }

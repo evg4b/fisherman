@@ -140,6 +140,7 @@ impl Rule {
                     t!(path.clone()),
                     t!(content.clone()),
                     append.unwrap_or(false),
+                    variables,
                 ))
             }
             RuleParams::BranchNameRegex { regex, .. } => {
