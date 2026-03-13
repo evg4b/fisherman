@@ -55,7 +55,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression2() {
+    fn test_expression_returns_false_for_undefined_variable() {
         let a = Expression::new("is_def_var(\"xx\") && xx > 10")
             .check(&HashMap::new())
             .unwrap();
@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression3() {
+    fn test_expression_with_integer_parsing() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "20".to_string());
         let a = Expression::new("parse_int(xx) > 10")
@@ -82,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression23() {
+    fn test_expression_with_complex_or_condition() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "91".to_string());
         let a = Expression::new("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)")
@@ -103,7 +103,7 @@ mod tests {
     }
 
     #[test]
-    fn expression_deserialize2() {
+    fn expression_deserialize_rejects_object_input() {
         let rule = r#"
             { "condition": "1 > 0" }
         "#;

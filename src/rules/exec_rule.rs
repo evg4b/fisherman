@@ -131,7 +131,7 @@ mod test {
     }
 
     #[test]
-    fn test_exec_rule_with_variable222() {
+    fn test_exec_rule_failure_on_missing_file() {
         let mut variables = HashMap::new();
         variables.insert("HELLO".into(), "world".into());
 
