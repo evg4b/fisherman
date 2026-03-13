@@ -1,11 +1,10 @@
 use anyhow::Result;
 use rhai::{Engine, Scope};
 use serde::{Deserialize, Deserializer};
-use std::cell::RefCell;
 use std::collections::HashMap;
 
 thread_local! {
-    static ENGINE: RefCell<Engine> = RefCell::new(Engine::new());
+    static ENGINE: Engine = Engine::new();
 }
 
 #[derive(Debug, Clone)]
@@ -31,18 +30,17 @@ impl Expression {
     }
 
     pub fn check(&self, variables: &HashMap<String, String>) -> Result<bool> {
-        let engine = ENGINE.take();
+        ENGINE.with(|engine| {
+            let mut scope = Scope::with_capacity(variables.len());
 
-        let mut scope = Scope::with_capacity(variables.len());
+            variables.iter().for_each(|(key, value)| {
+                scope.push(key.to_owned(), value.to_owned());
+            });
 
-        variables.iter().for_each(|(key, value)| {
-            scope.push(key.to_owned(), value.to_owned());
-        });
-
-        match engine.eval_expression_with_scope::<bool>(&mut scope, &self.condition) {
-            Ok(result) => Ok(result),
-            Err(err) => Err(anyhow::anyhow!("Expression error: {}", err)),
-        }
+            engine
+                .eval_expression_with_scope::<bool>(&mut scope, &self.condition)
+                .map_err(|err| anyhow::anyhow!("Expression error: {}", err))
+        })
     }
 }
 
