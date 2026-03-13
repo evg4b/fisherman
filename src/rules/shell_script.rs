@@ -9,11 +9,22 @@ pub struct ShellScript {
     name: String,
     script: TemplateString,
     env: HashMap<String, String>,
+    variables: HashMap<String, String>,
 }
 
 impl ShellScript {
-    pub fn new(name: String, script: TemplateString, env: HashMap<String, String>) -> Self {
-        Self { name, script, env }
+    pub fn new(
+        name: String,
+        script: TemplateString,
+        env: HashMap<String, String>,
+        variables: HashMap<String, String>,
+    ) -> Self {
+        Self {
+            name,
+            script,
+            env,
+            variables,
+        }
     }
 }
 
@@ -22,13 +33,16 @@ impl CompiledRule for ShellScript {
         false
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
         let mut options = ScriptOptions::new();
         options.env_vars = Some(self.env.clone());
 
         let args = vec![];
-        let vars = ctx.variables(&[])?;
-        let (code, output, _) = run(self.script.to_string(&vars)?.as_str(), &args, &options)?;
+        let (code, output, _) = run(
+            self.script.to_string(&self.variables)?.as_str(),
+            &args,
+            &options,
+        )?;
 
         if code != 0 {
             return Ok(RuleResult::Failure {
@@ -55,12 +69,10 @@ mod tests {
 
     #[test]
     fn test_shell_script() {
-        let script = ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new());
+        let script =
+            ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::new()));
-
-        let result = script.check(&context).unwrap();
+        let result = script.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -70,12 +82,10 @@ mod tests {
 
     #[test]
     fn test_shell_script_failure() {
-        let script = ShellScript::new("Test".to_string(), t!("exit 1"), HashMap::new());
+        let script =
+            ShellScript::new("Test".to_string(), t!("exit 1"), HashMap::new(), HashMap::new());
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::new()));
-
-        let result = script.check(&context).unwrap();
+        let result = script.check(&MockContext::new()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -85,20 +95,17 @@ mod tests {
 
     #[test]
     fn test_shell_script_with_variables() {
+        let mut variables = HashMap::new();
+        variables.insert("name".to_string(), "Test".to_string());
+
         let script = ShellScript::new(
             "Test".to_string(),
             t!("echo 'Hello {{name}}'"),
             HashMap::new(),
+            variables,
         );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| {
-            let mut variables = HashMap::new();
-            variables.insert("name".to_string(), "Test".to_string());
-            Ok(variables)
-        });
-
-        let result = script.check(&context).unwrap();
+        let result = script.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -111,12 +118,9 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("TEST".to_string(), "Test".to_string());
 
-        let script = ShellScript::new("Test".to_string(), t!("echo $TEST"), env);
+        let script = ShellScript::new("Test".to_string(), t!("echo $TEST"), env, HashMap::new());
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::new()));
-
-        let result = script.check(&context).unwrap();
+        let result = script.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -126,31 +130,21 @@ mod tests {
 
     #[test]
     fn test_sync() {
-        let script = ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new());
+        let script =
+            ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
         assert!(!script.sync());
     }
 
     #[test]
-    fn test_shell_script_variables_error() {
-        let script = ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new());
-
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
-
-        let result = script.check(&context);
-        assert!(result.is_err());
-    }
-
-    #[test]
     fn test_shell_script_template_error() {
-        let script = ShellScript::new("Test".to_string(), t!("echo '{{missing}}'"), HashMap::new());
+        let script = ShellScript::new(
+            "Test".to_string(),
+            t!("echo '{{missing}}'"),
+            HashMap::new(),
+            HashMap::new(),
+        );
 
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(HashMap::new()));
-
-        let result = script.check(&context);
+        let result = script.check(&MockContext::new());
         assert!(result.is_err());
     }
 }

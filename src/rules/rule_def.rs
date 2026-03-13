@@ -127,6 +127,7 @@ impl Rule {
                     self.to_string(),
                     t!(script.clone()),
                     env.clone().unwrap_or_default(),
+                    variables,
                 ))
             }
             RuleParams::WriteFile {
