@@ -16,7 +16,7 @@ impl BranchNameRegex {
 }
 
 impl CompiledRule for BranchNameRegex {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -83,9 +83,9 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = BranchNameRegex::new("branch_name_regex".to_string(), t!(r"^feat/.*$"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

@@ -15,7 +15,7 @@ impl BranchNamePrefix {
 }
 
 impl CompiledRule for BranchNamePrefix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -82,10 +82,10 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
 
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

@@ -33,7 +33,7 @@ impl WriteFile {
 }
 
 impl CompiledRule for WriteFile {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         false
     }
 
@@ -220,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = WriteFile::new(
             "write_file".to_string(),
             t!("path/to/file.txt"),
@@ -228,7 +228,7 @@ mod tests {
             false,
             HashMap::new(),
         );
-        assert!(!rule.sync());
+        assert!(!rule.is_sequential());
     }
 
     #[test]

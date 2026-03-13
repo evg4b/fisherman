@@ -29,7 +29,7 @@ impl ShellScript {
 }
 
 impl CompiledRule for ShellScript {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         false
     }
 
@@ -129,10 +129,10 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let script =
             ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
-        assert!(!script.sync());
+        assert!(!script.is_sequential());
     }
 
     #[test]

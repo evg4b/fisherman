@@ -17,7 +17,7 @@ impl CommitMessagePrefix {
 }
 
 impl CompiledRule for CommitMessagePrefix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -81,9 +81,9 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

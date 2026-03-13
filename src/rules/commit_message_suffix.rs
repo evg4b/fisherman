@@ -16,7 +16,7 @@ impl CommitMessageSuffix {
 }
 
 impl CompiledRule for CommitMessageSuffix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -79,9 +79,9 @@ mod tests {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

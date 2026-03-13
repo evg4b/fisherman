@@ -17,7 +17,7 @@ impl CommitMessageRegex {
 }
 
 impl CompiledRule for CommitMessageRegex {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -106,9 +106,9 @@ mod test {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

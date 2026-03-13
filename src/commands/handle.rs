@@ -84,7 +84,7 @@ fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket,
     let mut async_rules: RulesBucket = vec![];
     for rule in rules.iter() {
         if let Some(compiled_rule) = rule.compile(context)? {
-            if compiled_rule.sync() {
+            if compiled_rule.is_sequential() {
                 sync_rules.push(compiled_rule);
             } else {
                 async_rules.push(compiled_rule);
@@ -130,8 +130,8 @@ mod tests {
 
         assert_eq!(sync_rules.len(), 1);
         assert_eq!(async_rules.len(), 1);
-        assert!(sync_rules[0].sync());
-        assert!(!async_rules[0].sync());
+        assert!(sync_rules[0].is_sequential());
+        assert!(!async_rules[0].is_sequential());
 
         Ok(())
     }

@@ -37,7 +37,7 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         false
     }
 
@@ -167,7 +167,7 @@ mod test {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = ExecRule::new(
             "test".into(),
             "echo".into(),
@@ -175,7 +175,7 @@ mod test {
             HashMap::new(),
             HashMap::new(),
         );
-        assert!(!rule.sync());
+        assert!(!rule.is_sequential());
     }
 
     #[test]

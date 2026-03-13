@@ -14,6 +14,8 @@ pub enum RuleResult {
 }
 
 pub trait CompiledRule: Send + Sync {
-    fn sync(&self) -> bool;
+    /// Returns `true` if this rule must run sequentially (one at a time),
+    /// or `false` if it is self-contained and may run in the parallel pool.
+    fn is_sequential(&self) -> bool;
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 }
