@@ -64,7 +64,7 @@ impl CompiledRule for ExecRule {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use crate::context::MockContext;
     use assert2::assert;

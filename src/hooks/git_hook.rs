@@ -179,7 +179,7 @@ impl std::fmt::Display for GitHook {
 }
 
 #[cfg(test)]
-mod test_hook_install {
+mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;

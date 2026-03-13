@@ -39,7 +39,7 @@ impl CompiledRule for CommitMessageRegex {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use crate::context::MockContext;
     use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
