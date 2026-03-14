@@ -104,6 +104,7 @@ fn branch_name_suffix_invalid() {
 type = "branch-name-suffix"
 suffix = "-v1"
 "#;
+    
 
     ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature-v2");

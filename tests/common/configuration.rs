@@ -1,23 +1,36 @@
 use crate::common::ConfigFormat;
 use core::configuration::Configuration;
 
-#[macro_export] macro_rules! rule {
-    ($params:expr) => {
+#[macro_export]
+macro_rules! rule {
+    ($params:expr $(, extract = $extract:expr)? $(, when = $when:expr)? ) => {
         Rule {
-            when: None,
-            extract: None,
+            when: None $(.or(Some(core::scripting::Expression { condition: $when })))?,
+            extract: None $(.or(Some($extract)))?,
             params: $params,
         }
     };
 }
 
-#[macro_export] macro_rules! config {
+#[macro_export]
+macro_rules! config {
+    // Config with hooks only
     ($hook:expr => [ $( $rule:expr ),* $(,)? ]) => {{
         Configuration {
             hooks: std::collections::HashMap::from([
                 ($hook, vec![$($rule),*])
             ]),
             extract: vec![],
+            files: vec![],
+        }
+    }};
+    // Config with hooks and extract
+    ($hook:expr => [ $( $rule:expr ),* $(,)? ], extract = $extract:expr) => {{
+        Configuration {
+            hooks: std::collections::HashMap::from([
+                ($hook, vec![$($rule),*])
+            ]),
+            extract: $extract,
             files: vec![],
         }
     }};

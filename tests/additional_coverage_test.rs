@@ -99,7 +99,7 @@ fn mixed_sync_and_async_rules_execute_correctly() {
 #[test]
 fn sync_rule_failure_behavior() {
     let ctx = TestContext::new();
-    
+
     let config = config!(
         GitHook::PreCommit => [
             rule!(RuleParams::BranchNameRegex {
@@ -162,18 +162,24 @@ content = "all rules passed"
 #[test]
 fn conditional_with_complex_boolean_logic() {
     let ctx = TestContext::new();
+    
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("urgent.txt"),
+                    content: String::from("Urgent work"),
+                    append: None,
+                },
+                when = String::from("(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix|hotfix)/(?P<Priority>high|low|medium)"),
+        ]
+    );
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix|hotfix)/(?P<Priority>high|low|medium)"]
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "urgent.txt"
-content = "Urgent work"
-when = "(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\""
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("hotfix/low");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -192,7 +198,7 @@ extract = ["branch:^feature/(?P<Ticket>[A-Z]+-\\d+)"]
 [[hooks.commit-msg]]
 type = "message-suffix"
 suffix = " [{{Ticket}}]"
-"#;
+";
 
     ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-123");
