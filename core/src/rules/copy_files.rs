@@ -214,4 +214,87 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_copy_files_is_sequential() {
+        let rule = CopyFiles::new(
+            "test".to_string(),
+            tmpl!("*.txt".to_string()),
+            None,
+            tmpl!("/tmp/dest".to_string()),
+        );
+        assert!(!rule.is_sequential());
+    }
+
+    #[test]
+    fn test_copy_files_variables_error() {
+        let rule = CopyFiles::new(
+            "test".to_string(),
+            tmpl!("*.txt".to_string()),
+            None,
+            tmpl!("/tmp/dest".to_string()),
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_copy_files_glob_template_error() {
+        let rule = CopyFiles::new(
+            "test".to_string(),
+            tmpl!("{{missing_var}}/*.txt".to_string()),
+            None,
+            tmpl!("/tmp/dest".to_string()),
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_copy_files_destination_template_error() {
+        let rule = CopyFiles::new(
+            "test".to_string(),
+            tmpl!("*.txt".to_string()),
+            None,
+            tmpl!("{{missing_dest}}".to_string()),
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_copy_files_src_template_error() {
+        let rule = CopyFiles::new(
+            "test".to_string(),
+            tmpl!("*.txt".to_string()),
+            Some(tmpl!("{{missing_src}}".to_string())),
+            tmpl!("/tmp/dest".to_string()),
+        );
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
+
+        let result = rule.check(&context);
+        assert!(result.is_err());
+    }
 }

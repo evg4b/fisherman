@@ -298,4 +298,25 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn install_already_exists_without_force_returns_error() -> Result<()> {
+        let dir = TempDir::new()?;
+
+        let mut ctx = MockContext::new();
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let hook = GitHook::PreCommit;
+        fs::write(dir.path().join("pre-commit"), "existing hook content")?;
+
+        let result = hook.install(&ctx, false);
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("pre-commit"));
+
+        Ok(())
+    }
 }

@@ -251,4 +251,58 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_sync_rules_execution() -> Result<()> {
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+        context
+            .expect_commit_msg()
+            .returning(|| Ok("feat: test message".to_string()));
+
+        let rules = vec![Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageRegex {
+                regex: "^feat".to_string(),
+            },
+        }];
+
+        let (sync_rules, async_rules) = compile_rules(&context, &rules)?;
+        assert_eq!(sync_rules.len(), 1);
+        assert_eq!(async_rules.len(), 0);
+        assert!(sync_rules[0].is_sequential());
+
+        let result = sync_rules[0].check(&context)?;
+        assert!(matches!(result, RuleResult::Success { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_sync_rules_execution_failure() -> Result<()> {
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+        context
+            .expect_commit_msg()
+            .returning(|| Ok("invalid message".to_string()));
+
+        let rules = vec![Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CommitMessageRegex {
+                regex: "^feat".to_string(),
+            },
+        }];
+
+        let (sync_rules, _) = compile_rules(&context, &rules)?;
+        let result = sync_rules[0].check(&context)?;
+        assert!(matches!(result, RuleResult::Failure { .. }));
+
+        Ok(())
+    }
 }

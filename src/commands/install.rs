@@ -37,3 +37,111 @@ impl CliCommand for InstallCommand {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::configuration::Configuration;
+    use core::context::MockContext;
+    use std::collections::HashMap;
+    use std::path::PathBuf;
+    use tempdir::TempDir;
+
+    #[test]
+    fn test_exec_with_explicit_hooks() -> Result<()> {
+        let dir = TempDir::new("fisherman_test")?;
+
+        let cmd = InstallCommand {
+            hooks: Some(vec![GitHook::PreCommit]),
+            force: false,
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let result = cmd.exec(&mut ctx);
+        assert!(result.is_ok());
+        assert!(dir.path().join("pre-commit").exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_exec_with_configured_hooks() -> Result<()> {
+        let dir = TempDir::new("fisherman_test")?;
+
+        let cmd = InstallCommand {
+            hooks: None,
+            force: false,
+        };
+
+        let config = Configuration {
+            hooks: HashMap::from([(GitHook::PreCommit, vec![])]),
+            extract: vec![],
+            files: vec![],
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_configuration().return_once(move || Ok(config));
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let result = cmd.exec(&mut ctx);
+        assert!(result.is_ok());
+        assert!(dir.path().join("pre-commit").exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_exec_with_no_configured_hooks_installs_all() -> Result<()> {
+        let dir = TempDir::new("fisherman_test")?;
+
+        let cmd = InstallCommand {
+            hooks: None,
+            force: false,
+        };
+
+        let config = Configuration {
+            hooks: HashMap::new(),
+            extract: vec![],
+            files: vec![],
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_configuration().return_once(move || Ok(config));
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let result = cmd.exec(&mut ctx);
+        assert!(result.is_ok());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_exec_configuration_error() {
+        let dir = TempDir::new("fisherman_test").unwrap();
+
+        let cmd = InstallCommand {
+            hooks: None,
+            force: false,
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_configuration()
+            .return_once(|| Err(anyhow::anyhow!("Config error")));
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+
+        let result = cmd.exec(&mut ctx);
+        assert!(result.is_err());
+    }
+}

@@ -34,3 +34,95 @@ fn resolve_configs(path: PathBuf) -> Vec<PathBuf> {
     .filter(|config| config.exists())
     .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::TempDir;
+
+    #[test]
+    fn test_find_config_files_no_files() {
+        let dir = TempDir::new().unwrap();
+        let result = find_config_files(dir.path());
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_find_config_files_single_toml() {
+        let dir = TempDir::new().unwrap();
+        let config_path = dir.path().join(".fisherman.toml");
+        fs::write(&config_path, "[hooks]\n").unwrap();
+
+        let result = find_config_files(dir.path()).unwrap();
+        assert!(result.contains(&config_path));
+    }
+
+    #[test]
+    fn test_find_config_files_single_yaml() {
+        let dir = TempDir::new().unwrap();
+        let config_path = dir.path().join(".fisherman.yaml");
+        fs::write(&config_path, "hooks: {}\n").unwrap();
+
+        let result = find_config_files(dir.path()).unwrap();
+        assert!(result.contains(&config_path));
+    }
+
+    #[test]
+    fn test_find_config_files_single_yml() {
+        let dir = TempDir::new().unwrap();
+        let config_path = dir.path().join(".fisherman.yml");
+        fs::write(&config_path, "hooks: {}\n").unwrap();
+
+        let result = find_config_files(dir.path()).unwrap();
+        assert!(result.contains(&config_path));
+    }
+
+    #[test]
+    fn test_find_config_files_single_json() {
+        let dir = TempDir::new().unwrap();
+        let config_path = dir.path().join(".fisherman.json");
+        fs::write(&config_path, r#"{"hooks": {}}"#).unwrap();
+
+        let result = find_config_files(dir.path()).unwrap();
+        assert!(result.contains(&config_path));
+    }
+
+    #[test]
+    fn test_find_config_files_multiple_in_path_errors() {
+        let dir = TempDir::new().unwrap();
+        fs::write(dir.path().join(".fisherman.toml"), "[hooks]\n").unwrap();
+        fs::write(dir.path().join(".fisherman.yaml"), "hooks: {}\n").unwrap();
+
+        let result = find_config_files(dir.path());
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Multiple config files found"));
+    }
+
+    #[test]
+    fn test_find_config_files_multiple_in_git_dir_errors() {
+        let dir = TempDir::new().unwrap();
+        let git_dir = dir.path().join(".git");
+        fs::create_dir(&git_dir).unwrap();
+        fs::write(git_dir.join(".fisherman.toml"), "[hooks]\n").unwrap();
+        fs::write(git_dir.join(".fisherman.yaml"), "hooks: {}\n").unwrap();
+
+        let result = find_config_files(dir.path());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_find_config_files_git_dir_config() {
+        let dir = TempDir::new().unwrap();
+        let git_dir = dir.path().join(".git");
+        fs::create_dir(&git_dir).unwrap();
+        let config_path = git_dir.join(".fisherman.toml");
+        fs::write(&config_path, "[hooks]\n").unwrap();
+
+        let result = find_config_files(dir.path()).unwrap();
+        assert!(result.contains(&config_path));
+    }
+}

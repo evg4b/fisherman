@@ -186,4 +186,48 @@ mod extract_variables_tests {
         assert_eq!(result.len(), 1);
         assert_eq!(result["IssueNumber"], "CLIC-48484");
     }
+
+    #[test]
+    fn should_return_error_for_unknown_source() {
+        let context = MockContext::new();
+        let extract = vec!["unknown_source:pattern".to_string()];
+
+        let error = extract_variables(&context, &extract);
+        assert!(error.is_err());
+        assert!(error
+            .unwrap_err()
+            .to_string()
+            .contains("Unknown source: 'unknown_source'"));
+    }
+
+    #[test]
+    fn should_return_error_when_entry_has_no_colon() {
+        let context = MockContext::new();
+        let extract = vec!["no-colon-format".to_string()];
+
+        let error = extract_variables(&context, &extract);
+        assert!(error.is_err());
+        assert!(error.unwrap_err().to_string().contains("Invalid format"));
+    }
+
+    #[test]
+    fn should_return_error_for_invalid_regex() {
+        let context = MockContext::new();
+        let extract = vec!["branch:[invalid".to_string()];
+
+        let error = extract_variables(&context, &extract);
+        assert!(error.is_err());
+    }
+
+    #[test]
+    fn extract_variables_from_repo_path_optional_no_match() {
+        let mut context = MockContext::new();
+        let path = std::path::Path::new("/nonexistent/path").to_path_buf();
+        context.expect_repo_path().return_const(path);
+
+        let extract = vec!["repo_path?:^/fixed/(?P<part>.*)$".to_string()];
+
+        let result = extract_variables(&context, &extract).unwrap();
+        assert!(result.is_empty());
+    }
 }

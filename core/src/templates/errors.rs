@@ -20,3 +20,28 @@ impl Display for TemplateError {
 }
 
 impl std::error::Error for TemplateError {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_placeholder_not_found_display() {
+        let error = TemplateError::PlaceholderNotFound {
+            placeholder: "my_var".to_string(),
+        };
+        assert_eq!(error.to_string(), "Variable 'my_var' not defined");
+    }
+
+    #[test]
+    fn test_placeholder_not_found_for_key_display() {
+        let error = TemplateError::PlaceholderNotFoundForKey {
+            placeholder: "my_var".to_string(),
+            key: "env_key".to_string(),
+        };
+        assert_eq!(
+            error.to_string(),
+            "Variable 'my_var' not found for key 'env_key'"
+        );
+    }
+}

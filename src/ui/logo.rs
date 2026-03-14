@@ -13,3 +13,20 @@ pub fn logo() -> String {
         format!("Version: {}", env!("CARGO_PKG_VERSION"))
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_logo_contains_version() {
+        let result = logo();
+        assert!(result.contains("Version:"));
+    }
+
+    #[test]
+    fn test_logo_is_not_empty() {
+        let result = logo();
+        assert!(!result.is_empty());
+    }
+}

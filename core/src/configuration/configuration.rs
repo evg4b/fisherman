@@ -33,7 +33,7 @@ impl Configuration {
 
             instance = match extension {
                 "toml" => instance.adjoin(Toml::file(file)),
-                "yaml" => instance.adjoin(Yaml::file(file)),
+                "yaml" | "yml" => instance.adjoin(Yaml::file(file)),
                 "json" => instance.adjoin(Json::file(file)),
                 _ => bail!(ConfigurationError::UnknownConfigFileExtension),
             };
@@ -51,5 +51,103 @@ impl Configuration {
         }
 
         Some(self.hooks.keys().cloned().collect())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::TempDir;
+
+    #[test]
+    fn test_load_empty_dir_succeeds() {
+        let dir = TempDir::new().unwrap();
+        let result = Configuration::load(dir.path());
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_load_toml_config() {
+        let dir = TempDir::new().unwrap();
+        let config = r#"
+[[hooks.pre-commit]]
+type = "message-regex"
+regex = "^feat"
+"#;
+        fs::write(dir.path().join(".fisherman.toml"), config).unwrap();
+        let result = Configuration::load(dir.path()).unwrap();
+        assert!(result.hooks.contains_key(&GitHook::PreCommit));
+    }
+
+    #[test]
+    fn test_load_yaml_config() {
+        let dir = TempDir::new().unwrap();
+        let config = "hooks:\n  pre-commit:\n    - type: message-regex\n      regex: '^feat'\n";
+        fs::write(dir.path().join(".fisherman.yaml"), config).unwrap();
+        let result = Configuration::load(dir.path()).unwrap();
+        assert!(result.hooks.contains_key(&GitHook::PreCommit));
+    }
+
+    #[test]
+    fn test_load_yml_config() {
+        let dir = TempDir::new().unwrap();
+        let config = "hooks:\n  pre-commit:\n    - type: message-regex\n      regex: '^feat'\n";
+        fs::write(dir.path().join(".fisherman.yml"), config).unwrap();
+        let result = Configuration::load(dir.path()).unwrap();
+        assert!(result.hooks.contains_key(&GitHook::PreCommit));
+    }
+
+    #[test]
+    fn test_load_json_config() {
+        let dir = TempDir::new().unwrap();
+        let config =
+            r#"{"hooks": {"pre-commit": [{"type": "message-regex", "regex": "^feat"}]}}"#;
+        fs::write(dir.path().join(".fisherman.json"), config).unwrap();
+        let result = Configuration::load(dir.path()).unwrap();
+        assert!(result.hooks.contains_key(&GitHook::PreCommit));
+    }
+
+    #[test]
+    fn test_load_multiple_configs_in_same_dir_errors() {
+        let dir = TempDir::new().unwrap();
+        fs::write(dir.path().join(".fisherman.toml"), "[hooks]\n").unwrap();
+        fs::write(dir.path().join(".fisherman.yaml"), "hooks: {}\n").unwrap();
+        let result = Configuration::load(dir.path());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_load_files_are_populated() {
+        let dir = TempDir::new().unwrap();
+        let config_path = dir.path().join(".fisherman.toml");
+        fs::write(&config_path, "[hooks]\n").unwrap();
+        let result = Configuration::load(dir.path()).unwrap();
+        assert!(result.files.contains(&config_path));
+    }
+
+    #[test]
+    fn test_get_configured_hooks_empty() {
+        let config = Configuration::default();
+        assert!(config.get_configured_hooks().is_none());
+    }
+
+    #[test]
+    fn test_get_configured_hooks_non_empty() {
+        let mut config = Configuration::default();
+        config.hooks.insert(GitHook::PreCommit, vec![]);
+        let hooks = config.get_configured_hooks();
+        assert!(hooks.is_some());
+        assert_eq!(hooks.unwrap().len(), 1);
+    }
+
+    #[test]
+    fn test_get_configured_hooks_multiple() {
+        let mut config = Configuration::default();
+        config.hooks.insert(GitHook::PreCommit, vec![]);
+        config.hooks.insert(GitHook::CommitMsg, vec![]);
+        let hooks = config.get_configured_hooks();
+        assert!(hooks.is_some());
+        assert_eq!(hooks.unwrap().len(), 2);
     }
 }
