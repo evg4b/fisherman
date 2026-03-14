@@ -1,11 +1,11 @@
 mod common;
 
-use crate::common::ConfigFormat;
 use crate::common::configuration::serialize_configuration;
+use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::{Rule, RuleParams};
+use core::rules::RuleParams;
 // NOTE: pre-push is a client-side hook that runs before git push sends objects to the remote.
 // Testing it would require setting up a remote repository and performing push operations,
 // which adds significant complexity. Since we already test hook execution thoroughly with
@@ -162,7 +162,7 @@ content = "all rules passed"
 #[test]
 fn conditional_with_complex_boolean_logic() {
     let ctx = TestContext::new();
-    
+
     let config = config!(
         GitHook::PreCommit => [
             rule!(
@@ -198,7 +198,7 @@ extract = ["branch:^feature/(?P<Ticket>[A-Z]+-\\d+)"]
 [[hooks.commit-msg]]
 type = "message-suffix"
 suffix = " [{{Ticket}}]"
-";
+"#;
 
     ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-123");

@@ -1,8 +1,11 @@
 mod common;
 
+use crate::common::ConfigFormat;
+use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
-
-// Unicode handling tests
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that commit messages with Unicode characters are properly validated.
 /// Verifies support for international characters and emojis in message-regex rules.

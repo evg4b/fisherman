@@ -1,7 +1,11 @@
 mod common;
 
 use crate::common::ConfigFormat;
-use common::{FishermanBinary, GitTestRepo};
+use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
+use core::scripting::Expression;
 
 /// Tests that a rule with a true 'when' condition executes successfully.
 /// Verifies conditional execution based on extracted variables.
@@ -10,17 +14,24 @@ fn when_condition_true_executes_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("executed.txt"),
+                    content: String::from("Rule executed"),
+                    append: None,
+                },
+                when = String::from("Type == \"feature\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "executed.txt"
-content = "Rule executed"
-when = "Type == \"feature\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -43,17 +54,24 @@ fn when_condition_false_skips_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("executed.txt"),
+                    content: String::from("Rule executed"),
+                    append: None,
+                },
+                when = String::from("Type == \"feature\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "executed.txt"
-content = "Rule executed"
-when = "Type == \"feature\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -76,17 +94,24 @@ fn when_condition_with_is_def_var_defined() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^feature/(?P<Feature>[a-z-]+)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("feature.txt"),
+                    content: String::from("Feature: {{Feature}}"),
+                    append: None,
+                },
+                when = String::from("is_def_var(\"Feature\")")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^feature/(?P<Feature>[a-z-]+)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "feature.txt"
-content = "Feature: {{Feature}}"
-when = "is_def_var(\"Feature\")"
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -106,17 +131,24 @@ fn when_condition_with_is_def_var_undefined() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch?:^feature/(?P<Feature>[a-z-]+)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("feature.txt"),
+                    content: String::from("Feature: {{Feature}}"),
+                    append: None,
+                },
+                when = String::from("is_def_var(\"Feature\")")
+            )
+        ],
+        extract = vec![
+            String::from("branch?:^feature/(?P<Feature>[a-z-]+)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "feature.txt"
-content = "Feature: {{Feature}}"
-when = "is_def_var(\"Feature\")"
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -139,17 +171,24 @@ fn when_condition_complex_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("urgent.txt"),
+                    content: String::from("Urgent feature"),
+                    append: None,
+                },
+                when = String::from("Type == \"feature\" && Priority == \"high\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "urgent.txt"
-content = "Urgent feature"
-when = "Type == \"feature\" && Priority == \"high\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -172,17 +211,24 @@ fn when_condition_complex_expression_false() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("urgent.txt"),
+                    content: String::from("Urgent feature"),
+                    append: None,
+                },
+                when = String::from("Type == \"feature\" && Priority == \"high\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "urgent.txt"
-content = "Urgent feature"
-when = "Type == \"feature\" && Priority == \"high\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -202,17 +248,24 @@ fn when_condition_or_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix|hotfix)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("production.txt"),
+                    content: String::from("Production change"),
+                    append: None,
+                },
+                when = String::from("Type == \"hotfix\" || Type == \"bugfix\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix|hotfix)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "production.txt"
-content = "Production change"
-when = "Type == \"hotfix\" || Type == \"bugfix\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -232,17 +285,24 @@ fn when_condition_not_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("not-feature.txt"),
+                    content: String::from("Not a feature"),
+                    append: None,
+                },
+                when = String::from("Type != \"feature\"")
+            )
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "not-feature.txt"
-content = "Not a feature"
-when = "Type != \"feature\""
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -262,28 +322,37 @@ fn when_condition_multiple_rules_selective_execution() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("feature.txt"),
+                    content: String::from("Feature branch"),
+                    append: None,
+                },
+                when = String::from("Type == \"feature\"")
+            ),
+            rule!(
+                RuleParams::WriteFile {
+                    path: String::from("bugfix.txt"),
+                    content: String::from("Bugfix branch"),
+                    append: None,
+                },
+                when = String::from("Type == \"bugfix\"")
+            ),
+            rule!(RuleParams::WriteFile {
+                path: String::from("always.txt"),
+                content: String::from("Always executed"),
+                append: None,
+            })
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "feature.txt"
-content = "Feature branch"
-when = "Type == \"feature\""
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "bugfix.txt"
-content = "Bugfix branch"
-when = "Type == \"bugfix\""
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "always.txt"
-content = "Always executed"
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);

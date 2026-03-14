@@ -1,19 +1,26 @@
 mod common;
 
+use common::configuration::serialize_configuration;
 use common::test_context::{assert_stderr_contains, TestContext};
+use common::ConfigFormat;
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that branch-name-regex rule passes when branch name matches the specified pattern.
 /// Verifies regex validation works with valid branch naming conventions.
 #[test]
 fn branch_name_regex_valid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameRegex {
+                regex: String::from("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/new-feature");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -23,13 +30,15 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 #[test]
 fn branch_name_regex_invalid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameRegex {
+                regex: String::from("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("invalid_branch");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -45,13 +54,15 @@ regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 #[test]
 fn branch_name_prefix_valid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/test-branch");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -61,13 +72,15 @@ prefix = "feature/"
 #[test]
 fn branch_name_prefix_invalid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("bugfix/wrong-prefix");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -83,13 +96,15 @@ prefix = "feature/"
 #[test]
 fn branch_name_suffix_valid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-v1"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameSuffix {
+                suffix: String::from("-v1"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature-v1");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -99,14 +114,15 @@ suffix = "-v1"
 #[test]
 fn branch_name_suffix_invalid() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-v1"
-"#;
-    
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameSuffix {
+                suffix: String::from("-v1"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature-v2");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -122,21 +138,21 @@ suffix = "-v1"
 #[test]
 fn branch_name_multiple_rules_all_pass() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            }),
+            rule!(RuleParams::BranchNameSuffix {
+                suffix: String::from("-dev"),
+            }),
+            rule!(RuleParams::BranchNameRegex {
+                regex: String::from("^feature/[a-z-]+-dev$"),
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-dev"
-
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^feature/[a-z-]+-dev$"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/new-feature-dev");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -147,17 +163,18 @@ regex = "^feature/[a-z-]+-dev$"
 fn branch_name_multiple_rules_one_fails() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            }),
+            rule!(RuleParams::BranchNameSuffix {
+                suffix: String::from("-dev"),
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-dev"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/missing-suffix");
 
     let output = ctx.git_commit_allow_empty("test commit");

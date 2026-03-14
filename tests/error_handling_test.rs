@@ -1,8 +1,12 @@
 mod common;
 
 use crate::common::ConfigFormat;
+use common::configuration::serialize_configuration;
 use common::test_context::assert_stderr_contains;
 use common::{FishermanBinary, GitTestRepo};
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that invalid TOML syntax in configuration file fails gracefully without crashing.
 /// Verifies error handling when TOML has missing closing brackets or malformed structure.

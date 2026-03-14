@@ -1,7 +1,11 @@
 mod common;
 
 use crate::common::ConfigFormat;
+use common::configuration::serialize_configuration;
 use common::{FishermanBinary, GitTestRepo};
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that install command creates hook files for all configured hook types.
 /// Verifies that pre-commit, commit-msg, and pre-push hooks are properly installed.

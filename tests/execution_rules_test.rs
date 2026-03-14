@@ -1,7 +1,11 @@
 mod common;
 
 use crate::common::ConfigFormat;
-use common::{test_context::TestContext, FishermanBinary, GitTestRepo};
+use common::{configuration::serialize_configuration, test_context::TestContext, FishermanBinary, GitTestRepo};
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
+use std::collections::HashMap;
 
 /// Tests that exec rule executes successfully when command exits with code 0.
 /// Verifies basic command execution functionality using echo command.
@@ -10,22 +14,28 @@ fn exec_rule_success() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "test"]
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("test")]),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["test"]
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("test")]),
+                env: None,
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -40,21 +50,28 @@ fn exec_rule_failure() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "exit", "1"]
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("exit"), String::from("1")]),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "false"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("false"),
+                args: None,
+                env: None,
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
@@ -70,24 +87,29 @@ fn exec_rule_with_env() {
     let repo = GitTestRepo::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "%TEST_VAR%"]
-env = { TEST_VAR = "test_value" }
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("%TEST_VAR%")]),
+                env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "sh"
-args = ["-c", "test \"$TEST_VAR\" = \"test_value\""]
-env = { TEST_VAR = "test_value" }
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("sh"),
+                args: Some(vec![String::from("-c"), String::from("test \"$TEST_VAR\" = \"test_value\"")]),
+                env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -109,24 +131,27 @@ fn shell_script_success() {
     let repo = GitTestRepo::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo test"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo test"),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = """
-#!/bin/sh
-echo "Running shell script"
-exit 0
-"""
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("#!/bin/sh\necho \"Running shell script\"\nexit 0\n"),
+                env: None,
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -151,23 +176,27 @@ fn shell_script_failure() {
     let repo = GitTestRepo::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "exit 1"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("exit 1"),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = """
-#!/bin/sh
-exit 1
-"""
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("#!/bin/sh\nexit 1\n"),
+                env: None,
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -191,29 +220,27 @@ fn shell_script_with_env() {
     let repo = GitTestRepo::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "if \"%CUSTOM_VAR%\" == \"custom_value\" exit 0"
-env = { CUSTOM_VAR = "custom_value" }
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("if \"%CUSTOM_VAR%\" == \"custom_value\" exit 0"),
+                env: Some(HashMap::from([(String::from("CUSTOM_VAR"), String::from("custom_value"))])),
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = """
-#!/bin/sh
-if [ "$CUSTOM_VAR" = "custom_value" ]; then
-    exit 0
-else
-    exit 1
-fi
-"""
-env = { CUSTOM_VAR = "custom_value" }
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("#!/bin/sh\nif [ \"$CUSTOM_VAR\" = \"custom_value\" ]; then\n    exit 0\nelse\n    exit 1\nfi\n"),
+                env: Some(HashMap::from([(String::from("CUSTOM_VAR"), String::from("custom_value"))])),
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -235,30 +262,37 @@ fn exec_and_shell_mixed() {
     let repo = GitTestRepo::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "exec test"]
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo shell test"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("exec test")]),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo shell test"),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["exec test"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("exec test")]),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo 'shell test'"),
+                env: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo 'shell test'"
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    let config_string = serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);

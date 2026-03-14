@@ -43,9 +43,27 @@ impl TestContext {
         self.binary.install(self.repo.path(), false)
     }
 
-    /// Setup and assert installation succeeded
-    pub fn setup_and_install_old(&self, config: &str) {
-        let output = self.setup_with_config(config);
+    /// Creates a config (from Configuration object) with custom git history and installs hooks
+    pub fn setup_with_history_config(
+        &self,
+        config: &Configuration,
+        format: ConfigFormat,
+        history: &[(&str, &[(&str, &str)])],
+    ) -> Output {
+        let config_string = serialize_configuration(config, format);
+        self.repo.create_config(&config_string, format);
+        self.repo.git_history(history);
+        self.binary.install(self.repo.path(), false)
+    }
+
+    /// Setup with history and assert installation succeeded
+    pub fn setup_with_history_and_install(
+        &self,
+        config: &Configuration,
+        format: ConfigFormat,
+        history: &[(&str, &[(&str, &str)])],
+    ) {
+        let output = self.setup_with_history_config(config, format, history);
         assert!(
             output.status.success(),
             "Installation failed: {}",
@@ -53,9 +71,10 @@ impl TestContext {
         );
     }
 
+    /// Creates a config, initializes the repo with a file and commit, and installs hooks (from Configuration object)
     pub fn setup_and_install(&self, config: &Configuration, format: ConfigFormat) {
         let config_string = serialize_configuration(config, format);
-        let output = self.setup_with_config(config_string.as_str());
+        let output = self.setup_with_config(&config_string);
         assert!(
             output.status.success(),
             "Installation failed: {}",

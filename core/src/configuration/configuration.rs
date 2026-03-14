@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Configuration {
+    #[serde(default)]
     pub hooks: HashMap<GitHook, Vec<Rule>>,
     #[serde(default)]
     pub extract: Vec<String>,

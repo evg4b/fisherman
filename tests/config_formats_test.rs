@@ -1,7 +1,11 @@
 mod common;
 
 use crate::common::ConfigFormat;
+use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that configuration can be provided in YAML format (.fisherman.yaml).
 /// Verifies YAML parsing and rule execution works correctly.

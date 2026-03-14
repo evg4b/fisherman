@@ -1,6 +1,11 @@
 mod common;
 
+use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
+use common::ConfigFormat;
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 use std::time::Instant;
 
 /// Tests that multiple write-file rules execute in parallel and create all target files.
@@ -9,34 +14,37 @@ use std::time::Instant;
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "file1.txt"
-content = "content 1"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("file1.txt"),
+                content: String::from("content 1"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("file2.txt"),
+                content: String::from("content 2"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("file3.txt"),
+                content: String::from("content 3"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("file4.txt"),
+                content: String::from("content 4"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("file5.txt"),
+                content: String::from("content 5"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "file2.txt"
-content = "content 2"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "file3.txt"
-content = "content 3"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "file4.txt"
-content = "content 4"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "file5.txt"
-content = "content 5"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -54,42 +62,48 @@ fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "1"]
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "2"]
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "3"]
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("1")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("2")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("3")]),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["1"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("1")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("2")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("3")]),
+                env: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["2"]
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["3"]
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success(), "All exec rules should succeed: {}",
         String::from_utf8_lossy(&output.stderr));
@@ -105,36 +119,42 @@ fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo script1"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo script2"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo script3"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo script1"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo script2"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo script3"),
+                env: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo 'script1'"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo 'script1'"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo 'script2'"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo 'script3'"),
+                env: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo 'script2'"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo 'script3'"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -153,50 +173,56 @@ fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output1.txt"
-content = "write-file"
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "exec"]
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo shell"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output2.txt"
-content = "another write"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output1.txt"),
+                content: String::from("write-file"),
+                append: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("exec")]),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo shell"),
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("output2.txt"),
+                content: String::from("another write"),
+                append: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output1.txt"
-content = "write-file"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output1.txt"),
+                content: String::from("write-file"),
+                append: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("exec")]),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("echo 'shell'"),
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("output2.txt"),
+                content: String::from("another write"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["exec"]
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "echo 'shell'"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output2.txt"
-content = "another write"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -218,41 +244,48 @@ fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "success"]
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "exit", "1"]
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "should-not-exist.txt"
-content = "should not be created"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("success")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("exit"), String::from("1")]),
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("should-not-exist.txt"),
+                content: String::from("should not be created"),
+                append: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["success"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("success")]),
+                env: None,
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("false"),
+                args: None,
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("should-not-exist.txt"),
+                content: String::from("should not be created"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "exec"
-command = "false"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "should-not-exist.txt"
-content = "should not be created"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
@@ -267,40 +300,44 @@ fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
 
     #[cfg(windows)]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cmd"
-args = ["/C", "echo", "async"]
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "async.txt"
-content = "async rule"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("cmd"),
+                args: Some(vec![String::from("/C"), String::from("echo"), String::from("async")]),
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("async.txt"),
+                content: String::from("async rule"),
+                append: None,
+            })
+        ]
+    );
 
     #[cfg(not(windows))]
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            }),
+            rule!(RuleParams::ExecRule {
+                command: String::from("echo"),
+                args: Some(vec![String::from("async")]),
+                env: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("async.txt"),
+                content: String::from("async rule"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "exec"
-command = "echo"
-args = ["async"]
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "async.txt"
-content = "async rule"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/test");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -321,13 +358,15 @@ content = "async rule"
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("bugfix/test");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -344,29 +383,32 @@ prefix = "feature/"
 fn parallel_performance_benefit() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "shell"
-script = "sleep 0.1"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::ShellScript {
+                script: String::from("sleep 0.1"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("sleep 0.1"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("sleep 0.1"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("sleep 0.1"),
+                env: None,
+            }),
+            rule!(RuleParams::ShellScript {
+                script: String::from("sleep 0.1"),
+                env: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "shell"
-script = "sleep 0.1"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "sleep 0.1"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "sleep 0.1"
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "sleep 0.1"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
 
     let start = Instant::now();
     let handle_output = ctx.git_commit_allow_empty("test commit");

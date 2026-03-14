@@ -1,6 +1,11 @@
 mod common;
 
+use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
+use common::ConfigFormat;
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that post-merge hook executes successfully after a merge operation.
 /// Verifies that post-merge hooks are properly triggered by Git merge commands.

@@ -1,20 +1,28 @@
 mod common;
 
+use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
+use common::ConfigFormat;
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::RuleParams;
 
 /// Tests that write-file rule creates a new file with specified content.
 /// Verifies basic file creation functionality in the repository directory.
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "test content"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output.txt"),
+                content: String::from("test content"),
+                append: None,
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output.txt"), "File should be created");
@@ -26,15 +34,17 @@ content = "test content"
 #[test]
 fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "new content"
-append = false
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output.txt"),
+                content: String::from("new content"),
+                append: Some(false),
+            })
+        ]
+    );
 
-    ctx.setup_with_history(config, &[("initial", &[
+    ctx.setup_with_history_and_install(&config, ConfigFormat::Toml, &[("initial", &[
         ("test.txt", "initial"),
         ("output.txt", "old content")
     ])]);
@@ -48,15 +58,17 @@ append = false
 #[test]
 fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "\nappended content"
-append = true
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output.txt"),
+                content: String::from("\nappended content"),
+                append: Some(true),
+            })
+        ]
+    );
 
-    ctx.setup_with_history(config, &[("initial", &[
+    ctx.setup_with_history_and_install(&config, ConfigFormat::Toml, &[("initial", &[
         ("test.txt", "initial"),
         ("output.txt", "existing content")
     ])]);
@@ -73,14 +85,17 @@ append = true
 #[test]
 fn write_file_simple_path() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "simple.txt"
-content = "simple content"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("simple.txt"),
+                content: String::from("simple content"),
+                append: None,
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("simple.txt"));
@@ -92,24 +107,27 @@ content = "simple content"
 #[test]
 fn write_file_multiple_files() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output1.txt"
-content = "content 1"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output1.txt"),
+                content: String::from("content 1"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("output2.txt"),
+                content: String::from("content 2"),
+                append: None,
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("output3.txt"),
+                content: String::from("content 3"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output2.txt"
-content = "content 2"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output3.txt"
-content = "content 3"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output1.txt"));
@@ -125,14 +143,17 @@ content = "content 3"
 #[test]
 fn write_file_multiline_content() {
     let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "Line 1\nLine 2\nLine 3"
-"#;
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from("output.txt"),
+                content: String::from("Line 1\nLine 2\nLine 3"),
+                append: None,
+            })
+        ]
+    );
 
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("output.txt"), "Line 1\nLine 2\nLine 3");
