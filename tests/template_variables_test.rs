@@ -1,14 +1,11 @@
 mod common;
 
-use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
 use core::rules::RuleParams;
 
-/// Tests that template variables extracted from branch name work in message-prefix rule.
-/// Verifies variable extraction and template rendering for commit message validation.
 #[test]
 fn template_branch_variable_in_message_prefix() {
     let ctx = TestContext::new();
@@ -30,8 +27,6 @@ fn template_branch_variable_in_message_prefix() {
     ctx.git_commit_allow_empty_success("feature: [PROJ-123] add new feature");
 }
 
-/// Tests that template variables from branch name are correctly substituted in write-file content.
-/// Verifies variable extraction and file content rendering with extracted values.
 #[test]
 fn template_branch_variable_in_write_file() {
     let ctx = TestContext::new();
@@ -60,8 +55,6 @@ fn template_branch_variable_in_write_file() {
     );
 }
 
-/// Tests that repository path can be extracted and used in template variables.
-/// Verifies repo_path extraction pattern works and renders in file content.
 #[test]
 fn template_repo_path_variable() {
     let ctx = TestContext::new();
@@ -88,8 +81,6 @@ fn template_repo_path_variable() {
     assert!(content.starts_with("Repository: "));
 }
 
-/// Tests that multiple variables from different sources can be extracted and used together.
-/// Verifies simultaneous branch and repo_path variable extraction and template rendering.
 #[test]
 fn template_multiple_variables() {
     let ctx = TestContext::new();
@@ -120,8 +111,6 @@ fn template_multiple_variables() {
     assert!(content.contains("Repo: "));
 }
 
-/// Tests that template variables work in exec command arguments.
-/// Verifies variable substitution in command-line arguments for exec rules.
 #[test]
 fn template_in_exec_command() {
     let ctx = TestContext::new();
@@ -160,8 +149,6 @@ fn template_in_exec_command() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that optional variables (branch?) are extracted when pattern matches.
-/// Verifies optional extraction syntax works correctly when branch name matches pattern.
 #[test]
 fn template_optional_variable_present() {
     let ctx = TestContext::new();
@@ -186,8 +173,6 @@ fn template_optional_variable_present() {
     assert_eq!(ctx.repo.read_file("output.txt"), "Feature: auth");
 }
 
-/// Tests that optional variables (branch?) don't cause failure when pattern doesn't match.
-/// Verifies that optional extraction allows hook to proceed even when variable isn't extracted.
 #[test]
 fn template_optional_variable_missing() {
     let ctx = TestContext::new();
@@ -209,8 +194,6 @@ fn template_optional_variable_missing() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that template variables work in file paths for write-file rules.
-/// Verifies dynamic file naming based on extracted variables.
 #[test]
 fn template_in_file_path() {
     let ctx = TestContext::new();
@@ -239,8 +222,6 @@ fn template_in_file_path() {
     );
 }
 
-/// Tests that template variables work in flat file paths with multiple variables.
-/// Verifies template interpolation in file names with multiple substitutions.
 #[test]
 fn template_in_file_path_multiple_vars() {
     let ctx = TestContext::new();
@@ -269,8 +250,6 @@ fn template_in_file_path_multiple_vars() {
     );
 }
 
-/// Tests that template variables work in message-suffix rules.
-/// Verifies variable substitution in commit message suffix validation.
 #[test]
 fn template_in_message_suffix() {
     let ctx = TestContext::new();
@@ -293,8 +272,6 @@ fn template_in_message_suffix() {
     ctx.git_commit_allow_empty_failure("Add new feature");
 }
 
-/// Tests that template variables work in branch-name-prefix rules.
-/// Verifies variable substitution in branch name validation with prefix.
 #[test]
 fn template_in_branch_name_prefix() {
     let ctx = TestContext::new();
@@ -316,8 +293,6 @@ fn template_in_branch_name_prefix() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that template variables work in branch-name-suffix rules.
-/// Verifies variable substitution in branch name validation with suffix.
 #[test]
 fn template_in_branch_name_suffix() {
     let ctx = TestContext::new();
@@ -339,8 +314,6 @@ fn template_in_branch_name_suffix() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that template variables work in shell commands.
-/// Verifies variable substitution in shell script execution.
 #[test]
 fn template_in_shell_command() {
     let ctx = TestContext::new();
@@ -381,8 +354,6 @@ fn template_in_shell_command() {
     assert!(content.contains("dashboard"));
 }
 
-/// Tests that multiple templates in the same field are all interpolated.
-/// Verifies that multiple {{variable}} occurrences work correctly.
 #[test]
 fn multiple_templates_in_single_field() {
     let ctx = TestContext::new();
@@ -410,8 +381,6 @@ fn multiple_templates_in_single_field() {
     );
 }
 
-/// Tests that missing required variables cause hook execution to fail.
-/// Verifies that undefined variables in templates are properly detected and reported.
 #[test]
 fn template_rendering_failure_missing_variable() {
     let ctx = TestContext::new();
@@ -435,8 +404,6 @@ fn template_rendering_failure_missing_variable() {
     ctx.git_commit_allow_empty_failure("test commit");
 }
 
-/// Tests that optional repo_path extraction doesn't fail when pattern doesn't match.
-/// Verifies optional repo_path? syntax allows execution to continue.
 #[test]
 fn template_optional_repo_path_no_match() {
     let ctx = TestContext::new();
@@ -456,8 +423,6 @@ fn template_optional_repo_path_no_match() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that template variables with special characters are handled correctly.
-/// Verifies that hyphens, underscores, and numbers in extracted values work.
 #[test]
 fn template_with_special_characters() {
     let ctx = TestContext::new();
@@ -485,8 +450,6 @@ fn template_with_special_characters() {
     );
 }
 
-/// Tests that templates work in conditional expressions with defined variables.
-/// Verifies template interpolation in when conditions combined with is_def_var.
 #[test]
 fn template_in_conditional_with_defined_var() {
     let ctx = TestContext::new();
@@ -514,8 +477,6 @@ fn template_in_conditional_with_defined_var() {
     assert!(ctx.repo.file_exists("conditional.txt"));
 }
 
-/// Tests that rules are skipped when conditional variables are not defined.
-/// Verifies that when conditions properly evaluate variable existence.
 #[test]
 fn template_conditional_skipped_undefined_var() {
     let ctx = TestContext::new();
@@ -543,8 +504,6 @@ fn template_conditional_skipped_undefined_var() {
     assert!(!ctx.repo.file_exists("optional.txt"));
 }
 
-/// Tests complex extraction pattern with multiple capture groups.
-/// Verifies that complex regex patterns with multiple groups work correctly.
 #[test]
 fn template_complex_extraction_pattern() {
     let ctx = TestContext::new();
@@ -575,8 +534,6 @@ fn template_complex_extraction_pattern() {
     assert!(content.contains("Description: user-auth"));
 }
 
-/// Tests that templates work correctly in exec command arguments.
-/// Verifies variable substitution across multiple command arguments.
 #[test]
 fn template_in_multiple_exec_args() {
     let ctx = TestContext::new();
@@ -615,8 +572,6 @@ fn template_in_multiple_exec_args() {
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests template interpolation with repo_path and branch combined.
-/// Verifies that both extraction sources work together in the same rule.
 #[test]
 fn template_combined_repo_and_branch_variables() {
     let ctx = TestContext::new();

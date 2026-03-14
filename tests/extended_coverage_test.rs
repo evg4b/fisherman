@@ -1,14 +1,7 @@
 mod common;
 
-use crate::common::ConfigFormat;
-use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::RuleParams;
 
-/// Tests that commit messages with Unicode characters are properly validated.
-/// Verifies support for international characters and emojis in message-regex rules.
 #[test]
 fn unicode_in_commit_message() {
     let ctx = TestContext::new();
@@ -23,8 +16,6 @@ regex = "^.+$"
     ctx.git_commit_allow_empty_success("feat: Add 日本語 support with émojis 🎉");
 }
 
-/// Tests that branch names containing Unicode characters are correctly validated.
-/// Verifies that international characters in branch names work with regex validation.
 #[test]
 fn unicode_in_branch_name() {
     let ctx = TestContext::new();
@@ -40,8 +31,6 @@ regex = "^.+$"
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that template variables can contain and render Unicode characters correctly.
-/// Verifies that extraction and template rendering preserve international characters.
 #[test]
 fn unicode_in_template_variable() {
     let ctx = TestContext::new();
@@ -63,10 +52,6 @@ content = "Branch: {{Name}}"
     assert!(content.contains("日本語"));
 }
 
-// prepare-commit-msg hook tests
-
-/// Tests that prepare-commit-msg hook executes correctly with basic write-file rule.
-/// Verifies that this hook type is properly supported and triggered by Git commits.
 #[test]
 fn prepare_commit_msg_hook_execution() {
     let ctx = TestContext::new();
@@ -80,13 +65,10 @@ content = "prepare-commit-msg ran"
 
     ctx.setup_and_install_old(config);
 
-    // Git automatically triggers prepare-commit-msg hook during commit
     ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("prepare-executed.txt"));
 }
 
-/// Tests that template variables are correctly rendered in prepare-commit-msg hook.
-/// Verifies variable extraction and template substitution work in this hook context.
 #[test]
 fn prepare_commit_msg_with_template_variable() {
     let ctx = TestContext::new();
@@ -103,7 +85,6 @@ content = "{{Type}}: [{{Ticket}}] "
     ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-456");
 
-    // Git automatically triggers prepare-commit-msg hook during commit
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("commit-template.txt"));
@@ -111,10 +92,6 @@ content = "{{Type}}: [{{Ticket}}] "
     assert_eq!(content, "feature: [PROJ-456] ");
 }
 
-// Edge cases in conditionals
-
-/// Tests that when condition referencing undefined variable causes rule compilation to fail.
-/// Verifies that undefined variables in conditionals are properly detected as errors.
 #[test]
 fn conditional_with_undefined_variable_fails() {
     let ctx = TestContext::new();
@@ -131,8 +108,6 @@ when = "UndefinedVar == \"value\""
     ctx.git_commit_allow_empty_failure("test commit");
 }
 
-/// Tests that is_def_var() function returns true when variable is extracted and defined.
-/// Verifies conditional rule execution based on variable presence using is_def_var().
 #[test]
 fn conditional_with_is_def_var_true() {
     let ctx = TestContext::new();
@@ -154,8 +129,6 @@ when = "is_def_var(\"Feature\")"
     assert_eq!(ctx.repo.read_file("output.txt"), "Feature is defined");
 }
 
-/// Tests that is_def_var() returns false when optional variable is not extracted.
-/// Verifies conditional branching with negative is_def_var() checks for optional extracts.
 #[test]
 fn conditional_with_is_def_var_false() {
     let ctx = TestContext::new();
@@ -184,10 +157,6 @@ when = "!is_def_var(\"Feature\")"
     assert!(ctx.repo.file_exists("fallback.txt"));
 }
 
-// Environment variable tests
-
-/// Tests that shell scripts can access multiple custom environment variables simultaneously.
-/// Verifies that complex env configurations are properly passed to shell context.
 #[test]
 fn shell_script_with_multiple_env_vars() {
     let ctx = TestContext::new();
@@ -219,8 +188,6 @@ env = { VAR1 = "value1", VAR2 = "value2" }
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that environment variables can use template substitution from extracted variables.
-/// Verifies template rendering works in env variable values for exec commands.
 #[test]
 fn exec_with_templated_env_vars() {
     let ctx = TestContext::new();
@@ -252,10 +219,6 @@ env = { FEATURE_NAME = "{{Feature}}" }
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-// Edge cases
-
-/// Tests that message validation correctly rejects empty commit messages.
-/// Verifies that regex patterns requiring content fail for empty strings.
 #[test]
 fn empty_commit_message() {
     let ctx = TestContext::new();
@@ -270,8 +233,6 @@ regex = "^.+$"
     ctx.git_commit_allow_empty_failure("");
 }
 
-/// Tests that very long commit messages (10000+ characters) are handled correctly.
-/// Verifies that message validation works without performance or memory issues on large inputs.
 #[test]
 fn very_long_commit_message() {
     let ctx = TestContext::new();
@@ -287,9 +248,6 @@ regex = "^.+$"
     ctx.git_commit_allow_empty_success(&long_message);
 }
 
-/// Tests that commit messages containing only whitespace characters are rejected by Git.
-/// Git itself prevents whitespace-only commit messages, treating them as empty.
-/// This test verifies that Git's built-in validation works as expected.
 #[test]
 fn whitespace_only_commit_message_rejected_by_git() {
     let ctx = TestContext::new();
@@ -301,13 +259,10 @@ regex = ".*"
 "#;
 
     ctx.setup_and_install_old(config);
-    // Git rejects whitespace-only messages as empty, so this should fail
     let output = ctx.git_commit_allow_empty("   \n   \t   ");
     assert!(!output.status.success(), "Git should reject whitespace-only commit messages");
 }
 
-/// Tests that write-file rule preserves special characters in content without escaping.
-/// Verifies that shell metacharacters, quotes, and symbols are written literally.
 #[test]
 fn write_file_with_special_characters_in_content() {
     let ctx = TestContext::new();
@@ -328,8 +283,6 @@ content = "Line with $VAR and `backticks` and \"quotes\" and 'apostrophes'"
     assert!(content.contains("\"quotes\""));
 }
 
-/// Tests that hierarchical branch names with multiple slashes are extracted correctly.
-/// Verifies complex regex patterns can capture multiple path segments from branch names.
 #[test]
 fn branch_name_with_slashes() {
     let ctx = TestContext::new();
@@ -351,8 +304,6 @@ content = "{{Category}}/{{Subcategory}}/{{Name}}"
     assert_eq!(content, "feature/ui/button-component");
 }
 
-/// Tests that multiple synchronous branch validation rules all execute and pass together.
-/// Verifies that prefix, regex, and suffix rules can be combined successfully.
 #[test]
 fn multiple_rules_with_mixed_success_sync() {
     let ctx = TestContext::new();
@@ -376,8 +327,6 @@ suffix = "-ready"
     ctx.git_commit_allow_empty_success("test commit");
 }
 
-/// Tests that regex patterns with escaped characters (backslashes, digits) work correctly.
-/// Verifies proper handling of escape sequences in extraction patterns and template rendering.
 #[test]
 fn regex_with_escaped_characters() {
     let ctx = TestContext::new();

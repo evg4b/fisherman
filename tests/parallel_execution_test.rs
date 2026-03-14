@@ -1,6 +1,5 @@
 mod common;
 
-use common::configuration::serialize_configuration;
 use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
@@ -8,8 +7,6 @@ use core::hooks::GitHook;
 use core::rules::RuleParams;
 use std::time::Instant;
 
-/// Tests that multiple write-file rules execute in parallel and create all target files.
-/// Verifies parallel execution of asynchronous rules completes successfully.
 #[test]
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
@@ -55,8 +52,6 @@ fn parallel_multiple_write_files() {
     assert!(ctx.repo.file_exists("file5.txt"));
 }
 
-/// Tests that multiple exec rules execute in parallel successfully.
-/// Verifies concurrent command execution works correctly across platforms.
 #[test]
 fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
@@ -108,12 +103,8 @@ fn parallel_multiple_exec_rules() {
     assert!(output.status.success(), "All exec rules should succeed: {}",
         String::from_utf8_lossy(&output.stderr));
 
-    // Note: When running through git commit, hook output behavior is different
-    // The important thing is that all rules execute successfully
 }
 
-/// Tests that multiple shell script rules execute in parallel.
-/// Verifies that concurrent shell script execution completes without conflicts.
 #[test]
 fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
@@ -166,8 +157,6 @@ fn parallel_multiple_shell_scripts() {
     }
 }
 
-/// Tests that different types of async rules (write-file, exec, shell) run in parallel.
-/// Verifies mixed async rule types can execute concurrently without issues.
 #[test]
 fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
@@ -237,8 +226,6 @@ fn parallel_mixed_async_rules() {
     }
 }
 
-/// Tests that when one parallel rule fails, the hook execution fails appropriately.
-/// Verifies error handling in parallel execution propagates failures correctly.
 #[test]
 fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
@@ -293,8 +280,6 @@ fn parallel_one_fails_stops_all() {
     assert!(!stderr.is_empty(), "Error output should not be empty when a rule fails");
 }
 
-/// Tests that synchronous validation rules execute before asynchronous rules.
-/// Verifies correct execution order with sync rules first, then parallel async rules.
 #[test]
 fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
@@ -352,8 +337,6 @@ fn sync_rules_execute_before_async() {
     }
 }
 
-/// Tests that when a synchronous rule fails, async rules don't execute and hook fails.
-/// Verifies early exit behavior when sync validation fails before async execution.
 #[test]
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
@@ -376,8 +359,6 @@ fn sync_rule_fails_hook_fails() {
     assert!(!stderr.is_empty(), "Error should explain which rule failed");
 }
 
-/// Tests that parallel execution provides performance benefit over sequential execution.
-/// Verifies that multiple sleep commands complete faster due to parallelization (Unix only).
 #[test]
 #[cfg(not(windows))]
 fn parallel_performance_benefit() {
@@ -417,10 +398,6 @@ fn parallel_performance_benefit() {
     assert!(handle_output.status.success(), "Hook should succeed: {}",
         String::from_utf8_lossy(&handle_output.stderr));
 
-    // Note: Parallel execution timing may vary when running through git commit
-    // due to additional overhead. The important thing is that it completes successfully
-    // and is faster than sequential execution would be (which would take 500ms+).
-    // We allow up to 3 seconds to account for test environment variability.
     assert!(
         duration.as_millis() < 3000,
         "Parallel execution should take less than 3000ms (sequential would be 500ms+), took {}ms",

@@ -7,8 +7,6 @@ use core::hooks::GitHook;
 use core::rules::RuleParams;
 use std::collections::HashMap;
 
-/// Tests that exec rule executes successfully when command exits with code 0.
-/// Verifies basic command execution functionality using echo command.
 #[test]
 fn exec_rule_success() {
     let ctx = TestContext::new();
@@ -43,8 +41,6 @@ fn exec_rule_success() {
     assert!(stdout.contains("test"), "Output should contain 'test': {}", stdout);
 }
 
-/// Tests that exec rule fails appropriately when command exits with non-zero code.
-/// Verifies that command failures are detected and propagate as hook failures.
 #[test]
 fn exec_rule_failure() {
     let ctx = TestContext::new();
@@ -79,8 +75,6 @@ fn exec_rule_failure() {
     assert!(!stderr.is_empty(), "Error output should not be empty");
 }
 
-/// Tests that exec rule properly passes environment variables to executed command.
-/// Verifies that custom env variables are available in the command's environment.
 #[test]
 fn exec_rule_with_env() {
     let binary = FishermanBinary::build();
@@ -123,8 +117,6 @@ fn exec_rule_with_env() {
     );
 }
 
-/// Tests that shell script rule executes successfully when script exits with code 0.
-/// Verifies basic shell script execution on both Windows and Unix platforms.
 #[test]
 fn shell_script_success() {
     let binary = FishermanBinary::build();
@@ -164,12 +156,8 @@ fn shell_script_success() {
         String::from_utf8_lossy(&commit_output.stderr)
     );
 
-    // Note: When running through git commit, hook output goes to stderr, not stdout
-    // The important thing is that the hook succeeds
 }
 
-/// Tests that shell script rule fails when script exits with non-zero code.
-/// Verifies that shell script failures properly abort the hook execution.
 #[test]
 fn shell_script_failure() {
     let binary = FishermanBinary::build();
@@ -212,8 +200,6 @@ fn shell_script_failure() {
     assert!(!stderr.is_empty(), "Error output should not be empty when shell fails");
 }
 
-/// Tests that shell script can access custom environment variables defined in config.
-/// Verifies environment variable propagation to shell execution context.
 #[test]
 fn shell_script_with_env() {
     let binary = FishermanBinary::build();
@@ -254,8 +240,6 @@ fn shell_script_with_env() {
     );
 }
 
-/// Tests that exec and shell rules can be configured together and both execute successfully.
-/// Verifies compatibility and correct execution order of mixed rule types.
 #[test]
 fn exec_and_shell_mixed() {
     let binary = FishermanBinary::build();
@@ -305,6 +289,4 @@ fn exec_and_shell_mixed() {
         String::from_utf8_lossy(&commit_output.stderr)
     );
 
-    // Note: When running through git commit, hook output behavior is different
-    // The important thing is that both rules execute successfully
 }
