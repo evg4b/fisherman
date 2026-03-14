@@ -1,7 +1,7 @@
 use crate::commands::command::CliCommand;
-use crate::context::Context;
-use crate::hooks::GitHook;
-use crate::rules::{CompiledRule, Rule, RuleResult};
+use core::context::Context;
+use core::hooks::GitHook;
+use core::rules::{CompiledRule, Rule, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
@@ -91,8 +91,8 @@ fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::context::MockContext;
-    use crate::rules::RuleParams;
+    use core::context::MockContext;
+    use core::rules::RuleParams;
     use std::collections::HashMap;
 
     #[test]

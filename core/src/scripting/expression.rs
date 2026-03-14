@@ -1,6 +1,6 @@
 use anyhow::Result;
 use rhai::{Engine, Scope};
-use serde::{Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
 
 thread_local! {
@@ -19,6 +19,15 @@ impl<'de> Deserialize<'de> for Expression {
     {
         let s = String::deserialize(deserializer)?;
         Ok(Expression::new(s.as_str()))
+    }
+}
+
+impl Serialize for Expression {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.condition.serialize(serializer)
     }
 }
 

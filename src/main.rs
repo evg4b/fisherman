@@ -1,14 +1,8 @@
 mod commands;
-mod configuration;
-mod context;
-mod hooks;
-mod rules;
-mod scripting;
-mod templates;
 mod ui;
 
 use crate::commands::{CliCommand, Command};
-use crate::context::GitRepoContext;
+use core::context::GitRepoContext;
 use clap::Parser;
 use std::env;
 use ui::ABOUT;

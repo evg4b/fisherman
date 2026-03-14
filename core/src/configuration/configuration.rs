@@ -5,21 +5,19 @@ use crate::rules::Rule;
 use anyhow::{bail, Result};
 use figment::providers::{Format, Json, Toml, Yaml};
 use figment::Figment;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Default, Deserialize)]
-struct InnerConfiguration {
-    pub hooks: Option<HashMap<GitHook, Vec<Rule>>>,
-    pub extract: Option<Vec<String>>,
-}
-
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Configuration {
+    #[serde(default)]
     pub hooks: HashMap<GitHook, Vec<Rule>>,
-    pub files: Vec<PathBuf>,
+    #[serde(default)]
     pub extract: Vec<String>,
+    #[serde(skip)]
+    pub files: Vec<PathBuf>,
 }
 
 impl Configuration {
@@ -41,13 +39,10 @@ impl Configuration {
             };
         }
 
-        let inner_config: InnerConfiguration = instance.extract()?;
+        let mut inner_config: Configuration = instance.extract()?;
+        inner_config.files = files;
 
-        Ok(Configuration {
-            hooks: inner_config.hooks.unwrap_or_default(),
-            extract: inner_config.extract.unwrap_or_default(),
-            files,
-        })
+        Ok(inner_config)
     }
 
     pub fn get_configured_hooks(&self) -> Option<Vec<GitHook>> {

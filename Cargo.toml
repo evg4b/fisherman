@@ -9,24 +9,13 @@ readme = "README.md"
 repository = "https://github.com/evg4b/fisherman"
 
 [dependencies]
+core = { path = "core" }
 clap = { version = "4.5.23", features = ["derive"] }
-figment = { version = "0.10.19", features = ["toml", "yaml", "json"] }
-serde = { version = "1.0.217", features = ["derive"] }
-dirs = "6.0.0"
-git2 = "0.20.0"
-regex = "1.11.1"
-mockall = "0.13.1"
 anyhow = "1.0.44"
-thiserror = "2.0.12"
-run_script = "0.11.0"
-rhai = "1.21.0"
 rayon = "1.10"
-glob = "0.3.2"
 
 [dev-dependencies]
-rstest = "0.26.1"
 tempdir = "0.3"
-assert2 = "0.3"
-serde_json = "1.0.140"
-assertor = { version = "*", features = ["anyhow"] }
-tempfile = "3.19.1"
+serde_json = "1.0.149"
+serde_yaml = "0.9.33"
+toml = "1.0.6+spec-1.1.0"

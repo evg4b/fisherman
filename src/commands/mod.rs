@@ -7,7 +7,7 @@ pub use crate::commands::command::CliCommand;
 pub use crate::commands::explain::ExplainCommand;
 pub use crate::commands::handle::HandleCommand;
 pub use crate::commands::install::InstallCommand;
-use crate::context::Context;
+use core::context::Context;
 use anyhow::Result;
 use clap::Subcommand;
 
