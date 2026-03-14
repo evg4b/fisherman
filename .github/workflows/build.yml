@@ -33,10 +33,10 @@ jobs:
     runs-on: ${{ matrix.platform.runs-on }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/bin/
@@ -49,7 +49,7 @@ jobs:
       - name: Build ${{ matrix.platform.target }} with cross
         run: cargo build --release --target ${{ matrix.platform.target }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.platform.target }}-release
           path: target/${{ matrix.platform.target }}/release/fisherman*
