@@ -635,6 +635,41 @@ mod tests {
     }
 
     #[test]
+    fn test_rule_params_name_copy_files_with_source() {
+        let params = RuleParams::CopyFiles {
+            glob: "*.txt".to_string(),
+            destination: "dest".to_string(),
+            source: Some("src".to_string()),
+        };
+        assert_eq!(
+            params.name(),
+            "copy files from *.txt to dest (source: src)"
+        );
+    }
+
+    #[test]
+    fn test_rule_params_name_copy_files_without_source() {
+        let params = RuleParams::CopyFiles {
+            glob: "*.txt".to_string(),
+            destination: "dest".to_string(),
+            source: None,
+        };
+        assert_eq!(
+            params.name(),
+            "copy files from *.txt to dest (source: <n/a>)"
+        );
+    }
+
+    #[test]
+    fn test_rule_params_name_delete_files() {
+        let params = RuleParams::DeleteFiles {
+            glob: "*.log".to_string(),
+            fail_if_not_found: Some(true),
+        };
+        assert_eq!(params.name(), "delete files matching *.log true");
+    }
+
+    #[test]
     fn test_compile_variables_error() {
         use crate::context::MockContext;
 
@@ -673,5 +708,48 @@ mod tests {
 
         let result = rule.compile(&ctx);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_compile_copy_files() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CopyFiles {
+                glob: "*.txt".to_string(),
+                destination: "/tmp/dest".to_string(),
+                source: Some("/tmp/src".to_string()),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_delete_files() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::DeleteFiles {
+                glob: "*.log".to_string(),
+                fail_if_not_found: Some(false),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
     }
 }
