@@ -84,8 +84,8 @@ mod tests {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
-        assert!(output.unwrap() == "hello\n");
+        assert_eq!(name, "test");
+        assert_eq!(output.unwrap(), "hello\n");
     }
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
+        assert_eq!(name, "test");
         assert!(output.unwrap().contains("HELLO=world"));
     }
 
@@ -126,8 +126,8 @@ mod tests {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
-        assert!(output.unwrap() == "hello world\n");
+        assert_eq!(name, "test");
+        assert_eq!(output.unwrap(), "hello world\n");
     }
 
     #[test]
@@ -147,8 +147,8 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "test");
-        assert!(message == "cat: ./unknown.txt: No such file or directory\n");
+        assert_eq!(name, "test");
+        assert_eq!(message, "cat: ./unknown.txt: No such file or directory\n");
     }
 
     #[test]
@@ -163,7 +163,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new()).err().unwrap();
 
-        assert!(result.to_string() == "No such file or directory (os error 2)");
+        assert_eq!(result.to_string(), "No such file or directory (os error 2)");
     }
 
     #[test]

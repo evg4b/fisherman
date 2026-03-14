@@ -233,7 +233,7 @@ mod tests {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
+        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
 
         Ok(())
     }
@@ -290,11 +290,11 @@ mod tests {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
+        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
 
         assert!(hook_bkp_path.exists());
         assert!(hook_bkp_path.is_file());
-        assert!(fs::read_to_string(hook_bkp_path).unwrap() == original_hook_content);
+        assert_eq!(fs::read_to_string(hook_bkp_path).unwrap(), original_hook_content);
 
         Ok(())
     }

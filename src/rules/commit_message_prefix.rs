@@ -59,7 +59,7 @@ mod tests {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "commit_message_prefix");
+        assert_eq!(name, "commit_message_prefix");
         assert_eq!(output, None);
     }
 
@@ -76,8 +76,8 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "commit_message_prefix");
-        assert!(message == "Commit message must start with: feat");
+        assert_eq!(name, "commit_message_prefix");
+        assert_eq!(message, "Commit message must start with: feat");
     }
 
     #[test]

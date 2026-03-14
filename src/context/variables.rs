@@ -109,8 +109,8 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert!(result.len() == 1);
-        assert!(result["part"] == "aster");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result["part"], "aster");
     }
 
     #[test]
@@ -123,8 +123,8 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert!(result.len() == 1);
-        assert!(result["demo"] == "to");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result["demo"], "to");
     }
 
     #[test]
@@ -137,10 +137,10 @@ mod extract_variables_tests {
 
         let result: HashMap<String, String> = extract_variables(&context, &extract).unwrap();
 
-        assert!(result.len() == 3);
-        assert!(result["S1"] == "path");
-        assert!(result["S2"] == "to");
-        assert!(result["S3"] == "repo");
+        assert_eq!(result.len(), 3);
+        assert_eq!(result["S1"], "path");
+        assert_eq!(result["S2"], "to");
+        assert_eq!(result["S3"], "repo");
     }
 
     #[test]
@@ -155,7 +155,7 @@ mod extract_variables_tests {
         let error = extract_variables(&context, &extract);
 
         assert!(error.is_err());
-        assert!(error.unwrap_err().to_string() == "Pattern '^.&' doesn't match 'master'");
+        assert_eq!(error.unwrap_err().to_string(), "Pattern '^.&' doesn't match 'master'");
     }
 
     #[test]
@@ -183,7 +183,7 @@ mod extract_variables_tests {
 
         let result = extract_variables(&context, &extract).unwrap();
 
-        assert!(result.len() == 1);
-        assert!(result["IssueNumber"] == "CLIC-48484");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result["IssueNumber"], "CLIC-48484");
     }
 }

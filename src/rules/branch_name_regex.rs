@@ -58,7 +58,7 @@ mod tests {
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "branch_name_regex");
+        assert_eq!(name, "branch_name_regex");
 
         Ok(())
     }
@@ -76,8 +76,8 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "branch_name_regex");
-        assert!(message == "Branch name must match pattern: ^feat/.*-bugfix$");
+        assert_eq!(name, "branch_name_regex");
+        assert_eq!(message, "Branch name must match pattern: ^feat/.*-bugfix$");
 
         Ok(())
     }

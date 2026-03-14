@@ -58,7 +58,7 @@ mod tests {
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "commit_message_suffix");
+        assert_eq!(name, "commit_message_suffix");
     }
 
     #[test]
@@ -74,8 +74,8 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "commit_message_suffix");
-        assert!(message == "Commit message must end with: feat");
+        assert_eq!(name, "commit_message_suffix");
+        assert_eq!(message, "Commit message must end with: feat");
     }
 
     #[test]

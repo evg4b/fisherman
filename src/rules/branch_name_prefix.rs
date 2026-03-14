@@ -57,7 +57,7 @@ mod tests {
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "branch_name_prefix");
+        assert_eq!(name, "branch_name_prefix");
 
         Ok(())
     }
@@ -75,8 +75,8 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "branch_name_prefix");
-        assert!(message == "Branch name must start with: feat/");
+        assert_eq!(name, "branch_name_prefix");
+        assert_eq!(message, "Branch name must start with: feat/");
 
         Ok(())
     }
