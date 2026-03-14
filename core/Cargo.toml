@@ -1,0 +1,26 @@
+[package]
+name = "core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.11.1"
+thiserror = "2.0.12"
+anyhow = "1.0.44"
+dirs = "6.0.0"
+figment = { version = "0.10.19", features = ["toml", "yaml", "json"] }
+serde = { version = "1.0.217", features = ["derive"] }
+clap = { version = "4.5.23", features = ["derive"] }
+mockall = "0.14.0"
+git2 = "0.20.0"
+run_script = "0.11.0"
+rhai = "1.21.0"
+glob = "0.3.2"
+
+
+[dev-dependencies]
+rstest = "0.26.1"
+assert2 = "0.3"
+serde_json = "1.0.140"
+assertor = { version = "0.0.4", features = ["anyhow"] }
+tempfile = "3.19.1"

@@ -1,4 +1,4 @@
-use crate::hooks::GitHook;
+use core::hooks::GitHook;
 use std::path::PathBuf;
 
 pub fn hook_display(hook: &GitHook, files: Vec<PathBuf>) -> String {

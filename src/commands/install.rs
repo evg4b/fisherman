@@ -1,6 +1,6 @@
 use crate::commands::command::CliCommand;
-use crate::context::Context;
-use crate::hooks::GitHook;
+use core::context::Context;
+use core::hooks::GitHook;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};

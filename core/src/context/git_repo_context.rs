@@ -61,7 +61,7 @@ impl Context for GitRepoContext {
 }
 
 impl GitRepoContext {
-    pub(crate) fn new(cwd: PathBuf) -> Result<Self> {
+    pub fn new(cwd: PathBuf) -> Result<Self> {
         let repo = Repository::open(&cwd)?;
         let bin = std::env::current_exe()?;
 
