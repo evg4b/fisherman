@@ -30,10 +30,8 @@ impl CopyFiles {
     }
 
     fn ensure_parent_exists(path: &Path) -> Result<()> {
-        if let Some(parent) = path.parent() {
-            if !parent.exists() {
-                create_dir_all(parent)?;
-            }
+        if let Some(parent) = path.parent() && !parent.exists() {
+            create_dir_all(parent)?;
         }
         Ok(())
     }
@@ -45,7 +43,7 @@ impl CompiledRule for CopyFiles {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&vec![])?;
+        let variables = ctx.variables(&[])?;
         let compiled_glob = self.glob.to_string(&variables)?;
         let compiled_src = self.src.as_ref().map(|s| s.to_string(&variables)).transpose()?;
         let compiled_pattern = match compiled_src.clone() {

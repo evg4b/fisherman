@@ -229,7 +229,7 @@ mod test_hook_install {
 
         hook.install(&ctx, false)?;
 
-        let hook_path = dir.into_path().join(hook.to_string());
+        let hook_path = dir.path().join(hook.to_string());
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
@@ -285,7 +285,7 @@ mod test_hook_install {
 
         hook.install(&ctx, true)?;
 
-        let hook_path = dir.into_path().join(hook.to_string());
+        let hook_path = dir.path().join(hook.to_string());
         let hook_bkp_path = hook_path.with_extension("bkp");
 
         assert!(hook_path.exists());

@@ -27,7 +27,7 @@ impl CompiledRule for DeleteFiles {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&vec![])?;
+        let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.to_string(&variables)?;
         let paths = glob(glob_pattern.as_str())?
             .collect::<Vec<GlobResult>>();
