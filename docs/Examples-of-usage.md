@@ -114,3 +114,43 @@ args = ["build", "--release"]
 | Parallel       | ~5 seconds                |
 
 This dramatically improves developer experience when multiple validation steps are required.
+
+# Keep Project Templates in Sync
+
+Copy shared issue and PR templates from a central folder into `.github/` whenever you switch branches.
+
+```toml .fisherman.toml
+[[hooks.post-checkout]]
+type = "copy-files"
+glob = ".github-templates/**/*"
+source = "../team-assets"
+destination = "./.github"
+```
+
+**How it works:**
+
+- Copies everything under `../team-assets/.github-templates` into the repo’s `.github/`
+- Preserves subfolders like `ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE/`
+- Creates destination directories if missing
+
+# Remove Build Artifacts Before Commit
+
+Clean up generated coverage and cache files so they never reach the commit.
+
+```toml .fisherman.toml
+[[hooks.pre-commit]]
+type = "delete-files"
+glob = "target/coverage/**/*.json"
+fail-if-not-found = false
+
+[[hooks.pre-commit]]
+type = "delete-files"
+glob = "**/.pytest_cache/**"
+fail-if-not-found = false
+```
+
+**How it works:**
+
+- Removes stale coverage reports under `target/coverage/`
+- Drops Python `.pytest_cache` folders if present
+- Succeeds even when nothing needs deleting, keeping the working tree clean

@@ -6,6 +6,8 @@ use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_regex::CommitMessageRegex;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
+use crate::rules::copy_files::CopyFiles;
+use crate::rules::delete_files::DeleteFiles;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
 use crate::rules::write_file::WriteFile;
@@ -56,6 +58,18 @@ pub enum RuleParams {
     BranchNamePrefix { prefix: String },
     #[serde(rename = "branch-name-suffix")]
     BranchNameSuffix { suffix: String },
+    #[serde(rename = "copy-files")]
+    CopyFiles {
+        glob: String,
+        destination: String,
+        source: Option<String>,
+    },
+    #[serde(rename = "delete-files")]
+    DeleteFiles {
+        glob: String,
+        #[serde(rename = "fail-if-not-found")]
+        fail_if_not_found: Option<bool>,
+    },
 }
 
 impl std::fmt::Display for Rule {
@@ -142,6 +156,21 @@ impl Rule {
                     t!(suffix.clone()),
                 ))
             }
+            RuleParams::CopyFiles { glob, destination, source } => {
+                wrap!(CopyFiles::new(
+                    self.to_string(),
+                    t!(glob.clone()),
+                    source.as_ref().map(|s| t!(s.clone())),
+                    t!(destination.clone()),
+                ))
+            }
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                wrap!(DeleteFiles::new(
+                    self.to_string(),
+                    t!(glob.clone()),
+                    fail_if_not_found.unwrap_or(false),
+                ))
+            }
         }
     }
 }
@@ -187,6 +216,12 @@ impl RuleParams {
             }
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 format!("branch name rule should end with: {}", suffix)
+            }
+            RuleParams::CopyFiles { glob, destination, source } => {
+                format!("copy files from {} to {} (source: {})", glob, destination, source.as_ref().unwrap_or(&String::from("<n/a>")))
+            }
+            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
+                format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
             }
         }
     }
@@ -600,6 +635,41 @@ mod tests {
     }
 
     #[test]
+    fn test_rule_params_name_copy_files_with_source() {
+        let params = RuleParams::CopyFiles {
+            glob: "*.txt".to_string(),
+            destination: "dest".to_string(),
+            source: Some("src".to_string()),
+        };
+        assert_eq!(
+            params.name(),
+            "copy files from *.txt to dest (source: src)"
+        );
+    }
+
+    #[test]
+    fn test_rule_params_name_copy_files_without_source() {
+        let params = RuleParams::CopyFiles {
+            glob: "*.txt".to_string(),
+            destination: "dest".to_string(),
+            source: None,
+        };
+        assert_eq!(
+            params.name(),
+            "copy files from *.txt to dest (source: <n/a>)"
+        );
+    }
+
+    #[test]
+    fn test_rule_params_name_delete_files() {
+        let params = RuleParams::DeleteFiles {
+            glob: "*.log".to_string(),
+            fail_if_not_found: Some(true),
+        };
+        assert_eq!(params.name(), "delete files matching *.log true");
+    }
+
+    #[test]
     fn test_compile_variables_error() {
         use crate::context::MockContext;
 
@@ -638,5 +708,48 @@ mod tests {
 
         let result = rule.compile(&ctx);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_compile_copy_files() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::CopyFiles {
+                glob: "*.txt".to_string(),
+                destination: "/tmp/dest".to_string(),
+                source: Some("/tmp/src".to_string()),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_compile_delete_files() {
+        use crate::context::MockContext;
+
+        let rule = Rule {
+            when: None,
+            extract: None,
+            params: RuleParams::DeleteFiles {
+                glob: "*.log".to_string(),
+                fail_if_not_found: Some(false),
+            },
+        };
+
+        let mut ctx = MockContext::new();
+        ctx.expect_variables()
+            .returning(|_| Ok(HashMap::<String, String>::new()));
+
+        let result = rule.compile(&ctx).unwrap();
+        assert!(result.is_some());
     }
 }

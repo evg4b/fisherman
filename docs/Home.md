@@ -22,6 +22,7 @@ Fisherman enables more sophisticated hook configurations with minimal effort.
 - ✅ **Multiple Hook Types** - Support for all standard Git hooks (pre-commit, commit-msg, pre-push, etc.)
 - ✅ **Conditional Execution** - Execute rules based on expressions using the `when` parameter
 - ✅ **Template Support** - Use variables in your configurations with `{{variable}}` syntax
+- ✅ **File Automation** - Write, copy, and delete files with templated paths and content
 - ✅ **Multiple Scopes** - Global, repository, and local configuration support
 - ✅ **Parallel Execution** - Async rules (exec, shell, write-file) run in parallel for faster hook execution
 - ✅ **Easy Installation** - Single binary, no runtime dependencies
