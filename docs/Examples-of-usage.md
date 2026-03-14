@@ -121,7 +121,7 @@ Copy shared issue and PR templates from a central folder into `.github/` wheneve
 
 ```toml .fisherman.toml
 [[hooks.post-checkout]]
-type = "write-files"
+type = "copy-files"
 glob = ".github-templates/**/*"
 source = "../team-assets"
 destination = "./.github"

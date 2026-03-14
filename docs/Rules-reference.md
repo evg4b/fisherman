@@ -455,54 +455,6 @@ append = true
 
 ---
 
-## `copy-files`
-
-Copies one or more files matching a glob into a destination, preserving the relative path when a source directory is
-provided.
-
-**Type:** Asynchronous
-
-**Parameters:**
-
-- `glob` (required) - Glob pattern of files to copy
-- `destination` (required) - Target directory (created if missing)
-- `source` (optional) - Base directory to resolve the glob from; if omitted, the repository root is used
-
-**Example - Copy shared templates into the repo:**
-
-```toml
-[[hooks.post-checkout]]
-type = "write-files"
-glob = "templates/**/*.md"
-source = "./scaffolding"
-destination = "./docs"
-```
-
-**Example - Copy CI config with variables:**
-
-```toml
-extract = ["branch?:^(?<Env>staging|prod)-.*$"]
-
-[[hooks.post-checkout]]
-type = "write-files"
-glob = "{{Env | default(\"staging\")}}/*.yml"
-source = "./ci-presets"
-destination = "./.github/workflows"
-```
-
-**Success/Failure:**
-
-- **Success:** Files are copied; output includes how many files were copied
-- **Failure:** Glob resolution fails, permissions errors, or destination cannot be created
-
-**Use cases:**
-
-- Keep docs or boilerplate in sync across branches
-- Drop environment-specific config after checkout
-- Scaffold project files without manual copying
-
----
-
 ## `delete-files`
 
 Deletes files that match a glob pattern.
@@ -658,3 +610,50 @@ args = ["test"]
 - Use `{{variable}}` syntax, not `${variable}`
 
 See [Examples](./Examples-of-usage) for more real-world use cases.
+## `copy-files`
+
+Copies one or more files matching a glob into a destination, preserving the relative path when a source directory is
+provided.
+
+**Type:** Asynchronous
+
+**Parameters:**
+
+- `glob` (required) - Glob pattern of files to copy
+- `destination` (required) - Target directory (created if missing)
+- `source` (optional) - Base directory to resolve the glob from; if omitted, the repository root is used
+
+**Example - Copy shared templates into the repo:**
+
+```toml
+[[hooks.post-checkout]]
+type = "copy-files"
+glob = "templates/**/*.md"
+source = "./scaffolding"
+destination = "./docs"
+```
+
+**Example - Copy CI config with variables:**
+
+```toml
+extract = ["branch?:^(?<Env>staging|prod)-.*$"]
+
+[[hooks.post-checkout]]
+type = "copy-files"
+glob = "{{Env | default(\"staging\")}}/*.yml"
+source = "./ci-presets"
+destination = "./.github/workflows"
+```
+
+**Success/Failure:**
+
+- **Success:** Files are copied; output includes how many files were copied
+- **Failure:** Glob resolution fails, permissions errors, or destination cannot be created
+
+**Use cases:**
+
+- Keep docs or boilerplate in sync across branches
+- Drop environment-specific config after checkout
+- Scaffold project files without manual copying
+
+---

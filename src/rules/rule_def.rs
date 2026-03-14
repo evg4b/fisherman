@@ -58,7 +58,7 @@ pub enum RuleParams {
     BranchNamePrefix { prefix: String },
     #[serde(rename = "branch-name-suffix")]
     BranchNameSuffix { suffix: String },
-    #[serde(rename = "write-files")]
+    #[serde(rename = "copy-files")]
     CopyFiles {
         glob: String,
         destination: String,
