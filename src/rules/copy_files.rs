@@ -38,7 +38,7 @@ impl CopyFiles {
 }
 
 impl CompiledRule for CopyFiles {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         false
     }
 
