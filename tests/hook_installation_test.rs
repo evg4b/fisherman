@@ -1,5 +1,6 @@
 mod common;
 
+use crate::common::ConfigFormat;
 use common::{FishermanBinary, GitTestRepo};
 
 /// Tests that install command creates hook files for all configured hook types.
@@ -23,7 +24,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -51,7 +52,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.create_file(".git/hooks/pre-commit", "#!/bin/sh\necho existing hook");
 
     let install_output = binary.install(repo.path(), false);
@@ -81,7 +82,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.create_file(".git/hooks/pre-commit", "#!/bin/sh\necho existing hook");
 
     let install_output = binary.install(repo.path(), true);
@@ -115,7 +116,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
     assert!(install_output.status.success());
@@ -140,7 +141,7 @@ type = "message-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
     assert!(install_output.status.success());
@@ -171,7 +172,7 @@ command = "echo"
 args = ["test"]
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let explain_output = binary.explain("pre-commit", repo.path());
 
@@ -222,7 +223,7 @@ type = "branch-name-suffix"
 suffix = "-dev"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -261,7 +262,7 @@ path = "local.txt"
 content = "local level"
 "#;
 
-    repo.create_config(repo_config);
+    repo.create_config(repo_config, ConfigFormat::Toml);
     repo.create_local_config(local_config);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
@@ -293,7 +294,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -322,7 +323,7 @@ path = "post-commit-ran.txt"
 content = "Post commit hook executed"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -349,7 +350,7 @@ path = "prepare-ran.txt"
 content = "Prepare commit msg hook executed"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
 
     let install_output = binary.install(repo.path(), false);
 
@@ -376,7 +377,7 @@ regex = ".*"
 "#;
 
     let original_hook_content = "#!/bin/sh\necho original hook\nexit 0";
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.create_file(".git/hooks/pre-commit", original_hook_content);
 
     let install_output = binary.install(repo.path(), true);

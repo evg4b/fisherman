@@ -1,7 +1,7 @@
 use crate::hooks::errors::HookError;
 use anyhow::{bail, Result};
 use clap::ValueEnum;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
@@ -35,7 +35,7 @@ const P4_POST_CHANGELIST: &str = "p4-post-changelist";
 const P4_PRE_SUBMIT: &str = "p4-pre-submit";
 const POST_INDEX_CHANGE: &str = "post-index-change";
 
-#[derive(Debug, Deserialize, Hash, Eq, PartialEq, Copy, Clone, ValueEnum)]
+#[derive(Debug, Deserialize, Serialize, Hash, Eq, PartialEq, Copy, Clone, ValueEnum)]
 pub enum GitHook {
     #[serde(rename = "applypatch-msg")]
     ApplypatchMsg,

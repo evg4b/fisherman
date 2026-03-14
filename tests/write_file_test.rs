@@ -14,7 +14,7 @@ path = "output.txt"
 content = "test content"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output.txt"), "File should be created");
@@ -80,7 +80,7 @@ path = "simple.txt"
 content = "simple content"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("simple.txt"));
@@ -109,7 +109,7 @@ path = "output3.txt"
 content = "content 3"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("output1.txt"));
@@ -132,7 +132,7 @@ path = "output.txt"
 content = "Line 1\nLine 2\nLine 3"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("output.txt"), "Line 1\nLine 2\nLine 3");

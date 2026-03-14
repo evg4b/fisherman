@@ -14,11 +14,10 @@ use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
 use crate::t;
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "type")]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Rule {
     pub when: Option<Expression>,
     pub extract: Option<Vec<String>>,
@@ -26,7 +25,7 @@ pub struct Rule {
     pub params: RuleParams,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(tag = "type")]
 pub enum RuleParams {
     #[serde(rename = "exec")]

@@ -14,7 +14,7 @@ path = "merge-executed.txt"
 content = "post-merge ran"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     // Create a simple merge scenario
     ctx.repo.create_file("file1.txt", "content1");
@@ -49,7 +49,7 @@ path = "checkout-executed.txt"
 content = "post-checkout ran"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     // Create and checkout a new branch - this triggers post-checkout hook
     ctx.git_checkout_new_branch("test-branch");
@@ -77,7 +77,7 @@ type = "branch-name-prefix"
 prefix = "feature/"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     // Create a branch name with 200 characters
     let long_name = format!("feature/{}", "a".repeat(192));
@@ -103,7 +103,7 @@ type = "branch-name-regex"
 regex = "^feature/[a-z0-9._-]+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/test_feature.v1.2-beta");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -123,7 +123,7 @@ content = "content"
 append = true
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert_eq!(ctx.repo.read_file("new-file.txt"), "content");
@@ -148,7 +148,7 @@ content = "{{Type}}: {{Ticket}} in {{RepoName}}"
 when = "Type == \"feature\" && is_def_var(\"Ticket\")"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-789");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -169,7 +169,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     // Explain a different hook that has no rules
     let output = ctx.binary.explain("pre-push", ctx.repo.path());
@@ -198,7 +198,7 @@ path = "extracted.txt"
 content = "{{Type}}: {{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth-system");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -219,7 +219,7 @@ type = "message-regex"
 regex = "^feat: .+"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let multiline_msg = "feat: add new feature\n\nThis is a longer description\nwith multiple lines";
     ctx.git_commit_allow_empty_success(multiline_msg);
@@ -240,7 +240,7 @@ path = "executed.txt"
 content = "Hook executed"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/issue");
 
     ctx.git_commit_allow_empty_success("test commit");

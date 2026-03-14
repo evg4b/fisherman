@@ -90,8 +90,12 @@ impl GitTestRepo {
         self.path().join(path).exists()
     }
 
-    pub fn create_config(&self, config: &str) {
-        self.create_file(".fisherman.toml", config);
+    pub fn create_config(&self, config: &str, format: ConfigFormat) {
+        match format {
+            ConfigFormat::Json => self.create_file(".fisherman.json", config),
+            ConfigFormat::Yaml => self.create_file(".fisherman.yaml", config),
+            ConfigFormat::Toml => self.create_file(".fisherman.toml", config),
+        }
     }
 
     pub fn create_yaml_config(&self, config: &str) {
@@ -289,7 +293,7 @@ impl<'a> ConfigBuilder<'a> {
                     self.repo.create_global_config(&content);
                 }
                 (ConfigScope::Repository, ConfigFormat::Toml) => {
-                    self.repo.create_config(&content);
+                    self.repo.create_config(&content, format);
                 }
                 (ConfigScope::Repository, ConfigFormat::Yaml) => {
                     self.repo.create_yaml_config(&content);

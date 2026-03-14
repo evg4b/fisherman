@@ -1,6 +1,6 @@
 mod common;
 
-use common::test_context::{TestContext, assert_stderr_contains};
+use common::test_context::{assert_stderr_contains, TestContext};
 
 /// Tests that branch-name-regex rule passes when branch name matches the specified pattern.
 /// Verifies regex validation works with valid branch naming conventions.
@@ -13,7 +13,7 @@ type = "branch-name-regex"
 regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/new-feature");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -29,7 +29,7 @@ type = "branch-name-regex"
 regex = "^(feature|bugfix|hotfix)/[a-z0-9-]+"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("invalid_branch");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -51,7 +51,7 @@ type = "branch-name-prefix"
 prefix = "feature/"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/test-branch");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -67,7 +67,7 @@ type = "branch-name-prefix"
 prefix = "feature/"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/wrong-prefix");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -89,7 +89,7 @@ type = "branch-name-suffix"
 suffix = "-v1"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature-v1");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -105,7 +105,7 @@ type = "branch-name-suffix"
 suffix = "-v1"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature-v2");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -135,7 +135,7 @@ type = "branch-name-regex"
 regex = "^feature/[a-z-]+-dev$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/new-feature-dev");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -156,7 +156,7 @@ type = "branch-name-suffix"
 suffix = "-dev"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/missing-suffix");
 
     let output = ctx.git_commit_allow_empty("test commit");

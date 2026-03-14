@@ -36,7 +36,7 @@ path = "file5.txt"
 content = "content 5"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -89,7 +89,7 @@ command = "echo"
 args = ["3"]
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success(), "All exec rules should succeed: {}",
         String::from_utf8_lossy(&output.stderr));
@@ -134,7 +134,7 @@ type = "shell"
 script = "echo 'script3'"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -196,7 +196,7 @@ path = "output2.txt"
 content = "another write"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -252,7 +252,7 @@ path = "should-not-exist.txt"
 content = "should not be created"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
@@ -300,7 +300,7 @@ path = "async.txt"
 content = "async rule"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/test");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -327,7 +327,7 @@ type = "branch-name-prefix"
 prefix = "feature/"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/test");
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -366,7 +366,7 @@ type = "shell"
 script = "sleep 0.1"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let start = Instant::now();
     let handle_output = ctx.git_commit_allow_empty("test commit");

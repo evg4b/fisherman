@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
-use super::{FishermanBinary, GitTestRepo};
+use super::{ConfigFormat, FishermanBinary, GitTestRepo};
+use crate::common::configuration::serialize_configuration;
+use core::configuration::Configuration;
 use std::process::Output;
 
 /// Helper struct that combines FishermanBinary and GitTestRepo for easier test setup
@@ -20,7 +22,15 @@ impl TestContext {
 
     /// Creates a config, initializes the repo with a file and commit, and installs hooks
     pub fn setup_with_config(&self, config: &str) -> Output {
-        self.repo.create_config(config);
+        self.repo.create_config(config, ConfigFormat::Toml);
+        self.repo
+            .git_history(&[("initial", &[("test.txt", "initial")])]);
+        self.binary.install(self.repo.path(), false)
+    }
+
+    /// Creates a config, initializes the repo with a file and commit, and installs hooks
+    pub fn setup_with_config_by_format(&self, config: &str, format: ConfigFormat) -> Output {
+        self.repo.create_config(config, format);
         self.repo
             .git_history(&[("initial", &[("test.txt", "initial")])]);
         self.binary.install(self.repo.path(), false)
@@ -28,13 +38,13 @@ impl TestContext {
 
     /// Creates a config with custom git history and installs hooks
     pub fn setup_with_history(&self, config: &str, history: &[(&str, &[(&str, &str)])]) -> Output {
-        self.repo.create_config(config);
+        self.repo.create_config(config, ConfigFormat::Toml);
         self.repo.git_history(history);
         self.binary.install(self.repo.path(), false)
     }
 
     /// Setup and assert installation succeeded
-    pub fn setup_and_install(&self, config: &str) {
+    pub fn setup_and_install_old(&self, config: &str) {
         let output = self.setup_with_config(config);
         assert!(
             output.status.success(),
@@ -42,6 +52,17 @@ impl TestContext {
             String::from_utf8_lossy(&output.stderr)
         );
     }
+
+    pub fn setup_and_install(&self, config: &Configuration, format: ConfigFormat) {
+        let config_string = serialize_configuration(config, format);
+        let output = self.setup_with_config(config_string.as_str());
+        assert!(
+            output.status.success(),
+            "Installation failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
     /// Handle a hook and return the output
     pub fn handle(&self, hook: &str) -> Output {
         self.binary.handle(hook, self.repo.path(), &[])
@@ -61,19 +82,18 @@ impl TestContext {
     /// Handle a hook and assert it failed
     pub fn handle_failure(&self, hook: &str) {
         let output = self.handle(hook);
-        assert!(
-            !output.status.success(),
-            "Hook '{}' should fail",
-            hook
-        );
+        assert!(!output.status.success(), "Hook '{}' should fail", hook);
     }
 
     /// Handle commit-msg hook with a message
     pub fn handle_commit_msg(&self, message: &str) -> Output {
         self.repo.write_commit_msg_file(message);
         let msg_path = self.repo.commit_msg_file_path();
-        self.binary
-            .handle("commit-msg", self.repo.path(), &[msg_path.to_str().unwrap()])
+        self.binary.handle(
+            "commit-msg",
+            self.repo.path(),
+            &[msg_path.to_str().unwrap()],
+        )
     }
 
     /// Handle commit-msg hook and assert success
@@ -89,10 +109,7 @@ impl TestContext {
     /// Handle commit-msg hook and assert failure
     pub fn handle_commit_msg_failure(&self, message: &str) {
         let output = self.handle_commit_msg(message);
-        assert!(
-            !output.status.success(),
-            "commit-msg hook should fail"
-        );
+        assert!(!output.status.success(), "commit-msg hook should fail");
     }
     // ========== Git-based hook testing (recommended approach) ==========
     // These methods trigger hooks through actual git commands instead of

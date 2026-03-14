@@ -16,7 +16,7 @@ type = "message-regex"
 regex = "^.+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("feat: Add 日本語 support with émojis 🎉");
 }
 
@@ -32,7 +32,7 @@ type = "branch-name-regex"
 regex = "^.+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/support-日本語");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -52,7 +52,7 @@ path = "branch-name.txt"
 content = "Branch: {{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/日本語-support");
     ctx.git_commit_allow_empty_success("test commit");
 
@@ -75,7 +75,7 @@ path = "prepare-executed.txt"
 content = "prepare-commit-msg ran"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     // Git automatically triggers prepare-commit-msg hook during commit
     ctx.git_commit_allow_empty_success("test commit");
@@ -97,7 +97,7 @@ path = "commit-template.txt"
 content = "{{Type}}: [{{Ticket}}] "
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-456");
 
     // Git automatically triggers prepare-commit-msg hook during commit
@@ -124,7 +124,7 @@ content = "test"
 when = "UndefinedVar == \"value\""
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_failure("test commit");
 }
 
@@ -144,7 +144,7 @@ content = "Feature is defined"
 when = "is_def_var(\"Feature\")"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth");
     ctx.git_commit_allow_empty_success("test commit");
 
@@ -173,7 +173,7 @@ content = "Feature not defined"
 when = "!is_def_var(\"Feature\")"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/test");
     ctx.git_commit_allow_empty_success("test commit");
 
@@ -212,7 +212,7 @@ fi
 env = { VAR1 = "value1", VAR2 = "value2" }
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 }
 
@@ -244,7 +244,7 @@ args = ["-c", "test \"$FEATURE_NAME\" = \"payment\""]
 env = { FEATURE_NAME = "{{Feature}}" }
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/payment");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -263,7 +263,7 @@ type = "message-regex"
 regex = "^.+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_failure("");
 }
 
@@ -279,7 +279,7 @@ type = "message-regex"
 regex = "^.+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let long_message = "a".repeat(10000);
     ctx.git_commit_allow_empty_success(&long_message);
 }
@@ -297,7 +297,7 @@ type = "message-regex"
 regex = ".*"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     // Git rejects whitespace-only messages as empty, so this should fail
     let output = ctx.git_commit_allow_empty("   \n   \t   ");
     assert!(!output.status.success(), "Git should reject whitespace-only commit messages");
@@ -316,7 +316,7 @@ path = "special.txt"
 content = "Line with $VAR and `backticks` and \"quotes\" and 'apostrophes'"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     let content = ctx.repo.read_file("special.txt");
@@ -340,7 +340,7 @@ path = "hierarchy.txt"
 content = "{{Category}}/{{Subcategory}}/{{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/ui/button-component");
     ctx.git_commit_allow_empty_success("test commit");
 
@@ -368,7 +368,7 @@ type = "branch-name-suffix"
 suffix = "-ready"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/new-feature-ready");
     ctx.git_commit_allow_empty_success("test commit");
 }
@@ -388,7 +388,7 @@ path = "ticket.txt"
 content = "{{Ticket}} - {{Priority}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-123-high");
     ctx.git_commit_allow_empty_success("test commit");
 

@@ -1,7 +1,11 @@
 mod common;
 
+use crate::common::ConfigFormat;
+use crate::common::configuration::serialize_configuration;
 use common::test_context::TestContext;
-
+use core::configuration::Configuration;
+use core::hooks::GitHook;
+use core::rules::{Rule, RuleParams};
 // NOTE: pre-push is a client-side hook that runs before git push sends objects to the remote.
 // Testing it would require setting up a remote repository and performing push operations,
 // which adds significant complexity. Since we already test hook execution thoroughly with
@@ -14,18 +18,25 @@ use common::test_context::TestContext;
 fn post_commit_hook_execution() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.post-commit]]
-type = "write-file"
-path = "post-commit-executed.txt"
-content = "post-commit hook ran"
-"#;
+    let path = "post-commit-executed.txt";
+    let content = "post-commit hook ran";
 
-    ctx.setup_and_install(config);
+    let config = config!(
+        GitHook::PostCommit => [
+            rule!(RuleParams::WriteFile {
+                path: String::from(path),
+                content: String::from(content),
+                append: None,
+            })
+        ]
+    );
+
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
 
     // post-commit runs automatically after a successful commit
     ctx.git_commit_allow_empty_success("test commit");
-    assert!(ctx.repo.file_exists("post-commit-executed.txt"));
+    assert!(ctx.repo.file_exists(path));
+    assert_eq!(ctx.repo.read_file(path), "post-commit hook ran");
 }
 
 /// Tests that configurations with empty or minimal hook definitions handle gracefully
@@ -34,13 +45,14 @@ content = "post-commit hook ran"
 fn empty_hooks_array_succeeds() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-# No rules defined
-"#;
+    let config = config!(
+        GitHook::PreCommit => []
+    );
 
     // Empty or minimal config should still allow installation
-    let _install_output = ctx.setup_with_config(config);
+    let _install_output = ctx.setup_with_config(
+        serialize_configuration(&config, ConfigFormat::Toml).as_str()
+    );
     // This may succeed or fail depending on implementation
     // Just verify it doesn't crash
 }
@@ -52,27 +64,28 @@ fn empty_hooks_array_succeeds() {
 fn mixed_sync_and_async_rules_execute_correctly() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^feature/.*"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameRegex {
+                regex: String::from("^feature/.*"),
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("async1.txt"),
+                content: String::from("async rule 1"),
+                append: None,
+            }),
+            rule!(RuleParams::BranchNamePrefix {
+                prefix: String::from("feature/"),
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("async2.txt"),
+                content: String::from("async rule 2"),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "async1.txt"
-content = "async rule 1"
-
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "async2.txt"
-content = "async rule 2"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/test-branch");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -86,19 +99,21 @@ content = "async rule 2"
 #[test]
 fn sync_rule_failure_behavior() {
     let ctx = TestContext::new();
+    
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(RuleParams::BranchNameRegex {
+                regex: String::from("^feature/.*"),
+            }),
+            rule!(RuleParams::WriteFile {
+                path: String::from("async1.txt"),
+                content: String::from("async rule 1"),
+                append: None,
+            }),
+        ]
+    );
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "write-attempted.txt"
-content = "write rule executed"
-"#;
-
-    ctx.setup_and_install(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("bugfix/test");
 
     let handle_output = ctx.git_commit_allow_empty("test commit");
@@ -135,7 +150,7 @@ path = "all-rules.txt"
 content = "all rules passed"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/new-test");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -158,7 +173,7 @@ content = "Urgent work"
 when = "(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\""
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("hotfix/low");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -179,7 +194,7 @@ type = "message-suffix"
 suffix = " [{{Ticket}}]"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-123");
 
     ctx.git_commit_allow_empty_success("Add new feature [PROJ-123]");
@@ -200,7 +215,7 @@ path = "repo-check.txt"
 content = "Repository: {{RepoName}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("repo-check.txt"));
@@ -224,7 +239,7 @@ prefix = "feat: "
 when = "Type == \"feature\""
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/test");
 
     // Message doesn't have the prefix, but the condition is false, so it should pass

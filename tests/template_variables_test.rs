@@ -16,7 +16,7 @@ type = "message-prefix"
 prefix = "{{Type}}: [{{Ticket}}] "
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-123");
 
     ctx.git_commit_allow_empty_success("feature: [PROJ-123] add new feature");
@@ -37,7 +37,7 @@ path = "branch-info.txt"
 content = "Current feature: {{Feature}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth-system");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -63,7 +63,7 @@ path = "repo-info.txt"
 content = "Repository: {{RepoName}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 
     assert!(ctx.repo.file_exists("repo-info.txt"));
@@ -90,7 +90,7 @@ path = "info.txt"
 content = "Type: {{Type}}, Ticket: {{Ticket}}, Repo: {{RepoName}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/ABC-456");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -128,7 +128,7 @@ command = "echo"
 args = ["{{Feature}}"]
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/payment");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -149,7 +149,7 @@ path = "output.txt"
 content = "Feature: {{Feature}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -170,7 +170,7 @@ type = "branch-name-regex"
 regex = "^.+$"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/issue");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -191,7 +191,7 @@ path = "{{Feature}}-status.txt"
 content = "Feature status file"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/payment");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -217,7 +217,7 @@ path = "{{Type}}-{{Name}}.log"
 content = "Log for {{Type}}/{{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -242,7 +242,7 @@ type = "message-suffix"
 suffix = " [{{Ticket}}]"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/PROJ-789");
 
     ctx.git_commit_allow_empty_success("Add new feature [PROJ-789]");
@@ -263,7 +263,7 @@ type = "branch-name-prefix"
 prefix = "{{Prefix}}/"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth-system");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -283,7 +283,7 @@ type = "branch-name-suffix"
 suffix = "-{{Type}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth-feature");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -313,7 +313,7 @@ type = "shell"
 script = "echo 'Working on {{Feature}}' > feature.txt"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/dashboard");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -338,7 +338,7 @@ path = "status.txt"
 content = "Type: {{Type}}, Ticket: {{Ticket}}, Name: {{Name}}, Full: {{Type}}/{{Ticket}}-{{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/ABC-123-login");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -363,7 +363,7 @@ path = "output.txt"
 content = "Feature: {{Feature}}, Missing: {{UndefinedVar}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth");
 
     ctx.git_commit_allow_empty_failure("test commit");
@@ -383,7 +383,7 @@ type = "branch-name-regex"
 regex = ".*"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("test commit");
 }
 
@@ -402,7 +402,7 @@ path = "feature.txt"
 content = "Feature: {{Feature}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth_v2-beta");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -428,7 +428,7 @@ content = "Type: {{Type}}"
 when = "is_def_var(\"Type\")"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/auth");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -451,7 +451,7 @@ content = "Feature: {{Feature}}"
 when = "is_def_var(\"Feature\")"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("bugfix/issue");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -473,7 +473,7 @@ path = "{{Category}}-{{Project}}-{{Issue}}.txt"
 content = "Category: {{Category}}\nProject: {{Project}}\nIssue: {{Issue}}\nDescription: {{Description}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/MYAPP-456-user-auth");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -512,7 +512,7 @@ command = "echo"
 args = ["{{Type}}", "{{Name}}"]
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/dashboard");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -536,7 +536,7 @@ path = "combined-info.log"
 content = "Repo: {{RepoName}}, Type: {{Type}}, Name: {{Name}}"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.repo.create_branch("feature/api");
 
     ctx.git_commit_allow_empty_success("test commit");

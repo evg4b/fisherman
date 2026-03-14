@@ -1,6 +1,6 @@
 mod common;
 
-use common::test_context::{TestContext, assert_stderr_contains};
+use common::test_context::{assert_stderr_contains, TestContext};
 
 /// Tests that message-regex rule passes when commit message matches the specified pattern.
 /// Verifies regex validation accepts messages following conventional commit format.
@@ -14,7 +14,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("feat: valid commit message");
 }
 
@@ -30,7 +30,7 @@ type = "message-regex"
 regex = "^(feat|fix|docs|test):\\s.+"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let output = ctx.git_commit_allow_empty("invalid commit message");
     assert!(!output.status.success());
@@ -51,7 +51,7 @@ type = "message-prefix"
 prefix = "feat: "
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("feat: add feature");
 }
 
@@ -67,7 +67,7 @@ type = "message-prefix"
 prefix = "feat: "
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let output = ctx.git_commit_allow_empty("fix: wrong prefix");
     assert!(!output.status.success());
@@ -89,7 +89,7 @@ type = "message-suffix"
 suffix = " [skip ci]"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("commit message [skip ci]");
 }
 
@@ -105,7 +105,7 @@ type = "message-suffix"
 suffix = " [skip ci]"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let output = ctx.git_commit_allow_empty("commit message without suffix");
     assert!(!output.status.success());
@@ -135,7 +135,7 @@ type = "message-regex"
 regex = ".*feature.*"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     ctx.git_commit_allow_empty_success("feat: add new feature [done]");
 }
 
@@ -155,7 +155,7 @@ type = "message-suffix"
 suffix = " [done]"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
 
     let output = ctx.git_commit_allow_empty("feat: missing suffix");
     assert!(!output.status.success());

@@ -1,7 +1,8 @@
 mod common;
 
-use common::{FishermanBinary, GitTestRepo};
+use crate::common::ConfigFormat;
 use common::test_context::assert_stderr_contains;
+use common::{FishermanBinary, GitTestRepo};
 
 /// Tests that invalid TOML syntax in configuration file fails gracefully without crashing.
 /// Verifies error handling when TOML has missing closing brackets or malformed structure.
@@ -16,7 +17,7 @@ type = "branch-name-regex"  # Missing closing bracket
 regex = ".*"
 "#;
 
-    repo.create_config(invalid_config);
+    repo.create_config(invalid_config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let _install_output = binary.install(repo.path(), false);
@@ -59,7 +60,7 @@ type = "message-regex"
 regex = "(?P<unclosed"  # Invalid regex
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -91,7 +92,7 @@ type = "branch-name-regex"
 regex = "[invalid("  # Invalid regex
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -125,7 +126,7 @@ path = "test.txt"
 content = "test"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -157,7 +158,7 @@ path = "output.txt"
 content = "Value: {{UndefinedVar}}"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -189,7 +190,7 @@ type = "message-regex"
 # Missing required 'regex' field
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let _install_output = binary.install(repo.path(), false);
@@ -209,7 +210,7 @@ type = "unknown-rule-type"
 some_field = "value"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let _install_output = binary.install(repo.path(), false);
@@ -230,7 +231,7 @@ command = "nonexistent-command-12345"
 args = ["test"]
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -260,7 +261,7 @@ path = "/root/cannot-write-here.txt"
 content = "test"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -277,7 +278,7 @@ fn empty_config_file() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    repo.create_config("");
+    repo.create_config("", ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -305,7 +306,7 @@ content = "test"
 when = "Type == "  # Invalid syntax
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);

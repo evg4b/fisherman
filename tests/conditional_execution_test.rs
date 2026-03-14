@@ -1,5 +1,6 @@
 mod common;
 
+use crate::common::ConfigFormat;
 use common::{FishermanBinary, GitTestRepo};
 
 /// Tests that a rule with a true 'when' condition executes successfully.
@@ -19,7 +20,7 @@ content = "Rule executed"
 when = "Type == \"feature\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -52,7 +53,7 @@ content = "Rule executed"
 when = "Type == \"feature\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -85,7 +86,7 @@ content = "Feature: {{Feature}}"
 when = "is_def_var(\"Feature\")"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -115,7 +116,7 @@ content = "Feature: {{Feature}}"
 when = "is_def_var(\"Feature\")"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -148,7 +149,7 @@ content = "Urgent feature"
 when = "Type == \"feature\" && Priority == \"high\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -181,7 +182,7 @@ content = "Urgent feature"
 when = "Type == \"feature\" && Priority == \"high\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -211,7 +212,7 @@ content = "Production change"
 when = "Type == \"hotfix\" || Type == \"bugfix\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -241,7 +242,7 @@ content = "Not a feature"
 when = "Type != \"feature\""
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -282,7 +283,7 @@ path = "always.txt"
 content = "Always executed"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);

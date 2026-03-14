@@ -1,7 +1,7 @@
 mod common;
 
-use common::{FishermanBinary, ConfigBuilder, ConfigFormat};
 use common::test_context::TestContext;
+use common::{ConfigBuilder, ConfigFormat, FishermanBinary};
 // NOTE: Global config tests are not included because the `dirs` crate caches
 // the home directory, making it impossible to test global configs reliably
 // in integration tests without system-level modifications.

@@ -2,7 +2,7 @@ mod common;
 
 use tempdir::TempDir;
 
-use crate::common::{FishermanBinary, GitTestRepo, hooks::Hook};
+use crate::common::{hooks::Hook, ConfigFormat, FishermanBinary, GitTestRepo};
 
 #[test]
 fn install_in_empty_dir() {
@@ -50,7 +50,7 @@ regex = "^(feat|fix|docs|style|refactor|test|chore):\\s.+"
 [[hooks.pre-push]]
 type = "branch-name-regex"
 regex = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
-"#);
+"#, ConfigFormat::Toml);
 
     let ouput = fisherman.install(repo.path(), false);
 

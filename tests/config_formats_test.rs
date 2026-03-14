@@ -1,5 +1,6 @@
 mod common;
 
+use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 
 /// Tests that configuration can be provided in YAML format (.fisherman.yaml).
@@ -146,7 +147,7 @@ hooks:
       content: YAML
 "#;
 
-    ctx.repo.create_config(toml_config);
+    ctx.repo.create_config(toml_config, ConfigFormat::Toml);
     ctx.repo.create_yaml_config(yaml_config);
     ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 

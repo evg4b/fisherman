@@ -1,5 +1,6 @@
 mod common;
 
+use crate::common::ConfigFormat;
 use common::{test_context::TestContext, FishermanBinary, GitTestRepo};
 
 /// Tests that exec rule executes successfully when command exits with code 0.
@@ -24,7 +25,7 @@ command = "echo"
 args = ["test"]
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
@@ -53,7 +54,7 @@ type = "exec"
 command = "false"
 "#;
 
-    ctx.setup_and_install(config);
+    ctx.setup_and_install_old(config);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(!output.status.success());
 
@@ -86,7 +87,7 @@ args = ["-c", "test \"$TEST_VAR\" = \"test_value\""]
 env = { TEST_VAR = "test_value" }
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -125,7 +126,7 @@ exit 0
 """
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -166,7 +167,7 @@ exit 1
 """
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -212,7 +213,7 @@ fi
 env = { CUSTOM_VAR = "custom_value" }
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -257,7 +258,7 @@ type = "shell"
 script = "echo 'shell test'"
 "#;
 
-    repo.create_config(config);
+    repo.create_config(config, ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
