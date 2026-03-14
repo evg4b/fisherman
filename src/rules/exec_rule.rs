@@ -37,7 +37,7 @@ impl ExecRule {
 }
 
 impl CompiledRule for ExecRule {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         false
     }
 
@@ -64,7 +64,7 @@ impl CompiledRule for ExecRule {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use crate::context::MockContext;
     use assert2::assert;
@@ -84,8 +84,8 @@ mod test {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
-        assert!(output.unwrap() == "hello\n");
+        assert_eq!(name, "test");
+        assert_eq!(output.unwrap(), "hello\n");
     }
 
     #[test]
@@ -105,7 +105,7 @@ mod test {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
+        assert_eq!(name, "test");
         assert!(output.unwrap().contains("HELLO=world"));
     }
 
@@ -126,12 +126,12 @@ mod test {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "test");
-        assert!(output.unwrap() == "hello world\n");
+        assert_eq!(name, "test");
+        assert_eq!(output.unwrap(), "hello world\n");
     }
 
     #[test]
-    fn test_exec_rule_with_variable222() {
+    fn test_exec_rule_failure_on_missing_file() {
         let mut variables = HashMap::new();
         variables.insert("HELLO".into(), "world".into());
 
@@ -147,8 +147,8 @@ mod test {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "test");
-        assert!(message == "cat: ./unknown.txt: No such file or directory\n");
+        assert_eq!(name, "test");
+        assert_eq!(message, "cat: ./unknown.txt: No such file or directory\n");
     }
 
     #[test]
@@ -163,11 +163,11 @@ mod test {
 
         let result = rule.check(&MockContext::new()).err().unwrap();
 
-        assert!(result.to_string() == "No such file or directory (os error 2)");
+        assert_eq!(result.to_string(), "No such file or directory (os error 2)");
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = ExecRule::new(
             "test".into(),
             "echo".into(),
@@ -175,7 +175,7 @@ mod test {
             HashMap::new(),
             HashMap::new(),
         );
-        assert!(!rule.sync());
+        assert!(!rule.is_sequential());
     }
 
     #[test]

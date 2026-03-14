@@ -179,7 +179,7 @@ impl std::fmt::Display for GitHook {
 }
 
 #[cfg(test)]
-mod test_hook_install {
+mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::hooks::GitHook;
@@ -233,7 +233,7 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
+        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
 
         Ok(())
     }
@@ -290,11 +290,11 @@ mod test_hook_install {
 
         assert!(hook_path.exists());
         assert!(hook_path.is_file());
-        assert!(fs::read_to_string(hook_path).unwrap() == hook.content(&ctx));
+        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
 
         assert!(hook_bkp_path.exists());
         assert!(hook_bkp_path.is_file());
-        assert!(fs::read_to_string(hook_bkp_path).unwrap() == original_hook_content);
+        assert_eq!(fs::read_to_string(hook_bkp_path).unwrap(), original_hook_content);
 
         Ok(())
     }

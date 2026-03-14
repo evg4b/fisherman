@@ -15,7 +15,7 @@ impl BranchNamePrefix {
 }
 
 impl CompiledRule for BranchNamePrefix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -57,7 +57,7 @@ mod tests {
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "branch_name_prefix");
+        assert_eq!(name, "branch_name_prefix");
 
         Ok(())
     }
@@ -75,17 +75,17 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "branch_name_prefix");
-        assert!(message == "Branch name must start with: feat/");
+        assert_eq!(name, "branch_name_prefix");
+        assert_eq!(message, "Branch name must start with: feat/");
 
         Ok(())
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = BranchNamePrefix::new("branch_name_prefix".to_string(), t!("feat/"));
 
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

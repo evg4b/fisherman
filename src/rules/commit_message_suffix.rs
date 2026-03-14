@@ -16,7 +16,7 @@ impl CommitMessageSuffix {
 }
 
 impl CompiledRule for CommitMessageSuffix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -58,7 +58,7 @@ mod tests {
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "commit_message_suffix");
+        assert_eq!(name, "commit_message_suffix");
     }
 
     #[test]
@@ -74,14 +74,14 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "commit_message_suffix");
-        assert!(message == "Commit message must end with: feat");
+        assert_eq!(name, "commit_message_suffix");
+        assert_eq!(message, "Commit message must end with: feat");
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

@@ -26,7 +26,7 @@ pub fn replace_in_hashmap(
 }
 
 #[cfg(test)]
-mod test_replace_placeholders_in_hashmap {
+mod tests {
     use super::*;
     use std::collections::HashMap;
 

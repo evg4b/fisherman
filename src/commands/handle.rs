@@ -8,7 +8,6 @@ use clap::Parser;
 use rayon::prelude::*;
 use std::path::PathBuf;
 use std::process::exit;
-use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Parser)]
 pub struct HandleCommand {
@@ -38,14 +37,8 @@ impl CliCommand for HandleCommand {
                     results.push(rule.check(context)?);
                 }
 
-                let context_lock = Arc::new(Mutex::new(context));
-                let async_results: Result<Vec<_>> = async_rules
-                    .par_iter()
-                    .map(|rule| {
-                        let ctx = context_lock.lock().unwrap();
-                        rule.check(&**ctx)
-                    })
-                    .collect();
+                let async_results: Result<Vec<_>> =
+                    async_rules.par_iter().map(|rule| rule.check(context)).collect();
 
                 results.extend(async_results?);
 
@@ -77,6 +70,7 @@ impl CliCommand for HandleCommand {
     }
 }
 
+
 type RulesBucket = Vec<Box<dyn CompiledRule>>;
 
 fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket, RulesBucket)> {
@@ -84,7 +78,7 @@ fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket,
     let mut async_rules: RulesBucket = vec![];
     for rule in rules.iter() {
         if let Some(compiled_rule) = rule.compile(context)? {
-            if compiled_rule.sync() {
+            if compiled_rule.is_sequential() {
                 sync_rules.push(compiled_rule);
             } else {
                 async_rules.push(compiled_rule);
@@ -130,22 +124,19 @@ mod tests {
 
         assert_eq!(sync_rules.len(), 1);
         assert_eq!(async_rules.len(), 1);
-        assert!(sync_rules[0].sync());
-        assert!(!async_rules[0].sync());
+        assert!(sync_rules[0].is_sequential());
+        assert!(!async_rules[0].is_sequential());
 
         Ok(())
     }
 
     #[test]
     fn test_parallel_async_rules_execution() -> Result<()> {
-        use std::sync::{Arc, Mutex};
-
         let mut context = MockContext::new();
         context
             .expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        // Create multiple async rules that will run in parallel
         let rules = vec![
             Rule {
                 when: None,
@@ -192,17 +183,9 @@ mod tests {
         let (_, async_rules) = compile_rules(&context, &rules)?;
         assert_eq!(async_rules.len(), 5);
 
-        // Execute async rules in parallel
-        let context_lock = Arc::new(Mutex::new(&mut context));
-        let async_results: Result<Vec<_>> = async_rules
-            .par_iter()
-            .map(|rule| {
-                let ctx = context_lock.lock().unwrap();
-                rule.check(&**ctx)
-            })
-            .collect();
+        let async_results: Result<Vec<_>> =
+            async_rules.par_iter().map(|rule| rule.check(&context)).collect();
 
-        // Verify all rules succeeded
         let results = async_results?;
         assert_eq!(results.len(), 5);
         for result in &results {
@@ -214,14 +197,11 @@ mod tests {
 
     #[test]
     fn test_parallel_async_rules_with_failures() -> Result<()> {
-        use std::sync::{Arc, Mutex};
-
         let mut context = MockContext::new();
         context
             .expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        // Create rules with mixed success/failure
         let rules = vec![
             Rule {
                 when: None,
@@ -251,19 +231,12 @@ mod tests {
 
         let (_, async_rules) = compile_rules(&context, &rules)?;
 
-        let context_lock = Arc::new(Mutex::new(&mut context));
-        let async_results: Result<Vec<_>> = async_rules
-            .par_iter()
-            .map(|rule| {
-                let ctx = context_lock.lock().unwrap();
-                rule.check(&**ctx)
-            })
-            .collect();
+        let async_results: Result<Vec<_>> =
+            async_rules.par_iter().map(|rule| rule.check(&context)).collect();
 
         let results = async_results?;
         assert_eq!(results.len(), 3);
 
-        // Count successes and failures
         let successes = results
             .iter()
             .filter(|r| matches!(r, RuleResult::Success { .. }))

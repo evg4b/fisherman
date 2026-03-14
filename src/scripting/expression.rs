@@ -1,11 +1,10 @@
 use anyhow::Result;
 use rhai::{Engine, Scope};
 use serde::{Deserialize, Deserializer};
-use std::cell::RefCell;
 use std::collections::HashMap;
 
 thread_local! {
-    static ENGINE: RefCell<Engine> = RefCell::new(Engine::new());
+    static ENGINE: Engine = Engine::new();
 }
 
 #[derive(Debug, Clone)]
@@ -31,18 +30,17 @@ impl Expression {
     }
 
     pub fn check(&self, variables: &HashMap<String, String>) -> Result<bool> {
-        let engine = ENGINE.take();
+        ENGINE.with(|engine| {
+            let mut scope = Scope::with_capacity(variables.len());
 
-        let mut scope = Scope::with_capacity(variables.len());
+            variables.iter().for_each(|(key, value)| {
+                scope.push(key.to_owned(), value.to_owned());
+            });
 
-        variables.iter().for_each(|(key, value)| {
-            scope.push(key.to_owned(), value.to_owned());
-        });
-
-        match engine.eval_expression_with_scope::<bool>(&mut scope, &self.condition) {
-            Ok(result) => Ok(result),
-            Err(err) => Err(anyhow::anyhow!("Expression error: {}", err)),
-        }
+            engine
+                .eval_expression_with_scope::<bool>(&mut scope, &self.condition)
+                .map_err(|err| anyhow::anyhow!("Expression error: {}", err))
+        })
     }
 }
 
@@ -57,7 +55,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression2() {
+    fn test_expression_returns_false_for_undefined_variable() {
         let a = Expression::new("is_def_var(\"xx\") && xx > 10")
             .check(&HashMap::new())
             .unwrap();
@@ -74,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression3() {
+    fn test_expression_with_integer_parsing() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "20".to_string());
         let a = Expression::new("parse_int(xx) > 10")
@@ -84,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_expression23() {
+    fn test_expression_with_complex_or_condition() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "91".to_string());
         let a = Expression::new("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)")
@@ -105,7 +103,7 @@ mod tests {
     }
 
     #[test]
-    fn expression_deserialize2() {
+    fn expression_deserialize_rejects_object_input() {
         let rule = r#"
             { "condition": "1 > 0" }
         "#;

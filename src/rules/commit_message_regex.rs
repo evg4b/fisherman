@@ -17,7 +17,7 @@ impl CommitMessageRegex {
 }
 
 impl CompiledRule for CommitMessageRegex {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -39,7 +39,7 @@ impl CompiledRule for CommitMessageRegex {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use crate::context::MockContext;
     use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
@@ -106,9 +106,9 @@ mod test {
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessageRegex::new("Test".to_string(), t!("^Test"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

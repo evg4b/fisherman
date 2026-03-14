@@ -17,7 +17,7 @@ impl CommitMessagePrefix {
 }
 
 impl CompiledRule for CommitMessagePrefix {
-    fn sync(&self) -> bool {
+    fn is_sequential(&self) -> bool {
         true
     }
 
@@ -59,7 +59,7 @@ mod tests {
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert!(name == "commit_message_prefix");
+        assert_eq!(name, "commit_message_prefix");
         assert_eq!(output, None);
     }
 
@@ -76,14 +76,14 @@ mod tests {
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert!(name == "commit_message_prefix");
-        assert!(message == "Commit message must start with: feat");
+        assert_eq!(name, "commit_message_prefix");
+        assert_eq!(message, "Commit message must start with: feat");
     }
 
     #[test]
-    fn test_sync() {
+    fn test_is_sequential() {
         let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
-        assert!(rule.sync());
+        assert!(rule.is_sequential());
     }
 
     #[test]

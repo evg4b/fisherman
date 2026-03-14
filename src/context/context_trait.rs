@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 #[automock]
-pub trait Context: Send {
+pub trait Context: Send + Sync {
     fn repo_path(&self) -> &Path;
     fn hooks_dir(&self) -> PathBuf;
     fn bin(&self) -> &Path;

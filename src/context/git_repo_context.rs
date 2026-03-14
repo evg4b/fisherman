@@ -7,9 +7,10 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 pub struct GitRepoContext {
-    repo: Repository,
+    repo: Mutex<Repository>,
     cwd: PathBuf,
     bin: PathBuf,
     message_file: Option<PathBuf>,
@@ -29,7 +30,8 @@ impl Context for GitRepoContext {
     }
 
     fn current_branch(&self) -> Result<String> {
-        let head = self.repo.head()?;
+        let repo = self.repo.lock().unwrap();
+        let head = repo.head()?;
         Ok(head.shorthand().unwrap_or("HEAD").to_string())
     }
 
@@ -63,7 +65,7 @@ impl GitRepoContext {
         let bin = std::env::current_exe()?;
 
         Ok(Self {
-            repo,
+            repo: Mutex::new(repo),
             cwd,
             bin,
             message_file: None,
@@ -76,7 +78,7 @@ impl Display for GitRepoContext {
         write!(
             f,
             "Context {{ repo: {:?}, cwd: {:?} }}",
-            self.repo.path(),
+            self.repo.lock().unwrap().path(),
             self.cwd
         )
     }
