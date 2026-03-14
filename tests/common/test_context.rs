@@ -5,6 +5,9 @@ use crate::common::configuration::serialize_configuration;
 use core::configuration::Configuration;
 use std::process::Output;
 
+// Tests must trigger hooks through real Git operations (e.g. git_commit_allow_empty),
+// never by invoking the fisherman binary's handle command directly.
+
 pub struct TestContext {
     pub binary: FishermanBinary,
     pub repo: GitTestRepo,
@@ -59,20 +62,6 @@ impl TestContext {
             "Installation failed: {}",
             String::from_utf8_lossy(&output.stderr)
         );
-    }
-
-    pub fn handle(&self, hook: &str) -> Output {
-        self.binary.handle(hook, self.repo.path(), &[])
-    }
-
-    pub fn handle_commit_msg(&self, message: &str) -> Output {
-        self.repo.write_commit_msg_file(message);
-        let msg_path = self.repo.commit_msg_file_path();
-        self.binary.handle(
-            "commit-msg",
-            self.repo.path(),
-            &[msg_path.to_str().unwrap()],
-        )
     }
 
     pub fn git_commit_allow_empty(&self, message: &str) -> Output {
