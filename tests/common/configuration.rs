@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::common::ConfigFormat;
 use core::configuration::Configuration;
 

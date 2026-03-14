@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::{ConfigFormat, FishermanBinary, GitTestRepo};
 use crate::common::configuration::serialize_configuration;
 use core::configuration::Configuration;
