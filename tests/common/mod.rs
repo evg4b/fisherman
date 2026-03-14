@@ -7,4 +7,3 @@ pub use fisherman_binary::FishermanBinary;
 pub use git_test_repo::GitTestRepo;
 #[allow(unused_imports)]
 pub use git_test_repo::{ConfigBuilder, ConfigFormat};
-pub use test_context::TestContext;
