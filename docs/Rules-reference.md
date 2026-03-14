@@ -455,6 +455,96 @@ append = true
 
 ---
 
+## `copy-files`
+
+Copies one or more files matching a glob into a destination, preserving the relative path when a source directory is
+provided.
+
+**Type:** Asynchronous
+
+**Parameters:**
+
+- `glob` (required) - Glob pattern of files to copy
+- `destination` (required) - Target directory (created if missing)
+- `source` (optional) - Base directory to resolve the glob from; if omitted, the repository root is used
+
+**Example - Copy shared templates into the repo:**
+
+```toml
+[[hooks.post-checkout]]
+type = "write-files"
+glob = "templates/**/*.md"
+source = "./scaffolding"
+destination = "./docs"
+```
+
+**Example - Copy CI config with variables:**
+
+```toml
+extract = ["branch?:^(?<Env>staging|prod)-.*$"]
+
+[[hooks.post-checkout]]
+type = "write-files"
+glob = "{{Env | default(\"staging\")}}/*.yml"
+source = "./ci-presets"
+destination = "./.github/workflows"
+```
+
+**Success/Failure:**
+
+- **Success:** Files are copied; output includes how many files were copied
+- **Failure:** Glob resolution fails, permissions errors, or destination cannot be created
+
+**Use cases:**
+
+- Keep docs or boilerplate in sync across branches
+- Drop environment-specific config after checkout
+- Scaffold project files without manual copying
+
+---
+
+## `delete-files`
+
+Deletes files that match a glob pattern.
+
+**Type:** Asynchronous
+
+**Parameters:**
+
+- `glob` (required) - Glob pattern of files to delete
+- `fail-if-not-found` (optional, default `false`) - If `true`, fail when no files match
+
+**Example - Clean generated logs before commit:**
+
+```toml
+[[hooks.pre-commit]]
+type = "delete-files"
+glob = "target/tmp/**/*.log"
+fail-if-not-found = false
+```
+
+**Example - Enforce removal of forbidden files:**
+
+```toml
+[[hooks.pre-commit]]
+type = "delete-files"
+glob = "**/*.pem"
+fail-if-not-found = true
+```
+
+**Success/Failure:**
+
+- **Success:** All matched files are removed; if `fail-if-not-found` is false, no matches still succeeds
+- **Failure:** Deletion errors (permissions, invalid glob) or no matches when `fail-if-not-found` is true
+
+**Use cases:**
+
+- Prevent committing secrets or build artifacts
+- Clean up generated files after scripts run
+- Enforce workspace hygiene before pushing changes
+
+---
+
 # Rule Combinations
 
 Rules can be combined to create sophisticated workflows:
