@@ -169,14 +169,15 @@ impl GitTestRepo {
         fs::read_to_string(hook_path).expect("Failed to read hook file")
     }
 
-    /// Commit allowing empty (triggers hooks even without changes)
-    pub fn commit_with_hooks_allow_empty(&self, message: &str) -> Output {
-        self.git(&["commit", "--allow-empty", "-m", message])
+    /// Path to the commit message file that git passes to commit-msg hooks
+    pub fn commit_msg_file_path(&self) -> PathBuf {
+        self.path().join(".git").join("COMMIT_EDITMSG")
     }
 
-    /// Create and checkout a new branch (triggers post-checkout hook)
-    pub fn checkout_new_branch(&self, name: &str) -> Output {
-        self.git(&["checkout", "-b", name])
+    /// Write a commit message file so commit-msg hook can read it
+    pub fn write_commit_msg_file(&self, message: &str) {
+        let path = self.commit_msg_file_path();
+        fs::write(&path, message).expect("Failed to write commit message file");
     }
 
     /// Creates a Git history with multiple commits and files
