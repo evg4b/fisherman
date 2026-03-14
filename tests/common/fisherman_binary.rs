@@ -54,6 +54,13 @@ impl FishermanBinary {
         self.run(&args, working_dir)
     }
 
+    /// Invoke the `handle` command for a specific hook with optional args
+    pub fn handle(&self, hook: &str, working_dir: &Path, args: &[&str]) -> Output {
+        let mut all_args = vec!["handle", hook];
+        all_args.extend_from_slice(args);
+        self.run(&all_args, working_dir)
+    }
+
     pub fn explain(&self, hook: &str, working_dir: &Path) -> Output {
         self.run(&["explain", hook], working_dir)
     }
