@@ -8,6 +8,7 @@ use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
+use figment::providers::Serialized;
 
 pub struct GitRepoContext {
     repo: Mutex<Repository>,
@@ -58,6 +59,22 @@ impl Context for GitRepoContext {
         variables.extend(self.configuration()?.extract);
         extract_variables(self, &variables)
     }
+
+    fn staged_files(&self) -> Result<Vec<PathBuf>> {
+        let repo = self.repo.lock().unwrap();
+        let mut status_options = git2::StatusOptions::new();
+        status_options.include_untracked(false);
+        status_options.show(git2::StatusShow::Index);
+        let statuses = repo.statuses(Some(&mut status_options))?;
+
+        let mut files = Vec::new();
+        for entry in statuses.iter() {
+            if let Some(path) = entry.path() {
+                files.push(PathBuf::from(path));
+            }
+        }
+        Ok(files)
+    }
 }
 
 impl GitRepoContext {
@@ -82,5 +99,23 @@ impl Display for GitRepoContext {
             self.repo.lock().unwrap().path(),
             self.cwd
         )
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_context_initialization() {
+        let temp_dir = tempdir().unwrap();
+        // Initialize a real git repo in the temp dir
+        Repository::init(temp_dir.path()).unwrap();
+
+        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf()).unwrap();
+        assert_eq!(ctx.repo_path(), temp_dir.path());
+        assert_eq!(ctx.cwd, temp_dir.path());
+        assert_eq!(ctx.bin, std::env::current_exe().unwrap());
     }
 }
