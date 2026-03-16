@@ -4,6 +4,12 @@ use mockall::automock;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum DiffLine {
+    Added(String),
+    Deleted(String),
+}
+
 #[automock]
 pub trait Context: Send + Sync {
     fn repo_path(&self) -> &Path;
@@ -15,5 +21,5 @@ pub trait Context: Send + Sync {
     fn configuration(&self) -> Result<Configuration>;
     fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>>;
     fn staged_files(&self) -> Result<Vec<PathBuf>>;
-    fn staged_added_lines(&self, path: &Path) -> Result<Vec<String>>;
+    fn staged_diff(&self, path: &Path) -> Result<Vec<DiffLine>>;
 }

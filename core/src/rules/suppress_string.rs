@@ -1,4 +1,4 @@
-use crate::context::Context;
+use crate::context::{Context, DiffLine};
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
@@ -42,12 +42,14 @@ impl CompiledRule for SuppressString {
                 continue;
             }
 
-            let added_lines = ctx.staged_added_lines(&file)?;
+            let diff_lines = ctx.staged_diff(&file)?;
 
-            for line in added_lines {
-                if regex.is_match(&line) {
-                    matched_files.push(file.display().to_string());
-                    break;
+            for line in diff_lines {
+                if let DiffLine::Added(content) = line {
+                    if regex.is_match(&content) {
+                        matched_files.push(file.display().to_string());
+                        break;
+                    }
                 }
             }
         }
@@ -72,7 +74,7 @@ impl CompiledRule for SuppressString {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::context::MockContext;
+    use crate::context::{DiffLine, MockContext};
     use crate::tmpl;
 
     #[test]
@@ -86,8 +88,8 @@ mod tests {
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
         context
-            .expect_staged_added_lines()
-            .returning(|_| Ok(vec!["clean content".to_string()]));
+            .expect_staged_diff()
+            .returning(|_| Ok(vec![DiffLine::Added("clean content".to_string())]));
 
         let result = rule.check(&context)?;
         assert!(matches!(result, RuleResult::Success { .. }));
@@ -105,8 +107,8 @@ mod tests {
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
         context
-            .expect_staged_added_lines()
-            .returning(|_| Ok(vec!["this has a TODO item".to_string()]));
+            .expect_staged_diff()
+            .returning(|_| Ok(vec![DiffLine::Added("this has a TODO item".to_string())]));
 
         let result = rule.check(&context)?;
         match result {

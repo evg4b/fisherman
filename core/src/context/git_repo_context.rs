@@ -1,7 +1,7 @@
 use crate::configuration::Configuration;
 use crate::context::variables::extract_variables;
-use crate::context::Context;
-use anyhow::{bail, Result};
+use crate::context::{Context, DiffLine};
+use anyhow::{anyhow, bail, Result};
 use git2::Repository;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -31,7 +31,10 @@ impl Context for GitRepoContext {
     }
 
     fn current_branch(&self) -> Result<String> {
-        let repo = self.repo.lock().unwrap();
+        let repo = self
+            .repo
+            .lock()
+            .map_err(|e| anyhow!("Failed to lock repository: {}", e))?;
         let head = repo.head()?;
         Ok(head.shorthand().unwrap_or("HEAD").to_string())
     }
@@ -61,7 +64,10 @@ impl Context for GitRepoContext {
     }
 
     fn staged_files(&self) -> Result<Vec<PathBuf>> {
-        let repo = self.repo.lock().unwrap();
+        let repo = self
+            .repo
+            .lock()
+            .map_err(|e| anyhow!("Failed to lock repository: {}", e))?;
         let mut status_options = git2::StatusOptions::new();
         status_options.include_untracked(false);
         status_options.show(git2::StatusShow::Index);
@@ -76,8 +82,11 @@ impl Context for GitRepoContext {
         Ok(files)
     }
 
-    fn staged_added_lines(&self, path: &Path) -> Result<Vec<String>> {
-        let repo = self.repo.lock().unwrap();
+    fn staged_diff(&self, path: &Path) -> Result<Vec<DiffLine>> {
+        let repo = self
+            .repo
+            .lock()
+            .map_err(|e| anyhow!("Failed to lock repository: {}", e))?;
         let head = match repo.head() {
             Ok(reference) => Some(reference.peel_to_tree()?),
             Err(_) => None,
@@ -87,23 +96,27 @@ impl Context for GitRepoContext {
         diff_options.pathspec(path);
 
         let diff = repo.diff_tree_to_index(head.as_ref(), None, Some(&mut diff_options))?;
-        let mut added_lines = Vec::new();
+        let mut diff_lines = Vec::new();
 
         diff.foreach(
             &mut |_, _| true,
             None,
             None,
             Some(&mut |_, _, line| {
-                if line.origin() == '+' {
-                    if let Ok(content) = std::str::from_utf8(line.content()) {
-                        added_lines.push(content.trim_end().to_string());
-                    }
+                let content = std::str::from_utf8(line.content())
+                    .map(|s| s.trim_end().to_string())
+                    .unwrap_or_default();
+
+                match line.origin() {
+                    '+' => diff_lines.push(DiffLine::Added(content)),
+                    '-' => diff_lines.push(DiffLine::Deleted(content)),
+                    _ => {}
                 }
                 true
             }),
         )?;
 
-        Ok(added_lines)
+        Ok(diff_lines)
     }
 }
 
@@ -123,10 +136,11 @@ impl GitRepoContext {
 
 impl Display for GitRepoContext {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let repo_path = self.repo.lock().map(|r| r.path().to_path_buf()).ok();
         write!(
             f,
             "Context {{ repo: {:?}, cwd: {:?} }}",
-            self.repo.lock().unwrap().path(),
+            repo_path.map(|p| p.display().to_string()).unwrap_or_else(|| "<locked>".to_string()),
             self.cwd
         )
     }
@@ -138,14 +152,15 @@ pub mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn test_context_initialization() {
-        let temp_dir = tempdir().unwrap();
+    fn test_context_initialization() -> Result<()> {
+        let temp_dir = tempdir()?;
         // Initialize a real git repo in the temp dir
-        Repository::init(temp_dir.path()).unwrap();
+        Repository::init(temp_dir.path())?;
 
-        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf()).unwrap();
+        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
         assert_eq!(ctx.repo_path(), temp_dir.path());
         assert_eq!(ctx.cwd, temp_dir.path());
-        assert_eq!(ctx.bin, std::env::current_exe().unwrap());
+        assert_eq!(ctx.bin, std::env::current_exe()?);
+        Ok(())
     }
 }
