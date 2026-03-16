@@ -15,4 +15,5 @@ pub trait Context: Send + Sync {
     fn configuration(&self) -> Result<Configuration>;
     fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>>;
     fn staged_files(&self) -> Result<Vec<PathBuf>>;
+    fn staged_added_lines(&self, path: &Path) -> Result<Vec<String>>;
 }

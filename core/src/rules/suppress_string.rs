@@ -5,7 +5,6 @@ use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
 use regex::Regex;
-use std::fs;
 
 pub struct SuppressString {
     name: String,
@@ -35,7 +34,6 @@ impl CompiledRule for SuppressString {
         };
 
         let staged_files = ctx.staged_files()?;
-        let repo_path = ctx.repo_path();
 
         let mut matched_files = Vec::new();
 
@@ -44,18 +42,13 @@ impl CompiledRule for SuppressString {
                 continue;
             }
 
-            let full_path = repo_path.join(&file);
-            if !full_path.exists() {
-                continue; // Might be a deleted file
-            }
+            let added_lines = ctx.staged_added_lines(&file)?;
 
-            let content = match fs::read_to_string(&full_path) {
-                Ok(c) => c,
-                Err(_) => continue, // Skip binary files or unreadable files
-            };
-
-            if regex.is_match(&content) {
-                matched_files.push(file.display().to_string());
+            for line in added_lines {
+                if regex.is_match(&line) {
+                    matched_files.push(file.display().to_string());
+                    break;
+                }
             }
         }
 
@@ -81,17 +74,9 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use std::fs::File;
-    use std::io::Write;
-    use tempfile::tempdir;
 
     #[test]
     fn test_suppress_string_success() -> Result<()> {
-        let temp_dir = tempdir()?;
-        let file_path = temp_dir.path().join("test.txt");
-        let mut file = File::create(&file_path)?;
-        writeln!(file, "clean content")?;
-
         let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), None);
         let mut context = MockContext::new();
         context
@@ -101,8 +86,8 @@ mod tests {
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
         context
-            .expect_repo_path()
-            .return_const(temp_dir.path().to_path_buf());
+            .expect_staged_added_lines()
+            .returning(|_| Ok(vec!["clean content".to_string()]));
 
         let result = rule.check(&context)?;
         assert!(matches!(result, RuleResult::Success { .. }));
@@ -111,11 +96,6 @@ mod tests {
 
     #[test]
     fn test_suppress_string_failure() -> Result<()> {
-        let temp_dir = tempdir()?;
-        let file_path = temp_dir.path().join("test.txt");
-        let mut file = File::create(&file_path)?;
-        writeln!(file, "this has a TODO item")?;
-
         let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), None);
         let mut context = MockContext::new();
         context
@@ -125,8 +105,8 @@ mod tests {
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
         context
-            .expect_repo_path()
-            .return_const(temp_dir.path().to_path_buf());
+            .expect_staged_added_lines()
+            .returning(|_| Ok(vec!["this has a TODO item".to_string()]));
 
         let result = rule.check(&context)?;
         match result {
@@ -141,11 +121,6 @@ mod tests {
 
     #[test]
     fn test_suppress_string_with_glob() -> Result<()> {
-        let temp_dir = tempdir()?;
-        let file_path = temp_dir.path().join("test.txt");
-        let mut file = File::create(&file_path)?;
-        writeln!(file, "TODO in txt")?;
-
         let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), Some(tmpl!("*.rs")));
         let mut context = MockContext::new();
         context
@@ -154,9 +129,6 @@ mod tests {
         context
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
-        context
-            .expect_repo_path()
-            .return_const(temp_dir.path().to_path_buf());
 
         let result = rule.check(&context)?;
         assert!(matches!(result, RuleResult::Success { .. }));

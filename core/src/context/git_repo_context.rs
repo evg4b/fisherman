@@ -75,6 +75,36 @@ impl Context for GitRepoContext {
         }
         Ok(files)
     }
+
+    fn staged_added_lines(&self, path: &Path) -> Result<Vec<String>> {
+        let repo = self.repo.lock().unwrap();
+        let head = match repo.head() {
+            Ok(reference) => Some(reference.peel_to_tree()?),
+            Err(_) => None,
+        };
+
+        let mut diff_options = git2::DiffOptions::new();
+        diff_options.pathspec(path);
+
+        let diff = repo.diff_tree_to_index(head.as_ref(), None, Some(&mut diff_options))?;
+        let mut added_lines = Vec::new();
+
+        diff.foreach(
+            &mut |_, _| true,
+            None,
+            None,
+            Some(&mut |_, _, line| {
+                if line.origin() == '+' {
+                    if let Ok(content) = std::str::from_utf8(line.content()) {
+                        added_lines.push(content.trim_end().to_string());
+                    }
+                }
+                true
+            }),
+        )?;
+
+        Ok(added_lines)
+    }
 }
 
 impl GitRepoContext {
