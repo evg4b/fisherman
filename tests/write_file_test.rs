@@ -12,8 +12,10 @@ fn write_file_creates_new_file() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("output.txt"),
-                content: String::from("test content"),
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "test content".into(),
                 append: None,
             })
         ]
@@ -32,8 +34,10 @@ fn write_file_overwrites_existing() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("output.txt"),
-                content: String::from("new content"),
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "new content".into(),
                 append: Some(false),
             })
         ]
@@ -54,8 +58,10 @@ fn write_file_appends_to_existing() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("output.txt"),
-                content: String::from("\nappended content"),
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "\nappended content".into(),
                 append: Some(true),
             })
         ]
@@ -79,8 +85,10 @@ fn write_file_simple_path() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("simple.txt"),
-                content: String::from("simple content"),
+                when: None,
+                extract: None,
+                path: "simple.txt".into(),
+                content: "simple content".into(),
                 append: None,
             })
         ]
@@ -99,18 +107,24 @@ fn write_file_multiple_files() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("output1.txt"),
-                content: String::from("content 1"),
+                when: None,
+                extract: None,
+                path: "output1.txt".into(),
+                content: "content 1".into(),
                 append: None,
             }),
             rule!(WriteFileRule {
-                path: String::from("output2.txt"),
-                content: String::from("content 2"),
+                when: None,
+                extract: None,
+                path: "output2.txt".into(),
+                content: "content 2".into(),
                 append: None,
             }),
             rule!(WriteFileRule {
-                path: String::from("output3.txt"),
-                content: String::from("content 3"),
+                when: None,
+                extract: None,
+                path: "output3.txt".into(),
+                content: "content 3".into(),
                 append: None,
             })
         ]
@@ -133,8 +147,10 @@ fn write_file_multiline_content() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                path: String::from("output.txt"),
-                content: String::from("Line 1\nLine 2\nLine 3"),
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "Line 1\nLine 2\nLine 3".into(),
                 append: None,
             })
         ]
