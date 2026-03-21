@@ -1,7 +1,7 @@
 use crate::commands::command::CliCommand;
 use core::context::Context;
 use core::hooks::GitHook;
-use core::rules::{CompiledRule, Rule, RuleResult};
+use core::rules::{CompiledRule, RuleOLD, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
@@ -73,7 +73,7 @@ impl CliCommand for HandleCommand {
 
 type RulesBucket = Vec<Box<dyn CompiledRule>>;
 
-fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket, RulesBucket)> {
+fn compile_rules(context: &impl Context, rules: &[RuleOLD]) -> Result<(RulesBucket, RulesBucket)> {
     let mut sync_rules: RulesBucket = vec![];
     let mut async_rules: RulesBucket = vec![];
     for rule in rules.iter() {
@@ -103,14 +103,14 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let rules = vec![
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::CommitMessageRegex {
                     regex: "^Test".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -138,7 +138,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let rules = vec![
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -146,7 +146,7 @@ mod tests {
                     script: "echo 'Task 1'".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -154,7 +154,7 @@ mod tests {
                     script: "echo 'Task 2'".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -162,7 +162,7 @@ mod tests {
                     script: "echo 'Task 3'".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -170,7 +170,7 @@ mod tests {
                     script: "echo 'Task 4'".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -203,7 +203,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let rules = vec![
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -211,7 +211,7 @@ mod tests {
                     script: "echo 'Success'".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -219,7 +219,7 @@ mod tests {
                     script: "exit 1".to_string(),
                 },
             },
-            Rule {
+            RuleOLD {
                 when: None,
                 extract: None,
                 params: RuleParams::ShellScript {
@@ -262,7 +262,7 @@ mod tests {
             .expect_commit_msg()
             .returning(|| Ok("feat: test message".to_string()));
 
-        let rules = vec![Rule {
+        let rules = vec![RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageRegex {
@@ -291,7 +291,7 @@ mod tests {
             .expect_commit_msg()
             .returning(|| Ok("invalid message".to_string()));
 
-        let rules = vec![Rule {
+        let rules = vec![RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageRegex {

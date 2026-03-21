@@ -36,7 +36,7 @@ mod tests {
     use super::*;
     use core::configuration::Configuration;
     use core::context::MockContext;
-    use core::rules::{Rule, RuleParams};
+    use core::rules::{RuleOLD, RuleParams};
     use std::collections::HashMap;
 
     #[test]
@@ -66,7 +66,7 @@ mod tests {
             hook: GitHook::PreCommit,
         };
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageRegex {

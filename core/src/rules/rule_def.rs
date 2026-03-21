@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Rule {
+pub struct RuleOLD {
     pub when: Option<Expression>,
     pub extract: Option<Vec<String>>,
     #[serde(flatten)]
@@ -80,7 +80,7 @@ pub enum RuleParams {
     },
 }
 
-impl std::fmt::Display for Rule {
+impl std::fmt::Display for RuleOLD {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.params.name())
     }
@@ -92,7 +92,7 @@ macro_rules! wrap {
     };
 }
 
-impl Rule {
+impl RuleOLD {
     pub fn compile(&self, context: &impl Context) -> Result<Option<Box<dyn CompiledRule>>> {
         let variables = context.variables(self.extract.as_ref().unwrap_or(&vec![]))?;
 
@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_exec_rule_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::ExecRule {
@@ -276,7 +276,7 @@ mod tests {
 
     #[test]
     fn test_exec_rule_with_params_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::ExecRule {
@@ -290,7 +290,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_regex_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageRegex {
@@ -305,7 +305,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessagePrefix {
@@ -320,7 +320,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageSuffix {
@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn test_shell_script_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::ShellScript {
@@ -348,7 +348,7 @@ mod tests {
 
     #[test]
     fn test_write_file_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::WriteFile {
@@ -362,7 +362,7 @@ mod tests {
 
     #[test]
     fn test_branch_name_regex_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNameRegex {
@@ -377,7 +377,7 @@ mod tests {
 
     #[test]
     fn test_branch_name_prefix_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNamePrefix {
@@ -392,7 +392,7 @@ mod tests {
 
     #[test]
     fn test_branch_name_suffix_display() {
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNameSuffix {
@@ -406,7 +406,7 @@ mod tests {
     fn test_compile_exec_rule() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::ExecRule {
@@ -432,7 +432,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("branch".to_string(), "main".to_string());
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: Some(Expression::new("branch == \"main\"")),
             extract: None,
             params: RuleParams::CommitMessagePrefix {
@@ -455,7 +455,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("branch".to_string(), "develop".to_string());
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: Some(Expression::new("branch == \"main\"")),
             extract: None,
             params: RuleParams::CommitMessagePrefix {
@@ -474,7 +474,7 @@ mod tests {
     fn test_compile_with_extract() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: Some(vec!["branch".to_string(), "ticket".to_string()]),
             params: RuleParams::CommitMessagePrefix {
@@ -494,7 +494,7 @@ mod tests {
     fn test_compile_commit_message_regex() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageRegex {
@@ -514,7 +514,7 @@ mod tests {
     fn test_compile_commit_message_suffix() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessageSuffix {
@@ -534,7 +534,7 @@ mod tests {
     fn test_compile_shell_script() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::ShellScript {
@@ -555,7 +555,7 @@ mod tests {
     fn test_compile_write_file() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::WriteFile {
@@ -577,7 +577,7 @@ mod tests {
     fn test_compile_branch_name_regex() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNameRegex {
@@ -597,7 +597,7 @@ mod tests {
     fn test_compile_branch_name_prefix() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNamePrefix {
@@ -617,7 +617,7 @@ mod tests {
     fn test_compile_branch_name_suffix() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::BranchNameSuffix {
@@ -702,7 +702,7 @@ mod tests {
     fn test_compile_variables_error() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CommitMessagePrefix {
@@ -723,7 +723,7 @@ mod tests {
         use crate::context::MockContext;
         use crate::scripting::Expression;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: Some(Expression::new("invalid expression !!!")),
             extract: None,
             params: RuleParams::CommitMessagePrefix {
@@ -743,7 +743,7 @@ mod tests {
     fn test_compile_copy_files() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::CopyFiles {
@@ -765,7 +765,7 @@ mod tests {
     fn test_compile_delete_files() {
         use crate::context::MockContext;
 
-        let rule = Rule {
+        let rule = RuleOLD {
             when: None,
             extract: None,
             params: RuleParams::DeleteFiles {
