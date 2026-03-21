@@ -32,8 +32,6 @@ jobs:
             target/
           key: ubuntu-latest-lint
       - name: Run cargo clippy
-        run: cargo clippy --all-targets --features integration-tests -- -D warnings
-      - name: Report
         run: cargo clippy --all-targets --message-format=json --features integration-tests -- -D warnings > clippy.json
       - uses: actions/upload-artifact@v6
         with:
@@ -41,12 +39,12 @@ jobs:
           path: clippy.json
 
   unit-test:
-    name: unit test ${{ matrix.platform.name }}
+    name: Unit test [${{ matrix.platform.name }}]
     strategy:
       matrix:
         platform:
-#          - name: MacOS
-#            runs-on: macos-latest
+          # - name: MacOS
+          #   runs-on: macos-latest
           - name: Windows
             runs-on: windows-latest
           - name: Linux
@@ -65,10 +63,11 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ matrix.platform.target.name }}-test
-      - uses: taiki-e/install-action@v2
+      - name: Install llvm-cov
+        uses: taiki-e/install-action@v2
         with:
           tool: cargo-llvm-cov
-      - name: Collect coverage data
+      - name: Run unit tests with coverage
         run: cargo llvm-cov --workspace --lcov --output-path ${{ matrix.platform.name }}-lcov.info
       - uses: actions/upload-artifact@v6
         with:
@@ -98,8 +97,8 @@ jobs:
     strategy:
       matrix:
         platform:
-#          - name: MacOS
-#            runs-on: macos-latest
+          # - name: MacOS
+          #   runs-on: macos-latest
           - name: Windows
             runs-on: windows-latest
           - name: Linux
@@ -118,15 +117,8 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ matrix.platform.target.name }}-test
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-llvm-cov
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: nextest
-      - name: Collect coverage data
-        run: |
-          cargo test --workspace --features integration-tests
+      - name: Run integration tests
+        run: cargo test --workspace --features integration-tests
       - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.platform.name }}-coverage
