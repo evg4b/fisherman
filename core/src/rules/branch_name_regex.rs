@@ -1,13 +1,13 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult};
-use crate::templates::TemplateString;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use crate::scripting::Expression;
-use rules_derive::ConditionalRule;
 use crate::rules::rule::ConditionalRule;
+use crate::rules::rule::{Rule, RuleResult};
+use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
+use regex::Regex;
+use rules_derive::ConditionalRule;
+use serde::{Deserialize, Serialize};
 
 static BRANCH_NAME_REGEX_RULE_NAME: &str = "branch-name-regex";
 

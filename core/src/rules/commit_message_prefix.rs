@@ -1,8 +1,8 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
@@ -49,7 +49,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_success() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule {
+            when: None,
+            prefix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
@@ -68,7 +71,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_failure() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule {
+            when: None,
+            prefix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
@@ -87,7 +93,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_variables_error() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule {
+            when: None,
+            prefix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: message".to_string()));
@@ -102,7 +111,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_commit_msg_error() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule {
+            when: None,
+            prefix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));

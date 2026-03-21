@@ -1,6 +1,6 @@
 use crate::context::Context;
+use crate::extract_vars;
 use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
-use crate::rules::{CompiledRule};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
@@ -31,9 +31,7 @@ impl Rule for ShellScriptRule {
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
-        let extract = self.extract.clone().unwrap_or(vec![]);
-        let variables = ctx.variables(extract.as_slice())?;
-        let script = self.script.compile(&variables)?;
+        let script = self.script.compile(&extract_vars!(&self, ctx)?)?;
 
         let args = vec![];
         let (code, output, _) = run(script.as_str(), &args, &options)?;
@@ -52,13 +50,11 @@ impl Rule for ShellScriptRule {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
     use crate::rules::rule::{Rule, RuleResult};
-    use crate::rules::shell_script::{ShellScript, ShellScriptRule};
-    use crate::rules::CompiledRule;
+    use crate::rules::shell_script::ShellScriptRule;
     use crate::t;
     use std::collections::HashMap;
 
@@ -81,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_shell_script_failure() {
-        let script = ShellScriptRule{
+        let script = ShellScriptRule {
             when: None,
             extract: None,
             script: t!("exit 1"),
@@ -101,7 +97,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("name".to_string(), "Test".to_string());
 
-        let script = ShellScriptRule{
+        let script = ShellScriptRule {
             when: None,
             extract: None,
             script: t!("echo 'Hello {{name}}'"),

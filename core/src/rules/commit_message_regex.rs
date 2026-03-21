@@ -40,7 +40,6 @@ impl Rule for CommitMessageRegexRule {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;

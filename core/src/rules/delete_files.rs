@@ -1,12 +1,11 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
-use std::fs;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
+use std::fs;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
@@ -48,55 +47,6 @@ impl Rule for DeleteFilesRule {
 
         Ok(RuleResult::Success {
             name: DELETE_FILES_RULE_NAME.to_string(),
-            output: None,
-        })
-    }
-}
-
-pub struct DeleteFiles {
-    name: String,
-    glob: TemplateString,
-    fail_if_not_found: bool,
-}
-
-impl DeleteFiles {
-    pub fn new(name: String, glob: TemplateString, fail_if_not_found: bool) -> DeleteFiles {
-        DeleteFiles {
-            name,
-            glob,
-            fail_if_not_found,
-        }
-    }
-}
-
-impl CompiledRule for DeleteFiles {
-    fn is_sequential(&self) -> bool {
-        false
-    }
-
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
-        let variables = ctx.variables(&[])?;
-        let glob_pattern = self.glob.compile(&variables)?;
-        let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
-
-        if paths.is_empty() && self.fail_if_not_found {
-            return Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
-                message: format!("No files matched the glob pattern: {}", glob_pattern),
-            });
-        }
-
-        for path in paths {
-            match path {
-                Ok(path) => fs::remove_file(path.as_path())?,
-                Err(err) => {
-                    bail!("Error deleting file: {}", err);
-                }
-            }
-        }
-
-        Ok(RuleResultOld::Success {
-            name: self.name.clone(),
             output: None,
         })
     }

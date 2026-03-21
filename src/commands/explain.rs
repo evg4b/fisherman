@@ -20,7 +20,7 @@ impl CliCommand for ExplainCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                for rule in rules {
+                for _ in rules {
                     //println!("{rule}");
                     todo!()
                 }

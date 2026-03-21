@@ -1,18 +1,19 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::extract_vars;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
-use serde::{Deserialize, Serialize};
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
+use serde::{Deserialize, Serialize};
 
 static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
 
 #[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
 pub struct SuppressFilesRule {
     pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
     pub glob: TemplateString,
 }
 
@@ -25,9 +26,9 @@ impl Rule for SuppressFilesRule {
             });
         }
 
-        let variables = ctx.variables(&[])?;
+        let variables = extract_vars!(self, ctx)?;
         let glob_pattern = self.glob.compile(&variables)?;
-        let pattern = Pattern::new(&glob_pattern)?;
+        let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
 
         let mut matched_files = Vec::new();
@@ -54,52 +55,6 @@ impl Rule for SuppressFilesRule {
     }
 }
 
-pub struct SuppressFiles {
-    name: String,
-    glob: TemplateString,
-}
-
-impl SuppressFiles {
-    pub fn new(name: String, glob: TemplateString) -> Self {
-        Self { name, glob }
-    }
-}
-
-impl CompiledRule for SuppressFiles {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
-        let variables = ctx.variables(&[])?;
-        let glob_pattern = self.glob.compile(&variables)?;
-        let pattern = Pattern::new(&glob_pattern)?;
-        let staged_files = ctx.staged_files()?;
-
-        let mut matched_files = Vec::new();
-        for file in staged_files {
-            if pattern.matches_path(&file) {
-                matched_files.push(file.display().to_string());
-            }
-        }
-
-        if !matched_files.is_empty() {
-            return Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
-                message: format!(
-                    "The following files are suppressed from being committed: {}",
-                    matched_files.join(", ")
-                ),
-            });
-        }
-
-        Ok(RuleResultOld::Success {
-            name: self.name.clone(),
-            output: None,
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,6 +67,7 @@ mod tests {
         let rule = SuppressFilesRule {
             when: None,
             glob: tmpl!("*.txt"),
+            extract: None,
         };
         let mut context = MockContext::new();
         context
@@ -136,6 +92,7 @@ mod tests {
     fn test_suppress_files_failure() -> Result<()> {
         let rule = SuppressFilesRule {
             when: None,
+            extract: None,
             glob: tmpl!("*.txt"),
         };
         let mut context = MockContext::new();

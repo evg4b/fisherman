@@ -1,11 +1,10 @@
 use crate::context::Context;
+use crate::extract_vars;
 use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
-use crate::rules::{CompiledRule, RuleResultOld};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
-use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -13,17 +12,9 @@ use std::io::Write;
 pub struct WriteFileRule {
     pub when: Option<Expression>,
     pub extract: Option<Vec<String>>,
-    pub path: String,
-    pub content: String,
+    pub path: TemplateString,
+    pub content: TemplateString,
     pub append: Option<bool>,
-}
-
-pub struct WriteFile {
-    name: String,
-    path: TemplateString,
-    content: TemplateString,
-    append: bool,
-    variables: HashMap<String, String>,
 }
 
 #[typetag::serde(name = "write-file")]
@@ -35,60 +26,22 @@ impl Rule for WriteFileRule {
             });
         }
 
+        let variables = extract_vars!(self, ctx)?;
+        let path = self.path.compile(&variables)?;
+        let content = self.content.compile(&variables)?;
+
         let append = self.append.unwrap_or(false);
 
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
             .append(append)
-            .open(&self.path)?;
-
-        file.write_all(self.content.as_bytes())?;
-
-        Ok(RuleResult::Success {
-            name: "write-file".into(),
-            output: None,
-        })
-    }
-}
-
-impl WriteFile {
-    pub fn new(
-        name: String,
-        path: TemplateString,
-        content: TemplateString,
-        append: bool,
-        variables: HashMap<String, String>,
-    ) -> WriteFile {
-        WriteFile {
-            name,
-            path,
-            content,
-            append,
-            variables,
-        }
-    }
-}
-
-impl CompiledRule for WriteFile {
-    fn is_sequential(&self) -> bool {
-        false
-    }
-
-    fn check(&self, _ctx: &dyn Context) -> Result<RuleResultOld> {
-        let content = self.content.compile(&self.variables)?;
-        let path = self.path.compile(&self.variables)?;
-
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .append(self.append)
-            .open(&path)?;
+            .open(path)?;
 
         file.write_all(content.as_bytes())?;
 
-        Ok(RuleResultOld::Success {
-            name: self.name.clone(),
+        Ok(RuleResult::Success {
+            name: "write-file".into(),
             output: None,
         })
     }
@@ -110,17 +63,17 @@ mod tests {
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!(content.clone()),
-            false,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -141,17 +94,17 @@ mod tests {
 
         let content = "Hello, world!".to_string();
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!(content.clone()),
-            false,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
+            append: Some(false),
+            when: None,
+            extract: None,
+        };
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -172,17 +125,17 @@ mod tests {
 
         let content = "Hello, world!".to_string();
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!(content.clone()),
-            true,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
+            append: Some(true),
+            when: None,
+            extract: None,
+        };
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -204,17 +157,17 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("FILE_NAME".to_string(), "test".to_string());
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!(content.clone()),
-            false,
-            variables,
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -235,17 +188,17 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("WHO".to_string(), "world".to_string());
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!(content.clone()),
-            false,
-            variables,
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -258,26 +211,14 @@ mod tests {
     }
 
     #[test]
-    fn test_is_sequential() {
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!("path/to/file.txt"),
-            t!("content"),
-            false,
-            HashMap::new(),
-        );
-        assert!(!rule.is_sequential());
-    }
-
-    #[test]
     fn test_write_file_path_template_error() {
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!("{{missing}}/file.txt"),
-            t!("content"),
-            false,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!("{{missing}}/file.txt"),
+            content: t!("content"),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new());
         assert!(result.is_err());
@@ -288,13 +229,13 @@ mod tests {
         let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
 
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!(path.to_str().unwrap()),
-            t!("{{missing}}"),
-            false,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!(path.to_str().unwrap()),
+            content: t!("{{missing}}"),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new());
         assert!(result.is_err());
@@ -304,13 +245,13 @@ mod tests {
 
     #[test]
     fn test_write_file_io_error() {
-        let rule = WriteFile::new(
-            "write_file".to_string(),
-            t!("/invalid/path/that/does/not/exist/file.txt"),
-            t!("content"),
-            false,
-            HashMap::new(),
-        );
+        let rule = WriteFileRule {
+            path: t!("/invalid/path/that/does/not/exist/file.txt"),
+            content: t!("content"),
+            when: None,
+            extract: None,
+            append: Some(false),
+        };
 
         let result = rule.check(&MockContext::new());
         assert!(result.is_err());
@@ -325,8 +266,8 @@ mod tests {
         let rule = WriteFileRule {
             when: None,
             extract: None,
-            path: path.to_str().unwrap().to_string(),
-            content: content.clone(),
+            path: t!(path.to_str().unwrap()),
+            content: t!(content.clone()),
             append: None,
         };
 

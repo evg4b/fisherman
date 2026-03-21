@@ -1,8 +1,7 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
@@ -49,7 +48,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffixRule { when: None, suffix: t!("feat") };
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -67,7 +69,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffixRule { when: None, suffix: t!("feat") };
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));

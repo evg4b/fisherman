@@ -1,14 +1,13 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
@@ -75,86 +74,6 @@ impl Rule for CopyFilesRule {
 
         Ok(RuleResult::Success {
             name: COPY_FILES_RULE_NAME.to_string(),
-            output: Some(format!("Copied {} files", copied_files)),
-        })
-    }
-}
-
-pub struct CopyFiles {
-    name: String,
-    glob: TemplateString,
-    src: Option<TemplateString>,
-    destination: TemplateString,
-}
-
-impl CopyFiles {
-    pub fn new(
-        name: String,
-        glob: TemplateString,
-        src: Option<TemplateString>,
-        destination: TemplateString,
-    ) -> CopyFiles {
-        CopyFiles {
-            name,
-            glob,
-            src,
-            destination,
-        }
-    }
-
-    fn ensure_parent_exists_static(path: &Path) -> Result<()> {
-        if let Some(parent) = path.parent()
-            && !parent.exists()
-        {
-            create_dir_all(parent)?;
-        }
-        Ok(())
-    }
-}
-
-impl CompiledRule for CopyFiles {
-    fn is_sequential(&self) -> bool {
-        false
-    }
-
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
-        let variables = ctx.variables(&[])?;
-        let compiled_glob = self.glob.compile(&variables)?;
-        let compiled_src = self
-            .src
-            .as_ref()
-            .map(|s| s.compile(&variables))
-            .transpose()?;
-        let compiled_pattern = match compiled_src.clone() {
-            Some(src) => Path::join(src.as_ref(), compiled_glob),
-            None => compiled_glob.parse()?,
-        };
-        let compiled_destination = self.destination.compile(&variables)?;
-
-        let mut copied_files = 0;
-
-        for entry in glob(compiled_pattern.to_str().unwrap())? {
-            match entry {
-                Ok(path) => {
-                    let new_name = match compiled_src.as_ref() {
-                        Some(value) => path.strip_prefix(value)?.display().to_string(),
-                        None => path.display().to_string(),
-                    };
-                    let destination_path = Path::join(compiled_destination.as_ref(), new_name);
-
-                    Self::ensure_parent_exists_static(&destination_path)?;
-                    fs::copy(&path, &destination_path)?;
-
-                    copied_files += 1;
-                }
-                Err(e) => {
-                    bail!("Error reading glob entry: {}", e);
-                }
-            }
-        }
-
-        Ok(RuleResultOld::Success {
-            name: self.name.clone(),
             output: Some(format!("Copied {} files", copied_files)),
         })
     }

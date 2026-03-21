@@ -1,9 +1,8 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::CompiledRule;
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
