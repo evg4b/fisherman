@@ -17,6 +17,7 @@ env:
 
 jobs:
   lint:
+    name: Clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -30,10 +31,10 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ubuntu-latest-lint
-      - name: Lint
+      - name: Run cargo clippy
         run: cargo clippy --all-targets --features integration-tests -- -D warnings
       - name: Report
-        run: cargo clippy --all-targets --message-format=json > clippy.json
+        run: cargo clippy --all-targets --message-format=json --features integration-tests -- -D warnings > clippy.json
       - uses: actions/upload-artifact@v6
         with:
           name: clippy.json
