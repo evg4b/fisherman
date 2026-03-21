@@ -33,7 +33,8 @@ jobs:
           key: ubuntu-latest-lint
       - name: Run cargo clippy
         run: cargo clippy --all-targets --message-format=json --features integration-tests -- -D warnings > clippy.json
-      - uses: actions/upload-artifact@v6
+      - name: Upload clippy report
+        uses: actions/upload-artifact@v6
         with:
           name: clippy.json
           path: clippy.json
@@ -69,20 +70,22 @@ jobs:
           tool: cargo-llvm-cov
       - name: Run unit tests with coverage
         run: cargo llvm-cov --workspace --lcov --output-path ${{ matrix.platform.name }}-lcov.info
-      - uses: actions/upload-artifact@v6
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.platform.name }}-coverage
           path: ${{ matrix.platform.name }}-lcov.info
 
   sonarqube:
-    name: SonarQube
+    name: SonarCloud Scan
     runs-on: ubuntu-latest
     needs: [ unit-test, lint ]
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/download-artifact@v8
+          fetch-depth: 0
+      - name: Download coverage and clippy reports
+        uses: actions/download-artifact@v8
         with:
           pattern: "*"
           merge-multiple: true
@@ -93,7 +96,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   integration-tests:
-    name: integration tests ${{ matrix.platform.name }}
+    name: Integration tests [${{ matrix.platform.name }}]
     strategy:
       matrix:
         platform:
@@ -118,8 +121,4 @@ jobs:
             target/
           key: ${{ matrix.platform.target.name }}-test
       - name: Run integration tests
-        run: cargo test --workspace --features integration-tests
-      - uses: actions/upload-artifact@v6
-        with:
-          name: ${{ matrix.platform.name }}-coverage
-          path: ${{ matrix.platform.name }}-lcov.info
+        run: cargo test --workspace --features integration-tests --no-fail-fast

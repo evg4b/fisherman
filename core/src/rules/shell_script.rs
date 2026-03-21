@@ -91,7 +91,7 @@ mod tests {
         #[cfg(not(windows))]
         assert_eq!(&output.unwrap(), "Test\n");
         #[cfg(windows)]
-        assert_eq!(&output.unwrap(), "Test\r\n");
+        assert_eq!(&output.unwrap(), "'Test'\r\n");
     }
 
     #[test]
@@ -131,7 +131,7 @@ mod tests {
         #[cfg(not(windows))]
         assert_eq!(&output.unwrap(), "Hello Test\n");
         #[cfg(windows)]
-        assert_eq!(&output.unwrap(), "Hello Test\r\n");
+        assert_eq!(&output.unwrap(), "'Hello Test'\r\n");
     }
 
     #[test]
@@ -142,7 +142,10 @@ mod tests {
         let script = ShellScriptRule {
             when: None,
             extract: None,
+            #[cfg(not(windows))]
             script: t!("echo $TEST"),
+            #[cfg(windows)]
+            script: t!("echo %TEST%"),
             env: Some(env),
         };
 
@@ -174,7 +177,7 @@ mod tests {
         #[cfg(not(windows))]
         assert_eq!(&output.unwrap(), "Test\n");
         #[cfg(windows)]
-        assert_eq!(&output.unwrap(), "Test\r\n");
+        assert_eq!(&output.unwrap(), "'Test'\r\n");
     }
 
     #[test]
