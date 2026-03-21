@@ -38,8 +38,8 @@ impl CompiledRule for WriteFile {
     }
 
     fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
-        let content = self.content.to_string(&self.variables)?;
-        let path = self.path.to_string(&self.variables)?;
+        let content = self.content.compile(&self.variables)?;
+        let path = self.path.compile(&self.variables)?;
 
         let mut file = OpenOptions::new()
             .write(true)

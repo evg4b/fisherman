@@ -44,13 +44,13 @@ impl CompiledRule for CopyFiles {
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables(&[])?;
-        let compiled_glob = self.glob.to_string(&variables)?;
-        let compiled_src = self.src.as_ref().map(|s| s.to_string(&variables)).transpose()?;
+        let compiled_glob = self.glob.compile(&variables)?;
+        let compiled_src = self.src.as_ref().map(|s| s.compile(&variables)).transpose()?;
         let compiled_pattern = match compiled_src.clone() {
             Some(src) => Path::join(src.as_ref(), compiled_glob),
             None => compiled_glob.parse()?,
         };
-        let compiled_destination = self.destination.to_string(&variables)?;
+        let compiled_destination = self.destination.compile(&variables)?;
 
         let mut copied_files = 0;
 

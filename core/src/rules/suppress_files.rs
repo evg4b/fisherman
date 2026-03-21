@@ -22,7 +22,7 @@ impl CompiledRule for SuppressFiles {
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables(&[])?;
-        let glob_pattern = self.glob.to_string(&variables)?;
+        let glob_pattern = self.glob.compile(&variables)?;
         let pattern = Pattern::new(&glob_pattern)?;
         let staged_files = ctx.staged_files()?;
 

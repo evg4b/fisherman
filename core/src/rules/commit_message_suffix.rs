@@ -21,7 +21,7 @@ impl CompiledRule for CommitMessageSuffix {
     }
 
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let suffix = self.suffix.to_string(&ctx.variables(&[])?)?;
+        let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.ends_with(&suffix) {

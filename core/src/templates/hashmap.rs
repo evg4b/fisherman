@@ -8,7 +8,7 @@ pub fn replace_in_hashmap(
 ) -> Result<HashMap<String, String>, TemplateError> {
     let transformed: HashMap<String, String> = input
         .iter()
-        .map(|(k, v)| match t!(v).to_string(values) {
+        .map(|(k, v)| match t!(v).compile(values) {
             Ok(v) => Ok((k.to_owned(), v)),
             Err(e) => match e {
                 TemplateError::PlaceholderNotFound { placeholder } => {

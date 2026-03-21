@@ -8,7 +8,7 @@ pub fn compile_tmpl(
     additional: &[String],
 ) -> Result<String> {
     let variables = ctx.variables(additional)?;
-    Ok(string.to_string(&variables)?)
+    Ok(string.compile(&variables)?)
 }
 
 #[cfg(test)]

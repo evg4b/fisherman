@@ -29,7 +29,7 @@ impl CompiledRule for SuppressString {
         let regex = Regex::new(&regex_str)?;
 
         let pattern = match &self.glob {
-            Some(g) => Some(Pattern::new(&g.to_string(&variables)?)?),
+            Some(g) => Some(Pattern::new(&g.compile(&variables)?)?),
             None => None,
         };
 

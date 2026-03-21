@@ -39,7 +39,7 @@ impl CompiledRule for ShellScript {
 
         let args = vec![];
         let (code, output, _) = run(
-            self.script.to_string(&self.variables)?.as_str(),
+            self.script.compile(&self.variables)?.as_str(),
             &args,
             &options,
         )?;

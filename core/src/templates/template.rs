@@ -1,11 +1,13 @@
 use crate::templates::TemplateError;
 use std::collections::HashMap;
 use std::sync::LazyLock;
+use serde::{Deserialize, Serialize};
 
 static TEMPLATE_PATTERN: LazyLock<regex::Regex> =
     LazyLock::new(|| regex::Regex::new(r"\{\{(.*?)}}").unwrap());
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct TemplateString {
     template: String,
 }
@@ -20,7 +22,7 @@ impl TemplateString {
         }
     }
 
-    pub fn to_string(&self, variables: &HashMap<String, String>) -> Result<String, TemplateError> {
+    pub fn compile(&self, variables: &HashMap<String, String>) -> Result<String, TemplateError> {
         let input = self.template.as_ref();
         let mut result = self.template.clone();
 
@@ -48,6 +50,25 @@ mod tests {
     use super::*;
     use crate::t;
     use std::collections::HashMap;
+    use serde_json::to_string;
+
+    static JSON_STRING: &str = "\"test\"";
+    static STRING_VALUE: &str = "test";
+
+    #[test]
+    fn serialize_template_string() {
+        let template = TemplateString::from(STRING_VALUE);
+        let string = to_string(&template).unwrap();
+
+        assert_eq!(string, JSON_STRING);
+    }
+
+    #[test]
+    fn deserialize_template_string() {
+        let template: TemplateString = serde_json::from_str(JSON_STRING).unwrap();
+
+        assert_eq!(template.template, STRING_VALUE);
+    }
 
     #[test]
     fn test_template_string_creation() {
@@ -61,7 +82,7 @@ mod tests {
         let variables = HashMap::new();
         let template = t!("Hello, world!");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "Hello, world!");
     }
 
@@ -73,7 +94,7 @@ mod tests {
 
         let template = t!("{{greeting}}, {{name}}!");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "Hello, John!");
     }
 
@@ -84,7 +105,7 @@ mod tests {
 
         let template = t!("Hello, {{name}}! How are you, {{name}}?");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "Hello, John! How are you, John?");
     }
 
@@ -95,7 +116,7 @@ mod tests {
 
         let template = t!("{{greeting}}, {{name}}!");
 
-        let result = template.to_string(&variables);
+        let result = template.compile(&variables);
         assert!(result.is_err());
 
         match result.unwrap_err() {
@@ -111,7 +132,7 @@ mod tests {
         let variables = HashMap::new();
         let template = t!("");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "");
     }
 
@@ -122,7 +143,7 @@ mod tests {
 
         let template = t!("Hello, {{name}}!");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "Hello, John!");
     }
 
@@ -133,7 +154,7 @@ mod tests {
 
         let template = t!("This is {{value}}");
 
-        let result = template.to_string(&variables).unwrap();
+        let result = template.compile(&variables).unwrap();
         assert_eq!(result, "This is a {nested} value");
     }
 }

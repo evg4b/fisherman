@@ -8,7 +8,7 @@ pub fn replace_in_vec(
 ) -> Result<Vec<String>, TemplateError> {
     let transformed: Vec<String> = input
         .iter()
-        .map(|v| t!(v).to_string(values))
+        .map(|v| t!(v).compile(values))
         .collect::<Result<Vec<String>, TemplateError>>()?;
 
     Ok(transformed)
