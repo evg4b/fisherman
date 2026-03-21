@@ -2,6 +2,19 @@ use crate::context::Context;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct CommitMessageSuffixRule {
+    pub suffix: TemplateString,
+}
+
+#[typetag::serde(name = "message-suffix")]
+impl Rule for CommitMessageSuffixRule {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
 
 #[derive(Debug)]
 pub struct CommitMessageSuffix {

@@ -3,6 +3,19 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use regex::Regex;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct CommitMessageRegexRule {
+    pub expression: TemplateString,
+}
+
+#[typetag::serde(name = "message-prefix")]
+impl Rule for CommitMessageRegexRule {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
 
 #[derive(Debug)]
 pub struct CommitMessageRegex {

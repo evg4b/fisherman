@@ -10,7 +10,7 @@ pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
 
 #[derive(Debug)]
-pub struct ExecRule {
+pub struct ExecRuleOld {
     name: String,
     command: String,
     args: Args,
@@ -18,7 +18,7 @@ pub struct ExecRule {
     variables: HashMap<String, String>,
 }
 
-impl ExecRule {
+impl ExecRuleOld {
     pub fn new(
         name: String,
         command: String,
@@ -36,7 +36,7 @@ impl ExecRule {
     }
 }
 
-impl CompiledRule for ExecRule {
+impl CompiledRule for ExecRuleOld {
     fn is_sequential(&self) -> bool {
         false
     }
@@ -72,7 +72,7 @@ mod tests {
 
     #[test]
     fn test_exec_rule() {
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "echo".into(),
             vec!["hello".into()],
@@ -93,7 +93,7 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("HELLO".into(), "world".into());
 
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "printenv".into(),
             vec![],
@@ -114,7 +114,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("HELLO".into(), "world".into());
 
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "echo".into(),
             vec!["hello".into(), "{{HELLO}}".into()],
@@ -135,7 +135,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("HELLO".into(), "world".into());
 
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "cat".into(),
             vec!["./unknown.txt".into()],
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_return_error() {
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "XXXXXXXXXXXX".into(),
             vec![],
@@ -168,7 +168,7 @@ mod tests {
 
     #[test]
     fn test_is_sequential() {
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "echo".into(),
             vec!["hello".into()],
@@ -183,7 +183,7 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("VAR".into(), "{{missing}}".into());
 
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "echo".into(),
             vec![],
@@ -197,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_exec_rule_args_template_error() {
-        let rule = ExecRule::new(
+        let rule = ExecRuleOld::new(
             "test".into(),
             "echo".into(),
             vec!["{{missing}}".into()],

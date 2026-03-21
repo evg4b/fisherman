@@ -3,6 +3,22 @@ use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
+use serde::{Deserialize, Serialize};
+use crate::rules::delete_files::DeleteFilesRule;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SuppressFilesRule{
+    glob: TemplateString,
+}
+
+#[typetag::serde(name = "suppress-files")]
+impl Rule for SuppressFilesRule {
+    fn check(&self, ctx: &dyn Context) -> Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
+
 
 pub struct SuppressFiles {
     name: String,

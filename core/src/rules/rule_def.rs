@@ -8,7 +8,7 @@ use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
 use crate::rules::copy_files::CopyFiles;
 use crate::rules::delete_files::DeleteFiles;
-use crate::rules::exec_rule::ExecRule;
+use crate::rules::exec_rule::ExecRuleOld;
 use crate::rules::shell_script::ShellScript;
 use crate::rules::suppress_files::SuppressFiles;
 use crate::rules::suppress_string::SuppressString;
@@ -104,7 +104,7 @@ impl RuleOLD {
             RuleParams::ExecRule {
                 command, args, env, ..
             } => {
-                wrap!(ExecRule::new(
+                wrap!(ExecRuleOld::new(
                     self.to_string(),
                     command.clone(),
                     args.clone().unwrap_or_default(),

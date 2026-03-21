@@ -6,6 +6,21 @@ use glob::glob;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct CopyFilesRule {
+    pub glob: TemplateString,
+    pub src: Option<TemplateString>,
+    pub destination: TemplateString,
+}
+
+#[typetag::serde(name = "copy-files")]
+impl Rule for CopyFilesRule {
+    fn check(&self, ctx: &dyn Context) -> Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
 
 pub struct CopyFiles {
     name: String,

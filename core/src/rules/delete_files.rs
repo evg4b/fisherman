@@ -4,6 +4,20 @@ use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
 use std::fs;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct DeleteFilesRule {
+    glob: TemplateString,
+    fail_if_not_found: bool,
+}
+
+#[typetag::serde(name = "delete-files")]
+impl Rule for DeleteFilesRule {
+    fn check(&self, ctx: &dyn Context) -> Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
 
 pub struct DeleteFiles {
     name: String,
