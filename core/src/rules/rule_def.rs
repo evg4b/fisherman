@@ -10,6 +10,8 @@ use crate::rules::copy_files::CopyFiles;
 use crate::rules::delete_files::DeleteFiles;
 use crate::rules::exec_rule::ExecRule;
 use crate::rules::shell_script::ShellScript;
+use crate::rules::suppress_files::SuppressFiles;
+use crate::rules::suppress_string::SuppressString;
 use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
 use crate::t;
@@ -68,6 +70,13 @@ pub enum RuleParams {
         glob: String,
         #[serde(rename = "fail-if-not-found")]
         fail_if_not_found: Option<bool>,
+    },
+    #[serde(rename = "suppress-files")]
+    SuppressFiles { glob: String },
+    #[serde(rename = "suppress-string")]
+    SuppressString {
+        regex: String,
+        glob: Option<String>,
     },
 }
 
@@ -172,6 +181,19 @@ impl Rule {
                     fail_if_not_found.unwrap_or(false),
                 ))
             }
+            RuleParams::SuppressFiles { glob } => {
+                wrap!(SuppressFiles::new(
+                    self.to_string(),
+                    t!(glob.clone()),
+                ))
+            }
+            RuleParams::SuppressString { regex, glob } => {
+                wrap!(SuppressString::new(
+                    self.to_string(),
+                    t!(regex.clone()),
+                    glob.as_ref().map(|g| t!(g.clone())),
+                ))
+            }
         }
     }
 }
@@ -223,6 +245,12 @@ impl RuleParams {
             }
             RuleParams::DeleteFiles { glob, fail_if_not_found } => {
                 format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
+            }
+            RuleParams::SuppressFiles { glob } => {
+                format!("suppress files matching {}", glob)
+            }
+            RuleParams::SuppressString { regex, glob } => {
+                format!("suppress string matching {} in {}", regex, glob.as_deref().unwrap_or("*"))
             }
         }
     }

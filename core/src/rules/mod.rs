@@ -12,6 +12,8 @@ mod shell_script;
 mod write_file;
 mod copy_files;
 mod delete_files;
+mod suppress_files;
+mod suppress_string;
 
 pub use crate::rules::compiled_rule::{CompiledRule, RuleResult};
 #[allow(unused_imports)]
