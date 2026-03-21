@@ -5,6 +5,10 @@ use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
+use core::rules::branch_name_prefix::BranchNamePrefixRule;
+use core::rules::branch_name_regex::BranchNameRegexRule;
+use core::rules::write_file::WriteFileRule;
+use core::scripting::Expression;
 
 #[test]
 fn post_commit_hook_execution() {
@@ -16,8 +20,10 @@ fn post_commit_hook_execution() {
     let config = config!(
         GitHook::PostCommit => [
             rule!(WriteFileRule {
-                path: String::from(path),
-                content: String::from(content),
+                when: None,
+                extract: None,
+                path: path.into(),
+                content: content.into(),
                 append: None,
             })
         ]
@@ -49,20 +55,26 @@ fn mixed_sync_and_async_rules_execute_correctly() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameRegex {
-                regex: String::from("^feature/.*"),
+            rule!(BranchNameRegexRule {
+                when: None,
+                expression: "^feature/.*".into(),
             }),
             rule!(WriteFileRule {
-                path: String::from("async1.txt"),
-                content: String::from("async rule 1"),
+                when: None,
+                extract: None,
+                path: "async1.txt".into(),
+                content: "async rule 1".into(),
                 append: None,
             }),
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             }),
             rule!(WriteFileRule {
-                path: String::from("async2.txt"),
-                content: String::from("async rule 2"),
+                when: None,
+                extract: None,
+                path: "async2.txt".into(),
+                content: "async rule 2".into(),
                 append: None,
             })
         ]
@@ -83,12 +95,15 @@ fn sync_rule_failure_behavior() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameRegex {
-                regex: String::from("^feature/.*"),
+            rule!(BranchNameRegexRule {
+                when: None,
+                expression: "^feature/.*".into(),
             }),
             rule!(WriteFileRule {
-                path: String::from("async1.txt"),
-                content: String::from("async rule 1"),
+                when: None,
+                extract: None,
+                path: "async1.txt".into(),
+                content: "async rule 1".into(),
                 append: None,
             }),
         ]
@@ -139,14 +154,13 @@ fn conditional_with_complex_boolean_logic() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                WriteFileRule {
-                    path: String::from("urgent.txt"),
-                    content: String::from("Urgent work"),
-                    append: None,
-                },
-                when = String::from("(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\"")),
+                extract: None,
+                path: "urgent.txt".into(),
+                content: "Urgent work".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix|hotfix)/(?P<Priority>high|low|medium)"),
