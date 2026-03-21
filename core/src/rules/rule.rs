@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crate::context::Context;
 
+#[derive(Debug)]
 pub enum RuleResult {
     Success {
         name: String,

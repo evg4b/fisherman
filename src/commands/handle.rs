@@ -1,7 +1,8 @@
 use crate::commands::command::CliCommand;
 use core::context::Context;
 use core::hooks::GitHook;
-use core::rules::{CompiledRule, RuleOLD, RuleResult};
+use core::rules::{CompiledRule, RuleOLD};
+use core::rules::rule::RuleResult;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
@@ -29,39 +30,45 @@ impl CliCommand for HandleCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                let (sync_rules, async_rules) = compile_rules(context, rules)?;
+                let items = rules.iter()
+                    .map(|r| r.check(context))
+                    .collect::<Result<Vec<RuleResult>>>()?;
 
-                let mut results: Vec<RuleResult> = vec![];
+                println!("{:#?}", items);
 
-                for rule in sync_rules {
-                    results.push(rule.check(context)?);
-                }
-
-                let async_results: Result<Vec<_>> =
-                    async_rules.par_iter().map(|rule| rule.check(context)).collect();
-
-                results.extend(async_results?);
-
-                for rule in &results {
-                    match rule {
-                        RuleResult::Success { name, output } => {
-                            println!("{name} executed successfully");
-                            if let Some(value) = output && !value.is_empty() {
-                                println!("{value}");
-                            }
-                        }
-                        RuleResult::Failure { message, name } => {
-                            eprintln!("{name}: {message}");
-                        }
-                    }
-                }
-
-                if results
-                    .iter()
-                    .any(|r| matches!(r, RuleResult::Failure { .. }))
-                {
-                    exit(1);
-                }
+                // let (sync_rules, async_rules) = compile_rules(context, rules)?;
+                //
+                // let mut results: Vec<RuleResult> = vec![];
+                //
+                // for rule in sync_rules {
+                //     results.push(rule.check(context)?);
+                // }
+                //
+                // let async_results: Result<Vec<_>> =
+                //     async_rules.par_iter().map(|rule| rule.check(context)).collect();
+                //
+                // results.extend(async_results?);
+                //
+                // for rule in &results {
+                //     match rule {
+                //         RuleResult::Success { name, output } => {
+                //             println!("{name} executed successfully");
+                //             if let Some(value) = output && !value.is_empty() {
+                //                 println!("{value}");
+                //             }
+                //         }
+                //         RuleResult::Failure { message, name } => {
+                //             eprintln!("{name}: {message}");
+                //         }
+                //     }
+                // }
+                //
+                // if results
+                //     .iter()
+                //     .any(|r| matches!(r, RuleResult::Failure { .. }))
+                // {
+                //     exit(1);
+                // }
             }
             None => println!("No rules found for hook {}", self.hook),
         }

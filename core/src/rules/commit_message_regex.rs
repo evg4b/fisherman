@@ -10,7 +10,7 @@ pub struct CommitMessageRegexRule {
     pub expression: TemplateString,
 }
 
-#[typetag::serde(name = "message-prefix")]
+#[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
         todo!()

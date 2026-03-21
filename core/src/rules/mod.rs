@@ -14,7 +14,7 @@ mod copy_files;
 mod delete_files;
 mod suppress_files;
 mod suppress_string;
-mod rule;
+pub mod rule;
 
 pub use crate::rules::compiled_rule::{CompiledRule, RuleResult};
 #[allow(unused_imports)]
