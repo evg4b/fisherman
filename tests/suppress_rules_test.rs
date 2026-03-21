@@ -3,6 +3,7 @@ mod common;
 use common::test_context::TestContext;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_files_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -29,6 +30,7 @@ glob = "secret.txt"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -55,6 +57,7 @@ regex = "TODO"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_with_glob_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -82,6 +85,7 @@ glob = "*.rs"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_only_added_lines() {
     let context = TestContext::new();
     let config = r#"

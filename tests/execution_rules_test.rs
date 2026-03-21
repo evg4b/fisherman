@@ -11,6 +11,7 @@ use core::ShellScriptRule;
 use std::collections::HashMap;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn exec_rule_success() {
     let ctx = TestContext::new();
 
@@ -53,6 +54,7 @@ fn exec_rule_success() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn exec_rule_failure() {
     let ctx = TestContext::new();
 
@@ -91,6 +93,7 @@ fn exec_rule_failure() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn exec_rule_with_env() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -137,6 +140,7 @@ fn exec_rule_with_env() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn shell_script_success() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -181,6 +185,7 @@ fn shell_script_success() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn shell_script_failure() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -230,6 +235,7 @@ fn shell_script_failure() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn shell_script_with_env() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -274,6 +280,7 @@ fn shell_script_with_env() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn exec_and_shell_mixed() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();

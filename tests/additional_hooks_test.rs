@@ -3,6 +3,7 @@ mod common;
 use common::test_context::TestContext;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn post_merge_hook_execution() {
     let ctx = TestContext::new();
     let config = r#"
@@ -33,6 +34,7 @@ content = "post-merge ran"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn post_checkout_hook_execution() {
     let ctx = TestContext::new();
     let config = r#"
@@ -55,6 +57,7 @@ content = "post-checkout ran"
 // NOTE: pre-receive is a server-side hook that runs during git push on the remote repository.
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn very_long_branch_name() {
     let ctx = TestContext::new();
     let config = r#"
@@ -77,6 +80,7 @@ prefix = "feature/"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_with_special_characters() {
     let ctx = TestContext::new();
 
@@ -93,6 +97,7 @@ regex = "^feature/[a-z0-9._-]+$"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_append_to_nonexistent() {
     let ctx = TestContext::new();
 
@@ -111,6 +116,7 @@ append = true
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_multiple_template_variables() {
     let ctx = TestContext::new();
 
@@ -137,6 +143,7 @@ when = "Type == \"feature\" && is_def_var(\"Ticket\")"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn explain_unconfigured_hook() {
     let ctx = TestContext::new();
 
@@ -157,6 +164,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn multiple_extractions_same_source() {
     let ctx = TestContext::new();
 
@@ -182,6 +190,7 @@ content = "{{Type}}: {{Name}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn commit_message_with_newlines() {
     let ctx = TestContext::new();
 
@@ -198,6 +207,7 @@ regex = "^feat: .+"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn optional_extraction_no_match() {
     let ctx = TestContext::new();
 

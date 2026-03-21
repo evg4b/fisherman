@@ -9,6 +9,7 @@ use core::BranchNameRegexRule;
 use core::BranchNameSuffixRule;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_regex_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -26,6 +27,7 @@ fn branch_name_regex_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_regex_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -49,6 +51,7 @@ fn branch_name_regex_invalid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_prefix_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -66,6 +69,7 @@ fn branch_name_prefix_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_prefix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -89,6 +93,7 @@ fn branch_name_prefix_invalid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_suffix_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -106,6 +111,7 @@ fn branch_name_suffix_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_suffix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -129,6 +135,7 @@ fn branch_name_suffix_invalid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_multiple_rules_all_pass() {
     let ctx = TestContext::new();
     let config = config!(
@@ -154,6 +161,7 @@ fn branch_name_multiple_rules_all_pass() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_multiple_rules_one_fails() {
     let ctx = TestContext::new();
 

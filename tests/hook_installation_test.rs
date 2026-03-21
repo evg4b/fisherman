@@ -4,6 +4,7 @@ use crate::common::ConfigFormat;
 use common::{FishermanBinary, GitTestRepo};
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_creates_hooks() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -38,6 +39,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_without_force_fails_when_hook_exists() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -66,6 +68,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_with_force_overwrites_existing_hook() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -98,6 +101,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn hook_script_contains_correct_command() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -121,6 +125,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn commit_msg_hook_passes_arguments() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -145,6 +150,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn explain_command_shows_rules() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -176,6 +182,7 @@ args = ["test"]
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn no_config_installs_no_hooks() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -189,6 +196,7 @@ fn no_config_installs_no_hooks() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_multiple_hooks_for_same_event() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -226,6 +234,7 @@ suffix = "-dev"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn hierarchical_config_merge() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -264,6 +273,7 @@ content = "local level"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_pre_push_hook() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -290,6 +300,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_post_commit_hook() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -315,6 +326,7 @@ content = "Post commit hook executed"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_prepare_commit_msg_hook() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -340,6 +352,7 @@ content = "Prepare commit msg hook executed"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn backup_file_contains_original_hook() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();

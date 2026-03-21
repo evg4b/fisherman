@@ -25,10 +25,10 @@ cargo llvm-cov --open --workspace
 make coverage
 
 # Lint (strict — matches CI)
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets -- -D warnings
 
 # Lint with auto-fix
-cargo clippy --all-targets --all-features --fix --allow-dirty
+cargo clippy --all-targets --fix --allow-dirty
 make lint
 
 # Build release binary

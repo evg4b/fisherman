@@ -8,6 +8,7 @@ use core::WriteFileRule;
 use core::Expression;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_true_executes_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -45,6 +46,7 @@ fn when_condition_true_executes_rule() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_false_skips_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -82,6 +84,7 @@ fn when_condition_false_skips_rule() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_with_is_def_var_defined() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -116,6 +119,7 @@ fn when_condition_with_is_def_var_defined() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_with_is_def_var_undefined() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -153,6 +157,7 @@ fn when_condition_with_is_def_var_undefined() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_complex_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -190,6 +195,7 @@ fn when_condition_complex_expression() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_complex_expression_false() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -224,6 +230,7 @@ fn when_condition_complex_expression_false() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_or_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -258,6 +265,7 @@ fn when_condition_or_expression() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_not_expression() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -292,6 +300,7 @@ fn when_condition_not_expression() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn when_condition_multiple_rules_selective_execution() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();

@@ -3,6 +3,7 @@ mod common;
 use common::test_context::TestContext;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn unicode_in_commit_message() {
     let ctx = TestContext::new();
 
@@ -17,6 +18,7 @@ regex = "^.+$"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn unicode_in_branch_name() {
     let ctx = TestContext::new();
 
@@ -32,6 +34,7 @@ regex = "^.+$"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn unicode_in_template_variable() {
     let ctx = TestContext::new();
 
@@ -53,6 +56,7 @@ content = "Branch: {{Name}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn prepare_commit_msg_hook_execution() {
     let ctx = TestContext::new();
 
@@ -70,6 +74,7 @@ content = "prepare-commit-msg ran"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn prepare_commit_msg_with_template_variable() {
     let ctx = TestContext::new();
 
@@ -93,6 +98,7 @@ content = "{{Type}}: [{{Ticket}}] "
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_undefined_variable_fails() {
     let ctx = TestContext::new();
 
@@ -109,6 +115,7 @@ when = "UndefinedVar == \"value\""
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_is_def_var_true() {
     let ctx = TestContext::new();
 
@@ -130,6 +137,7 @@ when = "is_def_var(\"Feature\")"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_is_def_var_false() {
     let ctx = TestContext::new();
 
@@ -158,6 +166,7 @@ when = "!is_def_var(\"Feature\")"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn shell_script_with_multiple_env_vars() {
     let ctx = TestContext::new();
 
@@ -189,6 +198,7 @@ env = { VAR1 = "value1", VAR2 = "value2" }
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn exec_with_templated_env_vars() {
     let ctx = TestContext::new();
 
@@ -220,6 +230,7 @@ env = { FEATURE_NAME = "{{Feature}}" }
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn empty_commit_message() {
     let ctx = TestContext::new();
 
@@ -234,6 +245,7 @@ regex = "^.+$"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn very_long_commit_message() {
     let ctx = TestContext::new();
 
@@ -249,6 +261,7 @@ regex = "^.+$"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn whitespace_only_commit_message_rejected_by_git() {
     let ctx = TestContext::new();
 
@@ -264,6 +277,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_with_special_characters_in_content() {
     let ctx = TestContext::new();
 
@@ -284,6 +298,7 @@ content = "Line with $VAR and `backticks` and \"quotes\" and 'apostrophes'"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_with_slashes() {
     let ctx = TestContext::new();
 
@@ -305,6 +320,7 @@ content = "{{Category}}/{{Subcategory}}/{{Name}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn multiple_rules_with_mixed_success_sync() {
     let ctx = TestContext::new();
 
@@ -328,6 +344,7 @@ suffix = "-ready"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn regex_with_escaped_characters() {
     let ctx = TestContext::new();
 

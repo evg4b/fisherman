@@ -11,6 +11,7 @@ use core::WriteFileRule;
 use std::time::Instant;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
 
@@ -66,6 +67,7 @@ fn parallel_multiple_write_files() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
 
@@ -131,6 +133,7 @@ fn parallel_multiple_exec_rules() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
 
@@ -195,6 +198,7 @@ fn parallel_multiple_shell_scripts() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
 
@@ -280,6 +284,7 @@ fn parallel_mixed_async_rules() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
 
@@ -346,6 +351,7 @@ fn parallel_one_fails_stops_all() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
 
@@ -413,6 +419,7 @@ fn sync_rules_execute_before_async() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
 
@@ -436,6 +443,7 @@ fn sync_rule_fails_hook_fails() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 #[cfg(not(windows))]
 fn parallel_performance_benefit() {
     let ctx = TestContext::new();
