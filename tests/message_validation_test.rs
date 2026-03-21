@@ -4,7 +4,9 @@ use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::rules::commit_message_prefix::CommitMessagePrefixRule;
+use core::rules::commit_message_regex::CommitMessageRegexRule;
+use core::rules::commit_message_suffix::CommitMessageSuffixRule;
 
 #[test]
 fn message_regex_valid_pattern() {
@@ -12,8 +14,9 @@ fn message_regex_valid_pattern() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessageRegex {
-                regex: String::from("^(feat|fix|docs|test):\\s.+"),
+            rule!(CommitMessageRegexRule {
+                when: None,
+                expression: "^(feat|fix|docs|test):\\s.+".into(),
             })
         ]
     );
@@ -28,8 +31,9 @@ fn message_regex_invalid_pattern() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessageRegex {
-                regex: String::from("^(feat|fix|docs|test):\\s.+"),
+            rule!(CommitMessageRegexRule {
+                when: None,
+                expression: "^(feat|fix|docs|test):\\s.+".into(),
             })
         ]
     );
@@ -49,8 +53,9 @@ fn message_prefix_valid() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessagePrefix {
-                prefix: String::from("feat: "),
+            rule!(CommitMessagePrefixRule {
+                when: None,
+                prefix: "feat: ".into(),
             })
         ]
     );
@@ -65,8 +70,9 @@ fn message_prefix_invalid() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessagePrefix {
-                prefix: String::from("feat: "),
+            rule!(CommitMessagePrefixRule {
+                when: None,
+                prefix: "feat: ".into(),
             })
         ]
     );
@@ -87,8 +93,9 @@ fn message_suffix_valid() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessageSuffix {
-                suffix: String::from(" [skip ci]"),
+            rule!(CommitMessageSuffixRule {
+                when: None,
+                suffix: " [skip ci]".into(),
             })
         ]
     );
@@ -103,8 +110,9 @@ fn message_suffix_invalid() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessageSuffix {
-                suffix: String::from(" [skip ci]"),
+            rule!(CommitMessageSuffixRule {
+                when: None,
+                suffix: " [skip ci]".into(),
             })
         ]
     );
@@ -125,14 +133,17 @@ fn message_multiple_rules_all_pass() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessagePrefix {
-                prefix: String::from("feat: "),
+            rule!(CommitMessagePrefixRule {
+                when: None,
+                prefix: "feat: ".into(),
             }),
-            rule!(RuleParams::CommitMessageSuffix {
-                suffix: String::from(" [done]"),
+            rule!(CommitMessageSuffixRule {
+                when: None,
+                suffix: " [done]".into(),
             }),
-            rule!(RuleParams::CommitMessageRegex {
-                regex: String::from(".*feature.*"),
+            rule!(CommitMessageRegexRule {
+                when: None,
+                expression: ".*feature.*".into(),
             })
         ]
     );
@@ -147,11 +158,13 @@ fn message_multiple_rules_one_fails() {
 
     let config = config!(
         GitHook::CommitMsg => [
-            rule!(RuleParams::CommitMessagePrefix {
-                prefix: String::from("feat: "),
+            rule!(CommitMessagePrefixRule {
+                when: None,
+                prefix: "feat: ".into(),
             }),
-            rule!(RuleParams::CommitMessageSuffix {
-                suffix: String::from(" [done]"),
+            rule!(CommitMessageSuffixRule {
+                when: None,
+                suffix: " [done]".into(),
             })
         ]
     );
