@@ -1,7 +1,23 @@
+use serde::Deserialize;
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::rule::Rule;
 use crate::templates::TemplateString;
+
+
+#[derive(Debug, Deserialize, serde::Serialize)]
+struct BranchNamePrefixRule {
+    pub prefix: TemplateString,
+}
+
+#[typetag::serde(name = "branch-name-prefix")]
+impl Rule for BranchNamePrefixRule {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
+
 
 pub struct BranchNamePrefix {
     name: String,

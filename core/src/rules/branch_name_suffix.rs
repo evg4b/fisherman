@@ -1,7 +1,21 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::rule::Rule;
 use crate::templates::TemplateString;
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct BranchNameSuffixRule {
+    pub suffix: TemplateString,
+}
+
+#[typetag::serde(name = "branch-name-suffix")]
+impl Rule for BranchNameSuffixRule {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
+
 
 pub struct BranchNameSuffix {
     name: String,

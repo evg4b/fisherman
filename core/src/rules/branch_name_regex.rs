@@ -3,6 +3,21 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{CompiledRule, RuleResult};
 use crate::templates::TemplateString;
 use regex::Regex;
+use serde::Deserialize;
+use crate::rules::rule::Rule;
+
+#[derive(Debug, Deserialize, serde::Serialize)]
+pub struct BranchNameRegexRule {
+    expression: TemplateString,
+}
+
+#[typetag::serde(name = "branch-name-regex")]
+impl Rule for BranchNameRegexRule {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
+        todo!()
+    }
+}
+
 
 pub struct BranchNameRegex {
     name: String,
