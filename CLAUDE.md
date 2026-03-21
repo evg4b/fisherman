@@ -4,157 +4,144 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fisherman is a Git hook management tool written in Rust that allows developers to configure and manage Git hooks through declarative configuration files (.fisherman.toml/.yaml/.json). It supports hierarchical configuration (global, repository, and local scopes), template variables extracted from Git context, conditional rule execution, and parallel execution of asynchronous rules.
+Fisherman is a Git hook management tool written in Rust. Developers declare rules in `.fisherman.toml`/`.yaml`/`.json` and fisherman installs them as Git hooks. It supports hierarchical configuration (global → repository → local), template variables from Git context, conditional rule execution via Rhai scripting, and parallel execution of async rules.
 
 ## Development Commands
 
-### Building and Testing
 ```bash
-# Default: lint, test, and build
+# Default: lint, test, build
 make
 
-# Run tests
-cargo test
-make test
+# Run all tests (all workspace crates)
+cargo test --workspace
 
-# Run a single test (by name pattern)
-cargo test test_name
+# Run a single test by name pattern
+cargo test --workspace test_name
 
-# Run tests with coverage report
-cargo llvm-cov --open
+# Coverage report (opens in browser)
+cargo llvm-cov --open --workspace
 make coverage
 
-# Lint with Clippy (auto-fix)
+# Lint (strict — matches CI)
+cargo clippy --all-targets --all-features -- -D warnings
+
+# Lint with auto-fix
 cargo clippy --all-targets --all-features --fix --allow-dirty
 make lint
 
 # Build release binary
 cargo build --release
 make build
-
-# Install from local source
-cargo install --path .
-make install
 ```
 
-### Running the CLI
-```bash
-# Install hooks in current repository
-fisherman install [--force]
+## Workspace Structure
 
-# Handle a specific hook (called by Git hooks)
-fisherman handle <hook-name>
+Three crates:
 
-# Explain configured rules for a hook
-fisherman explain <hook-name>
-```
+| Crate | Path | Role |
+|---|---|---|
+| `fisherman` | `src/` | Binary — CLI parsing, commands, UI |
+| `core` | `core/src/` | Library — all business logic |
+| `rules_derive` | `rules_derive/src/` | Proc-macro — `#[derive(ConditionalRule)]` |
+
+Integration tests live in `tests/` under the `fisherman` crate and use a real Git binary via helpers in `tests/common/`.
 
 ## Architecture
 
-### Core Components
+### Rules System (`core/src/rules/`)
 
-**Context System** (`src/context/`)
-- `Context` trait provides abstraction for Git repository operations and configuration access
-- `GitRepoContext` implements the context using git2 library
-- Provides access to: repository path, hooks directory, configuration, binary location, and extracted variables
-- Uses `MockContext` for testing (mockall)
+The central concept. Rules are deserialized from config via `typetag::serde` (tag = `"type"` field), so adding a new rule type requires registering it with `#[typetag::serde(name = "…")]`.
 
-**Configuration Loading** (`src/configuration/`)
-- Hierarchical loading: global (~/.fisherman.toml) → repository (.fisherman.toml) → local (.git/.fisherman.toml)
-- Supports TOML, YAML, and JSON formats using figment
-- Configurations are merged by concatenating rules per hook (not overriding)
-- Structure: top-level `extract` array + `hooks.<hook-name>` arrays containing rule definitions
+```
+rule.rs          — Rule trait, RuleResult enum, ConditionalRule trait
+mod.rs           — Private sub-modules, all types re-exported at crate::rules level
+exec_rule.rs     — type = "exec"
+shell_script.rs  — type = "shell"
+write_file.rs    — type = "write-file"
+copy_files.rs    — type = "copy-files"
+delete_files.rs  — type = "delete-files"
+suppress_files.rs  — type = "suppress-files"
+suppress_string.rs — type = "suppress-string"
+branch_name_{prefix,suffix,regex}.rs  — branch validation
+commit_message_{prefix,suffix,regex}.rs — message validation
+```
 
-**Rules System** (`src/rules/`)
-- Rules are defined in config and compiled into `CompiledRule` trait objects at runtime
-- `Rule::compile()` processes:
-  1. Variable extraction from Git context (branch name, repo path)
-  2. Conditional evaluation (`when` expression using Rhai scripting)
-  3. Template rendering for rule parameters (using simple {{var}} syntax)
-- Two execution modes:
-  - **Synchronous**: Validation rules (message-regex, branch-name-regex, etc.) run sequentially
-  - **Asynchronous**: External execution rules (exec, shell, write-file) run in parallel using rayon
-- Available rule types:
-  - Commit message: `message-regex`, `message-prefix`, `message-suffix`
-  - Branch name: `branch-name-regex`, `branch-name-prefix`, `branch-name-suffix`
-  - Execution: `exec` (run commands), `shell` (run shell scripts)
-  - File operations: `write-file`
+**Rule trait** (must be `typetag::serde` registered):
+```rust
+#[typetag::serde(tag = "type")]
+pub trait Rule: Send + Sync + Display {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
+}
+```
 
-**Templates & Variables** (`src/templates/`)
-- Simple template engine supporting `{{variable}}` syntax
-- Variables extracted from Git context using regex with named capture groups
-- Extraction patterns: `branch:regex`, `branch?:regex` (optional), `repo_path:regex`, `repo_path?:regex`
-- Variables are resolved during rule compilation and injected into rule parameters
+**RuleResult** has three variants: `Success`, `Failure`, `Skipped`.
 
-**Scripting** (`src/scripting/`)
-- Conditional execution using Rhai scripting language
-- `Expression` wrapper evaluates `when` conditions with variable context
-- Built-in functions: `is_def_var("name")` checks if variable is defined
+**ConditionalRule** trait + `#[derive(ConditionalRule)]` proc-macro: generates `check_condition()` from the `when: Option<Expression>` field. Every rule struct that has a `when` field should derive it.
 
-**Hooks** (`src/hooks/`)
-- `GitHook` enum represents all Git hook types (pre-commit, commit-msg, pre-push, etc.)
-- Hook installation: creates shell script in `.git/hooks/` that calls `fisherman handle <hook>`
-- For commit-msg hook, passes arguments ($@) to fisherman
-- Supports --force flag to backup and overwrite existing hooks
+**Execution split in `handle` command:**
+- Sync rules (validation): run sequentially, first failure aborts
+- Async rules (exec, shell, write-file, copy-files, delete-files): run in parallel via rayon
 
-**Commands** (`src/commands/`)
-- Three CLI commands:
-  - `install`: Install hooks into repository
-  - `handle`: Execute configured rules for a hook (called by installed Git hooks)
-  - `explain`: Display configured rules and their order for debugging
+### Context System (`core/src/context/`)
 
-### Data Flow
+`Context` trait is the single seam between rules and the Git environment. `GitRepoContext` is the real implementation; `MockContext` (generated by mockall) is used in all unit tests.
 
-1. **Installation**: `fisherman install` → loads config → creates hook scripts in `.git/hooks/`
-2. **Hook Execution**: Git triggers hook → hook script calls `fisherman handle <hook>` → loads config → extracts variables → compiles rules (evaluates `when`, renders templates) → executes synchronous rules sequentially → executes asynchronous rules in parallel → reports results
-3. **Variable Extraction**: Git context (branch/repo path) → regex matching → named groups → variable map → available to templates and conditions
+Key methods: `current_branch()`, `commit_msg()`, `staged_files()`, `staged_diff()`, `variables(extract)`, `configuration()`.
 
-### Key Design Patterns
+### Configuration (`core/src/configuration/`)
 
-- **Trait-based abstraction**: `Context` trait enables testing and modularity
-- **Visitor pattern**: `CompiledRule` trait allows polymorphic rule execution
-- **Builder/Factory pattern**: Rule compilation transforms configuration into executable rule objects
-- **Strategy pattern**: Different rule types implement the same `CompiledRule` interface
+Loaded with figment. Merge order: `~/.fisherman.toml` → `.fisherman.toml` → `.git/.fisherman.toml`. Scopes are **concatenated** (not overridden), so each scope appends rules to the hook's list. Supports TOML, YAML (`.yaml`/`.yml`), JSON.
 
-## Important Implementation Details
+```toml
+extract = ["branch:^(?P<Type>feat|fix)/(?P<Ticket>[A-Z]+-\\d+)"]
 
-### Parallel Execution
-- Async rules (exec, shell, write-file) execute concurrently using rayon's parallel iterators
-- Designed to reduce total execution time when multiple commands/scripts are configured
-- Ensure async rules are independent and don't conflict (e.g., writing to the same file)
+[[hooks.commit-msg]]
+type = "message-prefix"
+prefix = "{{Ticket}}: "
+when = 'is_def_var("Ticket")'
+```
 
-### Template Rendering
-- Uses `t!()` macro (defined in templates module) for template rendering
-- Templates are rendered during rule compilation, not execution
-- Failed template rendering causes rule compilation to fail
+### Templates (`core/src/templates/`)
 
-### Error Handling
-- Uses anyhow for flexible error propagation
-- Custom error types in `src/hooks/errors.rs` for specific failure cases
-- Rule execution failures stop hook execution and abort the Git operation
+`{{VarName}}` placeholders. Rendered at rule **check time** (not config load time). Use the `t!()` macro to construct a `TemplateString`. `replace_in_vec()` and `replace_in_hashmap()` apply templates to collections. Missing variables are a hard error unless the variable is optional.
 
-### Testing Strategy
-- Unit tests use MockContext to isolate components
-- Integration tests use tempdir for filesystem operations
-- rstest for parameterized testing (e.g., testing all hook types)
-- mockall for mocking the Context trait
+### Scripting (`core/src/scripting/`)
 
-## Common Patterns
+`Expression` wraps a Rhai script string. Evaluated with the variable map as scope. Built-in helpers: `is_def_var("Name")`, `parse_int(s)`.
 
-### Adding a New Rule Type
-1. Create rule implementation in `src/rules/<rule_name>.rs` implementing `CompiledRule`
-2. Add enum variant to `RuleParams` in `src/rules/rule_def.rs` with serde rename
-3. Add compilation case in `Rule::compile()` match statement
-4. Add display case in `RuleParams::name()` for debugging
-5. Write tests in the rule module and in `rule_def.rs`
+### Variable Extraction (`core/src/context/variables.rs`)
 
-### Configuration Merging
-- Configurations from different scopes are concatenated, not merged/overridden
-- Each scope adds its rules to the end of the hook's rule list
-- Execution order: global rules → repository rules → local rules
+Pattern format: `source:regex` where source is `branch`, `branch?`, `repo_path`, or `repo_path?` (`?` = optional, won't error on no match). Named capture groups become template variables.
 
-### Variable Extraction
-- Global `extract` in config applies to all rules unless overridden
-- Per-rule `extract` overrides global extraction for that specific rule
-- Use `branch?:` or `repo_path?:` for optional matching (won't fail if regex doesn't match)
-- Use `is_def_var("VarName")` in `when` conditions before using variables in templates
+The `extract_vars!(self, ctx)` macro in rules resolves per-rule `extract` (falling back to the global `extract` from config).
+
+### Hooks (`core/src/hooks/`)
+
+`GitHook` is an enum of all 27 Git hook names. Installation writes a shell script to `.git/hooks/<name>` that calls `fisherman handle <name>` (with `$@` forwarded for `commit-msg`). `--force` backs up any existing hook before overwriting.
+
+### Commands (`src/commands/`)
+
+All implement `CliCommand::exec(&self, ctx: &mut impl Context) -> Result<()>`.
+
+- `install` — installs hook scripts, respects `--force`
+- `handle` — runs rules for a hook; exits 1 on any failure
+- `explain` — prints rules for a hook using their `Display` impl
+
+### UI (`src/ui/`)
+
+ASCII logo, hook display formatting, and version/about rendering used by `explain` and error output.
+
+## Adding a New Rule Type
+
+1. Create `core/src/rules/<rule_name>.rs` with a struct that derives `serde::Serialize/Deserialize` and (if it has a `when` field) `ConditionalRuleDerive`.
+2. Implement `Display` for the rule (used by `explain`).
+3. Implement `Rule` with `#[typetag::serde(name = "your-type-name")]`.
+4. Decide sync vs async: add it to the appropriate `Vec` in `src/commands/handle.rs`.
+5. Add `pub use` for the new type in `core/src/rules/mod.rs`.
+6. Write unit tests in the rule module using `MockContext`.
+
+## Testing Patterns
+
+- Unit tests: `MockContext` + `rstest` for parameterised cases, in-module `#[cfg(test)]`
+- Integration tests: `tests/` directory, `GitTestRepo` helper creates a real temp repo
+- Doc-tests are **disabled** for the `core` crate (`[lib] doctest = false`) because the crate name `core` shadows the stdlib `core` crate in rustdoc's `--extern` flags
