@@ -1,7 +1,7 @@
 mod errors;
 mod hashmap;
 mod template;
-mod template_macro;
+pub mod template_macro;
 mod vec;
 
 pub use crate::templates::errors::TemplateError;

@@ -8,7 +8,6 @@ use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use figment::providers::Serialized;
 
 pub struct GitRepoContext {
     repo: Mutex<Repository>,

@@ -2,18 +2,28 @@ use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::rule::{Rule, RuleResult};
 use crate::templates::TemplateString;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use crate::scripting::Expression;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
-#[derive(Debug, Deserialize, serde::Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct BranchNamePrefixRule {
+    pub when: Option<Expression>,
     pub prefix: TemplateString,
 }
 
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+        if let Some(ref when) = self.when {
+            if !when.check(&ctx.variables(&[])?)? {
+                return Ok(RuleResult::Skipped {
+                    name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
+                });
+            }
+        }
+
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -41,6 +51,7 @@ mod tests {
     #[test]
     fn test_branch_name_prefix_success() -> anyhow::Result<()> {
         let rule = BranchNamePrefixRule {
+            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
@@ -61,6 +72,7 @@ mod tests {
     #[test]
     fn test_branch_name_prefix_failure() -> anyhow::Result<()> {
         let rule = BranchNamePrefixRule {
+            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
@@ -82,6 +94,7 @@ mod tests {
     #[test]
     fn test_branch_name_prefix_variables_error() -> anyhow::Result<()> {
         let rule = BranchNamePrefixRule {
+            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
@@ -99,6 +112,7 @@ mod tests {
     #[test]
     fn test_branch_name_prefix_branch_error() -> anyhow::Result<()> {
         let rule = BranchNamePrefixRule {
+            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();

@@ -30,40 +30,6 @@ impl Rule for CommitMessageSuffixRule {
     }
 }
 
-#[derive(Debug)]
-pub struct CommitMessageSuffix {
-    name: String,
-    suffix: TemplateString,
-}
-
-impl CommitMessageSuffix {
-    pub fn new(name: String, suffix: TemplateString) -> Self {
-        Self { name, suffix }
-    }
-}
-
-impl CompiledRule for CommitMessageSuffix {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
-        let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
-        let commit_msg = ctx.commit_msg()?;
-
-        match commit_msg.ends_with(&suffix) {
-            true => Ok(RuleResultOld::Success {
-                name: self.name.clone(),
-                output: None,
-            }),
-            false => Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
-                message: format!("Commit message must end with: {}", suffix),
-            }),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -37,7 +37,9 @@ mod tests {
     use super::*;
     use core::configuration::Configuration;
     use core::context::MockContext;
-    use core::rules::{RuleOLD, RuleParams};
+    use core::rules::commit_message_regex::CommitMessageRegexRule;
+    use core::rules::rule::Rule;
+    use core::t;
     use std::collections::HashMap;
 
     #[test]
@@ -67,16 +69,14 @@ mod tests {
             hook: GitHook::PreCommit,
         };
 
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessageRegex {
-                regex: "^feat".to_string(),
-            },
+        let rule = CommitMessageRegexRule {
+            expression: t!("^feat"),
         };
 
         let config = Configuration {
-            hooks: HashMap::from([(GitHook::PreCommit, vec![rule])]),
+            hooks: HashMap::from([(GitHook::PreCommit, vec![
+                Box::new(rule) as Box<dyn Rule>,
+            ])]),
             extract: vec![],
             files: vec![],
         };

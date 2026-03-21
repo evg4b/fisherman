@@ -11,7 +11,9 @@ pub enum RuleResult {
         name: String,
         message: String,
     },
-    Skipped,
+    Skipped {
+        name: String,
+    },
 }
 
 #[typetag::serde(tag = "type")]

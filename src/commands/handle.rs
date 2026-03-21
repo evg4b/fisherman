@@ -5,8 +5,6 @@ use clap::Parser;
 use core::context::Context;
 use core::hooks::GitHook;
 use core::rules::rule::RuleResult;
-use core::rules::CompiledRule;
-use rayon::prelude::*;
 use std::path::PathBuf;
 use std::process::exit;
 

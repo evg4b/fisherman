@@ -1,7 +1,7 @@
 use crate::templates::TemplateError;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::LazyLock;
-use serde::{Deserialize, Serialize};
 
 static TEMPLATE_PATTERN: LazyLock<regex::Regex> =
     LazyLock::new(|| regex::Regex::new(r"\{\{(.*?)}}").unwrap());
@@ -49,8 +49,8 @@ impl TemplateString {
 mod tests {
     use super::*;
     use crate::t;
-    use std::collections::HashMap;
     use serde_json::to_string;
+    use std::collections::HashMap;
 
     static JSON_STRING: &str = "\"test\"";
     static STRING_VALUE: &str = "test";

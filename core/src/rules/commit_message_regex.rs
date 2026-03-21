@@ -32,39 +32,6 @@ impl Rule for CommitMessageRegexRule {
     }
 }
 
-#[derive(Debug)]
-pub struct CommitMessageRegex {
-    name: String,
-    expression: TemplateString,
-}
-
-impl CommitMessageRegex {
-    pub fn new(name: String, expression: TemplateString) -> Self {
-        Self { name, expression }
-    }
-}
-
-impl CompiledRule for CommitMessageRegex {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResultOld> {
-        let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
-        let commit_msg = ctx.commit_msg()?;
-
-        match expression.is_match(&commit_msg) {
-            true => Ok(RuleResultOld::Success {
-                name: self.name.clone(),
-                output: None,
-            }),
-            false => Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
-                message: format!("Commit message must match pattern: {}", expression),
-            }),
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -95,8 +62,8 @@ mod tests {
             RuleResult::Failure { name, message } => {
                 panic!("Expected success, got failure: {} - {}", name, message);
             }
-            RuleResult::Skipped => {
-                panic!("Expected success, got skipped");
+            RuleResult::Skipped { name } => {
+                panic!("Expected success, got skipped: {}", name);
             }
         }
     }
@@ -122,8 +89,8 @@ mod tests {
                 assert_eq!(name, "message-regex");
                 assert_eq!(message, "Commit message must match pattern: ^Test");
             }
-            RuleResult::Skipped => {
-                panic!("Expected failure, got skipped");
+            RuleResult::Skipped { name } => {
+                panic!("Expected failure, got skipped: {}", name);
             }
         }
     }

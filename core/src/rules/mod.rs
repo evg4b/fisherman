@@ -18,4 +18,4 @@ pub mod write_file;
 
 pub use crate::rules::compiled_rule::{CompiledRule, RuleResultOld};
 #[allow(unused_imports)]
-pub use crate::rules::rule_def::{RuleOLD, RuleParams};
+pub use crate::rules::rule_def::RuleOLD;
