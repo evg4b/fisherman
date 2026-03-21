@@ -16,6 +16,12 @@ pub struct DeleteFilesRule {
     pub fail_if_not_found: bool,
 }
 
+impl std::fmt::Display for DeleteFilesRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Delete files matching '{}'", self.glob)
+    }
+}
+
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -184,5 +190,11 @@ mod tests {
 
         let result = rule.check(&context);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = DeleteFilesRule { when: None, glob: "*.log".into(), fail_if_not_found: false };
+        assert_eq!(format!("{}", rule), "Delete files matching '`*.log`'");
     }
 }

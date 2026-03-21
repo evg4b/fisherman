@@ -12,6 +12,12 @@ pub struct TemplateString {
     template: String,
 }
 
+impl std::fmt::Display for TemplateString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "`{}`", self.template)
+    }
+}
+
 impl From<&str> for TemplateString {
     fn from(template: &str) -> Self {
         Self {

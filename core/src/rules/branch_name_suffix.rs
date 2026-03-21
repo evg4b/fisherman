@@ -11,6 +11,12 @@ pub struct BranchNameSuffixRule {
     pub suffix: TemplateString,
 }
 
+impl std::fmt::Display for BranchNameSuffixRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Branch name must end with: {}", self.suffix)
+    }
+}
+
 static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
 
 #[typetag::serde(name = "branch-name-suffix")]
@@ -113,5 +119,11 @@ mod tests {
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = BranchNameSuffixRule { when: None, suffix: "-patch".into() };
+        assert_eq!(format!("{}", rule), "Branch name must end with: `-patch`");
     }
 }

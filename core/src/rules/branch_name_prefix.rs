@@ -7,6 +7,7 @@ use crate::templates::TemplateString;
 use anyhow::Result;
 use rules_derive::ConditionalRule;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
@@ -14,6 +15,12 @@ static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 pub struct BranchNamePrefixRule {
     pub when: Option<Expression>,
     pub prefix: TemplateString,
+}
+
+impl Display for BranchNamePrefixRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Branch should start with: {}", self.prefix)
+    }
 }
 
 #[typetag::serde(name = "branch-name-prefix")]
@@ -126,5 +133,11 @@ mod tests {
         assert!(result.is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = BranchNamePrefixRule { when: None, prefix: "feat/".into() };
+        assert_eq!(format!("{}", rule), "Branch should start with: `feat/`");
     }
 }

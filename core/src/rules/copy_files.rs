@@ -19,6 +19,15 @@ pub struct CopyFilesRule {
     pub destination: TemplateString,
 }
 
+impl std::fmt::Display for CopyFilesRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.src {
+            None => write!(f, "Copy files matching '{}' to '{}'", self.glob, self.destination),
+            Some(ref src) => write!(f, "Copy files matching '{}' from '{}' to '{}'", self.glob, src, self.destination),
+        }
+    }
+}
+
 fn ensure_parent_exists(path: &Path) -> Result<()> {
     if let Some(parent) = path.parent()
         && !parent.exists()
@@ -292,5 +301,27 @@ mod tests {
 
         let result = rule.check(&context);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display_without_src() {
+        let rule = CopyFilesRule {
+            when: None,
+            glob: "*.txt".into(),
+            src: None,
+            destination: "dist/".into(),
+        };
+        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' to '`dist/`'");
+    }
+
+    #[test]
+    fn test_display_with_src() {
+        let rule = CopyFilesRule {
+            when: None,
+            glob: "*.txt".into(),
+            src: Some("src/".into()),
+            destination: "dist/".into(),
+        };
+        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' from '`src/`' to '`dist/`'");
     }
 }

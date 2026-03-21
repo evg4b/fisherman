@@ -21,6 +21,18 @@ pub struct ExecRule {
     pub env: Option<Env>,
 }
 
+impl std::fmt::Display for ExecRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let args = self.args.clone().unwrap_or_default();
+        let mut command = self.command.clone();
+        if !args.is_empty() {
+            command.push_str(" ");
+            command.push_str(&args.join(" "));
+        }
+        write!(f, "Execute command: {}", command)
+    }
+}
+
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -209,5 +221,29 @@ mod tests {
 
         let result = rule.check(&mock_ctx());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display_with_args() {
+        let rule = ExecRule {
+            command: "echo".into(),
+            args: Some(vec!["hello".into(), "world".into()]),
+            env: None,
+            when: None,
+            extract: None,
+        };
+        assert_eq!(format!("{}", rule), "Execute command: echo hello world");
+    }
+
+    #[test]
+    fn test_display_without_args() {
+        let rule = ExecRule {
+            command: "ls".into(),
+            args: None,
+            env: None,
+            when: None,
+            extract: None,
+        };
+        assert_eq!(format!("{}", rule), "Execute command: ls");
     }
 }

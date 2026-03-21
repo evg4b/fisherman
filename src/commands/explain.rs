@@ -21,13 +21,7 @@ impl CliCommand for ExplainCommand {
         match config.hooks.get(&self.hook) {
             Some(rules) => {
                 for rule in rules {
-                    let json = serde_json::to_value(rule.as_ref())
-                        .unwrap_or(serde_json::Value::Null);
-                    let type_name = json.get("type")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("unknown")
-                        .replace('-', " ");
-                    println!("{}: {}", type_name, json);
+                    println!("{}", rule);
                 }
             }
             None => println!("No rules found for hook {}", self.hook),

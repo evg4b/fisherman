@@ -15,6 +15,12 @@ pub struct CommitMessageRegexRule {
     pub expression: TemplateString,
 }
 
+impl std::fmt::Display for CommitMessageRegexRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Commit message must match pattern: {}", self.expression)
+    }
+}
+
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
@@ -153,5 +159,11 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = CommitMessageRegexRule { when: None, expression: "^feat:".into() };
+        assert_eq!(format!("{}", rule), "Commit message must match pattern: `^feat:`");
     }
 }

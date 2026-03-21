@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use crate::context::Context;
 use anyhow::Result;
 
@@ -17,7 +18,7 @@ pub enum RuleResult {
 }
 
 #[typetag::serde(tag = "type")]
-pub trait Rule: Send + Sync {
+pub trait Rule: Send + Sync + Display {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 }
 

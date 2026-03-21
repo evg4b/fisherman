@@ -14,6 +14,12 @@ pub struct CommitMessagePrefixRule {
     pub prefix: TemplateString,
 }
 
+impl std::fmt::Display for CommitMessagePrefixRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Commit message must start with: {}", self.prefix)
+    }
+}
+
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -125,5 +131,11 @@ mod tests {
         assert!(result.is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = CommitMessagePrefixRule { when: None, prefix: "feat:".into() };
+        assert_eq!(format!("{}", rule), "Commit message must start with: `feat:`");
     }
 }

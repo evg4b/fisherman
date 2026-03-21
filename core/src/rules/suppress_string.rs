@@ -16,6 +16,12 @@ pub struct SuppressStringRule {
     pub glob: Option<TemplateString>,
 }
 
+impl std::fmt::Display for SuppressStringRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Suppress string matching: {}", self.regex)
+    }
+}
+
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -185,5 +191,16 @@ mod tests {
         let result = rule.check(&context)?;
         assert!(matches!(result, RuleResult::Success { .. }));
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = SuppressStringRule {
+            when: None,
+            extract: None,
+            regex: "TODO".into(),
+            glob: None,
+        };
+        assert_eq!(format!("{}", rule), "Suppress string matching: `TODO`");
     }
 }

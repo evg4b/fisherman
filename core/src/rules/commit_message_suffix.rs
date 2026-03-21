@@ -13,6 +13,12 @@ pub struct CommitMessageSuffixRule {
     pub suffix: TemplateString,
 }
 
+impl std::fmt::Display for CommitMessageSuffixRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Commit message must end with: {}", self.suffix)
+    }
+}
+
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -119,5 +125,11 @@ mod tests {
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = CommitMessageSuffixRule { when: None, suffix: " [skip-ci]".into() };
+        assert_eq!(format!("{}", rule), "Commit message must end with: ` [skip-ci]`");
     }
 }

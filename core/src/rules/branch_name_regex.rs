@@ -18,6 +18,12 @@ pub struct BranchNameRegexRule {
     pub expression: TemplateString,
 }
 
+impl std::fmt::Display for BranchNameRegexRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Branch name must match pattern: {}", self.expression)
+    }
+}
+
 #[typetag::serde(name = "branch-name-regex")]
 impl Rule for BranchNameRegexRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -146,5 +152,11 @@ mod tests {
         assert!(result.is_err());
 
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = BranchNameRegexRule { when: None, expression: "^feat/".into() };
+        assert_eq!(format!("{}", rule), "Branch name must match pattern: `^feat/`");
     }
 }

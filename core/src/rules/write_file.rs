@@ -17,6 +17,12 @@ pub struct WriteFileRule {
     pub append: Option<bool>,
 }
 
+impl std::fmt::Display for WriteFileRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Write file: {}", self.path)
+    }
+}
+
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -265,6 +271,18 @@ mod tests {
 
         let result = rule.check(&mock_ctx());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = WriteFileRule {
+            when: None,
+            extract: None,
+            path: t!("/tmp/output.txt"),
+            content: t!("content"),
+            append: None,
+        };
+        assert_eq!(format!("{}", rule), "Write file: `/tmp/output.txt`");
     }
 
     #[test]

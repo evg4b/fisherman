@@ -17,6 +17,12 @@ pub struct ShellScriptRule {
     pub env: Option<HashMap<String, String>>,
 }
 
+impl std::fmt::Display for ShellScriptRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Run shell script: {}", self.script)
+    }
+}
+
 static SHELL_SCRIPT_NAME: &str = "shell";
 
 #[typetag::serde(name = "shell")]
@@ -170,5 +176,16 @@ mod tests {
 
         let result = script.check(&mock_ctx());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: t!("echo hello"),
+            env: None,
+        };
+        assert_eq!(format!("{}", rule), "Run shell script: `echo hello`");
     }
 }

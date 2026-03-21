@@ -17,6 +17,12 @@ pub struct SuppressFilesRule {
     pub glob: TemplateString,
 }
 
+impl std::fmt::Display for SuppressFilesRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Suppress files matching: {}", self.glob)
+    }
+}
+
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
@@ -119,5 +125,11 @@ mod tests {
             _ => panic!("Expected failure"),
         }
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = SuppressFilesRule { when: None, extract: None, glob: "*.secret".into() };
+        assert_eq!(format!("{}", rule), "Suppress files matching: `*.secret`");
     }
 }
