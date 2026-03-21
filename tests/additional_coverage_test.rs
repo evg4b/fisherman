@@ -3,12 +3,12 @@ mod common;
 use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
 use common::test_context::TestContext;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
 use core::BranchNameRegexRule;
-use core::WriteFileRule;
+use core::Configuration;
 use core::Expression;
+use core::GitHook;
+use core::WriteFileRule;
 
 #[test]
 #[cfg(feature = "integration-tests")]
@@ -119,7 +119,6 @@ fn sync_rule_failure_behavior() {
     let handle_output = ctx.git_commit_allow_empty("test commit");
 
     assert!(!handle_output.status.success());
-
 }
 
 #[test]

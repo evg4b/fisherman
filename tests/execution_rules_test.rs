@@ -5,8 +5,8 @@ use common::{
     configuration::serialize_configuration, test_context::TestContext, FishermanBinary, GitTestRepo,
 };
 use core::Configuration;
-use core::GitHook;
 use core::ExecRule;
+use core::GitHook;
 use core::ShellScriptRule;
 use std::collections::HashMap;
 

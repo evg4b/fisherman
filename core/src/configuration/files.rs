@@ -30,9 +30,9 @@ fn resolve_configs(path: PathBuf) -> Vec<PathBuf> {
         path.join(".fisherman.yml"),
         path.join(".fisherman.json"),
     ]
-    .into_iter()
-    .filter(|config| config.exists())
-    .collect()
+        .into_iter()
+        .filter(|config| config.exists())
+        .collect()
 }
 
 #[cfg(test)]

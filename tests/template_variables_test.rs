@@ -2,17 +2,17 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
 use core::BranchNameRegexRule;
 use core::BranchNameSuffixRule;
 use core::CommitMessagePrefixRule;
 use core::CommitMessageSuffixRule;
+use core::Configuration;
 use core::ExecRule;
+use core::Expression;
+use core::GitHook;
 use core::ShellScriptRule;
 use core::WriteFileRule;
-use core::Expression;
 
 #[test]
 #[cfg(feature = "integration-tests")]

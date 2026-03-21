@@ -135,7 +135,13 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = CommitMessagePrefixRule { when: None, prefix: "feat:".into() };
-        assert_eq!(format!("{}", rule), "Commit message must start with: `feat:`");
+        let rule = CommitMessagePrefixRule {
+            when: None,
+            prefix: "feat:".into(),
+        };
+        assert_eq!(
+            format!("{}", rule),
+            "Commit message must start with: `feat:`"
+        );
     }
 }

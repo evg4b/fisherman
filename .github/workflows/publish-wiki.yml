@@ -1,8 +1,8 @@
 name: Publish wiki
 on:
   push:
-    branches: [master]
-    paths: [docs/**, .github/workflows/publish-wiki.yml]
+    branches: [ master ]
+    paths: [ docs/**, .github/workflows/publish-wiki.yml ]
 concurrency:
   group: wiki
   cancel-in-progress: true

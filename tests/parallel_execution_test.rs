@@ -2,10 +2,10 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
+use core::Configuration;
 use core::ExecRule;
+use core::GitHook;
 use core::ShellScriptRule;
 use core::WriteFileRule;
 use std::time::Instant;
@@ -128,8 +128,7 @@ fn parallel_multiple_exec_rules() {
     ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success(), "All exec rules should succeed: {}",
-        String::from_utf8_lossy(&output.stderr));
-
+            String::from_utf8_lossy(&output.stderr));
 }
 
 #[test]
@@ -193,7 +192,7 @@ fn parallel_multiple_shell_scripts() {
     #[cfg(not(windows))]
     {
         assert!(stdout.contains("script1") || !stdout.is_empty(),
-            "Output should contain script results: {}", stdout);
+                "Output should contain script results: {}", stdout);
     }
 }
 
@@ -279,7 +278,7 @@ fn parallel_mixed_async_rules() {
     #[cfg(not(windows))]
     {
         assert!(stdout.contains("exec") || !stdout.is_empty(),
-            "Output should contain exec command result: {}", stdout);
+                "Output should contain exec command result: {}", stdout);
     }
 }
 
@@ -414,7 +413,7 @@ fn sync_rules_execute_before_async() {
     {
         let stdout = String::from_utf8_lossy(&output.stdout);
         assert!(stdout.contains("async") || !stdout.is_empty(),
-            "Output should contain async rule result: {}", stdout);
+                "Output should contain async rule result: {}", stdout);
     }
 }
 
@@ -490,7 +489,7 @@ fn parallel_performance_benefit() {
     let duration = start.elapsed();
 
     assert!(handle_output.status.success(), "Hook should succeed: {}",
-        String::from_utf8_lossy(&handle_output.stderr));
+            String::from_utf8_lossy(&handle_output.stderr));
 
     assert!(
         duration.as_millis() < 3000,

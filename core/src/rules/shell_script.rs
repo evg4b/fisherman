@@ -59,8 +59,8 @@ impl Rule for ShellScriptRule {
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
-    use crate::rules::{Rule, RuleResult};
     use crate::rules::shell_script::ShellScriptRule;
+    use crate::rules::{Rule, RuleResult};
     use crate::t;
     use std::collections::HashMap;
 
@@ -88,7 +88,10 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "shell");
-        assert_eq!(output.unwrap(), "Test\n");
+        #[cfg(not(windows))]
+        assert_eq!(&output.unwrap(), "Test\n");
+        #[cfg(windows)]
+        assert_eq!(&output.unwrap(), "Test\r\n");
     }
 
     #[test]
@@ -125,7 +128,10 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "shell");
-        assert_eq!(output.unwrap(), "Hello Test\n");
+        #[cfg(not(windows))]
+        assert_eq!(&output.unwrap(), "Hello Test\n");
+        #[cfg(windows)]
+        assert_eq!(&output.unwrap(), "Hello Test\r\n");
     }
 
     #[test]
@@ -145,7 +151,10 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "shell");
-        assert_eq!(output.unwrap(), "Test\n");
+        #[cfg(not(windows))]
+        assert_eq!(&output.unwrap(), "Test\n");
+        #[cfg(windows)]
+        assert_eq!(&output.unwrap(), "Test\r\n");
     }
 
     #[test]
@@ -162,7 +171,10 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "shell");
-        assert_eq!(output.unwrap(), "Test\n");
+        #[cfg(not(windows))]
+        assert_eq!(&output.unwrap(), "Test\n");
+        #[cfg(windows)]
+        assert_eq!(&output.unwrap(), "Test\r\n");
     }
 
     #[test]

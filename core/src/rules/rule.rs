@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use crate::context::Context;
 use anyhow::Result;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum RuleResult {

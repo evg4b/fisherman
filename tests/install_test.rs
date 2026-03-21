@@ -9,9 +9,9 @@ use crate::common::{hooks::Hook, ConfigFormat, FishermanBinary, GitTestRepo};
 fn install_in_empty_dir() {
     let temp_dir = TempDir::new("fisherman_test").expect("Failed to create temp directory");
     let fisherman = FishermanBinary::build();
-    
+
     let output = fisherman.install(temp_dir.path(), false);
-    
+
     assert!(!output.status.success());
     assert!(
         String::from_utf8_lossy(&output.stderr)
@@ -69,5 +69,4 @@ regex = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
                 .contains(hook.as_str()));
         }
     }
-    
 }

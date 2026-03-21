@@ -56,7 +56,7 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    fn test_branch_name_prefix_success() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_success() -> Result<()> {
         let rule = BranchNamePrefixRule {
             when: None,
             prefix: t!("feat/"),
@@ -136,7 +136,10 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = BranchNamePrefixRule { when: None, prefix: "feat/".into() };
+        let rule = BranchNamePrefixRule {
+            when: None,
+            prefix: "feat/".into(),
+        };
         assert_eq!(format!("{}", rule), "Branch should start with: `feat/`");
     }
 }

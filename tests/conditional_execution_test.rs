@@ -3,9 +3,9 @@ mod common;
 use crate::common::ConfigFormat;
 use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
 use core::Configuration;
+use core::Expression;
 use core::GitHook;
 use core::WriteFileRule;
-use core::Expression;
 
 #[test]
 #[cfg(feature = "integration-tests")]

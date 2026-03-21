@@ -68,7 +68,7 @@ impl CliCommand for HandleCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::{Configuration, Context, Rule, RuleResult, MockContext};
+    use core::{Configuration, Context, MockContext, Rule, RuleResult};
     use serde::{Deserialize, Serialize};
     use std::fmt::Display;
 
