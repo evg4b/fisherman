@@ -4,14 +4,18 @@ use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
+use core::rules::branch_name_prefix::BranchNamePrefixRule;
+use core::rules::branch_name_regex::BranchNameRegexRule;
+use core::rules::branch_name_suffix::BranchNameSuffixRule;
 
 #[test]
 fn branch_name_regex_valid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameRegex {
-                regex: String::from("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            rule!(BranchNameRegexRule {
+                when: None,
+                expression: "^(feature|bugfix|hotfix)/[a-z0-9-]+".into(),
             })
         ]
     );
@@ -26,8 +30,9 @@ fn branch_name_regex_invalid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameRegex {
-                regex: String::from("^(feature|bugfix|hotfix)/[a-z0-9-]+"),
+            rule!(BranchNameRegexRule {
+                when: None,
+                expression: "^(feature|bugfix|hotfix)/[a-z0-9-]+".into(),
             })
         ]
     );
@@ -48,8 +53,9 @@ fn branch_name_prefix_valid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             })
         ]
     );
@@ -64,8 +70,9 @@ fn branch_name_prefix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             })
         ]
     );
@@ -86,8 +93,9 @@ fn branch_name_suffix_valid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameSuffix {
-                suffix: String::from("-v1"),
+            rule!(BranchNameSuffixRule {
+                when: None,
+                suffix: "-v1".into(),
             })
         ]
     );
@@ -102,8 +110,9 @@ fn branch_name_suffix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNameSuffix {
-                suffix: String::from("-v1"),
+            rule!(BranchNameSuffixRule {
+                when: None,
+                suffix: "-v1".into(),
             })
         ]
     );
@@ -124,14 +133,17 @@ fn branch_name_multiple_rules_all_pass() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             }),
-            rule!(RuleParams::BranchNameSuffix {
-                suffix: String::from("-dev"),
+            rule!(BranchNameSuffixRule {
+                when: None,
+                suffix: "-dev".into(),
             }),
-            rule!(RuleParams::BranchNameRegex {
-                regex: String::from("^feature/[a-z-]+-dev$"),
+            rule!(BranchNameRegexRule {
+                when: None,
+                expression: "^feature/[a-z-]+-dev$".into(),
             })
         ]
     );
@@ -147,11 +159,13 @@ fn branch_name_multiple_rules_one_fails() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             }),
-            rule!(RuleParams::BranchNameSuffix {
-                suffix: String::from("-dev"),
+            rule!(BranchNameSuffixRule {
+                when: None,
+                suffix: "-dev".into(),
             })
         ]
     );
