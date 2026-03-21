@@ -1,22 +1,31 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
 use std::fs;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct DeleteFilesRule {
-    glob: TemplateString,
-    fail_if_not_found: bool,
+    pub when: Option<Expression>,
+    pub glob: TemplateString,
+    pub fail_if_not_found: bool,
 }
 
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: DELETE_FILES_RULE_NAME.to_string(),
+            });
+        }
+
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
@@ -109,6 +118,7 @@ mod tests {
         File::create(&file_path)?;
 
         let rule = DeleteFilesRule {
+            when: None,
             glob: tmpl!(file_path.display()),
             fail_if_not_found: true,
         };
@@ -131,6 +141,7 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_with_failure() -> Result<()> {
         let rule = DeleteFilesRule {
+            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: true,
         };
@@ -155,6 +166,7 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_without_failure() -> Result<()> {
         let rule = DeleteFilesRule {
+            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: false,
         };
@@ -185,6 +197,7 @@ mod tests {
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
         let rule = DeleteFilesRule {
+            when: None,
             glob: tmpl!(glob_pattern),
             fail_if_not_found: true,
         };
@@ -209,6 +222,7 @@ mod tests {
     #[test]
     fn test_delete_files_glob_error() {
         let rule = DeleteFilesRule {
+            when: None,
             glob: tmpl!("[invalid-glob"),
             fail_if_not_found: true,
         };

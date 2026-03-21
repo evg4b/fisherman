@@ -1,13 +1,16 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::Result;
 use run_script::{run, ScriptOptions};
 use std::collections::HashMap;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct ShellScriptRule {
+    pub when: Option<Expression>,
     pub script: String,
     pub env: Option<HashMap<String, String>>,
 }
@@ -21,13 +24,19 @@ pub struct ShellScript {
 
 impl ShellScriptRule {
     pub fn new(script: String, env: Option<HashMap<String, String>>) -> Self {
-        Self { script, env }
+        Self { when: None, script, env }
     }
 }
 
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
-    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: "shell".into(),
+            });
+        }
+
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
@@ -186,7 +195,7 @@ mod tests {
 
     #[test]
     fn test_shell_script_rule_new() {
-        let rule = ShellScriptRule::new("echo 'Test'".to_string(), None);
+        let rule = ShellScriptRule { when: None, script: "echo 'Test'".to_string(), env: None };
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {

@@ -1,19 +1,28 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::Result;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_PREFIX_RULE_NAME: &str = "message-prefix";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct CommitMessagePrefixRule {
+    pub when: Option<Expression>,
     pub prefix: TemplateString,
 }
 
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: MESSAGE_PREFIX_RULE_NAME.to_string(),
+            });
+        }
+
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -40,7 +49,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_success() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
@@ -59,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_failure() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
@@ -78,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_variables_error() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: message".to_string()));
@@ -93,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_prefix_commit_msg_error() -> anyhow::Result<()> {
-        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
+        let rule = CommitMessagePrefixRule { when: None, prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));

@@ -1,21 +1,30 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::Result;
 use glob::Pattern;
 use serde::{Deserialize, Serialize};
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
 pub struct SuppressFilesRule {
-    glob: TemplateString,
+    pub when: Option<Expression>,
+    pub glob: TemplateString,
 }
 
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: SUPPRESS_FILES_RULE_NAME.to_string(),
+            });
+        }
+
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
         let pattern = Pattern::new(&glob_pattern)?;
@@ -101,6 +110,7 @@ mod tests {
     #[test]
     fn test_suppress_files_success() -> Result<()> {
         let rule = SuppressFilesRule {
+            when: None,
             glob: tmpl!("*.txt"),
         };
         let mut context = MockContext::new();
@@ -125,6 +135,7 @@ mod tests {
     #[test]
     fn test_suppress_files_failure() -> Result<()> {
         let rule = SuppressFilesRule {
+            when: None,
             glob: tmpl!("*.txt"),
         };
         let mut context = MockContext::new();

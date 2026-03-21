@@ -1,14 +1,17 @@
 use crate::context::{Context, DiffLine};
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::Result;
 use glob::Pattern;
 use regex::Regex;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct SuppressStringRule {
+    pub when: Option<Expression>,
     pub regex: String,
     pub glob: Option<String>,
 }
@@ -21,13 +24,19 @@ pub struct SuppressString {
 
 impl SuppressStringRule {
     pub fn new(regex: String, glob: Option<String>) -> Self {
-        Self { regex, glob }
+        Self { when: None, regex, glob }
     }
 }
 
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: "suppress-string".into(),
+            });
+        }
+
         let _variables = ctx.variables(&[])?;
         let regex = Regex::new(&self.regex)?;
 
@@ -207,7 +216,7 @@ mod tests {
 
     #[test]
     fn test_suppress_string_rule_success() -> Result<()> {
-        let rule = SuppressStringRule::new("TODO".to_string(), None);
+        let rule = SuppressStringRule { when: None, regex: "TODO".to_string(), glob: None };
         let mut context = MockContext::new();
         context
             .expect_variables()

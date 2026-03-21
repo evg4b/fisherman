@@ -1,11 +1,13 @@
 use crate::context::Context;
 use crate::rules::compiled_rule::{CompiledRule, RuleResultOld};
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
+use crate::scripting::Expression;
 use anyhow::Result;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
@@ -37,8 +39,9 @@ impl ExecRuleOld {
     }
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct ExecRule {
+    pub when: Option<Expression>,
     pub command: String,
     pub args: Args,
     pub env: Env,
@@ -46,13 +49,19 @@ pub struct ExecRule {
 
 impl ExecRule {
     pub fn new(command: String, args: Args, env: Env) -> Self {
-        Self { command, args, env }
+        Self { when: None, command, args, env }
     }
 }
 
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
-    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: "exec".into(),
+            });
+        }
+
         let variables = HashMap::new();
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env, &variables)?);
@@ -129,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_exec_rule_new() {
-        let rule = ExecRule::new("echo".into(), vec!["hello".into()], HashMap::new());
+        let rule = ExecRule { when: None, command: "echo".into(), args: vec!["hello".into()], env: HashMap::new() };
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {

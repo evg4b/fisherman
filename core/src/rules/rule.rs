@@ -17,6 +17,10 @@ pub enum RuleResult {
 }
 
 #[typetag::serde(tag = "type")]
-pub trait Rule {
+pub trait Rule: Send + Sync {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
+}
+
+pub trait ConditionalRule: Rule + Send + Sync {
+    fn check_condition(&self, ctx: &dyn Context) -> Result<bool>;
 }

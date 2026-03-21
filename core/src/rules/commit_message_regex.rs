@@ -1,14 +1,17 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use regex::Regex;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_REGEX_RULE_NAME: &str = "message-regex";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct CommitMessageRegexRule {
+    pub when: Option<Expression>,
     #[serde(alias = "regex")]
     pub expression: TemplateString,
 }
@@ -16,6 +19,12 @@ pub struct CommitMessageRegexRule {
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: MESSAGE_REGEX_RULE_NAME.to_string(),
+            });
+        }
+
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -44,6 +53,7 @@ mod tests {
     #[test]
     fn test_commit_message_regex() {
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^Test"),
         };
         let mut context = MockContext::new();
@@ -71,6 +81,7 @@ mod tests {
     #[test]
     fn test_commit_message_regex_failure() {
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^Test"),
         };
         let mut context = MockContext::new();
@@ -98,6 +109,7 @@ mod tests {
     #[test]
     fn test_commit_message_regex_error() {
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^Test"),
         };
         let mut context = MockContext::new();
@@ -114,6 +126,7 @@ mod tests {
     #[test]
     fn test_commit_message_regex_variables_error() {
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^Test"),
         };
         let mut context = MockContext::new();
@@ -130,6 +143,7 @@ mod tests {
     #[test]
     fn test_commit_message_regex_invalid_regex() {
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^Test["),
         };
         let mut context = MockContext::new();

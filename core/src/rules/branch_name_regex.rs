@@ -3,19 +3,30 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::rule::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use crate::scripting::Expression;
+use rules_derive::ConditionalRule;
+use crate::rules::rule::ConditionalRule;
+use anyhow::Result;
 
 static BRANCH_NAME_REGEX_RULE_NAME: &str = "branch-name-regex";
 
-#[derive(Debug, Deserialize, serde::Serialize)]
+#[derive(Debug, Deserialize, Serialize, ConditionalRule)]
 pub struct BranchNameRegexRule {
+    pub when: Option<Expression>,
     #[serde(alias = "regex")]
     pub expression: TemplateString,
 }
 
 #[typetag::serde(name = "branch-name-regex")]
 impl Rule for BranchNameRegexRule {
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: BRANCH_NAME_REGEX_RULE_NAME.to_string(),
+            });
+        }
+
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let branch_name = ctx.current_branch()?;
 
@@ -43,6 +54,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_success() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
+            when: None,
             expression: t!(r"^feat/.*-feature$"),
         };
         let mut ctx = MockContext::new();
@@ -63,6 +75,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_failure() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
+            when: None,
             expression: t!(r"^feat/.*-bugfix$"),
         };
         let mut ctx = MockContext::new();
@@ -84,6 +97,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_variables_error() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
+            when: None,
             expression: t!(r"^feat/.*$"),
         };
         let mut ctx = MockContext::new();
@@ -101,6 +115,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_branch_error() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
+            when: None,
             expression: t!(r"^feat/.*$"),
         };
         let mut ctx = MockContext::new();
@@ -118,6 +133,7 @@ mod tests {
     #[test]
     fn test_branch_name_regex_invalid_regex() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
+            when: None,
             expression: t!(r"^feat/["),
         };
         let mut ctx = MockContext::new();

@@ -4,10 +4,13 @@ use crate::rules::rule::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use serde::{Deserialize, Serialize};
 use crate::scripting::Expression;
+use anyhow::Result;
+use rules_derive::ConditionalRule;
+use crate::rules::rule::ConditionalRule;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ConditionalRule)]
 pub struct BranchNamePrefixRule {
     pub when: Option<Expression>,
     pub prefix: TemplateString,
@@ -15,13 +18,11 @@ pub struct BranchNamePrefixRule {
 
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        if let Some(ref when) = self.when {
-            if !when.check(&ctx.variables(&[])?)? {
-                return Ok(RuleResult::Skipped {
-                    name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
-                });
-            }
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
+            });
         }
 
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;

@@ -1,17 +1,20 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::{bail, Result};
 use glob::glob;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct CopyFilesRule {
+    pub when: Option<Expression>,
     pub glob: TemplateString,
     pub src: Option<TemplateString>,
     pub destination: TemplateString,
@@ -29,6 +32,12 @@ fn ensure_parent_exists(path: &Path) -> Result<()> {
 #[typetag::serde(name = "copy-files")]
 impl Rule for CopyFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: COPY_FILES_RULE_NAME.to_string(),
+            });
+        }
+
         let variables = ctx.variables(&[])?;
         let compiled_glob = self.glob.compile(&variables)?;
         let compiled_src = self
@@ -179,6 +188,7 @@ mod tests {
 
         // Create rule with explicit source
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: Some(tmpl!(src_path)),
             destination: tmpl!(dest_path),
@@ -222,6 +232,7 @@ mod tests {
 
         // Create rule without source (should use current directory)
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("test-no-src.txt".to_string()),
             src: None,
             destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
@@ -270,6 +281,7 @@ mod tests {
         let temp_dest = tempdir()?;
 
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("*.nonexistent".to_string()),
             src: Some(tmpl!(temp_src.path().to_str().unwrap().to_string())),
             destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
@@ -294,6 +306,7 @@ mod tests {
     #[test]
     fn test_copy_files_variables_error() {
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: None,
             destination: tmpl!("/tmp/dest".to_string()),
@@ -311,6 +324,7 @@ mod tests {
     #[test]
     fn test_copy_files_glob_template_error() {
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("{{missing_var}}/*.txt".to_string()),
             src: None,
             destination: tmpl!("/tmp/dest".to_string()),
@@ -328,6 +342,7 @@ mod tests {
     #[test]
     fn test_copy_files_destination_template_error() {
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: None,
             destination: tmpl!("{{missing_dest}}".to_string()),
@@ -345,6 +360,7 @@ mod tests {
     #[test]
     fn test_copy_files_src_template_error() {
         let rule = CopyFilesRule {
+            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: Some(tmpl!("{{missing_src}}".to_string())),
             destination: tmpl!("/tmp/dest".to_string()),

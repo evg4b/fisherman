@@ -38,7 +38,8 @@ impl Expression {
         }
     }
 
-    pub fn check(&self, variables: &HashMap<String, String>) -> Result<bool> {
+    pub fn check(&self, variables: Result<HashMap<String, String>>) -> Result<bool> {
+        let variables = variables?;
         ENGINE.with(|engine| {
             let mut scope = Scope::with_capacity(variables.len());
 
@@ -60,7 +61,7 @@ mod tests {
     #[test]
     fn test_check_expression() {
         let actual = Expression::new("1 > 0")
-            .check(&HashMap::new())
+            .check(Ok(HashMap::new()))
             .unwrap();
 
         assert!(actual);
@@ -69,7 +70,7 @@ mod tests {
     #[test]
     fn test_expression_returns_false_for_undefined_variable() {
         let actual = Expression::new("is_def_var(\"xx\") && xx > 10")
-            .check(&HashMap::new())
+            .check(Ok(HashMap::new()))
             .unwrap();
 
         assert!(!actual);
@@ -77,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_check_expression_error() {
-        let actual = Expression::new("1 >").check(&HashMap::new()).unwrap_err();
+        let actual = Expression::new("1 >").check(Ok(HashMap::new())).unwrap_err();
 
         assert_eq!(
             actual.to_string(),
@@ -90,7 +91,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "20".to_string());
         let actual = Expression::new("parse_int(xx) > 10")
-            .check(&variables)
+            .check(Ok(variables))
             .unwrap();
 
         assert!(actual);
@@ -101,7 +102,7 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "91".to_string());
         let actual = Expression::new("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)")
-            .check(&variables)
+            .check(Ok(variables))
             .unwrap();
 
         assert!(actual);

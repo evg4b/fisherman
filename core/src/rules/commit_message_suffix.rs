@@ -1,19 +1,28 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
+use crate::scripting::Expression;
 use anyhow::Result;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct CommitMessageSuffixRule {
+    pub when: Option<Expression>,
     pub suffix: TemplateString,
 }
 
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
+            });
+        }
+
         let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -40,7 +49,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
+        let rule = CommitMessageSuffixRule { when: None, suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -58,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
+        let rule = CommitMessageSuffixRule { when: None, suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
@@ -78,6 +87,7 @@ mod tests {
     #[test]
     fn test_commit_message_suffix_variables_error() {
         let rule = CommitMessageSuffixRule {
+            when: None,
             suffix: t!("suffix"),
         };
         let mut ctx = MockContext::new();
@@ -93,6 +103,7 @@ mod tests {
     #[test]
     fn test_commit_message_suffix_commit_msg_error() {
         let rule = CommitMessageSuffixRule {
+            when: None,
             suffix: t!("suffix"),
         };
         let mut ctx = MockContext::new();
