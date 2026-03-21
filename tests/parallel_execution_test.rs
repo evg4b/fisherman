@@ -2,12 +2,12 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::BranchNamePrefixRule;
-use core::rules::ExecRule;
-use core::rules::ShellScriptRule;
-use core::rules::WriteFileRule;
+use core::Configuration;
+use core::GitHook;
+use core::BranchNamePrefixRule;
+use core::ExecRule;
+use core::ShellScriptRule;
+use core::WriteFileRule;
 use std::time::Instant;
 
 #[test]

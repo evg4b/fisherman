@@ -1,6 +1,6 @@
 use crate::commands::command::CliCommand;
-use core::context::Context;
-use core::hooks::GitHook;
+use core::Context;
+use core::GitHook;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
@@ -41,8 +41,8 @@ impl CliCommand for InstallCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::configuration::Configuration;
-    use core::context::MockContext;
+    use core::Configuration;
+    use core::MockContext;
     use std::collections::HashMap;
     use std::path::PathBuf;
     use tempdir::TempDir;

@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
 use crate::common::ConfigFormat;
-use core::configuration::Configuration;
+use core::Configuration;
 
 #[macro_export]
 macro_rules! rule {
     ($params:expr $(, extract = $extract:expr)? $(, when = $when:expr)? ) => {
-        Box::new($params) as Box<dyn core::rules::Rule>
+        Box::new($params) as Box<dyn core::Rule>
     };
 }
 

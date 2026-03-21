@@ -1,6 +1,6 @@
 use crate::commands::command::CliCommand;
-use core::context::Context;
-use core::hooks::GitHook;
+use core::Context;
+use core::GitHook;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
@@ -34,10 +34,10 @@ impl CliCommand for ExplainCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::configuration::Configuration;
-    use core::context::MockContext;
-    use core::rules::CommitMessageRegexRule;
-    use core::rules::Rule;
+    use core::Configuration;
+    use core::MockContext;
+    use core::CommitMessageRegexRule;
+    use core::Rule;
     use core::t;
     use std::collections::HashMap;
 

@@ -2,9 +2,9 @@ use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use core::context::Context;
-use core::hooks::GitHook;
-use core::rules::RuleResult;
+use core::Context;
+use core::GitHook;
+use core::RuleResult;
 use std::path::PathBuf;
 use std::process::exit;
 

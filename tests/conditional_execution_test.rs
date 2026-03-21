@@ -2,10 +2,10 @@ mod common;
 
 use crate::common::ConfigFormat;
 use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::WriteFileRule;
-use core::scripting::Expression;
+use core::Configuration;
+use core::GitHook;
+use core::WriteFileRule;
+use core::Expression;
 
 #[test]
 fn when_condition_true_executes_rule() {

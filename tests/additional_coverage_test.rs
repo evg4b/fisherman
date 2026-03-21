@@ -3,12 +3,12 @@ mod common;
 use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
 use common::test_context::TestContext;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::BranchNamePrefixRule;
-use core::rules::BranchNameRegexRule;
-use core::rules::WriteFileRule;
-use core::scripting::Expression;
+use core::Configuration;
+use core::GitHook;
+use core::BranchNamePrefixRule;
+use core::BranchNameRegexRule;
+use core::WriteFileRule;
+use core::Expression;
 
 #[test]
 fn post_commit_hook_execution() {

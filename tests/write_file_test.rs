@@ -2,9 +2,9 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::WriteFileRule;
+use core::Configuration;
+use core::GitHook;
+use core::WriteFileRule;
 
 #[test]
 fn write_file_creates_new_file() {

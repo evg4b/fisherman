@@ -2,9 +2,9 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
+use core::Configuration;
+use core::GitHook;
+use core::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
 
 #[test]
 fn message_regex_valid_pattern() {

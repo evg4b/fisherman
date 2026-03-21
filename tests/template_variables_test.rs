@@ -2,17 +2,17 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::BranchNamePrefixRule;
-use core::rules::BranchNameRegexRule;
-use core::rules::BranchNameSuffixRule;
-use core::rules::CommitMessagePrefixRule;
-use core::rules::CommitMessageSuffixRule;
-use core::rules::ExecRule;
-use core::rules::ShellScriptRule;
-use core::rules::WriteFileRule;
-use core::scripting::Expression;
+use core::Configuration;
+use core::GitHook;
+use core::BranchNamePrefixRule;
+use core::BranchNameRegexRule;
+use core::BranchNameSuffixRule;
+use core::CommitMessagePrefixRule;
+use core::CommitMessageSuffixRule;
+use core::ExecRule;
+use core::ShellScriptRule;
+use core::WriteFileRule;
+use core::Expression;
 
 #[test]
 fn template_branch_variable_in_message_prefix() {

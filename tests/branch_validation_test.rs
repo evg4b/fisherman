@@ -2,11 +2,11 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::BranchNamePrefixRule;
-use core::rules::BranchNameRegexRule;
-use core::rules::BranchNameSuffixRule;
+use core::Configuration;
+use core::GitHook;
+use core::BranchNamePrefixRule;
+use core::BranchNameRegexRule;
+use core::BranchNameSuffixRule;
 
 #[test]
 fn branch_name_regex_valid() {
