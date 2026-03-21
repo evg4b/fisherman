@@ -19,7 +19,7 @@ pub trait Context: Send + Sync {
     fn commit_msg(&self) -> Result<String>;
     fn set_commit_msg_path(&mut self, message_file: PathBuf);
     fn configuration(&self) -> Result<Configuration>;
-    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>>;
+    fn variables(&self, extract: &[String]) -> Result<HashMap<String, String>>;
     fn staged_files(&self) -> Result<Vec<PathBuf>>;
     fn staged_diff(&self, path: &Path) -> Result<Vec<DiffLine>>;
 }

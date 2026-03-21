@@ -1,9 +1,8 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use regex::Regex;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
 

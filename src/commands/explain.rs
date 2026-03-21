@@ -70,6 +70,7 @@ mod tests {
         };
 
         let rule = CommitMessageRegexRule {
+            when: None,
             expression: t!("^feat"),
         };
 

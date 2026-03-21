@@ -85,11 +85,6 @@ impl Rule for SuppressStringRule {
     }
 }
 
-impl SuppressString {
-    pub fn new(name: String, regex: TemplateString, glob: Option<TemplateString>) -> Self {
-        Self { name, regex, glob }
-    }
-}
 
 impl CompiledRule for SuppressString {
     fn is_sequential(&self) -> bool {

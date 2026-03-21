@@ -5,7 +5,7 @@ use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::RuleParams;
+
 #[test]
 fn post_commit_hook_execution() {
     let ctx = TestContext::new();

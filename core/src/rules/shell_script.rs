@@ -1,107 +1,57 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
-use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{CompiledRule};
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
-use run_script::{run, ScriptOptions};
-use std::collections::HashMap;
 use rules_derive::ConditionalRule as ConditionalRuleDerive;
+use run_script::{run, ScriptOptions};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
 pub struct ShellScriptRule {
     pub when: Option<Expression>,
-    pub script: String,
+    pub extract: Option<Vec<String>>,
+    pub script: TemplateString,
     pub env: Option<HashMap<String, String>>,
 }
 
-pub struct ShellScript {
-    name: String,
-    script: TemplateString,
-    env: HashMap<String, String>,
-    variables: HashMap<String, String>,
-}
-
-impl ShellScriptRule {
-    pub fn new(script: String, env: Option<HashMap<String, String>>) -> Self {
-        Self { when: None, script, env }
-    }
-}
+static SHELL_SCRIPT_NAME: &str = "shell";
 
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         if self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
-                name: "shell".into(),
+                name: SHELL_SCRIPT_NAME.into(),
             });
         }
 
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
+        let extract = self.extract.clone().unwrap_or(vec![]);
+        let variables = ctx.variables(extract.as_slice())?;
+        let script = self.script.compile(&variables)?;
+
         let args = vec![];
-        let (code, output, _) = run(self.script.as_str(), &args, &options)?;
+        let (code, output, _) = run(script.as_str(), &args, &options)?;
 
         if code != 0 {
             return Ok(RuleResult::Failure {
-                name: "shell".into(),
+                name: SHELL_SCRIPT_NAME.into(),
                 message: format!("exit code: {}", code),
             });
         }
 
         Ok(RuleResult::Success {
-            name: "shell".into(),
+            name: SHELL_SCRIPT_NAME.into(),
             output: Some(output),
         })
     }
 }
 
-impl ShellScript {
-    pub fn new(
-        name: String,
-        script: TemplateString,
-        env: HashMap<String, String>,
-        variables: HashMap<String, String>,
-    ) -> Self {
-        Self {
-            name,
-            script,
-            env,
-            variables,
-        }
-    }
-}
-
-impl CompiledRule for ShellScript {
-    fn is_sequential(&self) -> bool {
-        false
-    }
-
-    fn check(&self, _ctx: &dyn Context) -> Result<RuleResultOld> {
-        let mut options = ScriptOptions::new();
-        options.env_vars = Some(self.env.clone());
-
-        let args = vec![];
-        let (code, output, _) = run(
-            self.script.compile(&self.variables)?.as_str(),
-            &args,
-            &options,
-        )?;
-
-        if code != 0 {
-            return Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
-                message: format!("exit code: {}", code),
-            });
-        }
-
-        Ok(RuleResultOld::Success {
-            name: self.name.clone(),
-            output: Some(output),
-        })
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -109,21 +59,20 @@ mod tests {
     use crate::rules::rule::{Rule, RuleResult};
     use crate::rules::shell_script::{ShellScript, ShellScriptRule};
     use crate::rules::CompiledRule;
-    use crate::rules::RuleResultOld;
     use crate::t;
     use std::collections::HashMap;
 
     #[test]
     fn test_shell_script() {
-        let script = ShellScript::new(
-            "Test".to_string(),
-            t!("echo 'Test'"),
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let script = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: t!("echo 'Test'"),
+            env: None,
+        };
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");
@@ -132,15 +81,15 @@ mod tests {
 
     #[test]
     fn test_shell_script_failure() {
-        let script = ShellScript::new(
-            "Test".to_string(),
-            t!("exit 1"),
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let script = ShellScriptRule{
+            when: None,
+            extract: None,
+            script: t!("exit 1"),
+            env: None,
+        };
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResultOld::Failure { name, message } = result else {
+        let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "Test");
@@ -152,15 +101,15 @@ mod tests {
         let mut variables = HashMap::new();
         variables.insert("name".to_string(), "Test".to_string());
 
-        let script = ShellScript::new(
-            "Test".to_string(),
-            t!("echo 'Hello {{name}}'"),
-            HashMap::new(),
-            variables,
-        );
+        let script = ShellScriptRule{
+            when: None,
+            extract: None,
+            script: t!("echo 'Hello {{name}}'"),
+            env: None,
+        };
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");
@@ -172,10 +121,15 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("TEST".to_string(), "Test".to_string());
 
-        let script = ShellScript::new("Test".to_string(), t!("echo $TEST"), env, HashMap::new());
+        let script = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: t!("echo $TEST"),
+            env: Some(env),
+        };
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResultOld::Success { name, output } = result else {
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");
@@ -183,19 +137,13 @@ mod tests {
     }
 
     #[test]
-    fn test_is_sequential() {
-        let script = ShellScript::new(
-            "Test".to_string(),
-            t!("echo 'Test'"),
-            HashMap::new(),
-            HashMap::new(),
-        );
-        assert!(!script.is_sequential());
-    }
-
-    #[test]
     fn test_shell_script_rule_new() {
-        let rule = ShellScriptRule { when: None, script: "echo 'Test'".to_string(), env: None };
+        let rule = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: "echo 'Test'".into(),
+            env: None,
+        };
 
         let result = rule.check(&MockContext::new()).unwrap();
         let RuleResult::Success { name, output } = result else {
@@ -207,12 +155,12 @@ mod tests {
 
     #[test]
     fn test_shell_script_template_error() {
-        let script = ShellScript::new(
-            "Test".to_string(),
-            t!("echo '{{missing}}'"),
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let script = ShellScriptRule {
+            when: None,
+            extract: None,
+            env: None,
+            script: t!("echo '{{missing}}'"),
+        };
 
         let result = script.check(&MockContext::new());
         assert!(result.is_err());

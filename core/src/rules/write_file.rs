@@ -1,17 +1,18 @@
 use crate::context::Context;
-use crate::rules::rule::{Rule, RuleResult, ConditionalRule};
+use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::rules::{CompiledRule, RuleResultOld};
-use crate::templates::TemplateString;
 use crate::scripting::Expression;
+use crate::templates::TemplateString;
 use anyhow::Result;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct WriteFileRule {
     pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
     pub path: String,
     pub content: String,
     pub append: Option<bool>,
@@ -23,17 +24,6 @@ pub struct WriteFile {
     content: TemplateString,
     append: bool,
     variables: HashMap<String, String>,
-}
-
-impl WriteFileRule {
-    pub fn new(path: String, content: String, append: Option<bool>) -> Self {
-        Self {
-            when: None,
-            path,
-            content,
-            append,
-        }
-    }
 }
 
 #[typetag::serde(name = "write-file")]
@@ -332,7 +322,13 @@ mod tests {
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
 
-        let rule = WriteFileRule { when: None, path: path.to_str().unwrap().to_string(), content: content.clone(), append: None };
+        let rule = WriteFileRule {
+            when: None,
+            extract: None,
+            path: path.to_str().unwrap().to_string(),
+            content: content.clone(),
+            append: None,
+        };
 
         let result = rule.check(&MockContext::new())?;
 

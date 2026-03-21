@@ -43,8 +43,8 @@ impl CliCommand for HandleCommand {
                         RuleResult::Failure { message, name } => {
                             eprintln!("{name}: {message}");
                         },
-                        RuleResult::Skipped => {
-                            println!("skipped");
+                        RuleResult::Skipped { name } => {
+                            println!("{name}: skipped");
                         }
                     }
                 }

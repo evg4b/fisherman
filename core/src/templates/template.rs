@@ -12,6 +12,14 @@ pub struct TemplateString {
     template: String,
 }
 
+impl From<&str> for TemplateString {
+    fn from(template: &str) -> Self {
+        Self {
+            template: template.to_string(),
+        }
+    }
+}
+
 impl TemplateString {
     pub fn from<T>(template: T) -> Self
     where
