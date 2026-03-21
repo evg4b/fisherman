@@ -30,4 +30,4 @@ install:
 .PHONY: coverage
 coverage:
 	@echo "Generating code coverage..."
-	@cargo llvm-cov --open
+	@cargo llvm-cov --open --workspace

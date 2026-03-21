@@ -68,8 +68,8 @@ jobs:
           tool: nextest
       - name: Collect coverage data
         run: |
-          cargo llvm-cov --no-report nextest
-          cargo llvm-cov report --lcov --output-path ${{ matrix.platform.name }}-lcov.info
+          cargo llvm-cov --no-report nextest --workspace
+          cargo llvm-cov report --lcov --output-path ${{ matrix.platform.name }}-lcov.info --workspace
       - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.platform.name }}-coverage
