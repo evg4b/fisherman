@@ -1,11 +1,10 @@
 use crate::commands::command::CliCommand;
-use core::context::Context;
-use core::hooks::GitHook;
-use core::rules::{CompiledRule, Rule, RuleResult};
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use rayon::prelude::*;
+use core::Context;
+use core::GitHook;
+use core::RuleResult;
 use std::path::PathBuf;
 use std::process::exit;
 
@@ -29,18 +28,9 @@ impl CliCommand for HandleCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                let (sync_rules, async_rules) = compile_rules(context, rules)?;
-
-                let mut results: Vec<RuleResult> = vec![];
-
-                for rule in sync_rules {
-                    results.push(rule.check(context)?);
-                }
-
-                let async_results: Result<Vec<_>> =
-                    async_rules.par_iter().map(|rule| rule.check(context)).collect();
-
-                results.extend(async_results?);
+                let results = rules.iter()
+                    .map(|r| r.check(context))
+                    .collect::<Result<Vec<RuleResult>>>()?;
 
                 for rule in &results {
                     match rule {
@@ -52,6 +42,9 @@ impl CliCommand for HandleCommand {
                         }
                         RuleResult::Failure { message, name } => {
                             eprintln!("{name}: {message}");
+                        },
+                        RuleResult::Skipped { name } => {
+                            println!("{name}: skipped");
                         }
                     }
                 }
@@ -70,239 +63,6 @@ impl CliCommand for HandleCommand {
     }
 }
 
-
-type RulesBucket = Vec<Box<dyn CompiledRule>>;
-
-fn compile_rules(context: &impl Context, rules: &[Rule]) -> Result<(RulesBucket, RulesBucket)> {
-    let mut sync_rules: RulesBucket = vec![];
-    let mut async_rules: RulesBucket = vec![];
-    for rule in rules.iter() {
-        if let Some(compiled_rule) = rule.compile(context)? {
-            if compiled_rule.is_sequential() {
-                sync_rules.push(compiled_rule);
-            } else {
-                async_rules.push(compiled_rule);
-            }
-        }
-    }
-    Ok((sync_rules, async_rules))
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use core::context::MockContext;
-    use core::rules::RuleParams;
-    use std::collections::HashMap;
-
-    #[test]
-    fn test_compile_rules() -> Result<()> {
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let rules = vec![
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::CommitMessageRegex {
-                    regex: "^Test".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Hello World'".to_string(),
-                },
-            },
-        ];
-
-        let (sync_rules, async_rules) = compile_rules(&context, &rules)?;
-
-        assert_eq!(sync_rules.len(), 1);
-        assert_eq!(async_rules.len(), 1);
-        assert!(sync_rules[0].is_sequential());
-        assert!(!async_rules[0].is_sequential());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_parallel_async_rules_execution() -> Result<()> {
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let rules = vec![
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Task 1'".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Task 2'".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Task 3'".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Task 4'".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Task 5'".to_string(),
-                },
-            },
-        ];
-
-        let (_, async_rules) = compile_rules(&context, &rules)?;
-        assert_eq!(async_rules.len(), 5);
-
-        let async_results: Result<Vec<_>> =
-            async_rules.par_iter().map(|rule| rule.check(&context)).collect();
-
-        let results = async_results?;
-        assert_eq!(results.len(), 5);
-        for result in &results {
-            assert!(matches!(result, RuleResult::Success { .. }));
-        }
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_parallel_async_rules_with_failures() -> Result<()> {
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let rules = vec![
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Success'".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "exit 1".to_string(),
-                },
-            },
-            Rule {
-                when: None,
-                extract: None,
-                params: RuleParams::ShellScript {
-                    env: None,
-                    script: "echo 'Another success'".to_string(),
-                },
-            },
-        ];
-
-        let (_, async_rules) = compile_rules(&context, &rules)?;
-
-        let async_results: Result<Vec<_>> =
-            async_rules.par_iter().map(|rule| rule.check(&context)).collect();
-
-        let results = async_results?;
-        assert_eq!(results.len(), 3);
-
-        let successes = results
-            .iter()
-            .filter(|r| matches!(r, RuleResult::Success { .. }))
-            .count();
-        let failures = results
-            .iter()
-            .filter(|r| matches!(r, RuleResult::Failure { .. }))
-            .count();
-
-        assert_eq!(successes, 2);
-        assert_eq!(failures, 1);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_sync_rules_execution() -> Result<()> {
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-        context
-            .expect_commit_msg()
-            .returning(|| Ok("feat: test message".to_string()));
-
-        let rules = vec![Rule {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessageRegex {
-                regex: "^feat".to_string(),
-            },
-        }];
-
-        let (sync_rules, async_rules) = compile_rules(&context, &rules)?;
-        assert_eq!(sync_rules.len(), 1);
-        assert_eq!(async_rules.len(), 0);
-        assert!(sync_rules[0].is_sequential());
-
-        let result = sync_rules[0].check(&context)?;
-        assert!(matches!(result, RuleResult::Success { .. }));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_sync_rules_execution_failure() -> Result<()> {
-        let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-        context
-            .expect_commit_msg()
-            .returning(|| Ok("invalid message".to_string()));
-
-        let rules = vec![Rule {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessageRegex {
-                regex: "^feat".to_string(),
-            },
-        }];
-
-        let (sync_rules, _) = compile_rules(&context, &rules)?;
-        let result = sync_rules[0].check(&context)?;
-        assert!(matches!(result, RuleResult::Failure { .. }));
-
-        Ok(())
-    }
 }

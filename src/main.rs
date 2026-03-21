@@ -2,7 +2,7 @@ mod commands;
 mod ui;
 
 use crate::commands::{CliCommand, Command};
-use core::context::GitRepoContext;
+use core::GitRepoContext;
 use clap::Parser;
 use std::env;
 use ui::ABOUT;

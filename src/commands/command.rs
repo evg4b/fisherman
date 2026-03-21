@@ -1,4 +1,4 @@
-use core::context::Context;
+use core::Context;
 use anyhow::Result;
 
 pub trait CliCommand {

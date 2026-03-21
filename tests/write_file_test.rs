@@ -2,18 +2,20 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::Configuration;
+use core::GitHook;
+use core::WriteFileRule;
 
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output.txt"),
-                content: String::from("test content"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "test content".into(),
                 append: None,
             })
         ]
@@ -31,9 +33,11 @@ fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output.txt"),
-                content: String::from("new content"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "new content".into(),
                 append: Some(false),
             })
         ]
@@ -53,9 +57,11 @@ fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output.txt"),
-                content: String::from("\nappended content"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "\nappended content".into(),
                 append: Some(true),
             })
         ]
@@ -78,9 +84,11 @@ fn write_file_simple_path() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("simple.txt"),
-                content: String::from("simple content"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "simple.txt".into(),
+                content: "simple content".into(),
                 append: None,
             })
         ]
@@ -98,19 +106,25 @@ fn write_file_multiple_files() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output1.txt"),
-                content: String::from("content 1"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output1.txt".into(),
+                content: "content 1".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("output2.txt"),
-                content: String::from("content 2"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output2.txt".into(),
+                content: "content 2".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("output3.txt"),
-                content: String::from("content 3"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output3.txt".into(),
+                content: "content 3".into(),
                 append: None,
             })
         ]
@@ -132,9 +146,11 @@ fn write_file_multiline_content() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output.txt"),
-                content: String::from("Line 1\nLine 2\nLine 3"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output.txt".into(),
+                content: "Line 1\nLine 2\nLine 3".into(),
                 append: None,
             })
         ]

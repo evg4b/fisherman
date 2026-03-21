@@ -1,4 +1,4 @@
-use core::hooks::GitHook;
+use core::GitHook;
 use std::path::PathBuf;
 
 pub fn hook_display(hook: &GitHook, files: Vec<PathBuf>) -> String {
@@ -29,7 +29,7 @@ fn get(files: &[PathBuf], index: usize) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::hooks::GitHook;
+    use core::GitHook;
 
     #[test]
     fn test_hook_display_no_files() {

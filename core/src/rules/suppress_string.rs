@@ -1,35 +1,44 @@
 use crate::context::{Context, DiffLine};
-use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::extract_vars;
+use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
 use regex::Regex;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-pub struct SuppressString {
-    name: String,
-    regex: TemplateString,
-    glob: Option<TemplateString>,
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+pub struct SuppressStringRule {
+    pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
+    pub regex: TemplateString,
+    pub glob: Option<TemplateString>,
 }
 
-impl SuppressString {
-    pub fn new(name: String, regex: TemplateString, glob: Option<TemplateString>) -> Self {
-        Self { name, regex, glob }
+impl std::fmt::Display for SuppressStringRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Suppress string matching: {}", self.regex)
     }
 }
 
-impl CompiledRule for SuppressString {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
+#[typetag::serde(name = "suppress-string")]
+impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&[])?;
-        let regex_str = compile_tmpl(ctx, &self.regex, &[])?;
-        let regex = Regex::new(&regex_str)?;
+        if self.when.is_some() && !self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: "suppress-string".into(),
+            });
+        }
+
+        let variables = extract_vars!(&self, ctx)?;
+        let regex = Regex::new(&self.regex.compile(&variables)?)?;
 
         let pattern = match &self.glob {
-            Some(g) => Some(Pattern::new(&g.to_string(&variables)?)?),
+            Some(g) => {
+                let glob = g.compile(&variables)?;
+                Some(Pattern::new(glob.as_str())?)
+            }
             None => None,
         };
 
@@ -38,25 +47,26 @@ impl CompiledRule for SuppressString {
         let mut matched_files = Vec::new();
 
         for file in staged_files {
-            if let Some(p) = &pattern && !p.matches_path(&file) {
+            if let Some(p) = &pattern
+                && !p.matches_path(&file)
+            {
                 continue;
             }
 
             let diff_lines = ctx.staged_diff(&file)?;
 
             for line in diff_lines {
-                if let DiffLine::Added(content) = line {
-                    if regex.is_match(&content) {
+                if let DiffLine::Added(content) = line
+                    && regex.is_match(&content) {
                         matched_files.push(file.display().to_string());
                         break;
                     }
-                }
             }
         }
 
         if !matched_files.is_empty() {
             return Ok(RuleResult::Failure {
-                name: self.name.clone(),
+                name: "suppress-string".into(),
                 message: format!(
                     "The following files contain suppressed string: {}",
                     matched_files.join(", ")
@@ -65,7 +75,7 @@ impl CompiledRule for SuppressString {
         }
 
         Ok(RuleResult::Success {
-            name: self.name.clone(),
+            name: "suppress-string".into(),
             output: None,
         })
     }
@@ -79,7 +89,13 @@ mod tests {
 
     #[test]
     fn test_suppress_string_success() -> Result<()> {
-        let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), None);
+        let rule = SuppressStringRule {
+            when: None,
+            extract: None,
+            regex: "TODO".into(),
+            glob: None,
+        };
+
         let mut context = MockContext::new();
         context
             .expect_variables()
@@ -98,7 +114,13 @@ mod tests {
 
     #[test]
     fn test_suppress_string_failure() -> Result<()> {
-        let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), None);
+        let rule = SuppressStringRule {
+            regex: tmpl!("TODO"),
+            glob: None,
+            when: None,
+            extract: None,
+        };
+
         let mut context = MockContext::new();
         context
             .expect_variables()
@@ -113,8 +135,10 @@ mod tests {
         let result = rule.check(&context)?;
         match result {
             RuleResult::Failure { name, message } => {
-                assert_eq!(name, "test");
-                assert!(message.contains("The following files contain suppressed string: test.txt"));
+                assert_eq!(name, "suppress-string");
+                assert!(
+                    message.contains("The following files contain suppressed string: test.txt")
+                );
             }
             _ => panic!("Expected failure"),
         }
@@ -123,7 +147,13 @@ mod tests {
 
     #[test]
     fn test_suppress_string_with_glob() -> Result<()> {
-        let rule = SuppressString::new("test".to_string(), tmpl!("TODO"), Some(tmpl!("*.rs")));
+        let rule = SuppressStringRule {
+            regex: tmpl!("TODO"),
+            glob: Some(tmpl!("*.rs")),
+            when: None,
+            extract: None,
+        };
+
         let mut context = MockContext::new();
         context
             .expect_variables()
@@ -135,5 +165,41 @@ mod tests {
         let result = rule.check(&context)?;
         assert!(matches!(result, RuleResult::Success { .. }));
         Ok(())
+    }
+
+    #[test]
+    fn test_suppress_string_rule_success() -> Result<()> {
+        let rule = SuppressStringRule {
+            when: None,
+            extract: None,
+            regex: "TODO".into(),
+            glob: None,
+        };
+
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_staged_files()
+            .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
+        context
+            .expect_staged_diff()
+            .returning(|_| Ok(vec![DiffLine::Added("clean content".to_string())]));
+
+        let result = rule.check(&context)?;
+        assert!(matches!(result, RuleResult::Success { .. }));
+        Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = SuppressStringRule {
+            when: None,
+            extract: None,
+            regex: "TODO".into(),
+            glob: None,
+        };
+        assert_eq!(format!("{}", rule), "Suppress string matching: `TODO`");
     }
 }

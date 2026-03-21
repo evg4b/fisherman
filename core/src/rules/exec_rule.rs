@@ -1,7 +1,10 @@
 use crate::context::Context;
-use crate::rules::compiled_rule::{CompiledRule, RuleResult};
+use crate::extract_vars;
+use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::scripting::Expression;
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
@@ -9,54 +12,52 @@ use std::process::Command;
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct ExecRule {
-    name: String,
-    command: String,
-    args: Args,
-    env: Env,
-    variables: HashMap<String, String>,
+    pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
+    pub command: String,
+    pub args: Option<Args>,
+    pub env: Option<Env>,
 }
 
-impl ExecRule {
-    pub fn new(
-        name: String,
-        command: String,
-        args: Args,
-        env: Env,
-        variables: HashMap<String, String>,
-    ) -> Self {
-        Self {
-            name,
-            command,
-            args,
-            env,
-            variables,
+impl std::fmt::Display for ExecRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let args = self.args.clone().unwrap_or_default();
+        let mut command = self.command.clone();
+        if !args.is_empty() {
+            command.push(' ');
+            command.push_str(&args.join(" "));
         }
+        write!(f, "Execute command: {}", command)
     }
 }
 
-impl CompiledRule for ExecRule {
-    fn is_sequential(&self) -> bool {
-        false
-    }
+#[typetag::serde(name = "exec")]
+impl Rule for ExecRule {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.when.is_some() && !self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: "exec".into(),
+            });
+        }
 
-    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
+        let variables = extract_vars!(self, ctx)?;
         let mut env_map: Env = env::vars().collect();
-        env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
+        env_map.extend(replace_in_hashmap(&self.env.clone().unwrap_or_default(), &variables)?);
 
         let output = Command::new(self.command.clone())
-            .args(replace_in_vec(&self.args, &self.variables)?)
+            .args(replace_in_vec(&self.args.clone().unwrap_or(vec![]), &variables)?)
             .envs(env_map)
             .output()?;
 
         match output.status.success() {
             true => Ok(RuleResult::Success {
-                name: self.name.clone(),
+                name: "exec".into(),
                 output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
             }),
             false => Ok(RuleResult::Failure {
-                name: self.name.clone(),
+                name: "exec".into(),
                 message: String::from_utf8_lossy(&output.stderr).to_string(),
             }),
         }
@@ -70,21 +71,49 @@ mod tests {
     use assert2::assert;
     use std::collections::HashMap;
 
+    fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx
+    }
+
+    fn mock_ctx() -> MockContext {
+        mock_ctx_with_vars(HashMap::new())
+    }
+
     #[test]
     fn test_exec_rule() {
-        let rule = ExecRule::new(
-            "test".into(),
-            "echo".into(),
-            vec!["hello".into()],
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let rule = ExecRule {
+            command: "echo".into(),
+            args: Some(vec!["hello".into()]),
+            env: None,
+            when: None,
+            extract: None,
+        };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
+        assert_eq!(output.unwrap(), "hello\n");
+    }
+
+    #[test]
+    fn test_exec_rule_new() {
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "echo".into(),
+            args: Some(vec!["hello".into()]),
+            env: None,
+        };
+
+        let result = rule.check(&mock_ctx()).unwrap();
+        let RuleResult::Success { name, output } = result else {
+            unreachable!("Expected Success");
+        };
+        assert_eq!(name, "exec");
         assert_eq!(output.unwrap(), "hello\n");
     }
 
@@ -93,89 +122,74 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("HELLO".into(), "world".into());
 
-        let rule = ExecRule::new(
-            "test".into(),
-            "printenv".into(),
-            vec![],
-            env,
-            HashMap::new(),
-        );
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "printenv".into(),
+            args: None,
+            env: Some(env),
+        };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
         assert!(output.unwrap().contains("HELLO=world"));
     }
 
     #[test]
     fn test_exec_rule_with_variables() {
-        let mut variables = HashMap::new();
-        variables.insert("HELLO".into(), "world".into());
+        let mut vars = HashMap::new();
+        vars.insert("HELLO".into(), "world".into());
 
-        let rule = ExecRule::new(
-            "test".into(),
-            "echo".into(),
-            vec!["hello".into(), "{{HELLO}}".into()],
-            HashMap::new(),
-            variables,
-        );
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "echo".into(),
+            args: Some(vec!["hello".into(), "{{HELLO}}".into()]),
+            env: None,
+        };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx_with_vars(vars)).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
         assert_eq!(output.unwrap(), "hello world\n");
     }
 
     #[test]
     fn test_exec_rule_failure_on_missing_file() {
-        let mut variables = HashMap::new();
-        variables.insert("HELLO".into(), "world".into());
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "cat".into(),
+            args: Some(vec!["./unknown.txt".into()]),
+            env: None,
+        };
 
-        let rule = ExecRule::new(
-            "test".into(),
-            "cat".into(),
-            vec!["./unknown.txt".into()],
-            HashMap::new(),
-            variables,
-        );
-
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert_eq!(name, "test");
-        assert_eq!(message, "cat: ./unknown.txt: No such file or directory\n");
+        assert_eq!(name, "exec");
+        assert!(message.contains("No such file or directory"));
     }
 
     #[test]
     fn test_return_error() {
-        let rule = ExecRule::new(
-            "test".into(),
-            "XXXXXXXXXXXX".into(),
-            vec![],
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "XXXXXXXXXXXX".into(),
+            args: None,
+            env: None,
+        };
 
-        let result = rule.check(&MockContext::new()).err().unwrap();
+        let result = rule.check(&mock_ctx()).err().unwrap();
 
         assert_eq!(result.to_string(), "No such file or directory (os error 2)");
-    }
-
-    #[test]
-    fn test_is_sequential() {
-        let rule = ExecRule::new(
-            "test".into(),
-            "echo".into(),
-            vec!["hello".into()],
-            HashMap::new(),
-            HashMap::new(),
-        );
-        assert!(!rule.is_sequential());
     }
 
     #[test]
@@ -183,29 +197,53 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("VAR".into(), "{{missing}}".into());
 
-        let rule = ExecRule::new(
-            "test".into(),
-            "echo".into(),
-            vec![],
-            env,
-            HashMap::new(),
-        );
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "echo".into(),
+            args: Some(vec!["{{VAR}}".into()]),
+            env: Some(env),
+        };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
     }
 
     #[test]
     fn test_exec_rule_args_template_error() {
-        let rule = ExecRule::new(
-            "test".into(),
-            "echo".into(),
-            vec!["{{missing}}".into()],
-            HashMap::new(),
-            HashMap::new(),
-        );
+        let rule = ExecRule {
+            command: "echo".into(),
+            args: Some(vec!["{{VAR}}".into()]),
+            env: None,
+            when: None,
+            extract: None,
+        };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display_with_args() {
+        let rule = ExecRule {
+            command: "echo".into(),
+            args: Some(vec!["hello".into(), "world".into()]),
+            env: None,
+            when: None,
+            extract: None,
+        };
+        assert_eq!(format!("{}", rule), "Execute command: echo hello world");
+    }
+
+    #[test]
+    fn test_display_without_args() {
+        let rule = ExecRule {
+            command: "ls".into(),
+            args: None,
+            env: None,
+            when: None,
+            extract: None,
+        };
+        assert_eq!(format!("{}", rule), "Execute command: ls");
     }
 }

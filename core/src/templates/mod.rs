@@ -1,8 +1,8 @@
 mod errors;
 mod hashmap;
 mod template;
-mod template_macro;
 mod vec;
+mod template_macro;
 
 pub use crate::templates::errors::TemplateError;
 pub use crate::templates::hashmap::replace_in_hashmap;

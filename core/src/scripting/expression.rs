@@ -38,7 +38,8 @@ impl Expression {
         }
     }
 
-    pub fn check(&self, variables: &HashMap<String, String>) -> Result<bool> {
+    pub fn check(&self, variables: Result<HashMap<String, String>>) -> Result<bool> {
+        let variables = variables?;
         ENGINE.with(|engine| {
             let mut scope = Scope::with_capacity(variables.len());
 
@@ -59,23 +60,28 @@ mod tests {
 
     #[test]
     fn test_check_expression() {
-        let a = Expression::new("1 > 0").check(&HashMap::new()).unwrap();
-        assert!(a);
+        let actual = Expression::new("1 > 0")
+            .check(Ok(HashMap::new()))
+            .unwrap();
+
+        assert!(actual);
     }
 
     #[test]
     fn test_expression_returns_false_for_undefined_variable() {
-        let a = Expression::new("is_def_var(\"xx\") && xx > 10")
-            .check(&HashMap::new())
+        let actual = Expression::new("is_def_var(\"xx\") && xx > 10")
+            .check(Ok(HashMap::new()))
             .unwrap();
-        assert!(!a);
+
+        assert!(!actual);
     }
 
     #[test]
     fn test_check_expression_error() {
-        let a = Expression::new("1 >").check(&HashMap::new()).unwrap_err();
+        let actual = Expression::new("1 >").check(Ok(HashMap::new())).unwrap_err();
+
         assert_eq!(
-            a.to_string(),
+            actual.to_string(),
             "Expression error: Syntax error: Script is incomplete (line 1, position 4)"
         );
     }
@@ -84,20 +90,22 @@ mod tests {
     fn test_expression_with_integer_parsing() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "20".to_string());
-        let a = Expression::new("parse_int(xx) > 10")
-            .check(&variables)
+        let actual = Expression::new("parse_int(xx) > 10")
+            .check(Ok(variables))
             .unwrap();
-        assert!(a);
+
+        assert!(actual);
     }
 
     #[test]
     fn test_expression_with_complex_or_condition() {
         let mut variables = HashMap::new();
         variables.insert("xx".to_string(), "91".to_string());
-        let a = Expression::new("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)")
-            .check(&variables)
+        let actual = Expression::new("(is_def_var(\"yy\") && parse_int(yy) > 10) || (is_def_var(\"xx\") && parse_int(xx) > 10)")
+            .check(Ok(variables))
             .unwrap();
-        assert!(a);
+
+        assert!(actual);
     }
 
     #[test]

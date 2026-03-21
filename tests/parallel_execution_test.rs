@@ -2,9 +2,12 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::Configuration;
+use core::GitHook;
+use core::BranchNamePrefixRule;
+use core::ExecRule;
+use core::ShellScriptRule;
+use core::WriteFileRule;
 use std::time::Instant;
 
 #[test]
@@ -13,29 +16,39 @@ fn parallel_multiple_write_files() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("file1.txt"),
-                content: String::from("content 1"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "file1.txt".into(),
+                content: "content 1".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("file2.txt"),
-                content: String::from("content 2"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "file2.txt".into(),
+                content: "content 2".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("file3.txt"),
-                content: String::from("content 3"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "file3.txt".into(),
+                content: "content 3".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("file4.txt"),
-                content: String::from("content 4"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "file4.txt".into(),
+                content: "content 4".into(),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("file5.txt"),
-                content: String::from("content 5"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "file5.txt".into(),
+                content: "content 5".into(),
                 append: None,
             })
         ]
@@ -59,17 +72,23 @@ fn parallel_multiple_exec_rules() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("1")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("2")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("3")]),
                 env: None,
@@ -80,17 +99,23 @@ fn parallel_multiple_exec_rules() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("1")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("2")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("3")]),
                 env: None,
@@ -112,16 +137,22 @@ fn parallel_multiple_shell_scripts() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo script1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo script1".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo script2"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo script2".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo script3"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo script3".into(),
                 env: None,
             })
         ]
@@ -130,16 +161,22 @@ fn parallel_multiple_shell_scripts() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo 'script1'"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo 'script1'".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo 'script2'"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo 'script2'".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo 'script3'"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo 'script3'".into(),
                 env: None,
             })
         ]
@@ -164,23 +201,31 @@ fn parallel_mixed_async_rules() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output1.txt"),
-                content: String::from("write-file"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output1.txt".into(),
+                content: "write-file".into(),
                 append: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("exec")]),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo shell"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo shell".into(),
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("output2.txt"),
-                content: String::from("another write"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output2.txt".into(),
+                content: "another write".into(),
                 append: None,
             })
         ]
@@ -189,23 +234,31 @@ fn parallel_mixed_async_rules() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
-                path: String::from("output1.txt"),
-                content: String::from("write-file"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output1.txt".into(),
+                content: "write-file".into(),
                 append: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("exec")]),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("echo 'shell'"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "echo 'shell'".into(),
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("output2.txt"),
-                content: String::from("another write"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "output2.txt".into(),
+                content: "another write".into(),
                 append: None,
             })
         ]
@@ -233,19 +286,25 @@ fn parallel_one_fails_stops_all() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("success")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("exit"), String::from("1")]),
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("should-not-exist.txt"),
-                content: String::from("should not be created"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "should-not-exist.txt".into(),
+                content: "should not be created".into(),
                 append: None,
             })
         ]
@@ -254,19 +313,25 @@ fn parallel_one_fails_stops_all() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("success")]),
                 env: None,
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("false"),
                 args: None,
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("should-not-exist.txt"),
-                content: String::from("should not be created"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "should-not-exist.txt".into(),
+                content: "should not be created".into(),
                 append: None,
             })
         ]
@@ -287,17 +352,22 @@ fn sync_rules_execute_before_async() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("async")]),
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("async.txt"),
-                content: String::from("async rule"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "async.txt".into(),
+                content: "async rule".into(),
                 append: None,
             })
         ]
@@ -306,17 +376,22 @@ fn sync_rules_execute_before_async() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             }),
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
+                when: None,
+                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("async")]),
                 env: None,
             }),
-            rule!(RuleParams::WriteFile {
-                path: String::from("async.txt"),
-                content: String::from("async rule"),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "async.txt".into(),
+                content: "async rule".into(),
                 append: None,
             })
         ]
@@ -343,8 +418,9 @@ fn sync_rule_fails_hook_fails() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::BranchNamePrefix {
-                prefix: String::from("feature/"),
+            rule!(BranchNamePrefixRule {
+                when: None,
+                prefix: "feature/".into(),
             })
         ]
     );
@@ -366,24 +442,34 @@ fn parallel_performance_benefit() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ShellScript {
-                script: String::from("sleep 0.1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "sleep 0.1".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("sleep 0.1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "sleep 0.1".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("sleep 0.1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "sleep 0.1".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("sleep 0.1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "sleep 0.1".into(),
                 env: None,
             }),
-            rule!(RuleParams::ShellScript {
-                script: String::from("sleep 0.1"),
+            rule!(ShellScriptRule {
+                when: None,
+                extract: None,
+                script: "sleep 0.1".into(),
                 env: None,
             })
         ]

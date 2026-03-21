@@ -1,56 +1,63 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
 
-pub struct CopyFiles {
-    name: String,
-    glob: TemplateString,
-    src: Option<TemplateString>,
-    destination: TemplateString,
+static COPY_FILES_RULE_NAME: &str = "copy-files";
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+pub struct CopyFilesRule {
+    pub when: Option<Expression>,
+    pub glob: TemplateString,
+    pub src: Option<TemplateString>,
+    pub destination: TemplateString,
 }
 
-impl CopyFiles {
-    pub fn new(
-        name: String,
-        glob: TemplateString,
-        src: Option<TemplateString>,
-        destination: TemplateString,
-    ) -> CopyFiles {
-        CopyFiles {
-            name,
-            glob,
-            src,
-            destination,
+impl std::fmt::Display for CopyFilesRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.src {
+            None => write!(f, "Copy files matching '{}' to '{}'", self.glob, self.destination),
+            Some(ref src) => write!(f, "Copy files matching '{}' from '{}' to '{}'", self.glob, src, self.destination),
         }
-    }
-
-    fn ensure_parent_exists(path: &Path) -> Result<()> {
-        if let Some(parent) = path.parent() && !parent.exists() {
-            create_dir_all(parent)?;
-        }
-        Ok(())
     }
 }
 
-impl CompiledRule for CopyFiles {
-    fn is_sequential(&self) -> bool {
-        false
+fn ensure_parent_exists(path: &Path) -> Result<()> {
+    if let Some(parent) = path.parent()
+        && !parent.exists()
+    {
+        create_dir_all(parent)?;
     }
+    Ok(())
+}
 
+#[typetag::serde(name = "copy-files")]
+impl Rule for CopyFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        if self.when.is_some() && !self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: COPY_FILES_RULE_NAME.to_string(),
+            });
+        }
+
         let variables = ctx.variables(&[])?;
-        let compiled_glob = self.glob.to_string(&variables)?;
-        let compiled_src = self.src.as_ref().map(|s| s.to_string(&variables)).transpose()?;
+        let compiled_glob = self.glob.compile(&variables)?;
+        let compiled_src = self
+            .src
+            .as_ref()
+            .map(|s| s.compile(&variables))
+            .transpose()?;
         let compiled_pattern = match compiled_src.clone() {
             Some(src) => Path::join(src.as_ref(), compiled_glob),
             None => compiled_glob.parse()?,
         };
-        let compiled_destination = self.destination.to_string(&variables)?;
+        let compiled_destination = self.destination.compile(&variables)?;
 
         let mut copied_files = 0;
 
@@ -63,7 +70,7 @@ impl CompiledRule for CopyFiles {
                     };
                     let destination_path = Path::join(compiled_destination.as_ref(), new_name);
 
-                    Self::ensure_parent_exists(&destination_path)?;
+                    ensure_parent_exists(&destination_path)?;
                     fs::copy(&path, &destination_path)?;
 
                     copied_files += 1;
@@ -75,7 +82,7 @@ impl CompiledRule for CopyFiles {
         }
 
         Ok(RuleResult::Success {
-            name: self.name.clone(),
+            name: COPY_FILES_RULE_NAME.to_string(),
             output: Some(format!("Copied {} files", copied_files)),
         })
     }
@@ -85,12 +92,12 @@ impl CompiledRule for CopyFiles {
 mod tests {
     use super::*;
     use crate::context::MockContext;
+    use crate::tmpl;
     use assertor::{assert_that, EqualityAssertion};
     use std::env;
     use std::fs::File;
     use std::io::Write;
     use tempfile::tempdir;
-    use crate::tmpl;
 
     #[test]
     fn test_copy_files_with_src() -> Result<()> {
@@ -108,23 +115,26 @@ mod tests {
         writeln!(file, "test content")?;
 
         // Create rule with explicit source
-        let rule = CopyFiles::new(
-            "copy-test".to_string(),
-            tmpl!("*.txt".to_string()),
-            Some(tmpl!(src_path)),
-            tmpl!(dest_path),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("*.txt".to_string()),
+            src: Some(tmpl!(src_path)),
+            destination: tmpl!(dest_path),
+        };
 
         // Run the rule
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result);
-        };
-
-        assert_that!(name).is_equal_to("copy-test".to_string());
-        assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
+        match result {
+            RuleResult::Success { name, output } => {
+                assert_that!(name).is_equal_to("copy-files".to_string());
+                assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
+            }
+            _ => panic!("Expected Success, but got {:?}", result),
+        }
 
         // Check that file was copied
         let copied_file = std::fs::read_to_string(temp_dest.path().join("test.txt"))?;
@@ -149,23 +159,26 @@ mod tests {
         writeln!(file, "content without src")?;
 
         // Create rule without source (should use current directory)
-        let rule = CopyFiles::new(
-            "copy-test-no-src".to_string(),
-            tmpl!("test-no-src.txt".to_string()),
-            None,
-            tmpl!(temp_dest.path().to_str().unwrap().to_string()),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("test-no-src.txt".to_string()),
+            src: None,
+            destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
+        };
 
         // Run the rule
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result);
-        };
-
-        assert_that!(name).is_equal_to("copy-test-no-src".to_string());
-        assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
+        match result {
+            RuleResult::Success { name, output } => {
+                assert_that!(name).is_equal_to("copy-files".to_string());
+                assert_that!(output).is_equal_to(Some("Copied 1 files".to_string()));
+            }
+            _ => panic!("Expected Success, but got {:?}", result),
+        }
 
         // Check that file was copied
         let copied_file = std::fs::read_to_string(temp_dest.path().join("test-no-src.txt"))?;
@@ -182,7 +195,7 @@ mod tests {
         let temp_dir = tempdir()?;
         let nested_path = temp_dir.path().join("nested").join("dir").join("file.txt");
 
-        CopyFiles::ensure_parent_exists(&nested_path)?;
+        ensure_parent_exists(&nested_path)?;
 
         let parent = nested_path.parent().unwrap();
         assert_that!(parent.exists()).is_equal_to(true);
@@ -195,45 +208,37 @@ mod tests {
         let temp_src = tempdir()?;
         let temp_dest = tempdir()?;
 
-        let rule = CopyFiles::new(
-            "no-matches".to_string(),
-            tmpl!("*.nonexistent".to_string()),
-            Some(tmpl!(temp_src.path().to_str().unwrap().to_string())),
-            tmpl!(temp_dest.path().to_str().unwrap().to_string()),
-        );
-
-        let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
-        let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
-            panic!("Expected Success, but got {:?}", result);
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("*.nonexistent".to_string()),
+            src: Some(tmpl!(temp_src.path().to_str().unwrap().to_string())),
+            destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
         };
 
-        assert_that!(name).is_equal_to("no-matches".to_string());
-        assert_that!(output).is_equal_to(Some("Copied 0 files".to_string()));
+        let mut context = MockContext::new();
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
+        let result = rule.check(&context)?;
+        match result {
+            RuleResult::Success { name, output } => {
+                assert_that!(name).is_equal_to("copy-files".to_string());
+                assert_that!(output).is_equal_to(Some("Copied 0 files".to_string()));
+            }
+            _ => panic!("Expected Success, but got {:?}", result),
+        }
 
         Ok(())
     }
 
     #[test]
-    fn test_copy_files_is_sequential() {
-        let rule = CopyFiles::new(
-            "test".to_string(),
-            tmpl!("*.txt".to_string()),
-            None,
-            tmpl!("/tmp/dest".to_string()),
-        );
-        assert!(!rule.is_sequential());
-    }
-
-    #[test]
     fn test_copy_files_variables_error() {
-        let rule = CopyFiles::new(
-            "test".to_string(),
-            tmpl!("*.txt".to_string()),
-            None,
-            tmpl!("/tmp/dest".to_string()),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("*.txt".to_string()),
+            src: None,
+            destination: tmpl!("/tmp/dest".to_string()),
+        };
 
         let mut context = MockContext::new();
         context
@@ -246,12 +251,12 @@ mod tests {
 
     #[test]
     fn test_copy_files_glob_template_error() {
-        let rule = CopyFiles::new(
-            "test".to_string(),
-            tmpl!("{{missing_var}}/*.txt".to_string()),
-            None,
-            tmpl!("/tmp/dest".to_string()),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("{{missing_var}}/*.txt".to_string()),
+            src: None,
+            destination: tmpl!("/tmp/dest".to_string()),
+        };
 
         let mut context = MockContext::new();
         context
@@ -264,12 +269,12 @@ mod tests {
 
     #[test]
     fn test_copy_files_destination_template_error() {
-        let rule = CopyFiles::new(
-            "test".to_string(),
-            tmpl!("*.txt".to_string()),
-            None,
-            tmpl!("{{missing_dest}}".to_string()),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("*.txt".to_string()),
+            src: None,
+            destination: tmpl!("{{missing_dest}}".to_string()),
+        };
 
         let mut context = MockContext::new();
         context
@@ -282,12 +287,12 @@ mod tests {
 
     #[test]
     fn test_copy_files_src_template_error() {
-        let rule = CopyFiles::new(
-            "test".to_string(),
-            tmpl!("*.txt".to_string()),
-            Some(tmpl!("{{missing_src}}".to_string())),
-            tmpl!("/tmp/dest".to_string()),
-        );
+        let rule = CopyFilesRule {
+            when: None,
+            glob: tmpl!("*.txt".to_string()),
+            src: Some(tmpl!("{{missing_src}}".to_string())),
+            destination: tmpl!("/tmp/dest".to_string()),
+        };
 
         let mut context = MockContext::new();
         context
@@ -296,5 +301,27 @@ mod tests {
 
         let result = rule.check(&context);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display_without_src() {
+        let rule = CopyFilesRule {
+            when: None,
+            glob: "*.txt".into(),
+            src: None,
+            destination: "dist/".into(),
+        };
+        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' to '`dist/`'");
+    }
+
+    #[test]
+    fn test_display_with_src() {
+        let rule = CopyFilesRule {
+            when: None,
+            glob: "*.txt".into(),
+            src: Some("src/".into()),
+            destination: "dist/".into(),
+        };
+        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' from '`src/`' to '`dist/`'");
     }
 }

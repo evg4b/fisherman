@@ -1,6 +1,6 @@
 use crate::commands::command::CliCommand;
-use core::context::Context;
-use core::hooks::GitHook;
+use core::Context;
+use core::GitHook;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
@@ -21,7 +21,7 @@ impl CliCommand for ExplainCommand {
         match config.hooks.get(&self.hook) {
             Some(rules) => {
                 for rule in rules {
-                    println!("{rule}");
+                    println!("{}", rule);
                 }
             }
             None => println!("No rules found for hook {}", self.hook),
@@ -34,9 +34,11 @@ impl CliCommand for ExplainCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::configuration::Configuration;
-    use core::context::MockContext;
-    use core::rules::{Rule, RuleParams};
+    use core::Configuration;
+    use core::MockContext;
+    use core::CommitMessageRegexRule;
+    use core::Rule;
+    use core::t;
     use std::collections::HashMap;
 
     #[test]
@@ -66,16 +68,15 @@ mod tests {
             hook: GitHook::PreCommit,
         };
 
-        let rule = Rule {
+        let rule = CommitMessageRegexRule {
             when: None,
-            extract: None,
-            params: RuleParams::CommitMessageRegex {
-                regex: "^feat".to_string(),
-            },
+            expression: t!("^feat"),
         };
 
         let config = Configuration {
-            hooks: HashMap::from([(GitHook::PreCommit, vec![rule])]),
+            hooks: HashMap::from([(GitHook::PreCommit, vec![
+                Box::new(rule) as Box<dyn Rule>,
+            ])]),
             extract: vec![],
             files: vec![],
         };

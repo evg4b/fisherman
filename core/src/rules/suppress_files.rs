@@ -1,29 +1,40 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::extract_vars;
+use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
+use serde::{Deserialize, Serialize};
 
-pub struct SuppressFiles {
-    name: String,
-    glob: TemplateString,
+static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
+
+#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
+pub struct SuppressFilesRule {
+    pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
+    pub glob: TemplateString,
 }
 
-impl SuppressFiles {
-    pub fn new(name: String, glob: TemplateString) -> Self {
-        Self { name, glob }
+impl std::fmt::Display for SuppressFilesRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Suppress files matching: {}", self.glob)
     }
 }
 
-impl CompiledRule for SuppressFiles {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
+#[typetag::serde(name = "suppress-files")]
+impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&[])?;
-        let glob_pattern = self.glob.to_string(&variables)?;
-        let pattern = Pattern::new(&glob_pattern)?;
+        if self.when.is_some() && !self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: SUPPRESS_FILES_RULE_NAME.to_string(),
+            });
+        }
+
+        let variables = extract_vars!(self, ctx)?;
+        let glob_pattern = self.glob.compile(&variables)?;
+        let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
 
         let mut matched_files = Vec::new();
@@ -35,7 +46,7 @@ impl CompiledRule for SuppressFiles {
 
         if !matched_files.is_empty() {
             return Ok(RuleResult::Failure {
-                name: self.name.clone(),
+                name: SUPPRESS_FILES_RULE_NAME.to_string(),
                 message: format!(
                     "The following files are suppressed from being committed: {}",
                     matched_files.join(", ")
@@ -44,7 +55,7 @@ impl CompiledRule for SuppressFiles {
         }
 
         Ok(RuleResult::Success {
-            name: self.name.clone(),
+            name: SUPPRESS_FILES_RULE_NAME.to_string(),
             output: None,
         })
     }
@@ -59,39 +70,66 @@ mod tests {
 
     #[test]
     fn test_suppress_files_success() -> Result<()> {
-        let rule = SuppressFiles::new("test".to_string(), tmpl!("*.txt"));
+        let rule = SuppressFilesRule {
+            when: None,
+            glob: tmpl!("*.txt"),
+            extract: None,
+        };
         let mut context = MockContext::new();
         context
             .expect_variables()
             .returning(|_| Ok(std::collections::HashMap::new()));
-        context
-            .expect_staged_files()
-            .returning(|| Ok(vec![PathBuf::from("README.md"), PathBuf::from("src/main.rs")]));
+        context.expect_staged_files().returning(|| {
+            Ok(vec![
+                PathBuf::from("README.md"),
+                PathBuf::from("src/main.rs"),
+            ])
+        });
 
         let result = rule.check(&context)?;
-        assert!(matches!(result, RuleResult::Success { .. }));
+        match result {
+            RuleResult::Success { .. } => {}
+            _ => panic!("Expected Success"),
+        }
         Ok(())
     }
 
     #[test]
     fn test_suppress_files_failure() -> Result<()> {
-        let rule = SuppressFiles::new("test".to_string(), tmpl!("*.txt"));
+        let rule = SuppressFilesRule {
+            when: None,
+            extract: None,
+            glob: tmpl!("*.txt"),
+        };
         let mut context = MockContext::new();
         context
             .expect_variables()
             .returning(|_| Ok(std::collections::HashMap::new()));
-        context
-            .expect_staged_files()
-            .returning(|| Ok(vec![PathBuf::from("test.txt"), PathBuf::from("src/main.rs")]));
+        context.expect_staged_files().returning(|| {
+            Ok(vec![
+                PathBuf::from("test.txt"),
+                PathBuf::from("src/main.rs"),
+            ])
+        });
 
         let result = rule.check(&context)?;
         match result {
             RuleResult::Failure { name, message } => {
-                assert_eq!(name, "test");
-                assert!(message.contains("The following files are suppressed from being committed: test.txt"));
+                assert_eq!(name, "suppress-files");
+                assert!(
+                    message.contains(
+                        "The following files are suppressed from being committed: test.txt"
+                    )
+                );
             }
             _ => panic!("Expected failure"),
         }
         Ok(())
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = SuppressFilesRule { when: None, extract: None, glob: "*.secret".into() };
+        assert_eq!(format!("{}", rule), "Suppress files matching: `*.secret`");
     }
 }

@@ -10,10 +10,10 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Default, Deserialize, Serialize)]
 pub struct Configuration {
     #[serde(default)]
-    pub hooks: HashMap<GitHook, Vec<Rule>>,
+    pub hooks: HashMap<GitHook, Vec<Box<dyn Rule>>>,
     #[serde(default)]
     pub extract: Vec<String>,
     #[serde(skip)]

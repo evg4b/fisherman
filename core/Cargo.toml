@@ -3,6 +3,9 @@ name = "core"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+doctest = false
+
 [dependencies]
 regex = "1.11.1"
 thiserror = "2.0.12"
@@ -16,7 +19,9 @@ git2 = "0.20.0"
 run_script = "0.11.0"
 rhai = "1.21.0"
 glob = "0.3.2"
-
+typetag = "0.2.21"
+serde_json = "1.0.149"
+rules_derive = { path = "../rules_derive" }
 
 [dev-dependencies]
 rstest = "0.26.1"

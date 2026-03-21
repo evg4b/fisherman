@@ -170,8 +170,8 @@ args = ["test"]
     );
 
     let output = String::from_utf8_lossy(&explain_output.stdout);
-    assert!(output.contains("branch name"), "Output should contain branch name rule: {}", output);
-    assert!(output.contains("exec"), "Output should contain exec rule: {}", output);
+    assert!(output.contains("Branch should start with"), "Output should contain branch name rule: {}", output);
+    assert!(output.contains("Execute command"), "Output should contain exec rule: {}", output);
     assert!(output.contains("feature/"), "Output should show rule configuration details: {}", output);
 }
 

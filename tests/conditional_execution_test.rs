@@ -2,9 +2,10 @@ mod common;
 
 use crate::common::ConfigFormat;
 use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
-use core::configuration::Configuration;
-use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::Configuration;
+use core::GitHook;
+use core::WriteFileRule;
+use core::Expression;
 
 #[test]
 fn when_condition_true_executes_rule() {
@@ -13,14 +14,13 @@ fn when_condition_true_executes_rule() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("executed.txt"),
-                    content: String::from("Rule executed"),
-                    append: None,
-                },
-                when = String::from("Type == \"feature\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"feature\"")),
+                extract: None,
+                path: "executed.txt".into(),
+                content: "Rule executed".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)"),
@@ -51,14 +51,13 @@ fn when_condition_false_skips_rule() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("executed.txt"),
-                    content: String::from("Rule executed"),
-                    append: None,
-                },
-                when = String::from("Type == \"feature\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"feature\"")),
+                extract: None,
+                path: "executed.txt".into(),
+                content: "Rule executed".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)"),
@@ -89,14 +88,13 @@ fn when_condition_with_is_def_var_defined() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("feature.txt"),
-                    content: String::from("Feature: {{Feature}}"),
-                    append: None,
-                },
-                when = String::from("is_def_var(\"Feature\")")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("is_def_var(\"Feature\")")),
+                extract: None,
+                path: "feature.txt".into(),
+                content: "Feature: {{Feature}}".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^feature/(?P<Feature>[a-z-]+)"),
@@ -124,14 +122,13 @@ fn when_condition_with_is_def_var_undefined() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("feature.txt"),
-                    content: String::from("Feature: {{Feature}}"),
-                    append: None,
-                },
-                when = String::from("is_def_var(\"Feature\")")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("is_def_var(\"Feature\")")),
+                extract: None,
+                path: "feature.txt".into(),
+                content: "Feature: {{Feature}}".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch?:^feature/(?P<Feature>[a-z-]+)"),
@@ -162,14 +159,13 @@ fn when_condition_complex_expression() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("urgent.txt"),
-                    content: String::from("Urgent feature"),
-                    append: None,
-                },
-                when = String::from("Type == \"feature\" && Priority == \"high\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"feature\" && Priority == \"high\"")),
+                extract: None,
+                path: "urgent.txt".into(),
+                content: "Urgent feature".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"),
@@ -200,14 +196,13 @@ fn when_condition_complex_expression_false() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("urgent.txt"),
-                    content: String::from("Urgent feature"),
-                    append: None,
-                },
-                when = String::from("Type == \"feature\" && Priority == \"high\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"feature\" && Priority == \"high\"")),
+                extract: None,
+                path: "urgent.txt".into(),
+                content: "Urgent feature".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)/(?P<Priority>high|low)"),
@@ -235,14 +230,13 @@ fn when_condition_or_expression() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("production.txt"),
-                    content: String::from("Production change"),
-                    append: None,
-                },
-                when = String::from("Type == \"hotfix\" || Type == \"bugfix\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"hotfix\" || Type == \"bugfix\"")),
+                extract: None,
+                path: "production.txt".into(),
+                content: "Production change".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix|hotfix)"),
@@ -270,14 +264,13 @@ fn when_condition_not_expression() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("not-feature.txt"),
-                    content: String::from("Not a feature"),
-                    append: None,
-                },
-                when = String::from("Type != \"feature\"")
-            )
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type != \"feature\"")),
+                extract: None,
+                path: "not-feature.txt".into(),
+                content: "Not a feature".into(),
+                append: None,
+            })
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)"),
@@ -305,25 +298,25 @@ fn when_condition_multiple_rules_selective_execution() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("feature.txt"),
-                    content: String::from("Feature branch"),
-                    append: None,
-                },
-                when = String::from("Type == \"feature\"")
-            ),
-            rule!(
-                RuleParams::WriteFile {
-                    path: String::from("bugfix.txt"),
-                    content: String::from("Bugfix branch"),
-                    append: None,
-                },
-                when = String::from("Type == \"bugfix\"")
-            ),
-            rule!(RuleParams::WriteFile {
-                path: String::from("always.txt"),
-                content: String::from("Always executed"),
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"feature\"")),
+                extract: None,
+                path: "feature.txt".into(),
+                content: "Feature branch".into(),
+                append: None,
+            }),
+            rule!(WriteFileRule {
+                when: Some(Expression::new("Type == \"bugfix\"")),
+                extract: None,
+                path: "bugfix.txt".into(),
+                content: "Bugfix branch".into(),
+                append: None,
+            }),
+            rule!(WriteFileRule {
+                when: None,
+                extract: None,
+                path: "always.txt".into(),
+                content: "Always executed".into(),
                 append: None,
             })
         ],

@@ -1,36 +1,43 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
+use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug)]
-pub struct CommitMessageSuffix {
-    name: String,
-    suffix: TemplateString,
+static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+pub struct CommitMessageSuffixRule {
+    pub when: Option<Expression>,
+    pub suffix: TemplateString,
 }
 
-impl CommitMessageSuffix {
-    pub fn new(name: String, suffix: TemplateString) -> Self {
-        Self { name, suffix }
+impl std::fmt::Display for CommitMessageSuffixRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Commit message must end with: {}", self.suffix)
     }
 }
 
-impl CompiledRule for CommitMessageSuffix {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
+#[typetag::serde(name = "message-suffix")]
+impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let suffix = self.suffix.to_string(&ctx.variables(&[])?)?;
+        if self.when.is_some() && !self.check_condition(ctx)? {
+            return Ok(RuleResult::Skipped {
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
+            });
+        }
+
+        let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.ends_with(&suffix) {
             true => Ok(RuleResult::Success {
-                name: self.name.clone(),
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
                 output: None,
             }),
             false => Ok(RuleResult::Failure {
-                name: self.name.clone(),
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
                 message: format!("Commit message must end with: {}", suffix),
             }),
         }
@@ -47,7 +54,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -55,15 +65,20 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Success { name, .. } = result else {
-            unreachable!("Expected Success");
-        };
-        assert_eq!(name, "commit_message_suffix");
+        match result {
+            RuleResult::Success { name, .. } => {
+                assert_eq!(name, "message-suffix");
+            }
+            _ => panic!("Expected Success"),
+        }
     }
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("feat"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
@@ -71,22 +86,21 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Failure { name, message } = result else {
-            unreachable!("Expected Failure");
-        };
-        assert_eq!(name, "commit_message_suffix");
-        assert_eq!(message, "Commit message must end with: feat");
-    }
-
-    #[test]
-    fn test_is_sequential() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
-        assert!(rule.is_sequential());
+        match result {
+            RuleResult::Failure { name, message } => {
+                assert_eq!(name, "message-suffix");
+                assert_eq!(message, "Commit message must end with: feat");
+            }
+            _ => panic!("Expected Failure"),
+        }
     }
 
     #[test]
     fn test_commit_message_suffix_variables_error() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("message suffix".to_string()));
@@ -99,7 +113,10 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_commit_msg_error() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));
@@ -108,5 +125,11 @@ mod tests {
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let rule = CommitMessageSuffixRule { when: None, suffix: " [skip-ci]".into() };
+        assert_eq!(format!("{}", rule), "Commit message must end with: ` [skip-ci]`");
     }
 }
