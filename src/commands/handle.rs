@@ -30,45 +30,33 @@ impl CliCommand for HandleCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                let items = rules.iter()
+                let results = rules.iter()
                     .map(|r| r.check(context))
                     .collect::<Result<Vec<RuleResult>>>()?;
 
-                println!("{:#?}", items);
+                for rule in &results {
+                    match rule {
+                        RuleResult::Success { name, output } => {
+                            println!("{name} executed successfully");
+                            if let Some(value) = output && !value.is_empty() {
+                                println!("{value}");
+                            }
+                        }
+                        RuleResult::Failure { message, name } => {
+                            eprintln!("{name}: {message}");
+                        },
+                        RuleResult::Skipped => {
+                            println!("skipped");
+                        }
+                    }
+                }
 
-                // let (sync_rules, async_rules) = compile_rules(context, rules)?;
-                //
-                // let mut results: Vec<RuleResult> = vec![];
-                //
-                // for rule in sync_rules {
-                //     results.push(rule.check(context)?);
-                // }
-                //
-                // let async_results: Result<Vec<_>> =
-                //     async_rules.par_iter().map(|rule| rule.check(context)).collect();
-                //
-                // results.extend(async_results?);
-                //
-                // for rule in &results {
-                //     match rule {
-                //         RuleResult::Success { name, output } => {
-                //             println!("{name} executed successfully");
-                //             if let Some(value) = output && !value.is_empty() {
-                //                 println!("{value}");
-                //             }
-                //         }
-                //         RuleResult::Failure { message, name } => {
-                //             eprintln!("{name}: {message}");
-                //         }
-                //     }
-                // }
-                //
-                // if results
-                //     .iter()
-                //     .any(|r| matches!(r, RuleResult::Failure { .. }))
-                // {
-                //     exit(1);
-                // }
+                if results
+                    .iter()
+                    .any(|r| matches!(r, RuleResult::Failure { .. }))
+                {
+                    exit(1);
+                }
             }
             None => println!("No rules found for hook {}", self.hook),
         }

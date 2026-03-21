@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use regex::Regex;
 use serde::Deserialize;
@@ -35,16 +35,16 @@ impl CompiledRule for BranchNameRegex {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResultOld> {
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let branch_name = ctx.current_branch()?;
 
         match expression.is_match(&branch_name) {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: None,
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("Branch name must match pattern: {}", expression),
             }),
@@ -70,7 +70,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
-        let RuleResult::Success { name, .. } = result else {
+        let RuleResultOld::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "branch_name_regex");
@@ -88,7 +88,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "branch_name_regex");

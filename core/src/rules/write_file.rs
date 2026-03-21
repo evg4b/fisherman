@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use std::collections::HashMap;
@@ -37,7 +37,7 @@ impl CompiledRule for WriteFile {
         false
     }
 
-    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResultOld> {
         let content = self.content.compile(&self.variables)?;
         let path = self.path.compile(&self.variables)?;
 
@@ -49,7 +49,7 @@ impl CompiledRule for WriteFile {
 
         file.write_all(content.as_bytes())?;
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: None,
         })
@@ -82,7 +82,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -113,7 +113,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -144,7 +144,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -176,7 +176,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");
@@ -207,7 +207,7 @@ mod tests {
 
         let result = rule.check(&MockContext::new())?;
 
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "write_file");

@@ -1,7 +1,6 @@
 use crate::context::Context;
 use crate::rules::branch_name_prefix::BranchNamePrefix;
 use crate::rules::branch_name_regex::BranchNameRegex;
-use crate::rules::branch_name_suffix::BranchNameSuffix;
 use crate::rules::commit_message_prefix::CommitMessagePrefix;
 use crate::rules::commit_message_regex::CommitMessageRegex;
 use crate::rules::commit_message_suffix::CommitMessageSuffix;
@@ -161,10 +160,7 @@ impl RuleOLD {
                 ))
             }
             RuleParams::BranchNameSuffix { suffix, .. } => {
-                wrap!(BranchNameSuffix::new(
-                    self.to_string(),
-                    t!(suffix.clone()),
-                ))
+                todo!()
             }
             RuleParams::CopyFiles { glob, destination, source } => {
                 wrap!(CopyFiles::new(

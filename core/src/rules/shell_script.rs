@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use run_script::{run, ScriptOptions};
@@ -33,7 +33,7 @@ impl CompiledRule for ShellScript {
         false
     }
 
-    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResultOld> {
         let mut options = ScriptOptions::new();
         options.env_vars = Some(self.env.clone());
 
@@ -45,13 +45,13 @@ impl CompiledRule for ShellScript {
         )?;
 
         if code != 0 {
-            return Ok(RuleResult::Failure {
+            return Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("exit code: {}", code),
             });
         }
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: Some(output),
         })
@@ -63,7 +63,7 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::shell_script::ShellScript;
     use crate::rules::CompiledRule;
-    use crate::rules::RuleResult;
+    use crate::rules::RuleResultOld;
     use crate::t;
     use std::collections::HashMap;
 
@@ -73,7 +73,7 @@ mod tests {
             ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");
@@ -86,7 +86,7 @@ mod tests {
             ShellScript::new("Test".to_string(), t!("exit 1"), HashMap::new(), HashMap::new());
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "Test");
@@ -106,7 +106,7 @@ mod tests {
         );
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");
@@ -121,7 +121,7 @@ mod tests {
         let script = ShellScript::new("Test".to_string(), t!("echo $TEST"), env, HashMap::new());
 
         let result = script.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "Test");

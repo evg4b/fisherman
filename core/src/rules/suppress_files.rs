@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
@@ -36,7 +36,7 @@ impl CompiledRule for SuppressFiles {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
         let pattern = Pattern::new(&glob_pattern)?;
@@ -50,7 +50,7 @@ impl CompiledRule for SuppressFiles {
         }
 
         if !matched_files.is_empty() {
-            return Ok(RuleResult::Failure {
+            return Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "The following files are suppressed from being committed: {}",
@@ -59,7 +59,7 @@ impl CompiledRule for SuppressFiles {
             });
         }
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: None,
         })
@@ -85,7 +85,7 @@ mod tests {
             .returning(|| Ok(vec![PathBuf::from("README.md"), PathBuf::from("src/main.rs")]));
 
         let result = rule.check(&context)?;
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
         Ok(())
     }
 
@@ -102,7 +102,7 @@ mod tests {
 
         let result = rule.check(&context)?;
         match result {
-            RuleResult::Failure { name, message } => {
+            RuleResultOld::Failure { name, message } => {
                 assert_eq!(name, "test");
                 assert!(message.contains("The following files are suppressed from being committed: test.txt"));
             }

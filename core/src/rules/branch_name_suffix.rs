@@ -1,7 +1,7 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
-use crate::rules::rule::Rule;
+use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -9,41 +9,21 @@ pub struct BranchNameSuffixRule {
     pub suffix: TemplateString,
 }
 
+static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
+
 #[typetag::serde(name = "branch-name-suffix")]
 impl Rule for BranchNameSuffixRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
-        todo!()
-    }
-}
-
-
-pub struct BranchNameSuffix {
-    name: String,
-    suffix: TemplateString,
-}
-
-impl BranchNameSuffix {
-    pub fn new(name: String, suffix: TemplateString) -> Self {
-        Self { name, suffix }
-    }
-}
-
-impl CompiledRule for BranchNameSuffix {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
         let suffix = compile_tmpl(ctx, &self.suffix, &[])?;
         let branch_name = ctx.current_branch()?;
 
         match branch_name.ends_with(&suffix) {
             true => Ok(RuleResult::Success {
-                name: self.name.clone(),
+                name: BRANCH_NAME_SUFFIX_RULE_NAME.to_string(),
                 output: None,
             }),
             false => Ok(RuleResult::Failure {
-                name: self.name.clone(),
+                name: BRANCH_NAME_SUFFIX_RULE_NAME.to_string(),
                 message: format!("Branch name must end with: {}", suffix),
             }),
         }
@@ -65,7 +45,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let result = BranchNameSuffix::new("Test Rule".to_string(), t!("feature")).check(&ctx)?;
+        let result = BranchNameSuffixRule {
+            suffix: t!("feature"),
+        }
+        .check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
@@ -80,7 +63,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let result = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix")).check(&ctx)?;
+        let result = BranchNameSuffixRule { suffix:  t!("suffix") }.check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
@@ -88,14 +71,8 @@ mod tests {
     }
 
     #[test]
-    fn test_is_sequential() {
-        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
-        assert!(rule.is_sequential());
-    }
-
-    #[test]
     fn test_branch_name_suffix_variables_error() {
-        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = BranchNameSuffixRule{ suffix: t!("suffix") };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("my-suffix".to_string()));
@@ -108,7 +85,7 @@ mod tests {
 
     #[test]
     fn test_branch_name_suffix_branch_error() {
-        let rule = BranchNameSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = BranchNameSuffixRule{ suffix: t!("suffix") };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Err(anyhow::anyhow!("Branch error")));

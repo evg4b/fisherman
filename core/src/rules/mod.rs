@@ -16,6 +16,6 @@ mod suppress_files;
 mod suppress_string;
 pub mod rule;
 
-pub use crate::rules::compiled_rule::{CompiledRule, RuleResult};
+pub use crate::rules::compiled_rule::{CompiledRule, RuleResultOld};
 #[allow(unused_imports)]
 pub use crate::rules::rule_def::{RuleParams, RuleOLD};

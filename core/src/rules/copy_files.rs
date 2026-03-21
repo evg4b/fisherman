@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
@@ -57,7 +57,7 @@ impl CompiledRule for CopyFiles {
         false
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let variables = ctx.variables(&[])?;
         let compiled_glob = self.glob.compile(&variables)?;
         let compiled_src = self.src.as_ref().map(|s| s.compile(&variables)).transpose()?;
@@ -89,7 +89,7 @@ impl CompiledRule for CopyFiles {
             }
         }
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: Some(format!("Copied {} files", copied_files)),
         })
@@ -134,7 +134,7 @@ mod tests {
         let mut context = MockContext::new();
         context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 
@@ -175,7 +175,7 @@ mod tests {
         let mut context = MockContext::new();
         context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 
@@ -220,7 +220,7 @@ mod tests {
         let mut context = MockContext::new();
         context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             panic!("Expected Success, but got {:?}", result);
         };
 

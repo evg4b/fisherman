@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use regex::Regex;
 use crate::rules::rule::Rule;
@@ -34,16 +34,16 @@ impl CompiledRule for CommitMessageRegex {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResultOld> {
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
         match expression.is_match(&commit_msg) {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: None,
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("Commit message must match pattern: {}", expression),
             }),
@@ -56,7 +56,7 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::commit_message_regex::CommitMessageRegex;
     use crate::rules::CompiledRule;
-    use crate::rules::RuleResult;
+    use crate::rules::RuleResultOld;
     use crate::t;
     use std::collections::HashMap;
 
@@ -72,11 +72,11 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
-            RuleResult::Success { name, output } => {
+            RuleResultOld::Success { name, output } => {
                 assert_eq!(name, "Test");
                 assert_eq!(output, None);
             }
-            RuleResult::Failure { name, message } => {
+            RuleResultOld::Failure { name, message } => {
                 panic!("Expected success, got failure: {} - {}", name, message);
             }
         }
@@ -94,10 +94,10 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
-            RuleResult::Success { name, output } => {
+            RuleResultOld::Success { name, output } => {
                 panic!("Expected failure, got success: {} - {:?}", name, output);
             }
-            RuleResult::Failure { name, message } => {
+            RuleResultOld::Failure { name, message } => {
                 assert_eq!(name, "Test");
                 assert_eq!(message, "Commit message must match pattern: ^Test");
             }

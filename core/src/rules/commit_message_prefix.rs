@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use crate::rules::rule::Rule;
@@ -34,16 +34,16 @@ impl CompiledRule for CommitMessagePrefix {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.starts_with(&prefix) {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: None,
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("Commit message must start with: {}", prefix),
             }),
@@ -69,7 +69,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "commit_message_prefix");
@@ -86,7 +86,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "commit_message_prefix");

@@ -1,6 +1,6 @@
 use crate::context::{Context, DiffLine};
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
@@ -23,7 +23,7 @@ impl CompiledRule for SuppressString {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let variables = ctx.variables(&[])?;
         let regex_str = compile_tmpl(ctx, &self.regex, &[])?;
         let regex = Regex::new(&regex_str)?;
@@ -55,7 +55,7 @@ impl CompiledRule for SuppressString {
         }
 
         if !matched_files.is_empty() {
-            return Ok(RuleResult::Failure {
+            return Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "The following files contain suppressed string: {}",
@@ -64,7 +64,7 @@ impl CompiledRule for SuppressString {
             });
         }
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: None,
         })
@@ -92,7 +92,7 @@ mod tests {
             .returning(|_| Ok(vec![DiffLine::Added("clean content".to_string())]));
 
         let result = rule.check(&context)?;
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
         Ok(())
     }
 
@@ -112,7 +112,7 @@ mod tests {
 
         let result = rule.check(&context)?;
         match result {
-            RuleResult::Failure { name, message } => {
+            RuleResultOld::Failure { name, message } => {
                 assert_eq!(name, "test");
                 assert!(message.contains("The following files contain suppressed string: test.txt"));
             }
@@ -133,7 +133,7 @@ mod tests {
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
 
         let result = rule.check(&context)?;
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
         Ok(())
     }
 }

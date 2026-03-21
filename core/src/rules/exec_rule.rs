@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::compiled_rule::{CompiledRule, RuleResult};
+use crate::rules::compiled_rule::{CompiledRule, RuleResultOld};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
 use std::collections::HashMap;
@@ -41,7 +41,7 @@ impl CompiledRule for ExecRuleOld {
         false
     }
 
-    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, _: &dyn Context) -> Result<RuleResultOld> {
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env, &self.variables)?);
 
@@ -51,11 +51,11 @@ impl CompiledRule for ExecRuleOld {
             .output()?;
 
         match output.status.success() {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: String::from_utf8_lossy(&output.stderr).to_string(),
             }),
@@ -81,7 +81,7 @@ mod tests {
         );
 
         let result = rule.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "test");
@@ -102,7 +102,7 @@ mod tests {
         );
 
         let result = rule.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "test");
@@ -123,7 +123,7 @@ mod tests {
         );
 
         let result = rule.check(&MockContext::new()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let RuleResultOld::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "test");
@@ -144,7 +144,7 @@ mod tests {
         );
 
         let result = rule.check(&MockContext::new()).unwrap();
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "test");

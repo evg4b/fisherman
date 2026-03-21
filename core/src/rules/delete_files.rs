@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
@@ -40,14 +40,14 @@ impl CompiledRule for DeleteFiles {
         false
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?
             .collect::<Vec<GlobResult>>();
 
         if paths.is_empty() && self.fail_if_not_found {
-            return Ok(RuleResult::Failure {
+            return Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!(
                     "No files matched the glob pattern: {}",
@@ -65,7 +65,7 @@ impl CompiledRule for DeleteFiles {
             }
         }
 
-        Ok(RuleResult::Success {
+        Ok(RuleResultOld::Success {
             name: self.name.clone(),
             output: None,
         })
@@ -97,7 +97,7 @@ mod tests {
         context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
         assert!(!file_path.exists());
 
         Ok(())
@@ -116,7 +116,7 @@ mod tests {
         let result = rule.check(&context)?;
 
         match result {
-            RuleResult::Failure { name, message } => {
+            RuleResultOld::Failure { name, message } => {
                 assert_eq!(name, "test_rule");
                 assert!(message.contains("No files matched the glob pattern"));
             },
@@ -139,7 +139,7 @@ mod tests {
 
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
 
         Ok(())
     }
@@ -165,7 +165,7 @@ mod tests {
 
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResult::Success { .. }));
+        assert!(matches!(result, RuleResultOld::Success { .. }));
         assert!(!file_path1.exists());
         assert!(!file_path2.exists());
 

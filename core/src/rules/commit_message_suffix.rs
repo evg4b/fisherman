@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use crate::rules::rule::Rule;
@@ -33,16 +33,16 @@ impl CompiledRule for CommitMessageSuffix {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.ends_with(&suffix) {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: None,
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("Commit message must end with: {}", suffix),
             }),
@@ -68,7 +68,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Success { name, .. } = result else {
+        let RuleResultOld::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "commit_message_suffix");
@@ -84,7 +84,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "commit_message_suffix");

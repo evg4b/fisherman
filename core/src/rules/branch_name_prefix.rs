@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResult};
+use crate::rules::{CompiledRule, RuleResultOld};
 use crate::rules::rule::Rule;
 use crate::templates::TemplateString;
 
@@ -35,16 +35,16 @@ impl CompiledRule for BranchNamePrefix {
         true
     }
 
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResultOld> {
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let branch_name = ctx.current_branch()?;
 
         match branch_name.starts_with(&prefix) {
-            true => Ok(RuleResult::Success {
+            true => Ok(RuleResultOld::Success {
                 name: self.name.clone(),
                 output: None,
             }),
-            false => Ok(RuleResult::Failure {
+            false => Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
                 message: format!("Branch name must start with: {}", prefix),
             }),
@@ -70,7 +70,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
-        let RuleResult::Success { name, .. } = result else {
+        let RuleResultOld::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "branch_name_prefix");
@@ -88,7 +88,7 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
-        let RuleResult::Failure { name, message } = result else {
+        let RuleResultOld::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "branch_name_prefix");
