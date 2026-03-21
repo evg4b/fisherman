@@ -1,4 +1,5 @@
 use crate::context::Context;
+use crate::extract_vars;
 use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::{replace_in_hashmap, replace_in_vec};
@@ -29,7 +30,7 @@ impl Rule for ExecRule {
             });
         }
 
-        let variables = HashMap::new();
+        let variables = extract_vars!(self, ctx)?;
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(&self.env.clone().unwrap_or(HashMap::new()), &variables)?);
 
