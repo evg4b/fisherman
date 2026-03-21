@@ -16,7 +16,7 @@ pub struct CommitMessageSuffixRule {
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
             });

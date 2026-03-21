@@ -20,7 +20,7 @@ pub struct WriteFileRule {
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: "write-file".into(),
             });

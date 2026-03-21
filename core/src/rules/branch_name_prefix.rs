@@ -19,7 +19,7 @@ pub struct BranchNamePrefixRule {
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
             });

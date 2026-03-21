@@ -22,7 +22,7 @@ static SHELL_SCRIPT_NAME: &str = "shell";
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: SHELL_SCRIPT_NAME.into(),
             });

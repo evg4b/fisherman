@@ -24,7 +24,7 @@ pub struct ExecRule {
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: "exec".into(),
             });

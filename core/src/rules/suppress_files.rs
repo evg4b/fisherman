@@ -20,7 +20,7 @@ pub struct SuppressFilesRule {
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: SUPPRESS_FILES_RULE_NAME.to_string(),
             });

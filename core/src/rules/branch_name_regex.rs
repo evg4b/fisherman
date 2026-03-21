@@ -21,7 +21,7 @@ pub struct BranchNameRegexRule {
 #[typetag::serde(name = "branch-name-regex")]
 impl Rule for BranchNameRegexRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: BRANCH_NAME_REGEX_RULE_NAME.to_string(),
             });

@@ -18,7 +18,7 @@ pub struct CommitMessageRegexRule {
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: MESSAGE_REGEX_RULE_NAME.to_string(),
             });

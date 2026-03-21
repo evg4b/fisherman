@@ -16,7 +16,7 @@ static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
 #[typetag::serde(name = "branch-name-suffix")]
 impl Rule for BranchNameSuffixRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: BRANCH_NAME_SUFFIX_RULE_NAME.to_string(),
             });

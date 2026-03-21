@@ -17,7 +17,7 @@ pub struct CommitMessagePrefixRule {
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.check_condition(ctx)? {
+        if self.when.is_some() && !self.check_condition(ctx)? {
             return Ok(RuleResult::Skipped {
                 name: MESSAGE_PREFIX_RULE_NAME.to_string(),
             });

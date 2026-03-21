@@ -13,9 +13,7 @@ pub fn conditional_rule_derive(input: TokenStream) -> TokenStream {
     let sss = quote! {
         impl ConditionalRule for #name {
             fn check_condition(&self, ctx: &dyn Context) -> anyhow::Result<bool> {
-                self.when.as_ref()
-                    .map(|expr| expr.check(ctx.variables(&[])).map(|r| !r))
-                    .unwrap_or(Ok(false))
+                self.when.as_ref().map(|expr| expr.check(ctx.variables(&[]))).unwrap_or(Ok(false))
             }
         }
     };
