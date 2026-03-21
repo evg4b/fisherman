@@ -1,5 +1,6 @@
 use crate::context::Context;
 use crate::rules::compiled_rule::{CompiledRule, RuleResultOld};
+use crate::rules::rule::{Rule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
 use std::collections::HashMap;
@@ -32,6 +33,44 @@ impl ExecRuleOld {
             args,
             env,
             variables,
+        }
+    }
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct ExecRule {
+    pub command: String,
+    pub args: Args,
+    pub env: Env,
+}
+
+impl ExecRule {
+    pub fn new(command: String, args: Args, env: Env) -> Self {
+        Self { command, args, env }
+    }
+}
+
+#[typetag::serde(name = "exec")]
+impl Rule for ExecRule {
+    fn check(&self, _: &dyn Context) -> Result<RuleResult> {
+        let variables = HashMap::new();
+        let mut env_map: Env = env::vars().collect();
+        env_map.extend(replace_in_hashmap(&self.env, &variables)?);
+
+        let output = Command::new(self.command.clone())
+            .args(replace_in_vec(&self.args, &variables)?)
+            .envs(env_map)
+            .output()?;
+
+        match output.status.success() {
+            true => Ok(RuleResult::Success {
+                name: "exec".into(),
+                output: Some(String::from_utf8_lossy(&output.stdout).to_string()),
+            }),
+            false => Ok(RuleResult::Failure {
+                name: "exec".into(),
+                message: String::from_utf8_lossy(&output.stderr).to_string(),
+            }),
         }
     }
 }
@@ -85,6 +124,18 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "test");
+        assert_eq!(output.unwrap(), "hello\n");
+    }
+
+    #[test]
+    fn test_exec_rule_new() {
+        let rule = ExecRule::new("echo".into(), vec!["hello".into()], HashMap::new());
+
+        let result = rule.check(&MockContext::new()).unwrap();
+        let RuleResult::Success { name, output } = result else {
+            unreachable!("Expected Success");
+        };
+        assert_eq!(name, "exec");
         assert_eq!(output.unwrap(), "hello\n");
     }
 
@@ -183,13 +234,7 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("VAR".into(), "{{missing}}".into());
 
-        let rule = ExecRuleOld::new(
-            "test".into(),
-            "echo".into(),
-            vec![],
-            env,
-            HashMap::new(),
-        );
+        let rule = ExecRuleOld::new("test".into(), "echo".into(), vec![], env, HashMap::new());
 
         let result = rule.check(&MockContext::new());
         assert!(result.is_err());

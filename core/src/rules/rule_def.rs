@@ -1,20 +1,6 @@
 use crate::context::Context;
-use crate::rules::branch_name_prefix::BranchNamePrefix;
-use crate::rules::branch_name_regex::BranchNameRegex;
-use crate::rules::commit_message_prefix::CommitMessagePrefix;
-use crate::rules::commit_message_regex::CommitMessageRegex;
-use crate::rules::commit_message_suffix::CommitMessageSuffix;
 use crate::rules::compiled_rule::CompiledRule;
-use crate::rules::copy_files::CopyFiles;
-use crate::rules::delete_files::DeleteFiles;
-use crate::rules::exec_rule::ExecRuleOld;
-use crate::rules::shell_script::ShellScript;
-use crate::rules::suppress_files::SuppressFiles;
-use crate::rules::suppress_string::SuppressString;
-use crate::rules::write_file::WriteFile;
 use crate::scripting::Expression;
-use crate::t;
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -73,10 +59,7 @@ pub enum RuleParams {
     #[serde(rename = "suppress-files")]
     SuppressFiles { glob: String },
     #[serde(rename = "suppress-string")]
-    SuppressString {
-        regex: String,
-        glob: Option<String>,
-    },
+    SuppressString { regex: String, glob: Option<String> },
 }
 
 impl std::fmt::Display for RuleOLD {
@@ -89,109 +72,6 @@ macro_rules! wrap {
     ($expr:expr) => {
         Ok(Some(Box::new($expr)))
     };
-}
-
-impl RuleOLD {
-    pub fn compile(&self, context: &impl Context) -> Result<Option<Box<dyn CompiledRule>>> {
-        let variables = context.variables(self.extract.as_ref().unwrap_or(&vec![]))?;
-
-        if let Some(expression) = &self.when && !expression.check(&variables)? {
-            return Ok(None);
-        }
-
-        match &self.params {
-            RuleParams::ExecRule {
-                command, args, env, ..
-            } => {
-                wrap!(ExecRuleOld::new(
-                    self.to_string(),
-                    command.clone(),
-                    args.clone().unwrap_or_default(),
-                    env.clone().unwrap_or_default(),
-                    variables,
-                ))
-            }
-            RuleParams::CommitMessageRegex { regex, .. } => {
-                wrap!(CommitMessageRegex::new(
-                    self.to_string(),
-                    t!(regex.clone())
-                ))
-            }
-            RuleParams::CommitMessagePrefix { prefix, .. } => {
-                wrap!(CommitMessagePrefix::new(
-                    self.to_string(),
-                    t!(prefix.clone()),
-                ))
-            }
-            RuleParams::CommitMessageSuffix { suffix, .. } => {
-                wrap!(CommitMessageSuffix::new(
-                    self.to_string(),
-                    t!(suffix.clone()),
-                ))
-            }
-            RuleParams::ShellScript { script, env, .. } => {
-                wrap!(ShellScript::new(
-                    self.to_string(),
-                    t!(script.clone()),
-                    env.clone().unwrap_or_default(),
-                    variables,
-                ))
-            }
-            RuleParams::WriteFile {
-                path,
-                content,
-                append,
-            } => {
-                wrap!(WriteFile::new(
-                    self.to_string(),
-                    t!(path.clone()),
-                    t!(content.clone()),
-                    append.unwrap_or(false),
-                    variables,
-                ))
-            }
-            RuleParams::BranchNameRegex { regex, .. } => {
-                wrap!(BranchNameRegex::new(self.to_string(), t!(regex.clone())))
-            }
-            RuleParams::BranchNamePrefix { prefix, .. } => {
-                wrap!(BranchNamePrefix::new(
-                    self.to_string(),
-                    t!(prefix.clone()),
-                ))
-            }
-            RuleParams::BranchNameSuffix { suffix, .. } => {
-                todo!()
-            }
-            RuleParams::CopyFiles { glob, destination, source } => {
-                wrap!(CopyFiles::new(
-                    self.to_string(),
-                    t!(glob.clone()),
-                    source.as_ref().map(|s| t!(s.clone())),
-                    t!(destination.clone()),
-                ))
-            }
-            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
-                wrap!(DeleteFiles::new(
-                    self.to_string(),
-                    t!(glob.clone()),
-                    fail_if_not_found.unwrap_or(false),
-                ))
-            }
-            RuleParams::SuppressFiles { glob } => {
-                wrap!(SuppressFiles::new(
-                    self.to_string(),
-                    t!(glob.clone()),
-                ))
-            }
-            RuleParams::SuppressString { regex, glob } => {
-                wrap!(SuppressString::new(
-                    self.to_string(),
-                    t!(regex.clone()),
-                    glob.as_ref().map(|g| t!(g.clone())),
-                ))
-            }
-        }
-    }
 }
 
 impl RuleParams {
@@ -236,17 +116,37 @@ impl RuleParams {
             RuleParams::BranchNameSuffix { suffix, .. } => {
                 format!("branch name rule should end with: {}", suffix)
             }
-            RuleParams::CopyFiles { glob, destination, source } => {
-                format!("copy files from {} to {} (source: {})", glob, destination, source.as_ref().unwrap_or(&String::from("<n/a>")))
+            RuleParams::CopyFiles {
+                glob,
+                destination,
+                source,
+            } => {
+                format!(
+                    "copy files from {} to {} (source: {})",
+                    glob,
+                    destination,
+                    source.as_ref().unwrap_or(&String::from("<n/a>"))
+                )
             }
-            RuleParams::DeleteFiles { glob, fail_if_not_found } => {
-                format!("delete files matching {} {}", glob, fail_if_not_found.unwrap_or(false))
+            RuleParams::DeleteFiles {
+                glob,
+                fail_if_not_found,
+            } => {
+                format!(
+                    "delete files matching {} {}",
+                    glob,
+                    fail_if_not_found.unwrap_or(false)
+                )
             }
             RuleParams::SuppressFiles { glob } => {
                 format!("suppress files matching {}", glob)
             }
             RuleParams::SuppressString { regex, glob } => {
-                format!("suppress string matching {} in {}", regex, glob.as_deref().unwrap_or("*"))
+                format!(
+                    "suppress string matching {} in {}",
+                    regex,
+                    glob.as_deref().unwrap_or("*")
+                )
             }
         }
     }
@@ -399,237 +299,6 @@ mod tests {
     }
 
     #[test]
-    fn test_compile_exec_rule() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::ExecRule {
-                command: "echo".to_string(),
-                args: Some(vec!["test".to_string()]),
-                env: Some(HashMap::from([("KEY".to_string(), "VALUE".to_string())])),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_with_when_condition_true() {
-        use crate::context::MockContext;
-        use crate::scripting::Expression;
-
-        let mut vars = HashMap::new();
-        vars.insert("branch".to_string(), "main".to_string());
-
-        let rule = RuleOLD {
-            when: Some(Expression::new("branch == \"main\"")),
-            extract: None,
-            params: RuleParams::CommitMessagePrefix {
-                prefix: "feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_with_when_condition_false() {
-        use crate::context::MockContext;
-        use crate::scripting::Expression;
-
-        let mut vars = HashMap::new();
-        vars.insert("branch".to_string(), "develop".to_string());
-
-        let rule = RuleOLD {
-            when: Some(Expression::new("branch == \"main\"")),
-            extract: None,
-            params: RuleParams::CommitMessagePrefix {
-                prefix: "feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_compile_with_extract() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: Some(vec!["branch".to_string(), "ticket".to_string()]),
-            params: RuleParams::CommitMessagePrefix {
-                prefix: "feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_commit_message_regex() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessageRegex {
-                regex: "^feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_commit_message_suffix() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessageSuffix {
-                suffix: "done".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_shell_script() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::ShellScript {
-                script: "echo test".to_string(),
-                env: Some(HashMap::from([("KEY".to_string(), "VALUE".to_string())])),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_write_file() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::WriteFile {
-                path: "/tmp/test.txt".to_string(),
-                content: "content".to_string(),
-                append: Some(true),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_branch_name_regex() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::BranchNameRegex {
-                regex: "^feature/".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_branch_name_prefix() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::BranchNamePrefix {
-                prefix: "feature/".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_branch_name_suffix() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::BranchNameSuffix {
-                suffix: "/v1".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
     fn test_rule_params_name_exec_with_args_containing_spaces() {
         let params = RuleParams::ExecRule {
             command: "echo".to_string(),
@@ -666,10 +335,7 @@ mod tests {
             destination: "dest".to_string(),
             source: Some("src".to_string()),
         };
-        assert_eq!(
-            params.name(),
-            "copy files from *.txt to dest (source: src)"
-        );
+        assert_eq!(params.name(), "copy files from *.txt to dest (source: src)");
     }
 
     #[test]
@@ -692,89 +358,5 @@ mod tests {
             fail_if_not_found: Some(true),
         };
         assert_eq!(params.name(), "delete files matching *.log true");
-    }
-
-    #[test]
-    fn test_compile_variables_error() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::CommitMessagePrefix {
-                prefix: "feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
-
-        let result = rule.compile(&ctx);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_compile_when_expression_error() {
-        use crate::context::MockContext;
-        use crate::scripting::Expression;
-
-        let rule = RuleOLD {
-            when: Some(Expression::new("invalid expression !!!")),
-            extract: None,
-            params: RuleParams::CommitMessagePrefix {
-                prefix: "feat".to_string(),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_compile_copy_files() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::CopyFiles {
-                glob: "*.txt".to_string(),
-                destination: "/tmp/dest".to_string(),
-                source: Some("/tmp/src".to_string()),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
-    }
-
-    #[test]
-    fn test_compile_delete_files() {
-        use crate::context::MockContext;
-
-        let rule = RuleOLD {
-            when: None,
-            extract: None,
-            params: RuleParams::DeleteFiles {
-                glob: "*.log".to_string(),
-                fail_if_not_found: Some(false),
-            },
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
-
-        let result = rule.compile(&ctx).unwrap();
-        assert!(result.is_some());
     }
 }

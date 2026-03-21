@@ -1,8 +1,10 @@
 use crate::context::Context;
+use crate::rules::rule::{Rule, RuleResult};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use crate::rules::rule::Rule;
+
+static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessageSuffixRule {
@@ -11,8 +13,20 @@ pub struct CommitMessageSuffixRule {
 
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<crate::rules::rule::RuleResult> {
-        todo!()
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
+        let commit_msg = ctx.commit_msg()?;
+
+        match commit_msg.ends_with(&suffix) {
+            true => Ok(RuleResult::Success {
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
+                output: None,
+            }),
+            false => Ok(RuleResult::Failure {
+                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
+                message: format!("Commit message must end with: {}", suffix),
+            }),
+        }
     }
 }
 
@@ -60,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
+        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -68,15 +82,17 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResultOld::Success { name, .. } = result else {
-            unreachable!("Expected Success");
-        };
-        assert_eq!(name, "commit_message_suffix");
+        match result {
+            RuleResult::Success { name, .. } => {
+                assert_eq!(name, "message-suffix");
+            }
+            _ => panic!("Expected Success"),
+        }
     }
 
     #[test]
     fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffix::new("commit_message_suffix".to_string(), t!("feat"));
+        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
@@ -84,22 +100,20 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
-        let RuleResultOld::Failure { name, message } = result else {
-            unreachable!("Expected Failure");
-        };
-        assert_eq!(name, "commit_message_suffix");
-        assert_eq!(message, "Commit message must end with: feat");
-    }
-
-    #[test]
-    fn test_is_sequential() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
-        assert!(rule.is_sequential());
+        match result {
+            RuleResult::Failure { name, message } => {
+                assert_eq!(name, "message-suffix");
+                assert_eq!(message, "Commit message must end with: feat");
+            }
+            _ => panic!("Expected Failure"),
+        }
     }
 
     #[test]
     fn test_commit_message_suffix_variables_error() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = CommitMessageSuffixRule {
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("message suffix".to_string()));
@@ -112,7 +126,9 @@ mod tests {
 
     #[test]
     fn test_commit_message_suffix_commit_msg_error() {
-        let rule = CommitMessageSuffix::new("Test Rule".to_string(), t!("suffix"));
+        let rule = CommitMessageSuffixRule {
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));

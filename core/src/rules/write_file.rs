@@ -1,4 +1,5 @@
 use crate::context::Context;
+use crate::rules::rule::{Rule, RuleResult};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
@@ -6,12 +7,49 @@ use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct WriteFileRule {
+    pub path: String,
+    pub content: String,
+    pub append: Option<bool>,
+}
+
 pub struct WriteFile {
     name: String,
     path: TemplateString,
     content: TemplateString,
     append: bool,
     variables: HashMap<String, String>,
+}
+
+impl WriteFileRule {
+    pub fn new(path: String, content: String, append: Option<bool>) -> Self {
+        Self {
+            path,
+            content,
+            append,
+        }
+    }
+}
+
+#[typetag::serde(name = "write-file")]
+impl Rule for WriteFileRule {
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+        let append = self.append.unwrap_or(false);
+
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(append)
+            .open(&self.path)?;
+
+        file.write_all(self.content.as_bytes())?;
+
+        Ok(RuleResult::Success {
+            name: "write-file".into(),
+            output: None,
+        })
+    }
 }
 
 impl WriteFile {
@@ -276,5 +314,27 @@ mod tests {
 
         let result = rule.check(&MockContext::new());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_write_file_rule_new() -> Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("test.txt");
+        let content = "Hello, world!".to_string();
+
+        let rule = WriteFileRule::new(path.to_str().unwrap().to_string(), content.clone(), None);
+
+        let result = rule.check(&MockContext::new())?;
+
+        let RuleResult::Success { name, output } = result else {
+            unreachable!("Expected Success");
+        };
+        assert_eq!(name, "write-file");
+        assert_eq!(output, None);
+
+        let file_content = fs::read_to_string(path)?;
+        assert_eq!(file_content, content);
+
+        Ok(())
     }
 }

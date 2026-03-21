@@ -1,15 +1,51 @@
 use crate::context::Context;
+use crate::rules::rule::{Rule, RuleResult};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use run_script::{run, ScriptOptions};
 use std::collections::HashMap;
 
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct ShellScriptRule {
+    pub script: String,
+    pub env: Option<HashMap<String, String>>,
+}
+
 pub struct ShellScript {
     name: String,
     script: TemplateString,
     env: HashMap<String, String>,
     variables: HashMap<String, String>,
+}
+
+impl ShellScriptRule {
+    pub fn new(script: String, env: Option<HashMap<String, String>>) -> Self {
+        Self { script, env }
+    }
+}
+
+#[typetag::serde(name = "shell")]
+impl Rule for ShellScriptRule {
+    fn check(&self, _ctx: &dyn Context) -> Result<RuleResult> {
+        let mut options = ScriptOptions::new();
+        options.env_vars = self.env.clone();
+
+        let args = vec![];
+        let (code, output, _) = run(self.script.as_str(), &args, &options)?;
+
+        if code != 0 {
+            return Ok(RuleResult::Failure {
+                name: "shell".into(),
+                message: format!("exit code: {}", code),
+            });
+        }
+
+        Ok(RuleResult::Success {
+            name: "shell".into(),
+            output: Some(output),
+        })
+    }
 }
 
 impl ShellScript {
@@ -61,7 +97,8 @@ impl CompiledRule for ShellScript {
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
-    use crate::rules::shell_script::ShellScript;
+    use crate::rules::rule::{Rule, RuleResult};
+    use crate::rules::shell_script::{ShellScript, ShellScriptRule};
     use crate::rules::CompiledRule;
     use crate::rules::RuleResultOld;
     use crate::t;
@@ -69,8 +106,12 @@ mod tests {
 
     #[test]
     fn test_shell_script() {
-        let script =
-            ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
+        let script = ShellScript::new(
+            "Test".to_string(),
+            t!("echo 'Test'"),
+            HashMap::new(),
+            HashMap::new(),
+        );
 
         let result = script.check(&MockContext::new()).unwrap();
         let RuleResultOld::Success { name, output } = result else {
@@ -82,8 +123,12 @@ mod tests {
 
     #[test]
     fn test_shell_script_failure() {
-        let script =
-            ShellScript::new("Test".to_string(), t!("exit 1"), HashMap::new(), HashMap::new());
+        let script = ShellScript::new(
+            "Test".to_string(),
+            t!("exit 1"),
+            HashMap::new(),
+            HashMap::new(),
+        );
 
         let result = script.check(&MockContext::new()).unwrap();
         let RuleResultOld::Failure { name, message } = result else {
@@ -130,9 +175,25 @@ mod tests {
 
     #[test]
     fn test_is_sequential() {
-        let script =
-            ShellScript::new("Test".to_string(), t!("echo 'Test'"), HashMap::new(), HashMap::new());
+        let script = ShellScript::new(
+            "Test".to_string(),
+            t!("echo 'Test'"),
+            HashMap::new(),
+            HashMap::new(),
+        );
         assert!(!script.is_sequential());
+    }
+
+    #[test]
+    fn test_shell_script_rule_new() {
+        let rule = ShellScriptRule::new("echo 'Test'".to_string(), None);
+
+        let result = rule.check(&MockContext::new()).unwrap();
+        let RuleResult::Success { name, output } = result else {
+            unreachable!("Expected Success");
+        };
+        assert_eq!(name, "shell");
+        assert_eq!(output.unwrap(), "Test\n");
     }
 
     #[test]

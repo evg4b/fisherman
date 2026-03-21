@@ -1,10 +1,12 @@
 use crate::context::Context;
+use crate::rules::rule::{Rule, RuleResult};
 use crate::rules::{CompiledRule, RuleResultOld};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
 use std::fs;
-use crate::rules::rule::Rule;
+
+static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct DeleteFilesRule {
@@ -14,8 +16,31 @@ pub struct DeleteFilesRule {
 
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
-    fn check(&self, ctx: &dyn Context) -> Result<crate::rules::rule::RuleResult> {
-        todo!()
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+        let variables = ctx.variables(&[])?;
+        let glob_pattern = self.glob.compile(&variables)?;
+        let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
+
+        if paths.is_empty() && self.fail_if_not_found {
+            return Ok(RuleResult::Failure {
+                name: DELETE_FILES_RULE_NAME.to_string(),
+                message: format!("No files matched the glob pattern: {}", glob_pattern),
+            });
+        }
+
+        for path in paths {
+            match path {
+                Ok(path) => fs::remove_file(path.as_path())?,
+                Err(err) => {
+                    bail!("Error deleting file: {}", err);
+                }
+            }
+        }
+
+        Ok(RuleResult::Success {
+            name: DELETE_FILES_RULE_NAME.to_string(),
+            output: None,
+        })
     }
 }
 
@@ -43,16 +68,12 @@ impl CompiledRule for DeleteFiles {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
-        let paths = glob(glob_pattern.as_str())?
-            .collect::<Vec<GlobResult>>();
+        let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
 
         if paths.is_empty() && self.fail_if_not_found {
             return Ok(RuleResultOld::Failure {
                 name: self.name.clone(),
-                message: format!(
-                    "No files matched the glob pattern: {}",
-                    glob_pattern
-                ),
+                message: format!("No files matched the glob pattern: {}", glob_pattern),
             });
         }
 
@@ -87,17 +108,21 @@ mod tests {
 
         File::create(&file_path)?;
 
-        let rule = DeleteFiles::new(
-            "test_rule".to_string(),
-            tmpl!(file_path.display()),
-            true,
-        );
+        let rule = DeleteFilesRule {
+            glob: tmpl!(file_path.display()),
+            fail_if_not_found: true,
+        };
 
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResultOld::Success { .. }));
+        match result {
+            RuleResult::Success { .. } => {}
+            _ => panic!("Expected Success"),
+        }
         assert!(!file_path.exists());
 
         Ok(())
@@ -105,21 +130,22 @@ mod tests {
 
     #[test]
     fn test_delete_files_no_matches_with_failure() -> Result<()> {
-        let rule = DeleteFiles::new(
-            String::from("test_rule"),
-            tmpl!("path/that/does/not/exist/*.txt"),
-            true,
-        );
+        let rule = DeleteFilesRule {
+            glob: tmpl!("path/that/does/not/exist/*.txt"),
+            fail_if_not_found: true,
+        };
 
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
         let result = rule.check(&context)?;
 
         match result {
-            RuleResultOld::Failure { name, message } => {
-                assert_eq!(name, "test_rule");
+            RuleResult::Failure { name, message } => {
+                assert_eq!(name, "delete-files");
                 assert!(message.contains("No files matched the glob pattern"));
-            },
+            }
             _ => panic!("Expected RuleResult::Failure"),
         }
 
@@ -128,18 +154,22 @@ mod tests {
 
     #[test]
     fn test_delete_files_no_matches_without_failure() -> Result<()> {
-        let rule = DeleteFiles::new(
-            String::from("test_rule"),
-            tmpl!("path/that/does/not/exist/*.txt"),
-            false,
-        );
+        let rule = DeleteFilesRule {
+            glob: tmpl!("path/that/does/not/exist/*.txt"),
+            fail_if_not_found: false,
+        };
 
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResultOld::Success { .. }));
+        match result {
+            RuleResult::Success { .. } => {}
+            _ => panic!("Expected Success"),
+        }
 
         Ok(())
     }
@@ -154,18 +184,22 @@ mod tests {
         File::create(&file_path2)?;
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
-        let rule = DeleteFiles::new(
-            String::from("test_rule"),
-            tmpl!(glob_pattern),
-            true,
-        );
+        let rule = DeleteFilesRule {
+            glob: tmpl!(glob_pattern),
+            fail_if_not_found: true,
+        };
 
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context)?;
 
-        assert!(matches!(result, RuleResultOld::Success { .. }));
+        match result {
+            RuleResult::Success { .. } => {}
+            _ => panic!("Expected Success"),
+        }
         assert!(!file_path1.exists());
         assert!(!file_path2.exists());
 
@@ -174,14 +208,15 @@ mod tests {
 
     #[test]
     fn test_delete_files_glob_error() {
-        let rule = DeleteFiles::new(
-            String::from("test_rule"),
-            tmpl!("[invalid-glob"),
-            true,
-        );
+        let rule = DeleteFilesRule {
+            glob: tmpl!("[invalid-glob"),
+            fail_if_not_found: true,
+        };
 
         let mut context = MockContext::new();
-        context.expect_variables().returning(|_| Ok(std::collections::HashMap::new()));
+        context
+            .expect_variables()
+            .returning(|_| Ok(std::collections::HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());

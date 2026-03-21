@@ -1,7 +1,7 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::rule::{Rule, RuleResult};
-use crate::rules::{CompiledRule, RuleResultOld};
+use crate::rules::CompiledRule;
 use crate::templates::TemplateString;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -63,7 +63,10 @@ mod tests {
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let result = BranchNameSuffixRule { suffix:  t!("suffix") }.check(&ctx)?;
+        let result = BranchNameSuffixRule {
+            suffix: t!("suffix"),
+        }
+        .check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
@@ -72,7 +75,9 @@ mod tests {
 
     #[test]
     fn test_branch_name_suffix_variables_error() {
-        let rule = BranchNameSuffixRule{ suffix: t!("suffix") };
+        let rule = BranchNameSuffixRule {
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("my-suffix".to_string()));
@@ -85,7 +90,9 @@ mod tests {
 
     #[test]
     fn test_branch_name_suffix_branch_error() {
-        let rule = BranchNameSuffixRule{ suffix: t!("suffix") };
+        let rule = BranchNameSuffixRule {
+            suffix: t!("suffix"),
+        };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Err(anyhow::anyhow!("Branch error")));

@@ -1,9 +1,10 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{CompiledRule, RuleResultOld};
+use crate::rules::rule::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use crate::rules::rule::Rule;
+
+static MESSAGE_PREFIX_RULE_NAME: &str = "message-prefix";
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessagePrefixRule {
@@ -12,39 +13,17 @@ pub struct CommitMessagePrefixRule {
 
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
-    fn check(&self, ctx: &dyn Context) -> Result<crate::rules::rule::RuleResult> {
-        todo!()
-    }
-}
-
-#[derive(Debug)]
-pub struct CommitMessagePrefix {
-    name: String,
-    prefix: TemplateString,
-}
-
-impl CommitMessagePrefix {
-    pub fn new(name: String, prefix: TemplateString) -> Self {
-        Self { name, prefix }
-    }
-}
-
-impl CompiledRule for CommitMessagePrefix {
-    fn is_sequential(&self) -> bool {
-        true
-    }
-
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResultOld> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.starts_with(&prefix) {
-            true => Ok(RuleResultOld::Success {
-                name: self.name.clone(),
+            true => Ok(RuleResult::Success {
+                name: MESSAGE_PREFIX_RULE_NAME.to_string(),
                 output: None,
             }),
-            false => Ok(RuleResultOld::Failure {
-                name: self.name.clone(),
+            false => Ok(RuleResult::Failure {
+                name: MESSAGE_PREFIX_RULE_NAME.to_string(),
                 message: format!("Commit message must start with: {}", prefix),
             }),
         }
@@ -60,48 +39,46 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    fn test_commit_message_prefix() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+    fn test_commit_message_prefix_success() -> anyhow::Result<()> {
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx).unwrap();
-        let RuleResultOld::Success { name, output } = result else {
+        let result = rule.check(&ctx)?;
+        let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "commit_message_prefix");
+        assert_eq!(name, "message-prefix");
         assert_eq!(output, None);
+
+        Ok(())
     }
 
     #[test]
-    fn test_commit_message_prefix_failure() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+    fn test_commit_message_prefix_failure() -> anyhow::Result<()> {
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
         ctx.expect_variables()
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx).unwrap();
-        let RuleResultOld::Failure { name, message } = result else {
+        let result = rule.check(&ctx)?;
+        let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert_eq!(name, "commit_message_prefix");
+        assert_eq!(name, "message-prefix");
         assert_eq!(message, "Commit message must start with: feat");
+
+        Ok(())
     }
 
     #[test]
-    fn test_is_sequential() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
-        assert!(rule.is_sequential());
-    }
-
-    #[test]
-    fn test_commit_message_prefix_variables_error() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+    fn test_commit_message_prefix_variables_error() -> anyhow::Result<()> {
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: message".to_string()));
@@ -110,11 +87,13 @@ mod tests {
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
+
+        Ok(())
     }
 
     #[test]
-    fn test_commit_message_prefix_commit_msg_error() {
-        let rule = CommitMessagePrefix::new("commit_message_prefix".to_string(), t!("feat"));
+    fn test_commit_message_prefix_commit_msg_error() -> anyhow::Result<()> {
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));
@@ -123,5 +102,7 @@ mod tests {
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
+
+        Ok(())
     }
 }
