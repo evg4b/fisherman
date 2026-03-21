@@ -4,14 +4,14 @@ use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::branch_name_prefix::BranchNamePrefixRule;
-use core::rules::branch_name_regex::BranchNameRegexRule;
-use core::rules::branch_name_suffix::BranchNameSuffixRule;
-use core::rules::commit_message_prefix::CommitMessagePrefixRule;
-use core::rules::commit_message_suffix::CommitMessageSuffixRule;
-use core::rules::exec_rule::ExecRule;
-use core::rules::shell_script::ShellScriptRule;
-use core::rules::write_file::WriteFileRule;
+use core::rules::BranchNamePrefixRule;
+use core::rules::BranchNameRegexRule;
+use core::rules::BranchNameSuffixRule;
+use core::rules::CommitMessagePrefixRule;
+use core::rules::CommitMessageSuffixRule;
+use core::rules::ExecRule;
+use core::rules::ShellScriptRule;
+use core::rules::WriteFileRule;
 use core::scripting::Expression;
 
 #[test]
@@ -484,10 +484,7 @@ fn template_with_special_characters() {
     ctx.repo.create_branch("feature/auth_v2-beta");
 
     ctx.git_commit_allow_empty_success("test commit");
-    assert_eq!(
-        ctx.repo.read_file("feature.txt"),
-        "Feature: auth_v2-beta"
-    );
+    assert_eq!(ctx.repo.read_file("feature.txt"), "Feature: auth_v2-beta");
 }
 
 #[test]

@@ -4,7 +4,7 @@ use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::write_file::WriteFileRule;
+use core::rules::WriteFileRule;
 
 #[test]
 fn write_file_creates_new_file() {

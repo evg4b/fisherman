@@ -1,7 +1,7 @@
 use crate::configuration::errors::ConfigurationError;
 use crate::configuration::files::find_config_files;
 use crate::hooks::GitHook;
-use crate::rules::rule::Rule;
+use crate::rules::Rule;
 use anyhow::{bail, Result};
 use figment::providers::{Format, Json, Toml, Yaml};
 use figment::Figment;

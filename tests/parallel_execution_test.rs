@@ -4,10 +4,10 @@ use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::branch_name_prefix::BranchNamePrefixRule;
-use core::rules::exec_rule::ExecRule;
-use core::rules::shell_script::ShellScriptRule;
-use core::rules::write_file::WriteFileRule;
+use core::rules::BranchNamePrefixRule;
+use core::rules::ExecRule;
+use core::rules::ShellScriptRule;
+use core::rules::WriteFileRule;
 use std::time::Instant;
 
 #[test]

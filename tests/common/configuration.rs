@@ -6,7 +6,7 @@ use core::configuration::Configuration;
 #[macro_export]
 macro_rules! rule {
     ($params:expr $(, extract = $extract:expr)? $(, when = $when:expr)? ) => {
-        Box::new($params) as Box<dyn core::rules::rule::Rule>
+        Box::new($params) as Box<dyn core::rules::Rule>
     };
 }
 

@@ -4,7 +4,7 @@ use crate::common::ConfigFormat;
 use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::write_file::WriteFileRule;
+use core::rules::WriteFileRule;
 use core::scripting::Expression;
 
 #[test]

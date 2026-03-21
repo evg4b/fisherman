@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::extract_vars;
-use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;

@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use regex::Regex;
@@ -49,8 +49,8 @@ impl Rule for CommitMessageRegexRule {
 #[cfg(test)]
 mod tests {
     use crate::context::MockContext;
-    use crate::rules::commit_message_regex::CommitMessageRegexRule;
-    use crate::rules::rule::{Rule, RuleResult};
+    use crate::rules::CommitMessageRegexRule;
+    use crate::rules::{Rule, RuleResult};
     use crate::t;
     use std::collections::HashMap;
 

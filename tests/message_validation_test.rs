@@ -4,9 +4,7 @@ use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::commit_message_prefix::CommitMessagePrefixRule;
-use core::rules::commit_message_regex::CommitMessageRegexRule;
-use core::rules::commit_message_suffix::CommitMessageSuffixRule;
+use core::rules::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
 
 #[test]
 fn message_regex_valid_pattern() {
@@ -44,7 +42,10 @@ fn message_regex_invalid_pattern() {
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(!stderr.is_empty(), "Error should explain message validation failure");
+    assert!(
+        !stderr.is_empty(),
+        "Error should explain message validation failure"
+    );
 }
 
 #[test]
@@ -83,8 +84,11 @@ fn message_prefix_invalid() {
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert_stderr_contains(&stderr, &["message", "prefix", "feat:"],
-        "Error should explain prefix validation failure");
+    assert_stderr_contains(
+        &stderr,
+        &["message", "prefix", "feat:"],
+        "Error should explain prefix validation failure",
+    );
 }
 
 #[test]
@@ -123,8 +127,11 @@ fn message_suffix_invalid() {
     assert!(!output.status.success());
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert_stderr_contains(&stderr, &["message", "suffix", "[skip ci]"],
-        "Error should explain suffix validation failure");
+    assert_stderr_contains(
+        &stderr,
+        &["message", "suffix", "[skip ci]"],
+        "Error should explain suffix validation failure",
+    );
 }
 
 #[test]

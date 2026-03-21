@@ -36,8 +36,8 @@ mod tests {
     use super::*;
     use core::configuration::Configuration;
     use core::context::MockContext;
-    use core::rules::commit_message_regex::CommitMessageRegexRule;
-    use core::rules::rule::Rule;
+    use core::rules::CommitMessageRegexRule;
+    use core::rules::Rule;
     use core::t;
     use std::collections::HashMap;
 

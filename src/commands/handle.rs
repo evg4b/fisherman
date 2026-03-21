@@ -4,7 +4,7 @@ use anyhow::Result;
 use clap::Parser;
 use core::context::Context;
 use core::hooks::GitHook;
-use core::rules::rule::RuleResult;
+use core::rules::RuleResult;
 use std::path::PathBuf;
 use std::process::exit;
 

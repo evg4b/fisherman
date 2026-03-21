@@ -5,9 +5,9 @@ use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::branch_name_prefix::BranchNamePrefixRule;
-use core::rules::branch_name_regex::BranchNameRegexRule;
-use core::rules::write_file::WriteFileRule;
+use core::rules::BranchNamePrefixRule;
+use core::rules::BranchNameRegexRule;
+use core::rules::WriteFileRule;
 use core::scripting::Expression;
 
 #[test]

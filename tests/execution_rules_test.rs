@@ -6,8 +6,8 @@ use common::{
 };
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::exec_rule::ExecRule;
-use core::rules::shell_script::ShellScriptRule;
+use core::rules::ExecRule;
+use core::rules::ShellScriptRule;
 use std::collections::HashMap;
 
 #[test]

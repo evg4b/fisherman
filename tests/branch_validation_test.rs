@@ -4,9 +4,9 @@ use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::branch_name_prefix::BranchNamePrefixRule;
-use core::rules::branch_name_regex::BranchNameRegexRule;
-use core::rules::branch_name_suffix::BranchNameSuffixRule;
+use core::rules::BranchNamePrefixRule;
+use core::rules::BranchNameRegexRule;
+use core::rules::BranchNameSuffixRule;
 
 #[test]
 fn branch_name_regex_valid() {

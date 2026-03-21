@@ -1,7 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::rule::ConditionalRule;
-use crate::rules::rule::{Rule, RuleResult};
+use crate::rules::{Rule, RuleResult, ConditionalRule};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
