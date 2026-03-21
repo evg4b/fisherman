@@ -14,7 +14,7 @@ fn when_condition_true_executes_rule() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("executed.txt"),
                     content: String::from("Rule executed"),
                     append: None,
@@ -52,7 +52,7 @@ fn when_condition_false_skips_rule() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("executed.txt"),
                     content: String::from("Rule executed"),
                     append: None,
@@ -90,7 +90,7 @@ fn when_condition_with_is_def_var_defined() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("feature.txt"),
                     content: String::from("Feature: {{Feature}}"),
                     append: None,
@@ -125,7 +125,7 @@ fn when_condition_with_is_def_var_undefined() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("feature.txt"),
                     content: String::from("Feature: {{Feature}}"),
                     append: None,
@@ -163,7 +163,7 @@ fn when_condition_complex_expression() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("urgent.txt"),
                     content: String::from("Urgent feature"),
                     append: None,
@@ -201,7 +201,7 @@ fn when_condition_complex_expression_false() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("urgent.txt"),
                     content: String::from("Urgent feature"),
                     append: None,
@@ -236,7 +236,7 @@ fn when_condition_or_expression() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("production.txt"),
                     content: String::from("Production change"),
                     append: None,
@@ -271,7 +271,7 @@ fn when_condition_not_expression() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("not-feature.txt"),
                     content: String::from("Not a feature"),
                     append: None,
@@ -306,7 +306,7 @@ fn when_condition_multiple_rules_selective_execution() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("feature.txt"),
                     content: String::from("Feature branch"),
                     append: None,
@@ -314,14 +314,14 @@ fn when_condition_multiple_rules_selective_execution() {
                 when = String::from("Type == \"feature\"")
             ),
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("bugfix.txt"),
                     content: String::from("Bugfix branch"),
                     append: None,
                 },
                 when = String::from("Type == \"bugfix\"")
             ),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("always.txt"),
                 content: String::from("Always executed"),
                 append: None,

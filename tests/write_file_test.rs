@@ -4,14 +4,14 @@ use common::test_context::TestContext;
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::rules::write_file::WriteFileRule;
 
 #[test]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("test content"),
                 append: None,
@@ -31,7 +31,7 @@ fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("new content"),
                 append: Some(false),
@@ -53,7 +53,7 @@ fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("\nappended content"),
                 append: Some(true),
@@ -78,7 +78,7 @@ fn write_file_simple_path() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("simple.txt"),
                 content: String::from("simple content"),
                 append: None,
@@ -98,17 +98,17 @@ fn write_file_multiple_files() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output1.txt"),
                 content: String::from("content 1"),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output2.txt"),
                 content: String::from("content 2"),
                 append: None,
             }),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output3.txt"),
                 content: String::from("content 3"),
                 append: None,
@@ -132,7 +132,7 @@ fn write_file_multiline_content() {
     let ctx = TestContext::new();
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("Line 1\nLine 2\nLine 3"),
                 append: None,

@@ -1,10 +1,12 @@
 mod common;
 
 use crate::common::ConfigFormat;
-use common::{configuration::serialize_configuration, test_context::TestContext, FishermanBinary, GitTestRepo};
+use common::{
+    configuration::serialize_configuration, test_context::TestContext, FishermanBinary, GitTestRepo,
+};
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::RuleParams;
+use core::rules::exec_rule::ExecRule;
 use std::collections::HashMap;
 
 #[test]
@@ -14,7 +16,7 @@ fn exec_rule_success() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("test")]),
                 env: None,
@@ -25,8 +27,10 @@ fn exec_rule_success() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
-                command: String::from("echo"),
+            rule!(ExecRule {
+                when: None,
+                extract: None,
+                command: "echo".into(),
                 args: Some(vec![String::from("test")]),
                 env: None,
             })
@@ -38,7 +42,11 @@ fn exec_rule_success() {
     assert!(output.status.success());
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("test"), "Output should contain 'test': {}", stdout);
+    assert!(
+        stdout.contains("test"),
+        "Output should contain 'test': {}",
+        stdout
+    );
 }
 
 #[test]
@@ -48,7 +56,7 @@ fn exec_rule_failure() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("exit"), String::from("1")]),
                 env: None,
@@ -59,8 +67,10 @@ fn exec_rule_failure() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
-                command: String::from("false"),
+            rule!(ExecRule {
+                when: None,
+                extract: None,
+                command: "false".into(),
                 args: None,
                 env: None,
             })
@@ -83,7 +93,7 @@ fn exec_rule_with_env() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("%TEST_VAR%")]),
                 env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
@@ -94,7 +104,7 @@ fn exec_rule_with_env() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("sh"),
                 args: Some(vec![String::from("-c"), String::from("test \"$TEST_VAR\" = \"test_value\"")]),
                 env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
@@ -155,7 +165,6 @@ fn shell_script_success() {
         "Shell script should succeed: {}",
         String::from_utf8_lossy(&commit_output.stderr)
     );
-
 }
 
 #[test]
@@ -197,7 +206,10 @@ fn shell_script_failure() {
     );
 
     let stderr = String::from_utf8_lossy(&commit_output.stderr);
-    assert!(!stderr.is_empty(), "Error output should not be empty when shell fails");
+    assert!(
+        !stderr.is_empty(),
+        "Error output should not be empty when shell fails"
+    );
 }
 
 #[test]
@@ -248,7 +260,7 @@ fn exec_and_shell_mixed() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("exec test")]),
                 env: None,
@@ -263,7 +275,7 @@ fn exec_and_shell_mixed() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("echo"),
                 args: Some(vec![String::from("exec test")]),
                 env: None,
@@ -288,5 +300,4 @@ fn exec_and_shell_mixed() {
         "Both exec and shell rules should succeed: {}",
         String::from_utf8_lossy(&commit_output.stderr)
     );
-
 }

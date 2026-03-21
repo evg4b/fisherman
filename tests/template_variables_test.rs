@@ -33,7 +33,7 @@ fn template_branch_variable_in_write_file() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("branch-info.txt"),
                 content: String::from("Current feature: {{Feature}}"),
                 append: None,
@@ -61,7 +61,7 @@ fn template_repo_path_variable() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("repo-info.txt"),
                 content: String::from("Repository: {{RepoName}}"),
                 append: None,
@@ -87,7 +87,7 @@ fn template_multiple_variables() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("info.txt"),
                 content: String::from("Type: {{Type}}, Ticket: {{Ticket}}, Repo: {{RepoName}}"),
                 append: None,
@@ -118,7 +118,7 @@ fn template_in_exec_command() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("{{Feature}}")]),
                 env: None,
@@ -132,7 +132,7 @@ fn template_in_exec_command() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("echo"),
                 args: Some(vec![String::from("{{Feature}}")]),
                 env: None,
@@ -155,7 +155,7 @@ fn template_optional_variable_present() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("Feature: {{Feature}}"),
                 append: None,
@@ -200,7 +200,7 @@ fn template_in_file_path() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("{{Feature}}-status.txt"),
                 content: String::from("Feature status file"),
                 append: None,
@@ -228,7 +228,7 @@ fn template_in_file_path_multiple_vars() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("{{Type}}-{{Name}}.log"),
                 content: String::from("Log for {{Type}}/{{Name}}"),
                 append: None,
@@ -360,7 +360,7 @@ fn multiple_templates_in_single_field() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("status.txt"),
                 content: String::from("Type: {{Type}}, Ticket: {{Ticket}}, Name: {{Name}}, Full: {{Type}}/{{Ticket}}-{{Name}}"),
                 append: None,
@@ -387,7 +387,7 @@ fn template_rendering_failure_missing_variable() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("output.txt"),
                 content: String::from("Feature: {{Feature}}, Missing: {{UndefinedVar}}"),
                 append: None,
@@ -429,7 +429,7 @@ fn template_with_special_characters() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("feature.txt"),
                 content: String::from("Feature: {{Feature}}"),
                 append: None,
@@ -457,7 +457,7 @@ fn template_in_conditional_with_defined_var() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("conditional.txt"),
                     content: String::from("Type: {{Type}}"),
                     append: None,
@@ -484,7 +484,7 @@ fn template_conditional_skipped_undefined_var() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("optional.txt"),
                     content: String::from("Feature: {{Feature}}"),
                     append: None,
@@ -510,7 +510,7 @@ fn template_complex_extraction_pattern() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("{{Category}}-{{Project}}-{{Issue}}.txt"),
                 content: String::from("Category: {{Category}}\nProject: {{Project}}\nIssue: {{Issue}}\nDescription: {{Description}}"),
                 append: None,
@@ -541,7 +541,7 @@ fn template_in_multiple_exec_args() {
     #[cfg(windows)]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("{{Type}}"), String::from("{{Name}}")]),
                 env: None,
@@ -555,7 +555,7 @@ fn template_in_multiple_exec_args() {
     #[cfg(not(windows))]
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::ExecRule {
+            rule!(ExecRule {
                 command: String::from("echo"),
                 args: Some(vec![String::from("{{Type}}"), String::from("{{Name}}")]),
                 env: None,
@@ -578,7 +578,7 @@ fn template_combined_repo_and_branch_variables() {
 
     let config = config!(
         GitHook::PreCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("combined-info.log"),
                 content: String::from("Repo: {{RepoName}}, Type: {{Type}}, Name: {{Name}}"),
                 append: None,

@@ -4,7 +4,6 @@ use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
 use core::configuration::Configuration;
 use core::hooks::GitHook;
-use core::rules::RuleParams;
 
 #[test]
 fn branch_name_regex_valid() {

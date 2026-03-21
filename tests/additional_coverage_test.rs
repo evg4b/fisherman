@@ -15,7 +15,7 @@ fn post_commit_hook_execution() {
 
     let config = config!(
         GitHook::PostCommit => [
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from(path),
                 content: String::from(content),
                 append: None,
@@ -52,7 +52,7 @@ fn mixed_sync_and_async_rules_execute_correctly() {
             rule!(RuleParams::BranchNameRegex {
                 regex: String::from("^feature/.*"),
             }),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("async1.txt"),
                 content: String::from("async rule 1"),
                 append: None,
@@ -60,7 +60,7 @@ fn mixed_sync_and_async_rules_execute_correctly() {
             rule!(RuleParams::BranchNamePrefix {
                 prefix: String::from("feature/"),
             }),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("async2.txt"),
                 content: String::from("async rule 2"),
                 append: None,
@@ -86,7 +86,7 @@ fn sync_rule_failure_behavior() {
             rule!(RuleParams::BranchNameRegex {
                 regex: String::from("^feature/.*"),
             }),
-            rule!(RuleParams::WriteFile {
+            rule!(WriteFileRule {
                 path: String::from("async1.txt"),
                 content: String::from("async rule 1"),
                 append: None,
@@ -140,7 +140,7 @@ fn conditional_with_complex_boolean_logic() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(
-                RuleParams::WriteFile {
+                WriteFileRule {
                     path: String::from("urgent.txt"),
                     content: String::from("Urgent work"),
                     append: None,

@@ -14,6 +14,7 @@ pub(crate) type Env = HashMap<String, String>;
 #[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
 pub struct ExecRule {
     pub when: Option<Expression>,
+    pub extract: Option<Vec<String>>,
     pub command: String,
     pub args: Option<Args>,
     pub env: Option<Env>,
@@ -64,6 +65,7 @@ mod tests {
             args: Some(vec!["hello".into()]),
             env: None,
             when: None,
+            extract: None,
         };
 
         let result = rule.check(&MockContext::new()).unwrap();
@@ -78,6 +80,7 @@ mod tests {
     fn test_exec_rule_new() {
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "echo".into(),
             args: Some(vec!["hello".into()]),
             env: None,
@@ -98,6 +101,7 @@ mod tests {
 
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "printenv".into(),
             args: None,
             env: Some(env),
@@ -118,6 +122,7 @@ mod tests {
 
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "echo".into(),
             args: Some(vec!["hello".into(), "{{HELLO}}".into()]),
             env: None,
@@ -138,6 +143,7 @@ mod tests {
 
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "cat".into(),
             args: Some(vec!["./unknown.txt".into()]),
             env: None,
@@ -155,6 +161,7 @@ mod tests {
     fn test_return_error() {
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "XXXXXXXXXXXX".into(),
             args: None,
             env: None,
@@ -172,6 +179,7 @@ mod tests {
 
         let rule = ExecRule {
             when: None,
+            extract: None,
             command: "echo".into(),
             args: Some(vec!["{{VAR}}".into()]),
             env: Some(env),
@@ -188,6 +196,7 @@ mod tests {
             args: Some(vec!["{{VAR}}".into()]),
             env: None,
             when: None,
+            extract: None,
         };
 
         let result = rule.check(&MockContext::new());
