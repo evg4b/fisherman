@@ -56,12 +56,11 @@ impl Rule for SuppressStringRule {
             let diff_lines = ctx.staged_diff(&file)?;
 
             for line in diff_lines {
-                if let DiffLine::Added(content) = line {
-                    if regex.is_match(&content) {
+                if let DiffLine::Added(content) = line
+                    && regex.is_match(&content) {
                         matched_files.push(file.display().to_string());
                         break;
                     }
-                }
             }
         }
 

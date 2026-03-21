@@ -26,7 +26,7 @@ impl std::fmt::Display for ExecRule {
         let args = self.args.clone().unwrap_or_default();
         let mut command = self.command.clone();
         if !args.is_empty() {
-            command.push_str(" ");
+            command.push(' ');
             command.push_str(&args.join(" "));
         }
         write!(f, "Execute command: {}", command)
@@ -44,7 +44,7 @@ impl Rule for ExecRule {
 
         let variables = extract_vars!(self, ctx)?;
         let mut env_map: Env = env::vars().collect();
-        env_map.extend(replace_in_hashmap(&self.env.clone().unwrap_or(HashMap::new()), &variables)?);
+        env_map.extend(replace_in_hashmap(&self.env.clone().unwrap_or_default(), &variables)?);
 
         let output = Command::new(self.command.clone())
             .args(replace_in_vec(&self.args.clone().unwrap_or(vec![]), &variables)?)
