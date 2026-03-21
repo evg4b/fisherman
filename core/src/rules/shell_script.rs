@@ -58,6 +58,16 @@ mod tests {
     use crate::t;
     use std::collections::HashMap;
 
+    fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx
+    }
+
+    fn mock_ctx() -> MockContext {
+        mock_ctx_with_vars(HashMap::new())
+    }
+
     #[test]
     fn test_shell_script() {
         let script = ShellScriptRule {
@@ -67,11 +77,11 @@ mod tests {
             env: None,
         };
 
-        let result = script.check(&MockContext::new()).unwrap();
+        let result = script.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "Test");
+        assert_eq!(name, "shell");
         assert_eq!(output.unwrap(), "Test\n");
     }
 
@@ -84,11 +94,11 @@ mod tests {
             env: None,
         };
 
-        let result = script.check(&MockContext::new()).unwrap();
+        let result = script.check(&mock_ctx()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert_eq!(name, "Test");
+        assert_eq!(name, "shell");
         assert_eq!(message, "exit code: 1");
     }
 
@@ -104,11 +114,11 @@ mod tests {
             env: None,
         };
 
-        let result = script.check(&MockContext::new()).unwrap();
+        let result = script.check(&mock_ctx_with_vars(variables)).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "Test");
+        assert_eq!(name, "shell");
         assert_eq!(output.unwrap(), "Hello Test\n");
     }
 
@@ -124,11 +134,11 @@ mod tests {
             env: Some(env),
         };
 
-        let result = script.check(&MockContext::new()).unwrap();
+        let result = script.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "Test");
+        assert_eq!(name, "shell");
         assert_eq!(output.unwrap(), "Test\n");
     }
 
@@ -141,7 +151,7 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -158,7 +168,7 @@ mod tests {
             script: t!("echo '{{missing}}'"),
         };
 
-        let result = script.check(&MockContext::new());
+        let result = script.check(&mock_ctx());
         assert!(result.is_err());
     }
 }

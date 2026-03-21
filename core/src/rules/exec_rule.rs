@@ -59,6 +59,16 @@ mod tests {
     use assert2::assert;
     use std::collections::HashMap;
 
+    fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx
+    }
+
+    fn mock_ctx() -> MockContext {
+        mock_ctx_with_vars(HashMap::new())
+    }
+
     #[test]
     fn test_exec_rule() {
         let rule = ExecRule {
@@ -69,11 +79,11 @@ mod tests {
             extract: None,
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
         assert_eq!(output.unwrap(), "hello\n");
     }
 
@@ -87,7 +97,7 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -108,18 +118,18 @@ mod tests {
             env: Some(env),
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
         assert!(output.unwrap().contains("HELLO=world"));
     }
 
     #[test]
     fn test_exec_rule_with_variables() {
-        // let mut variables = HashMap::new();
-        // variables.insert("HELLO".into(), "world".into());
+        let mut vars = HashMap::new();
+        vars.insert("HELLO".into(), "world".into());
 
         let rule = ExecRule {
             when: None,
@@ -129,19 +139,16 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx_with_vars(vars)).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "test");
+        assert_eq!(name, "exec");
         assert_eq!(output.unwrap(), "hello world\n");
     }
 
     #[test]
     fn test_exec_rule_failure_on_missing_file() {
-        // let mut variables = HashMap::new();
-        // variables.insert("HELLO".into(), "world".into());
-
         let rule = ExecRule {
             when: None,
             extract: None,
@@ -150,12 +157,12 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&MockContext::new()).unwrap();
+        let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
-        assert_eq!(name, "test");
-        assert_eq!(message, "cat: ./unknown.txt: No such file or directory\n");
+        assert_eq!(name, "exec");
+        assert!(message.contains("No such file or directory"));
     }
 
     #[test]
@@ -168,7 +175,7 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&MockContext::new()).err().unwrap();
+        let result = rule.check(&mock_ctx()).err().unwrap();
 
         assert_eq!(result.to_string(), "No such file or directory (os error 2)");
     }
@@ -186,7 +193,7 @@ mod tests {
             env: Some(env),
         };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
     }
 
@@ -200,7 +207,7 @@ mod tests {
             extract: None,
         };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
     }
 }

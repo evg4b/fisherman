@@ -57,6 +57,16 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
+    fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx
+    }
+
+    fn mock_ctx() -> MockContext {
+        mock_ctx_with_vars(HashMap::new())
+    }
+
     #[test]
     fn write_file_when_file_doesnt_exist() -> Result<()> {
         let dir = TempDir::new()?;
@@ -71,12 +81,12 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "write_file");
+        assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path)?;
@@ -102,12 +112,12 @@ mod tests {
             extract: None,
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "write_file");
+        assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path)?;
@@ -133,12 +143,12 @@ mod tests {
             extract: None,
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "write_file");
+        assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path)?;
@@ -165,12 +175,12 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx_with_vars(variables))?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "write_file");
+        assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
         let file_content = fs::read_to_string(dir.path().join("test.txt"))?;
@@ -196,12 +206,12 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx_with_vars(variables))?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
-        assert_eq!(name, "write_file");
+        assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
         let file_content = fs::read_to_string(path)?;
@@ -220,7 +230,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
     }
 
@@ -237,7 +247,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
 
         Ok(())
@@ -253,7 +263,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&MockContext::new());
+        let result = rule.check(&mock_ctx());
         assert!(result.is_err());
     }
 
@@ -271,7 +281,7 @@ mod tests {
             append: None,
         };
 
-        let result = rule.check(&MockContext::new())?;
+        let result = rule.check(&mock_ctx())?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");

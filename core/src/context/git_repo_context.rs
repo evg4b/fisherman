@@ -150,16 +150,172 @@ pub mod tests {
     use super::*;
     use tempfile::tempdir;
 
+    fn init_ctx(path: &std::path::Path) -> Result<GitRepoContext> {
+        Repository::init(path)?;
+        GitRepoContext::new(path.to_path_buf())
+    }
+
     #[test]
     fn test_context_initialization() -> Result<()> {
         let temp_dir = tempdir()?;
-        // Initialize a real git repo in the temp dir
-        Repository::init(temp_dir.path())?;
-
-        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
+        let ctx = init_ctx(temp_dir.path())?;
         assert_eq!(ctx.repo_path(), temp_dir.path());
         assert_eq!(ctx.cwd, temp_dir.path());
         assert_eq!(ctx.bin, std::env::current_exe()?);
+        Ok(())
+    }
+
+    #[test]
+    fn test_hooks_dir() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        assert_eq!(ctx.hooks_dir(), temp_dir.path().join(".git/hooks"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_bin() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        assert_eq!(ctx.bin(), std::env::current_exe()?.as_path());
+        Ok(())
+    }
+
+    #[test]
+    fn test_commit_msg_no_file_returns_error() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        assert!(ctx.commit_msg().is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn test_commit_msg_with_file() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx(temp_dir.path())?;
+        let msg_file = temp_dir.path().join("COMMIT_EDITMSG");
+        fs::write(&msg_file, "feat: test commit\n")?;
+        ctx.set_commit_msg_path(msg_file);
+        assert_eq!(ctx.commit_msg()?, "feat: test commit");
+        Ok(())
+    }
+
+    #[test]
+    fn test_commit_msg_strips_trailing_newlines() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx(temp_dir.path())?;
+        let msg_file = temp_dir.path().join("COMMIT_EDITMSG");
+        fs::write(&msg_file, "fix: a bug\n\n")?;
+        ctx.set_commit_msg_path(msg_file);
+        assert_eq!(ctx.commit_msg()?, "fix: a bug");
+        Ok(())
+    }
+
+    #[test]
+    fn test_set_commit_msg_path() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx(temp_dir.path())?;
+        assert!(ctx.commit_msg().is_err());
+        let msg_file = temp_dir.path().join("MSG");
+        fs::write(&msg_file, "chore: setup\n")?;
+        ctx.set_commit_msg_path(msg_file);
+        assert!(ctx.commit_msg().is_ok());
+        Ok(())
+    }
+
+    #[test]
+    fn test_current_branch() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let repo = Repository::init(temp_dir.path())?;
+        let sig = git2::Signature::now("Test", "test@test.com")?;
+        let tree_id = {
+            let mut index = repo.index()?;
+            index.write_tree()?
+        };
+        let tree = repo.find_tree(tree_id)?;
+        repo.commit(Some("HEAD"), &sig, &sig, "initial", &tree, &[])?;
+
+        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
+        let branch = ctx.current_branch()?;
+        assert!(!branch.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_staged_files() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let repo = Repository::init(temp_dir.path())?;
+        let file_path = temp_dir.path().join("test.txt");
+        fs::write(&file_path, "content")?;
+        let mut index = repo.index()?;
+        index.add_path(Path::new("test.txt"))?;
+        index.write()?;
+
+        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
+        let files = ctx.staged_files()?;
+        assert!(files.contains(&PathBuf::from("test.txt")));
+        Ok(())
+    }
+
+    #[test]
+    fn test_staged_files_empty_repo() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        let files = ctx.staged_files()?;
+        assert!(files.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_staged_diff_new_file() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let repo = Repository::init(temp_dir.path())?;
+        let file_path = temp_dir.path().join("test.txt");
+        fs::write(&file_path, "hello\nworld\n")?;
+        let mut index = repo.index()?;
+        index.add_path(Path::new("test.txt"))?;
+        index.write()?;
+
+        let ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
+        let diff = ctx.staged_diff(Path::new("test.txt"))?;
+        let added: Vec<_> = diff.iter().filter(|l| matches!(l, DiffLine::Added(_))).collect();
+        assert!(!added.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_staged_diff_empty_repo() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        let diff = ctx.staged_diff(Path::new("nonexistent.txt"))?;
+        assert!(diff.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_variables_empty_extract() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        let vars = ctx.variables(&[])?;
+        assert!(vars.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_display_format() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        let display = format!("{}", ctx);
+        assert!(display.contains("Context"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_configuration_empty_dir() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        let config = ctx.configuration()?;
+        assert!(config.hooks.is_empty());
         Ok(())
     }
 }
