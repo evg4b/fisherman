@@ -24,7 +24,6 @@ Fisherman enables more sophisticated hook configurations with minimal effort.
 - ✅ **Template Support** - Use variables in your configurations with `{{variable}}` syntax
 - ✅ **File Automation** - Write, copy, and delete files with templated paths and content
 - ✅ **Multiple Scopes** - Global, repository, and local configuration support
-- ✅ **Parallel Execution** - Async rules (exec, shell, write-file) run in parallel for faster hook execution
 - ✅ **Easy Installation** - Single binary, no runtime dependencies
 
 # Quick Start

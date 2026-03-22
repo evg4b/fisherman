@@ -66,6 +66,7 @@ rule type requires registering it with `#[typetag::serde(name = "…")]`.
 ```
 rule.rs          — Rule trait, RuleResult enum, ConditionalRule trait
 mod.rs           — Private sub-modules, all types re-exported at crate::rules level
+helpers.rs       — compile_tmpl() helper and extract_vars!() macro
 exec_rule.rs     — type = "exec"
 shell_script.rs  — type = "shell"
 write_file.rs    — type = "write-file"
@@ -91,10 +92,10 @@ pub trait Rule: Send + Sync + Display {
 **ConditionalRule** trait + `#[derive(ConditionalRule)]` proc-macro: generates `check_condition()` from the
 `when: Option<Expression>` field. Every rule struct that has a `when` field should derive it.
 
-**Execution split in `handle` command:**
+**Execution in `handle` command:**
 
-- Sync rules (validation): run sequentially, first failure aborts
-- Async rules (exec, shell, write-file, copy-files, delete-files): run in parallel via rayon
+All rules run sequentially via `.iter().map(|r| r.check(context)).collect()`. Every rule is evaluated; all failures are
+collected and printed before the hook exits with an error. There is no sync/async split.
 
 ### Context System (`fisherman_core/src/context/`)
 
@@ -163,7 +164,7 @@ ASCII logo, hook display formatting, and version/about rendering used by `explai
 1. Create `fisherman_core/src/rules/<rule_name>.rs` with a struct that derives `serde::Serialize/Deserialize` and (if it has a `when` field) `ConditionalRuleDerive`.
 2. Implement `Display` for the rule (used by `explain`).
 3. Implement `Rule` with `#[typetag::serde(name = "your-type-name")]`.
-4. Decide sync vs async: add it to the appropriate `Vec` in `fisherman_core/src/commands/handle.rs`.
+4. Register the rule in `fisherman_core/src/commands/handle.rs` — rules run sequentially, no sync/async split.
 5. Add `pub use` for the new type in `fisherman_core/src/rules/mod.rs`.
 6. Write unit tests inline in the rule module using `MockContext`.
 

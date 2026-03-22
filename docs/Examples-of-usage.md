@@ -71,13 +71,11 @@ expression = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
 - Rejects names with non-ASCII characters or incorrect prefixes
 - The `pre-push` hook ensures this validation before pushing changes and creates a pull request if the branch is valid.
 
-# Parallel Execution for Faster Pre-Commit Checks
+# Multiple Pre-Commit Checks
 
-Run multiple time-consuming checks concurrently to speed up your pre-commit workflow.
+Chain multiple independent checks together in a single hook to enforce quality gates before every commit.
 
 ```toml .fisherman.toml
-# These async rules will execute in parallel
-
 [[hooks.pre-commit]]
 type = "exec"
 command = "cargo"
@@ -100,20 +98,10 @@ args = ["build", "--release"]
 
 **How it works:**
 
-- All four async rules execute **in parallel** rather than sequentially
-- If each command takes ~5 seconds, total execution time is ~5 seconds instead of ~20 seconds
-- Synchronous rules (like `message-regex`) still run sequentially before async rules
-- Failed rules are still reported even when running in parallel
+- Rules execute **sequentially** in the order they are defined
+- All rules are evaluated; every failure is reported before the hook exits
 - Best for independent tasks that don't depend on each other's results
-
-**Performance comparison:**
-
-| Execution Mode | Time for 4 rules @ 5s each |
-|----------------|----------------------------|
-| Sequential     | ~20 seconds                |
-| Parallel       | ~5 seconds                 |
-
-This dramatically improves developer experience when multiple validation steps are required.
+- Use `when` conditions to skip rules that are not relevant to the current context
 
 # Keep Project Templates in Sync
 

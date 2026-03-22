@@ -10,43 +10,10 @@ All rules support these common fields:
   see [Variables and Templates](./Variables-and-templates))
 - **`extract`** (optional) - Override global variable extraction for this rule
 
-# Execution Modes
+# Execution
 
-Rules are executed in two modes:
-
-- **Synchronous** - Rules that validate data (e.g., commit message validation, branch name checks). These execute
-  quickly and block the Git operation. Synchronous rules run sequentially in the order they are defined.
-- **Asynchronous** - Rules that execute external commands (e.g., `exec`, `shell`, `write-file`). These may take longer
-  and run
-  external processes. **Asynchronous rules execute in parallel** to improve performance when multiple async rules are
-  configured.
-
-**Parallel Execution Benefits:**
-
-When multiple asynchronous rules are defined (e.g., running tests, linting, and building), Fisherman executes them
-concurrently using parallel threads. This significantly reduces total execution time compared to running each rule
-sequentially.
-
-**Example:**
-
-```toml
-# These three async rules will run in parallel
-[[hooks.pre-commit]]
-type = "exec"
-command = "cargo"
-args = ["test"]
-
-[[hooks.pre-commit]]
-type = "exec"
-command = "cargo"
-args = ["clippy"]
-
-[[hooks.pre-commit]]
-type = "shell"
-script = "cargo fmt --check"
-```
-
-If each rule takes 5 seconds, parallel execution completes in ~5 seconds instead of 15 seconds sequentially.
+All rules execute **sequentially** in the order they are defined. Every rule is evaluated; all failures are collected
+and reported before the hook exits with a non-zero code.
 
 ---
 
@@ -57,8 +24,6 @@ Rules for validating and enforcing commit message formats. These rules are typic
 ## `message-regex`
 
 Validates that the commit message matches a regular expression pattern.
-
-**Type:** Synchronous
 
 **Parameters:**
 
@@ -92,8 +57,6 @@ regex = "^(PROJ-\\d+|NO-ISSUE):\\s.+"
 ## `message-prefix`
 
 Validates that the commit message starts with a specific prefix.
-
-**Type:** Synchronous
 
 **Parameters:**
 
@@ -129,8 +92,6 @@ prefix = "{{IssueNumber}}: "
 ## `message-suffix`
 
 Validates that the commit message ends with a specific suffix.
-
-**Type:** Synchronous
 
 **Parameters:**
 
@@ -172,8 +133,6 @@ hooks.
 
 Validates that the current branch name matches a regular expression pattern.
 
-**Type:** Synchronous
-
 **Parameters:**
 
 - `regex` (required) - Regular expression pattern to match against the branch name
@@ -212,8 +171,6 @@ regex = "^(PROJ-\\d+|main|develop)-.*$"
 
 Validates that the current branch name starts with a specific prefix.
 
-**Type:** Synchronous
-
 **Parameters:**
 
 - `prefix` (required) - String that the branch name must start with
@@ -237,8 +194,6 @@ prefix = "feature/"
 ## `branch-name-suffix`
 
 Validates that the current branch name ends with a specific suffix.
-
-**Type:** Synchronous
 
 **Parameters:**
 
@@ -267,8 +222,6 @@ Rules for executing external commands and scripts.
 ## `exec`
 
 Executes an external command with arguments and environment variables.
-
-**Type:** Asynchronous
 
 **Parameters:**
 
@@ -325,8 +278,6 @@ args = ["Running tests for {{Feature}}"]
 ## `shell`
 
 Executes a shell script with full shell features (pipes, redirections, variables, etc.).
-
-**Type:** Asynchronous
 
 **Parameters:**
 
@@ -403,8 +354,6 @@ Rules for file system operations.
 
 Writes content to a file, optionally appending to existing content.
 
-**Type:** Asynchronous
-
 **Parameters:**
 
 - `path` (required) - File path to write (relative to repository root)
@@ -461,8 +410,6 @@ append = true
 ## `delete-files`
 
 Deletes files that match a glob pattern.
-
-**Type:** Asynchronous
 
 **Parameters:**
 
@@ -581,13 +528,9 @@ args = ["test"]
 5. **Use conditional execution** - Avoid running unnecessary rules with `when` conditions
 6. **Leverage variables** - Extract information once and reuse it across rules
 7. **Keep scripts focused** - Each rule should have a single, clear responsibility
-8. **Consider performance** - Minimize expensive operations in frequently-used hooks; leverage parallel execution for
-   async rules
+8. **Consider performance** - Minimize expensive operations in frequently-used hooks
 9. **Document complex regex** - Add comments explaining non-obvious patterns
 10. **Use appropriate hooks** - Match rules to the right Git hook for best results
-11. **Design for parallelism** - Ensure async rules are independent and can safely run concurrently
-12. **Avoid shared state** - When using multiple async rules, avoid operations that conflict (e.g., writing to the same
-    file)
 
 ---
 
@@ -620,8 +563,6 @@ See [Examples](./Examples-of-usage) for more real-world use cases.
 
 Copies one or more files matching a glob into a destination, preserving the relative path when a source directory is
 provided.
-
-**Type:** Asynchronous
 
 **Parameters:**
 

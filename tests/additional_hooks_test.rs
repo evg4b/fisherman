@@ -52,31 +52,6 @@ content = "post-checkout ran"
     );
 }
 
-// NOTE: pre-receive is a server-side hook that runs during git push on the remote repository.
-
-#[test]
-#[ignore = "UNSUPORTED"]
-fn very_long_branch_name() {
-    let ctx = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-"#;
-
-    ctx.setup_and_install_old(config);
-
-    let long_name = format!("feature/{}", "a".repeat(192));
-    ctx.repo.create_branch(&long_name);
-
-    let output = ctx.git_commit_allow_empty("test commit");
-    assert!(
-        output.status.success(),
-        "Should handle very long branch names: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
 #[test]
 fn branch_name_with_special_characters() {
     let ctx = TestContext::new();

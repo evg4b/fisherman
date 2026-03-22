@@ -11,6 +11,7 @@ use fisherman_core::WriteFileRule;
 use std::time::Instant;
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
 
@@ -66,6 +67,7 @@ fn parallel_multiple_write_files() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
 
@@ -130,6 +132,7 @@ fn parallel_multiple_exec_rules() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
 
@@ -194,6 +197,7 @@ fn parallel_multiple_shell_scripts() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
 
@@ -279,6 +283,7 @@ fn parallel_mixed_async_rules() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
 
@@ -345,6 +350,7 @@ fn parallel_one_fails_stops_all() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
 
@@ -412,6 +418,7 @@ fn sync_rules_execute_before_async() {
 }
 
 #[test]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
 
@@ -435,7 +442,7 @@ fn sync_rule_fails_hook_fails() {
 }
 
 #[test]
-#[cfg(not(windows))]
+#[ignore = "UNSUPPORTED: parallel execution is not supported at the moment"]
 fn parallel_performance_benefit() {
     let ctx = TestContext::new();
 

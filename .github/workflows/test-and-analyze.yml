@@ -44,11 +44,11 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - name: MacOS
+          # - name: macos
           #   runs-on: macos-latest
-          - name: Windows
+          - name: windows
             runs-on: windows-latest
-          - name: Linux
+          - name: linux
             runs-on: ubuntu-latest
 
     runs-on: ${{ matrix.platform.runs-on }}
@@ -102,9 +102,9 @@ jobs:
         platform:
           # - name: MacOS
           #   runs-on: macos-latest
-          - name: Windows
+          - name: windows
             runs-on: windows-latest
-          - name: Linux
+          - name: linux
             runs-on: ubuntu-latest
 
     runs-on: ${{ matrix.platform.runs-on }}

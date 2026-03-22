@@ -166,9 +166,7 @@ fisherman handle <HOOK> [ARGS...]
 1. **Reads configuration** from all scopes
 2. **Extracts variables** based on `extract` configuration
 3. **Compiles rules** that apply to the hook
-4. **Executes rules sequentially**:
-    - Synchronous rules first (validation)
-    - Asynchronous rules second (commands, scripts)
+4. **Executes all rules sequentially** in the order they are defined
 5. **Reports results** for each rule
 6. **Exits with appropriate code**:
     - `0` if all rules pass
