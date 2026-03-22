@@ -55,16 +55,16 @@ jobs:
     runs-on: ${{ matrix.platform.runs-on }}
     steps:
       - uses: actions/checkout@v6
-      - name: Cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ matrix.platform.target.name }}-test
+#      - name: Cache
+#        uses: actions/cache@v5
+#        with:
+#          path: |
+#            ~/.cargo/bin/
+#            ~/.cargo/registry/index/
+#            ~/.cargo/registry/cache/
+#            ~/.cargo/git/db/
+#            target/
+#          key: ${{ matrix.platform.target.name }}-test
       - name: Install llvm-cov
         uses: taiki-e/install-action@v2
         with:
