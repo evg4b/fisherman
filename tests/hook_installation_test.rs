@@ -94,8 +94,15 @@ regex = ".*"
     assert!(repo.hook_exists("pre-commit.bkp"));
 
     let hook_content = repo.read_hook("pre-commit");
+
+    #[cfg(not(windows))]
     assert!(
         hook_content.contains("fisherman handle"),
+        "Hook should contain fisherman command"
+    );
+    #[cfg(windows)]
+    assert!(
+        hook_content.contains("fisherman.exe handle"),
         "Hook should contain fisherman command"
     );
 }
@@ -120,7 +127,10 @@ regex = ".*"
     let hook_content = repo.read_hook("pre-commit");
 
     assert!(hook_content.starts_with("#!/bin/sh"));
+    #[cfg(not(windows))]
     assert!(hook_content.contains("fisherman handle pre-commit"));
+    #[cfg(windows)]
+    assert!(hook_content.contains("fisherman.exe handle pre-commit"));
     assert!(hook_content.contains(&binary.path().display().to_string()));
 }
 
@@ -296,7 +306,10 @@ regex = ".*"
 
     assert!(repo.hook_exists("pre-push"));
     let hook_content = repo.read_hook("pre-push");
+    #[cfg(not(windows))]
     assert!(hook_content.contains("fisherman handle pre-push"));
+    #[cfg(windows)]
+    assert!(hook_content.contains("fisherman.exe handle pre-push"));
 }
 
 #[test]
