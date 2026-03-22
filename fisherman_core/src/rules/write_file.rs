@@ -55,8 +55,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = WriteFileRule {
-            when: None,
-            extract: None,
             path: t!("/tmp/output.txt"),
             content: t!("hello"),
             append: Some(false),
@@ -66,7 +64,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":false}"#
+            r#"{"path":"/tmp/output.txt","content":"hello","append":false}"#
         );
 
         Ok(())
@@ -78,8 +76,6 @@ mod tests {
             r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#,
         )?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.path, t!("/tmp/output.txt"));
         assert_eq!(config.content, t!("hello"));
         assert_eq!(config.append, Some(true));
@@ -90,8 +86,6 @@ mod tests {
     #[test]
     fn serialize_test_with_append_true() -> Result<()> {
         let config = WriteFileRule {
-            when: None,
-            extract: None,
             path: t!("/tmp/output.txt"),
             content: t!("hello"),
             append: Some(true),
@@ -101,7 +95,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":true}"#
+            r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#
         );
 
         Ok(())
@@ -110,8 +104,6 @@ mod tests {
     #[test]
     fn serialize_test_with_append_none() -> Result<()> {
         let config = WriteFileRule {
-            when: None,
-            extract: None,
             path: t!("/tmp/output.txt"),
             content: t!("hello"),
             append: None,
@@ -121,7 +113,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":null}"#
+            r#"{"path":"/tmp/output.txt","content":"hello","append":null}"#
         );
 
         Ok(())
@@ -133,8 +125,6 @@ mod tests {
             r#"{"path":"/tmp/output.txt","content":"hello"}"#,
         )?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.path, t!("/tmp/output.txt"));
         assert_eq!(config.content, t!("hello"));
         assert!(config.append.is_none());
@@ -142,43 +132,10 @@ mod tests {
         Ok(())
     }
 
+
     #[test]
-    fn serialize_test_with_extract() -> Result<()> {
+    fn serialize_test_with_append() -> Result<()> {
         let config = WriteFileRule {
-            when: None,
-            extract: Some(vec!["branch:.*".to_string()]),
-            path: t!("/tmp/output.txt"),
-            content: t!("hello"),
-            append: Some(false),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert!(serialized.contains("\"extract\":[\"branch:.*\"]"));
-        assert!(serialized.contains("\"path\":\"/tmp/output.txt\""));
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_extract() -> Result<()> {
-        let config: WriteFileRule = serde_json::from_str(
-            r#"{"path":"/tmp/output.txt","content":"hello","extract":["branch:.*"]}"#,
-        )?;
-
-        assert!(config.when.is_none());
-        assert!(config.extract.is_some());
-        assert_eq!(config.extract.unwrap(), vec!["branch:.*".to_string()]);
-        assert_eq!(config.path, t!("/tmp/output.txt"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = WriteFileRule {
-            when: Some(Expression::new("is_def_var(\"generate\")")),
-            extract: None,
             path: t!("/tmp/output.txt"),
             content: t!("hello"),
             append: Some(false),
@@ -188,20 +145,8 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":"is_def_var(\"generate\")","extract":null,"path":"/tmp/output.txt","content":"hello","append":false}"#
+            r#"{"path":"/tmp/output.txt","content":"hello","append":false}"#
         );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: WriteFileRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"generate\")","path":"/tmp/output.txt","content":"hello"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.path, t!("/tmp/output.txt"));
 
         Ok(())
     }
@@ -209,8 +154,6 @@ mod tests {
     #[test]
     fn serialize_test_with_all_fields() -> Result<()> {
         let config = WriteFileRule {
-            when: Some(Expression::new("is_def_var(\"generate\")")),
-            extract: Some(vec!["branch:.*".to_string()]),
             path: t!("/tmp/output.txt"),
             content: t!("hello"),
             append: Some(true),
@@ -220,7 +163,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":"is_def_var(\"generate\")","extract":["branch:.*"],"path":"/tmp/output.txt","content":"hello","append":true}"#
+            r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#
         );
 
         Ok(())
@@ -228,7 +171,7 @@ mod tests {
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx.expect_variables_new().returning(move || Ok(vars.clone()));
         ctx
     }
 
@@ -245,8 +188,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -277,8 +218,6 @@ mod tests {
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
             append: Some(false),
-            when: None,
-            extract: None,
         };
 
         let result = rule.check(&mock_ctx())?;
@@ -308,8 +247,6 @@ mod tests {
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
             append: Some(true),
-            when: None,
-            extract: None,
         };
 
         let result = rule.check(&mock_ctx())?;
@@ -339,8 +276,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -370,8 +305,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -394,8 +327,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!("{{missing}}/file.txt"),
             content: t!("content"),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -411,8 +342,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!(path.to_str().unwrap()),
             content: t!("{{missing}}"),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -427,8 +356,6 @@ mod tests {
         let rule = WriteFileRule {
             path: t!("/invalid/path/that/does/not/exist/file.txt"),
             content: t!("content"),
-            when: None,
-            extract: None,
             append: Some(false),
         };
 
@@ -439,8 +366,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = WriteFileRule {
-            when: None,
-            extract: None,
             path: t!("/tmp/output.txt"),
             content: t!("content"),
             append: None,
@@ -455,8 +380,6 @@ mod tests {
         let content = "Hello, world!".to_string();
 
         let rule = WriteFileRule {
-            when: None,
-            extract: None,
             path: t!(path.to_str().unwrap()),
             content: t!(content.clone()),
             append: None,

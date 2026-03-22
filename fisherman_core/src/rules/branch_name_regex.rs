@@ -1,7 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use regex::Regex;
@@ -52,13 +51,12 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/.*$"),
         };
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(serialized, r#"{"when":null,"expression":"^feat/.*$"}"#);
+        assert_eq!(serialized, r#"{"expression":"^feat/.*$"}"#);
 
         Ok(())
     }
@@ -67,55 +65,16 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: BranchNameRegexRule = serde_json::from_str(r#"{"expression":"^feat/.*$"}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.expression, t!(r"^feat/.*$"));
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = BranchNameRegexRule {
-            when: Some(Expression::new("is_def_var(\"ticket\")")),
-            expression: t!(r"^feat/.*$"),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(serialized, r#"{"when":"is_def_var(\"ticket\")","expression":"^feat/.*$"}"#);
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: BranchNameRegexRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"ticket\")","expression":"^feat/.*$"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.expression, t!(r"^feat/.*$"));
-
-        Ok(())
-    }
 
     #[test]
     fn deserialize_test_with_regex_alias() -> Result<()> {
         let config: BranchNameRegexRule = serde_json::from_str(r#"{"regex":"^feat/.*$"}"#)?;
 
-        assert!(config.when.is_none());
-        assert_eq!(config.expression, t!(r"^feat/.*$"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_regex_alias_and_when() -> Result<()> {
-        let config: BranchNameRegexRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"ticket\")","regex":"^feat/.*$"}"#,
-        )?;
-
-        assert!(config.when.is_some());
         assert_eq!(config.expression, t!(r"^feat/.*$"));
 
         Ok(())
@@ -124,7 +83,6 @@ mod tests {
     #[test]
     fn test_branch_name_regex_success() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/.*-feature$"),
         };
         let mut ctx = MockContext::new();
@@ -145,7 +103,6 @@ mod tests {
     #[test]
     fn test_branch_name_regex_failure() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/.*-bugfix$"),
         };
         let mut ctx = MockContext::new();
@@ -167,7 +124,6 @@ mod tests {
     #[test]
     fn test_branch_name_regex_variables_error() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/.*$"),
         };
         let mut ctx = MockContext::new();
@@ -185,7 +141,6 @@ mod tests {
     #[test]
     fn test_branch_name_regex_branch_error() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/.*$"),
         };
         let mut ctx = MockContext::new();
@@ -203,7 +158,6 @@ mod tests {
     #[test]
     fn test_branch_name_regex_invalid_regex() -> anyhow::Result<()> {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: t!(r"^feat/["),
         };
         let mut ctx = MockContext::new();
@@ -221,7 +175,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = BranchNameRegexRule {
-            when: None,
             expression: "^feat/".into(),
         };
         assert_eq!(

@@ -21,7 +21,6 @@ fn template_branch_variable_in_message_prefix() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessagePrefixRule {
-                when: None,
                 prefix: "{{Type}}: [{{Ticket}}] ".into(),
             })
         ],
@@ -43,8 +42,6 @@ fn template_branch_variable_in_write_file() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "branch-info.txt".into(),
                 content: "Current feature: {{Feature}}".into(),
                 append: None,
@@ -73,8 +70,6 @@ fn template_repo_path_variable() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "repo-info.txt".into(),
                 content: "Repository: {{RepoName}}".into(),
                 append: None,
@@ -101,8 +96,6 @@ fn template_multiple_variables() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "info.txt".into(),
                 content: "Type: {{Type}}, Ticket: {{Ticket}}, Repo: {{RepoName}}".into(),
                 append: None,
@@ -134,8 +127,6 @@ fn template_in_exec_command() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("{{Feature}}")]),
                 env: None,
@@ -150,8 +141,6 @@ fn template_in_exec_command() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("{{Feature}}")]),
                 env: None,
@@ -175,8 +164,6 @@ fn template_optional_variable_present() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "output.txt".into(),
                 content: "Feature: {{Feature}}".into(),
                 append: None,
@@ -201,7 +188,6 @@ fn template_optional_variable_missing() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^.+$".into(),
             })
         ],
@@ -223,8 +209,6 @@ fn template_in_file_path() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "{{Feature}}-status.txt".into(),
                 content: "Feature status file".into(),
                 append: None,
@@ -253,8 +237,6 @@ fn template_in_file_path_multiple_vars() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "{{Type}}-{{Name}}.log".into(),
                 content: "Log for {{Type}}/{{Name}}".into(),
                 append: None,
@@ -283,7 +265,6 @@ fn template_in_message_suffix() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessageSuffixRule {
-                when: None,
                 suffix: " [{{Ticket}}]".into(),
             })
         ],
@@ -306,7 +287,6 @@ fn template_in_branch_name_prefix() {
     let config = config!(
         GitHook::PrePush => [
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "{{Prefix}}/".into(),
             })
         ],
@@ -328,7 +308,6 @@ fn template_in_branch_name_suffix() {
     let config = config!(
         GitHook::PrePush => [
             rule!(BranchNameSuffixRule {
-                when: None,
                 suffix: "-{{Type}}".into(),
             })
         ],
@@ -351,8 +330,6 @@ fn template_in_shell_command() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "echo Working on {{Feature}} > feature.txt".into(),
                 env: None,
             })
@@ -366,8 +343,6 @@ fn template_in_shell_command() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "echo 'Working on {{Feature}}' > feature.txt".into(),
                 env: None,
             })
@@ -394,8 +369,6 @@ fn multiple_templates_in_single_field() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "status.txt".into(),
                 content: "Type: {{Type}}, Ticket: {{Ticket}}, Name: {{Name}}, Full: {{Type}}/{{Ticket}}-{{Name}}".into(),
                 append: None,
@@ -423,8 +396,6 @@ fn template_rendering_failure_missing_variable() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "output.txt".into(),
                 content: "Feature: {{Feature}}, Missing: {{UndefinedVar}}".into(),
                 append: None,
@@ -448,7 +419,6 @@ fn template_optional_repo_path_no_match() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: ".*".into(),
             })
         ],
@@ -468,8 +438,6 @@ fn template_with_special_characters() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "feature.txt".into(),
                 content: "Feature: {{Feature}}".into(),
                 append: None,
@@ -494,12 +462,10 @@ fn template_in_conditional_with_defined_var() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: Some(Expression::new("is_def_var(\"Type\")")),
-                extract: None,
                 path: "conditional.txt".into(),
                 content: "Type: {{Type}}".into(),
                 append: None,
-            })
+            }, when = Expression::new("is_def_var(\"Type\")"))
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)/(?P<Name>[a-z-]+)"),
@@ -520,12 +486,10 @@ fn template_conditional_skipped_undefined_var() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: Some(Expression::new("is_def_var(\"Feature\")")),
-                extract: None,
                 path: "optional.txt".into(),
                 content: "Feature: {{Feature}}".into(),
                 append: None,
-            })
+            }, when = Expression::new("is_def_var(\"Feature\")"))
         ],
         extract = vec![
             String::from("branch?:^feature/(?P<Feature>[a-z-]+)"),
@@ -546,8 +510,6 @@ fn template_complex_extraction_pattern() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "{{Category}}-{{Project}}-{{Issue}}.txt".into(),
                 content: "Category: {{Category}}\nProject: {{Project}}\nIssue: {{Issue}}\nDescription: {{Description}}".into(),
                 append: None,
@@ -579,8 +541,6 @@ fn template_in_multiple_exec_args() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: String::from("cmd"),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("{{Type}}"), String::from("{{Name}}")]),
                 env: None,
@@ -595,8 +555,6 @@ fn template_in_multiple_exec_args() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: String::from("echo"),
                 args: Some(vec![String::from("{{Type}}"), String::from("{{Name}}")]),
                 env: None,
@@ -620,8 +578,6 @@ fn template_combined_repo_and_branch_variables() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "combined-info.log".into(),
                 content: "Repo: {{RepoName}}, Type: {{Type}}, Name: {{Name}}".into(),
                 append: None,

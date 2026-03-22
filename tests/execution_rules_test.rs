@@ -18,8 +18,6 @@ fn exec_rule_success() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "cmd".into(),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("test")]),
                 env: None,
@@ -31,8 +29,6 @@ fn exec_rule_success() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "echo".into(),
                 args: Some(vec![String::from("test")]),
                 env: None,
@@ -60,8 +56,6 @@ fn exec_rule_failure() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "cmd".into(),
                 args: Some(vec![String::from("/C"), String::from("exit"), String::from("1")]),
                 env: None,
@@ -73,8 +67,6 @@ fn exec_rule_failure() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "false".into(),
                 args: None,
                 env: None,
@@ -99,8 +91,6 @@ fn exec_rule_with_env() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "cmd".into(),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("%TEST_VAR%")]),
                 env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
@@ -112,8 +102,6 @@ fn exec_rule_with_env() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "sh".into(),
                 args: Some(vec![String::from("-c"), String::from("test \"$TEST_VAR\" = \"test_value\"")]),
                 env: Some(HashMap::from([(String::from("TEST_VAR"), String::from("test_value"))])),
@@ -145,8 +133,6 @@ fn shell_script_success() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "echo test".into(),
                 env: None,
             })
@@ -157,8 +143,6 @@ fn shell_script_success() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "#!/bin/sh\necho \"Running shell script\"\nexit 0\n".into(),
                 env: None,
             })
@@ -189,8 +173,6 @@ fn shell_script_failure() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "exit 1".into(),
                 env: None,
             })
@@ -201,8 +183,6 @@ fn shell_script_failure() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "#!/bin/sh\nexit 1\n".into(),
                 env: None,
             })
@@ -238,8 +218,6 @@ fn shell_script_with_env() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "if \"%CUSTOM_VAR%\" == \"custom_value\" exit 0".into(),
                 env: Some(HashMap::from([(String::from("CUSTOM_VAR"), String::from("custom_value"))])),
             })
@@ -250,8 +228,6 @@ fn shell_script_with_env() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "#!/bin/sh\nif [ \"$CUSTOM_VAR\" = \"custom_value\" ]; then\n    exit 0\nelse\n    exit 1\nfi\n".into(),
                 env: Some(HashMap::from([(String::from("CUSTOM_VAR"), String::from("custom_value"))])),
             })
@@ -282,15 +258,11 @@ fn exec_and_shell_mixed() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "cmd".into(),
                 args: Some(vec![String::from("/C"), String::from("echo"), String::from("exec test")]),
                 env: None,
             }),
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "echo shell test".into(),
                 env: None,
             })
@@ -301,15 +273,11 @@ fn exec_and_shell_mixed() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(ExecRule {
-                when: None,
-                extract: None,
                 command: "echo".into(),
                 args: Some(vec![String::from("exec test")]),
                 env: None,
             }),
             rule!(ShellScriptRule {
-                when: None,
-                extract: None,
                 script: "echo 'shell test'".into(),
                 env: None,
             })

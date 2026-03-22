@@ -20,8 +20,6 @@ fn post_commit_hook_execution() {
     let config = config!(
         GitHook::PostCommit => [
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: path.into(),
                 content: content.into(),
                 append: None,
@@ -56,23 +54,17 @@ fn mixed_sync_and_async_rules_execute_correctly() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^feature/.*".into(),
             }),
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "async1.txt".into(),
                 content: "async rule 1".into(),
                 append: None,
             }),
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "feature/".into(),
             }),
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "async2.txt".into(),
                 content: "async rule 2".into(),
                 append: None,
@@ -96,12 +88,9 @@ fn sync_rule_failure_behavior() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^feature/.*".into(),
             }),
             rule!(WriteFileRule {
-                when: None,
-                extract: None,
                 path: "async1.txt".into(),
                 content: "async rule 1".into(),
                 append: None,
@@ -154,12 +143,10 @@ fn conditional_with_complex_boolean_logic() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(WriteFileRule {
-                when: Some(Expression::new("(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\"")),
-                extract: None,
                 path: "urgent.txt".into(),
                 content: "Urgent work".into(),
                 append: None,
-            })
+            }, when = Expression::new("(Type == \"hotfix\" || (Type == \"bugfix\" && Priority == \"high\")) && Type != \"feature\""))
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix|hotfix)/(?P<Priority>high|low|medium)"),

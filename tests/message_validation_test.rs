@@ -55,7 +55,6 @@ fn message_prefix_valid() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessagePrefixRule {
-                when: None,
                 prefix: "feat: ".into(),
             })
         ]
@@ -72,7 +71,6 @@ fn message_prefix_invalid() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessagePrefixRule {
-                when: None,
                 prefix: "feat: ".into(),
             })
         ]
@@ -98,7 +96,6 @@ fn message_suffix_valid() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessageSuffixRule {
-                when: None,
                 suffix: " [skip ci]".into(),
             })
         ]
@@ -115,7 +112,6 @@ fn message_suffix_invalid() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessageSuffixRule {
-                when: None,
                 suffix: " [skip ci]".into(),
             })
         ]
@@ -141,11 +137,9 @@ fn message_multiple_rules_all_pass() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessagePrefixRule {
-                when: None,
                 prefix: "feat: ".into(),
             }),
             rule!(CommitMessageSuffixRule {
-                when: None,
                 suffix: " [done]".into(),
             }),
             rule!(CommitMessageRegexRule {
@@ -166,11 +160,9 @@ fn message_multiple_rules_one_fails() {
     let config = config!(
         GitHook::CommitMsg => [
             rule!(CommitMessagePrefixRule {
-                when: None,
                 prefix: "feat: ".into(),
             }),
             rule!(CommitMessageSuffixRule {
-                when: None,
                 suffix: " [done]".into(),
             })
         ]

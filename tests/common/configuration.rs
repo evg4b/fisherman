@@ -6,7 +6,11 @@ use fisherman_core::Configuration;
 #[macro_export]
 macro_rules! rule {
     ($params:expr $(, extract = $extract:expr)? $(, when = $when:expr)? ) => {
-        Box::new($params) as Box<dyn fisherman_core::Rule>
+        fisherman_core::RuleContext {
+            extract: None $(.or(Some($extract)))?,
+            when: None $(.or(Some($when)))?,
+            rule: Box::new($params) as Box<dyn fisherman_core::Rule>,
+        }
     };
 }
 

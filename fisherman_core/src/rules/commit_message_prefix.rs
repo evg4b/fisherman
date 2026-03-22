@@ -1,7 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 
@@ -48,13 +47,12 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = CommitMessagePrefixRule {
-            when: None,
             prefix: t!("feat:"),
         };
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(serialized, r#"{"when":null,"prefix":"feat:"}"#);
+        assert_eq!(serialized, r#"{"prefix":"feat:"}"#);
 
         Ok(())
     }
@@ -63,42 +61,15 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: CommitMessagePrefixRule = serde_json::from_str(r#"{"prefix":"feat:"}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.prefix, t!("feat:"));
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = CommitMessagePrefixRule {
-            when: Some(Expression::new("is_def_var(\"Ticket\")")),
-            prefix: t!("{{Ticket}}: "),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(serialized, r#"{"when":"is_def_var(\"Ticket\")","prefix":"{{Ticket}}: "}"#);
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: CommitMessagePrefixRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"Ticket\")","prefix":"{{Ticket}}: "}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.prefix, t!("{{Ticket}}: "));
-
-        Ok(())
-    }
 
     #[test]
     fn test_commit_message_prefix_success() -> anyhow::Result<()> {
         let rule = CommitMessagePrefixRule {
-            when: None,
             prefix: t!("feat"),
         };
         let mut ctx = MockContext::new();
@@ -120,7 +91,6 @@ mod tests {
     #[test]
     fn test_commit_message_prefix_failure() -> anyhow::Result<()> {
         let rule = CommitMessagePrefixRule {
-            when: None,
             prefix: t!("feat"),
         };
         let mut ctx = MockContext::new();
@@ -142,7 +112,6 @@ mod tests {
     #[test]
     fn test_commit_message_prefix_variables_error() -> anyhow::Result<()> {
         let rule = CommitMessagePrefixRule {
-            when: None,
             prefix: t!("feat"),
         };
         let mut ctx = MockContext::new();
@@ -160,7 +129,6 @@ mod tests {
     #[test]
     fn test_commit_message_prefix_commit_msg_error() -> anyhow::Result<()> {
         let rule = CommitMessagePrefixRule {
-            when: None,
             prefix: t!("feat"),
         };
         let mut ctx = MockContext::new();
@@ -178,7 +146,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = CommitMessagePrefixRule {
-            when: None,
             prefix: "feat:".into(),
         };
         assert_eq!(

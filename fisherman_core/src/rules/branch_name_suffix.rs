@@ -1,7 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::scripting::Expression;
 use crate::templates::TemplateString;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
@@ -47,13 +46,12 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = BranchNameSuffixRule {
-            when: None,
             suffix: t!("-patch"),
         };
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(serialized, r#"{"when":null,"suffix":"-patch"}"#);
+        assert_eq!(serialized, r#"{"suffix":"-patch"}"#);
 
         Ok(())
     }
@@ -62,37 +60,11 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: BranchNameSuffixRule = serde_json::from_str(r#"{"suffix":"-patch"}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.suffix, t!("-patch"));
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = BranchNameSuffixRule {
-            when: Some(Expression::new("is_def_var(\"release\")")),
-            suffix: t!("-patch"),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(serialized, r#"{"when":"is_def_var(\"release\")","suffix":"-patch"}"#);
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: BranchNameSuffixRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"release\")","suffix":"-patch"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.suffix, t!("-patch"));
-
-        Ok(())
-    }
 
     #[test]
     fn test_branch_name_suffix_success() -> anyhow::Result<()> {
@@ -103,7 +75,6 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = BranchNameSuffixRule {
-            when: None,
             suffix: t!("feature"),
         }
             .check(&ctx)?;
@@ -122,7 +93,6 @@ mod tests {
             .returning(|_| Ok(HashMap::<String, String>::new()));
 
         let result = BranchNameSuffixRule {
-            when: None,
             suffix: t!("suffix"),
         }
             .check(&ctx)?;
@@ -135,7 +105,6 @@ mod tests {
     #[test]
     fn test_branch_name_suffix_variables_error() {
         let rule = BranchNameSuffixRule {
-            when: None,
             suffix: t!("suffix"),
         };
         let mut ctx = MockContext::new();
@@ -151,7 +120,6 @@ mod tests {
     #[test]
     fn test_branch_name_suffix_branch_error() {
         let rule = BranchNameSuffixRule {
-            when: None,
             suffix: t!("suffix"),
         };
         let mut ctx = MockContext::new();
@@ -167,7 +135,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = BranchNameSuffixRule {
-            when: None,
             suffix: "-patch".into(),
         };
         assert_eq!(format!("{}", rule), "Branch name must end with: `-patch`");

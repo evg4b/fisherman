@@ -1,6 +1,5 @@
 use crate::context::Context;
 use crate::rules::{Rule, RuleResult};
-use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
@@ -61,7 +60,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: false,
         };
@@ -70,7 +68,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.log","fail_if_not_found":false}"#
+            r#"{"glob":"*.log","fail_if_not_found":false}"#
         );
 
         Ok(())
@@ -81,7 +79,6 @@ mod tests {
         let config: DeleteFilesRule =
             serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":true}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.log".into());
         assert_eq!(config.fail_if_not_found, true);
 
@@ -91,7 +88,6 @@ mod tests {
     #[test]
     fn serialize_test_with_fail_if_not_found_true() -> Result<()> {
         let config = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: true,
         };
@@ -100,7 +96,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.log","fail_if_not_found":true}"#
+            r#"{"glob":"*.log","fail_if_not_found":true}"#
         );
 
         Ok(())
@@ -111,43 +107,12 @@ mod tests {
         let config: DeleteFilesRule =
             serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":false}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.log".into());
         assert_eq!(config.fail_if_not_found, false);
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = DeleteFilesRule {
-            when: Some(Expression::new("is_def_var(\"cleanup\")")),
-            glob: "*.tmp".into(),
-            fail_if_not_found: false,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":false}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: DeleteFilesRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":true}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.glob, "*.tmp".into());
-        assert_eq!(config.fail_if_not_found, true);
-
-        Ok(())
-    }
 
     #[test]
     fn test_delete_files_success() -> Result<()> {
@@ -157,7 +122,6 @@ mod tests {
         File::create(&file_path)?;
 
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!(file_path.display()),
             fail_if_not_found: true,
         };
@@ -180,7 +144,6 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_with_failure() -> Result<()> {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: true,
         };
@@ -205,7 +168,6 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_without_failure() -> Result<()> {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: false,
         };
@@ -236,7 +198,6 @@ mod tests {
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!(glob_pattern),
             fail_if_not_found: true,
         };
@@ -261,7 +222,6 @@ mod tests {
     #[test]
     fn test_delete_files_glob_error() {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("[invalid-glob"),
             fail_if_not_found: true,
         };
@@ -278,7 +238,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: false,
         };
