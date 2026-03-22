@@ -2,8 +2,8 @@ use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use core::Context;
-use core::GitHook;
+use fisherman_core::Context;
+use fisherman_core::GitHook;
 
 #[derive(Debug, Parser)]
 pub struct ExplainCommand {
@@ -34,11 +34,11 @@ impl CliCommand for ExplainCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::t;
-    use core::CommitMessageRegexRule;
-    use core::Configuration;
-    use core::MockContext;
-    use core::Rule;
+    use fisherman_core::t;
+    use fisherman_core::CommitMessageRegexRule;
+    use fisherman_core::Configuration;
+    use fisherman_core::MockContext;
+    use fisherman_core::Rule;
     use std::collections::HashMap;
 
     #[test]

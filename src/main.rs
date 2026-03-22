@@ -3,7 +3,7 @@ mod ui;
 
 use crate::commands::{CliCommand, Command};
 use clap::Parser;
-use core::GitRepoContext;
+use fisherman_core::GitRepoContext;
 use std::env;
 use ui::ABOUT;
 

@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
 use crate::common::ConfigFormat;
-use core::Configuration;
+use fisherman_core::Configuration;
 
 #[macro_export]
 macro_rules! rule {
     ($params:expr $(, extract = $extract:expr)? $(, when = $when:expr)? ) => {
-        Box::new($params) as Box<dyn core::Rule>
+        Box::new($params) as Box<dyn fisherman_core::Rule>
     };
 }
 

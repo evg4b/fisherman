@@ -2,7 +2,7 @@
 
 use super::{ConfigFormat, FishermanBinary, GitTestRepo};
 use crate::common::configuration::serialize_configuration;
-use core::Configuration;
+use fisherman_core::Configuration;
 use std::process::Output;
 
 // Tests must trigger hooks through real Git operations (e.g. git_commit_allow_empty),

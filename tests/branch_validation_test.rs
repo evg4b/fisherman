@@ -2,11 +2,11 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::BranchNamePrefixRule;
-use core::BranchNameRegexRule;
-use core::BranchNameSuffixRule;
-use core::Configuration;
-use core::GitHook;
+use fisherman_core::BranchNamePrefixRule;
+use fisherman_core::BranchNameRegexRule;
+use fisherman_core::BranchNameSuffixRule;
+use fisherman_core::Configuration;
+use fisherman_core::GitHook;
 
 #[test]
 #[cfg(feature = "integration-tests")]

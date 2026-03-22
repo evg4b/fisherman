@@ -2,12 +2,12 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::BranchNamePrefixRule;
-use core::Configuration;
-use core::ExecRule;
-use core::GitHook;
-use core::ShellScriptRule;
-use core::WriteFileRule;
+use fisherman_core::BranchNamePrefixRule;
+use fisherman_core::Configuration;
+use fisherman_core::ExecRule;
+use fisherman_core::GitHook;
+use fisherman_core::ShellScriptRule;
+use fisherman_core::WriteFileRule;
 use std::time::Instant;
 
 #[test]

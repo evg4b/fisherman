@@ -4,10 +4,10 @@ use crate::common::ConfigFormat;
 use common::{
     configuration::serialize_configuration, test_context::TestContext, FishermanBinary, GitTestRepo,
 };
-use core::Configuration;
-use core::ExecRule;
-use core::GitHook;
-use core::ShellScriptRule;
+use fisherman_core::Configuration;
+use fisherman_core::ExecRule;
+use fisherman_core::GitHook;
+use fisherman_core::ShellScriptRule;
 use std::collections::HashMap;
 
 #[test]

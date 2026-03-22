@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/evg4b/fisherman"
 
 [dependencies]
-core = { path = "core" }
+fisherman_core = { path = "./fisherman_core" }
 clap = { version = "4.5.23", features = ["derive"] }
 anyhow = "1.0.44"
 rayon = "1.10"
@@ -27,6 +27,4 @@ default = []
 integration-tests = []
 
 [workspace]
-members = [
-    "core"
-]
+members = ["fisherman_core"]

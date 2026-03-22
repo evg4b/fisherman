@@ -2,10 +2,10 @@ mod common;
 
 use crate::common::ConfigFormat;
 use common::{configuration::serialize_configuration, FishermanBinary, GitTestRepo};
-use core::Configuration;
-use core::Expression;
-use core::GitHook;
-use core::WriteFileRule;
+use fisherman_core::Configuration;
+use fisherman_core::Expression;
+use fisherman_core::GitHook;
+use fisherman_core::WriteFileRule;
 
 #[test]
 #[cfg(feature = "integration-tests")]

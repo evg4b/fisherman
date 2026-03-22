@@ -2,9 +2,9 @@ use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use core::Context;
-use core::GitHook;
-use core::RuleResult;
+use fisherman_core::Context;
+use fisherman_core::GitHook;
+use fisherman_core::RuleResult;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -68,7 +68,7 @@ impl CliCommand for HandleCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::{Configuration, Context, MockContext, Rule, RuleResult};
+    use fisherman_core::{Configuration, Context, MockContext, Rule, RuleResult};
     use serde::{Deserialize, Serialize};
     use std::fmt::Display;
 

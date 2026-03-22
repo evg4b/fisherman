@@ -2,9 +2,9 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
-use core::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
+use fisherman_core::Configuration;
+use fisherman_core::GitHook;
+use fisherman_core::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
 
 #[test]
 #[cfg(feature = "integration-tests")]
