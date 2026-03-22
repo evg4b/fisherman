@@ -51,8 +51,82 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::CommitMessageRegexRule;
     use crate::rules::{Rule, RuleResult};
+    use crate::scripting::Expression;
     use crate::t;
+    use anyhow::Result;
     use std::collections::HashMap;
+
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = CommitMessageRegexRule {
+            when: None,
+            expression: t!(r"^feat:"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":null,"expression":"^feat:"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: CommitMessageRegexRule = serde_json::from_str(r#"{"expression":"^feat:"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.expression, t!(r"^feat:"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = CommitMessageRegexRule {
+            when: Some(Expression::new("is_def_var(\"Ticket\")")),
+            expression: t!(r"^feat:"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: CommitMessageRegexRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.expression, t!(r"^feat:"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_regex_alias() -> Result<()> {
+        let config: CommitMessageRegexRule = serde_json::from_str(r#"{"regex":"^feat:"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.expression, t!(r"^feat:"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_regex_alias_and_when() -> Result<()> {
+        let config: CommitMessageRegexRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"Ticket\")","regex":"^feat:"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.expression, t!(r"^feat:"));
+
+        Ok(())
+    }
 
     #[test]
     fn test_commit_message_regex() {

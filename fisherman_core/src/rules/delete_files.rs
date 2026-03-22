@@ -67,6 +67,97 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
+    fn serialize_test() -> Result<()> {
+        let config = DeleteFilesRule {
+            when: None,
+            glob: "*.log".into(),
+            fail_if_not_found: false,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"glob":"*.log","fail_if_not_found":false}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: DeleteFilesRule =
+            serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":true}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.glob, "*.log".into());
+        assert_eq!(config.fail_if_not_found, true);
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_fail_if_not_found_true() -> Result<()> {
+        let config = DeleteFilesRule {
+            when: None,
+            glob: "*.log".into(),
+            fail_if_not_found: true,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"glob":"*.log","fail_if_not_found":true}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_fail_if_not_found_false() -> Result<()> {
+        let config: DeleteFilesRule =
+            serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":false}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.glob, "*.log".into());
+        assert_eq!(config.fail_if_not_found, false);
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = DeleteFilesRule {
+            when: Some(Expression::new("is_def_var(\"cleanup\")")),
+            glob: "*.tmp".into(),
+            fail_if_not_found: false,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":false}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: DeleteFilesRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":true}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.glob, "*.tmp".into());
+        assert_eq!(config.fail_if_not_found, true);
+
+        Ok(())
+    }
+
+    #[test]
     fn test_delete_files_success() -> Result<()> {
         let temp_dir = tempdir()?;
         let file_path = temp_dir.path().join("test_file.txt");

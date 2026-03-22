@@ -63,6 +63,180 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = WriteFileRule {
+            when: None,
+            extract: None,
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: Some(false),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":false}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: WriteFileRule = serde_json::from_str(
+            r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.path, t!("/tmp/output.txt"));
+        assert_eq!(config.content, t!("hello"));
+        assert_eq!(config.append, Some(true));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_append_true() -> Result<()> {
+        let config = WriteFileRule {
+            when: None,
+            extract: None,
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: Some(true),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":true}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_append_none() -> Result<()> {
+        let config = WriteFileRule {
+            when: None,
+            extract: None,
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"path":"/tmp/output.txt","content":"hello","append":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_append_none() -> Result<()> {
+        let config: WriteFileRule = serde_json::from_str(
+            r#"{"path":"/tmp/output.txt","content":"hello"}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.path, t!("/tmp/output.txt"));
+        assert_eq!(config.content, t!("hello"));
+        assert!(config.append.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_extract() -> Result<()> {
+        let config = WriteFileRule {
+            when: None,
+            extract: Some(vec!["branch:.*".to_string()]),
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: Some(false),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"extract\":[\"branch:.*\"]"));
+        assert!(serialized.contains("\"path\":\"/tmp/output.txt\""));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_extract() -> Result<()> {
+        let config: WriteFileRule = serde_json::from_str(
+            r#"{"path":"/tmp/output.txt","content":"hello","extract":["branch:.*"]}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_some());
+        assert_eq!(config.extract.unwrap(), vec!["branch:.*".to_string()]);
+        assert_eq!(config.path, t!("/tmp/output.txt"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = WriteFileRule {
+            when: Some(Expression::new("is_def_var(\"generate\")")),
+            extract: None,
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: Some(false),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"generate\")","extract":null,"path":"/tmp/output.txt","content":"hello","append":false}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: WriteFileRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"generate\")","path":"/tmp/output.txt","content":"hello"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.path, t!("/tmp/output.txt"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_all_fields() -> Result<()> {
+        let config = WriteFileRule {
+            when: Some(Expression::new("is_def_var(\"generate\")")),
+            extract: Some(vec!["branch:.*".to_string()]),
+            path: t!("/tmp/output.txt"),
+            content: t!("hello"),
+            append: Some(true),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"generate\")","extract":["branch:.*"],"path":"/tmp/output.txt","content":"hello","append":true}"#
+        );
+
+        Ok(())
+    }
+
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(move |_| Ok(vars.clone()));

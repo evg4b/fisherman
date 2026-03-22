@@ -49,8 +49,59 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
+    use anyhow::Result;
     use assert2::assert;
     use std::collections::HashMap;
+
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = CommitMessageSuffixRule {
+            when: None,
+            suffix: t!("[skip-ci]"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":null,"suffix":"[skip-ci]"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: CommitMessageSuffixRule = serde_json::from_str(r#"{"suffix":"[skip-ci]"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.suffix, t!("[skip-ci]"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = CommitMessageSuffixRule {
+            when: Some(Expression::new("is_def_var(\"release\")")),
+            suffix: t!(" [skip-ci]"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":"is_def_var(\"release\")","suffix":" [skip-ci]"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: CommitMessageSuffixRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"release\")","suffix":" [skip-ci]"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.suffix, t!(" [skip-ci]"));
+
+        Ok(())
+    }
 
     #[test]
     fn test_commit_message_suffix() {

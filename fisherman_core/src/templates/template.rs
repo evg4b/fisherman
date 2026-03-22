@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 static TEMPLATE_PATTERN: LazyLock<regex::Regex> =
     LazyLock::new(|| regex::Regex::new(r"\{\{(.*?)}}").unwrap());
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]
 pub struct TemplateString {
     template: String,
