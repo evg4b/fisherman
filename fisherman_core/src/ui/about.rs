@@ -5,7 +5,7 @@ use crate::ui::logo::logo;
 pub struct About {}
 
 impl IntoResettable<StyledStr> for About {
-    fn into_resettable(self) -> clap::builder::Resettable<StyledStr> {
+    fn into_resettable(self) -> Resettable<StyledStr> {
         Resettable::Value(StyledStr::from(logo()))
     }
 }
