@@ -77,6 +77,16 @@ mod tests {
     use assert2::assert;
     use std::collections::HashMap;
 
+    #[cfg(windows)]
+    static TEST_COMMAND: &str = "cmd";
+    #[cfg(windows)]
+    static TEST_COMMAN_ARGS: [&str; 3] = ["/C", "echo", "hello"];
+
+    #[cfg(not(windows))]
+    static TEST_COMMAND: &str = "echo";
+    #[cfg(not(windows))]
+    static TEST_COMMAN_ARGS: [&str; 3] = ["hello"];
+
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(move |_| Ok(vars.clone()));
@@ -90,36 +100,22 @@ mod tests {
     #[test]
     fn test_exec_rule() {
         let rule = ExecRule {
-            command: "echo".into(),
-            args: Some(vec!["hello".into()]),
+            command: TEST_COMMAND.into(),
+            args: Some(test_args()),
             env: None,
             when: None,
             extract: None,
         };
 
-        let result = rule.check(&mock_ctx()).unwrap();
-        let RuleResult::Success { name, output } = result else {
+        let result = rule.check(&mock_ctx());
+
+        let RuleResult::Success { name, output } = result.unwrap() else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "exec");
-        assert_eq!(output.unwrap(), "hello\n");
-    }
-
-    #[test]
-    fn test_exec_rule_new() {
-        let rule = ExecRule {
-            when: None,
-            extract: None,
-            command: "echo".into(),
-            args: Some(vec!["hello".into()]),
-            env: None,
-        };
-
-        let result = rule.check(&mock_ctx()).unwrap();
-        let RuleResult::Success { name, output } = result else {
-            unreachable!("Expected Success");
-        };
-        assert_eq!(name, "exec");
+        #[cfg(windows)]
+        assert_eq!(output.unwrap(), "hello\r\n");
+        #[cfg(not(windows))]
         assert_eq!(output.unwrap(), "hello\n");
     }
 
@@ -128,11 +124,17 @@ mod tests {
         let mut env = HashMap::new();
         env.insert("HELLO".into(), "world".into());
 
+        #[cfg(windows)]
+        let (command, args) = ("cmd", vec!["/C", "echo %HELLO%"]);
+
+        #[cfg(not(windows))]
+        let (command, args) = ("sh", vec!["-c", "echo $HELLO"]);
+
         let rule = ExecRule {
             when: None,
             extract: None,
-            command: "printenv".into(),
-            args: None,
+            command: command.into(),
+            args: Some(args.into_iter().map(String::from).collect()),
             env: Some(env),
         };
 
@@ -141,7 +143,10 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "exec");
-        assert!(output.unwrap().contains("HELLO=world"));
+        #[cfg(not(windows))]
+        assert_eq!(output.unwrap(), "world\n");
+        #[cfg(windows)]
+        assert_eq!(output.unwrap(), "world\r\n");
     }
 
     #[test]
@@ -149,6 +154,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("HELLO".into(), "world".into());
 
+        #[cfg(not(windows))]
         let rule = ExecRule {
             when: None,
             extract: None,
@@ -157,16 +163,35 @@ mod tests {
             env: None,
         };
 
+        #[cfg(windows)]
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "cmd".into(),
+            args: Some(vec![
+                "/C".into(),
+                "echo".into(),
+                "hello".into(),
+                 "{{HELLO}}".into(),
+            ]),
+            env: None,
+        };
+
         let result = rule.check(&mock_ctx_with_vars(vars)).unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "exec");
+        
+        #[cfg(not(windows))]
         assert_eq!(output.unwrap(), "hello world\n");
+        #[cfg(windows)]
+        assert_eq!(output.unwrap(), "hello world\r\n");
     }
 
     #[test]
     fn test_exec_rule_failure_on_missing_file() {
+        #[cfg(not(windows))]
         let rule = ExecRule {
             when: None,
             extract: None,
@@ -175,12 +200,28 @@ mod tests {
             env: None,
         };
 
+        #[cfg(windows)]
+        let rule = ExecRule {
+            when: None,
+            extract: None,
+            command: "cmd".into(),
+            args: Some(vec![
+                "/C".into(),
+                "type".into(),
+                "unknown.txt".into(),
+            ]),
+            env: None,
+        };
+
         let result = rule.check(&mock_ctx()).unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
         assert_eq!(name, "exec");
+        #[cfg(not(windows))]
         assert!(message.contains("No such file or directory"));
+        #[cfg(windows)]
+        assert!(message.contains("The system cannot find the file specified."));
     }
 
     #[test]
@@ -257,5 +298,11 @@ mod tests {
             extract: None,
         };
         assert_eq!(format!("{}", rule), "Execute command: ls");
+    }
+
+    fn test_args() -> Vec<String> {
+        return TEST_COMMAN_ARGS.iter()
+            .map(|arg| arg.to_string())
+            .collect()
     }
 }
