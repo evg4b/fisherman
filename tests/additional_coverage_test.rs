@@ -199,12 +199,12 @@ suffix = " [{{Ticket}}]"
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn template_in_branch_regex() {
     let ctx = TestContext::new();
 
     let config = r#"
-extract = ["repo_path:.*/(?P<RepoName>[^/]+)$"]
+extract = ["repo_path:.*[\\/\\\\](?P<RepoName>[^\\/\\\\]+)$"]
 
 [[hooks.pre-commit]]
 type = "write-file"

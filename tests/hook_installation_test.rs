@@ -108,7 +108,7 @@ regex = ".*"
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn hook_script_contains_correct_command() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -131,6 +131,7 @@ regex = ".*"
     assert!(hook_content.contains("fisherman handle pre-commit"));
     #[cfg(windows)]
     assert!(hook_content.contains("fisherman.exe handle pre-commit"));
+    #[cfg(not(windows))]
     assert!(hook_content.contains(&binary.path().display().to_string()));
 }
 

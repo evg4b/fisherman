@@ -57,7 +57,7 @@ content = "post-checkout ran"
 // NOTE: pre-receive is a server-side hook that runs during git push on the remote repository.
 
 #[test]
-#[ignore = "TMP"]
+#[ignore = "UNSUPORTED"]
 fn very_long_branch_name() {
     let ctx = TestContext::new();
     let config = r#"
@@ -116,14 +116,14 @@ append = true
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_multiple_template_variables() {
     let ctx = TestContext::new();
 
     let config = r#"
 extract = [
     "branch:^(?P<Type>feature|bugfix)/(?P<Ticket>[A-Z]+-\\d+)",
-    "repo_path:.*/(?P<RepoName>[^/]+)$"
+    "repo_path:.*[\\/\\\\](?P<RepoName>[^\\/\\\\]+)$"
 ]
 
 [[hooks.pre-commit]]

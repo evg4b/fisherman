@@ -69,7 +69,7 @@ fn template_branch_variable_in_write_file() {
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn template_repo_path_variable() {
     let ctx = TestContext::new();
 
@@ -84,7 +84,7 @@ fn template_repo_path_variable() {
             })
         ],
         extract = vec![
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 
@@ -98,7 +98,7 @@ fn template_repo_path_variable() {
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn template_multiple_variables() {
     let ctx = TestContext::new();
 
@@ -113,8 +113,8 @@ fn template_multiple_variables() {
             })
         ],
         extract = vec![
-            String::from("branch:^(?P<Type>feature|bugfix)/(?P<Ticket>[A-Z]+-\\d+)"),
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"branch:^(?P<Type>feature|bugfix)/(?P<Ticket>[A-Z]+-\d+)"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 
@@ -635,7 +635,7 @@ fn template_in_multiple_exec_args() {
 }
 
 #[test]
-#[ignore = "TMP"]
+#[cfg(feature = "integration-tests")]
 fn template_combined_repo_and_branch_variables() {
     let ctx = TestContext::new();
 
@@ -651,7 +651,7 @@ fn template_combined_repo_and_branch_variables() {
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)/(?P<Name>[a-z-]+)"),
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 
