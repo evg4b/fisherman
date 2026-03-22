@@ -164,9 +164,9 @@ impl GitHook {
     }
 
     fn content(&self, context: &impl crate::context::Context) -> String {
-        #[cfg(not(windows))]
-        let bin = context.bin().display().to_string().replace('\\', "/");
         #[cfg(windows)]
+        let bin = context.bin().display().to_string().replace('\\', "/");
+        #[cfg(not(windows))]
         let bin = context.bin().display().to_string();
         match self {
             GitHook::CommitMsg => format!("#!/bin/sh\n{} handle {} $@\n", bin, self),

@@ -85,7 +85,7 @@ mod tests {
     #[cfg(not(windows))]
     static TEST_COMMAND: &str = "echo";
     #[cfg(not(windows))]
-    static TEST_COMMAN_ARGS: [&str; 3] = ["hello"];
+    static TEST_COMMAN_ARGS: [&str; 1] = ["hello"];
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
