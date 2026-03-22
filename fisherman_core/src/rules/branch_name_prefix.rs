@@ -56,6 +56,30 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
+    fn serialize_test() -> Result<()> {
+        let config = BranchNamePrefixRule {
+            when: None,
+            prefix: t!("feat/"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":null,"prefix":"feat/"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: BranchNamePrefixRule = serde_json::from_str(r#"{"prefix":"feat/"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.prefix, t!("feat/"));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_branch_name_prefix_success() -> Result<()> {
         let rule = BranchNamePrefixRule {
             when: None,

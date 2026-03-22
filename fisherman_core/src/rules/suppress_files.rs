@@ -69,6 +69,35 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
+    fn serialize_test() -> Result<()> {
+        let config = SuppressFilesRule {
+            when: None,
+            extract: None,
+            glob: "*.secret".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"glob":"*.secret"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: SuppressFilesRule = serde_json::from_str(r#"{"glob":"*.secret"}"#)?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.glob, "*.secret".into());
+
+        Ok(())
+    }
+
+    #[test]
     fn test_suppress_files_success() -> Result<()> {
         let rule = SuppressFilesRule {
             when: None,

@@ -74,6 +74,7 @@ impl Rule for ExecRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
+    use anyhow::Result;
     use assert2::assert;
     use std::collections::HashMap;
 
@@ -86,6 +87,40 @@ mod tests {
     static TEST_COMMAND: &str = "echo";
     #[cfg(not(windows))]
     static TEST_COMMAN_ARGS: [&str; 1] = ["hello"];
+
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = ExecRule {
+            when: None,
+            extract: None,
+            command: "echo".to_string(),
+            args: Some(vec!["hello".to_string()]),
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"command":"echo","args":["hello"],"env":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: ExecRule = serde_json::from_str(
+            r#"{"command":"echo","args":["hello"]}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.command, "echo");
+        assert_eq!(config.args, Some(vec!["hello".to_string()]));
+        assert!(config.env.is_none());
+
+        Ok(())
+    }
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();

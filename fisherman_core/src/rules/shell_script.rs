@@ -62,7 +62,39 @@ mod tests {
     use crate::rules::shell_script::ShellScriptRule;
     use crate::rules::{Rule, RuleResult};
     use crate::t;
+    use anyhow::Result;
     use std::collections::HashMap;
+
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: t!("echo hello"),
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"script":"echo hello","env":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: ShellScriptRule = serde_json::from_str(r#"{"script":"echo hello"}"#)?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.script, t!("echo hello"));
+        assert!(config.env.is_none());
+
+        Ok(())
+    }
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();

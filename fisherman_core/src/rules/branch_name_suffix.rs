@@ -49,7 +49,32 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
+    use anyhow::Result;
     use std::collections::HashMap;
+
+    #[test]
+    fn serialize_test() -> Result<()> {
+        let config = BranchNameSuffixRule {
+            when: None,
+            suffix: t!("-patch"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":null,"suffix":"-patch"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: BranchNameSuffixRule = serde_json::from_str(r#"{"suffix":"-patch"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.suffix, t!("-patch"));
+
+        Ok(())
+    }
 
     #[test]
     fn test_branch_name_suffix_success() -> anyhow::Result<()> {

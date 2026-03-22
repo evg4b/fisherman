@@ -89,6 +89,37 @@ mod tests {
     use crate::tmpl;
 
     #[test]
+    fn serialize_test() -> Result<()> {
+        let config = SuppressStringRule {
+            when: None,
+            extract: None,
+            regex: "TODO".into(),
+            glob: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"regex":"TODO","glob":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test() -> Result<()> {
+        let config: SuppressStringRule = serde_json::from_str(r#"{"regex":"TODO"}"#)?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.regex, "TODO".into());
+        assert!(config.glob.is_none());
+
+        Ok(())
+    }
+
+    #[test]
     fn test_suppress_string_success() -> Result<()> {
         let rule = SuppressStringRule {
             when: None,
