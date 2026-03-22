@@ -98,6 +98,86 @@ mod tests {
     }
 
     #[test]
+    fn serialize_test_with_extract() -> Result<()> {
+        let config = SuppressFilesRule {
+            when: None,
+            extract: Some(vec!["branch:.*".to_string()]),
+            glob: "*.secret".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":["branch:.*"],"glob":"*.secret"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_extract() -> Result<()> {
+        let config: SuppressFilesRule = serde_json::from_str(
+            r#"{"glob":"*.secret","extract":["branch:.*"]}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_some());
+        assert_eq!(config.extract.unwrap(), vec!["branch:.*".to_string()]);
+        assert_eq!(config.glob, "*.secret".into());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = SuppressFilesRule {
+            when: Some(Expression::new("is_def_var(\"sensitive\")")),
+            extract: None,
+            glob: "*.secret".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"sensitive\")","extract":null,"glob":"*.secret"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: SuppressFilesRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"sensitive\")","glob":"*.secret"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.glob, "*.secret".into());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_all_fields() -> Result<()> {
+        let config = SuppressFilesRule {
+            when: Some(Expression::new("is_def_var(\"sensitive\")")),
+            extract: Some(vec!["branch:.*".to_string()]),
+            glob: "*.secret".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"sensitive\")","extract":["branch:.*"],"glob":"*.secret"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
     fn test_suppress_files_success() -> Result<()> {
         let rule = SuppressFilesRule {
             when: None,

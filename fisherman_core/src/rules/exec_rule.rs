@@ -122,6 +122,142 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn serialize_test_without_args() -> Result<()> {
+        let config = ExecRule {
+            when: None,
+            extract: None,
+            command: "ls".to_string(),
+            args: None,
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"extract":null,"command":"ls","args":null,"env":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_without_args() -> Result<()> {
+        let config: ExecRule = serde_json::from_str(r#"{"command":"ls"}"#)?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.command, "ls");
+        assert!(config.args.is_none());
+        assert!(config.env.is_none());
+        assert!(config.extract.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_env() -> Result<()> {
+        let mut env = HashMap::new();
+        env.insert("VAR".to_string(), "value".to_string());
+
+        let config = ExecRule {
+            when: None,
+            extract: None,
+            command: "echo".to_string(),
+            args: Some(vec!["hello".to_string()]),
+            env: Some(env),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"command\":\"echo\""));
+        assert!(serialized.contains("\"VAR\":\"value\""));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_env() -> Result<()> {
+        let config: ExecRule = serde_json::from_str(
+            r#"{"command":"echo","args":["hello"],"env":{"VAR":"value"}}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.command, "echo");
+        assert_eq!(config.args, Some(vec!["hello".to_string()]));
+        assert!(config.env.is_some());
+        assert_eq!(config.env.unwrap().get("VAR"), Some(&"value".to_string()));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_extract() -> Result<()> {
+        let config = ExecRule {
+            when: None,
+            extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
+            command: "echo".to_string(),
+            args: None,
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"extract\":[\"branch:^(?P<Type>feat|fix)\"]"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_extract() -> Result<()> {
+        let config: ExecRule = serde_json::from_str(
+            r#"{"command":"echo","extract":["branch:^(?P<Type>feat|fix)"]}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.command, "echo");
+        assert!(config.extract.is_some());
+        assert_eq!(
+            config.extract.unwrap(),
+            vec!["branch:^(?P<Type>feat|fix)".to_string()]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = ExecRule {
+            when: Some(Expression::new("is_def_var(\"Ticket\")")),
+            extract: None,
+            command: "echo".to_string(),
+            args: Some(vec!["hello".to_string()]),
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"Ticket\")","extract":null,"command":"echo","args":["hello"],"env":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: ExecRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"Ticket\")","command":"echo","args":["hello"]}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.command, "echo");
+        assert_eq!(config.args, Some(vec!["hello".to_string()]));
+
+        Ok(())
+    }
+
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(move |_| Ok(vars.clone()));

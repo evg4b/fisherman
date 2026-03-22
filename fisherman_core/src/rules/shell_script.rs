@@ -61,6 +61,7 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::shell_script::ShellScriptRule;
     use crate::rules::{Rule, RuleResult};
+    use crate::scripting::Expression;
     use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
@@ -92,6 +93,126 @@ mod tests {
         assert!(config.extract.is_none());
         assert_eq!(config.script, t!("echo hello"));
         assert!(config.env.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_env() -> Result<()> {
+        let mut env = HashMap::new();
+        env.insert("TEST".to_string(), "value".to_string());
+
+        let config = ShellScriptRule {
+            when: None,
+            extract: None,
+            script: t!("echo hello"),
+            env: Some(env),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"TEST\":\"value\""));
+        assert!(serialized.contains("\"script\":\"echo hello\""));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_env() -> Result<()> {
+        let config: ShellScriptRule = serde_json::from_str(
+            r#"{"script":"echo hello","env":{"TEST":"value"}}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_none());
+        assert_eq!(config.script, t!("echo hello"));
+        assert!(config.env.is_some());
+        assert_eq!(config.env.unwrap().get("TEST"), Some(&"value".to_string()));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_extract() -> Result<()> {
+        let config = ShellScriptRule {
+            when: None,
+            extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
+            script: t!("echo hello"),
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"extract\":[\"branch:^(?P<Type>feat|fix)\"]"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_extract() -> Result<()> {
+        let config: ShellScriptRule = serde_json::from_str(
+            r#"{"script":"echo hello","extract":["branch:^(?P<Type>feat|fix)"]}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert!(config.extract.is_some());
+        assert_eq!(config.script, t!("echo hello"));
+        assert_eq!(
+            config.extract.unwrap(),
+            vec!["branch:^(?P<Type>feat|fix)".to_string()]
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = ShellScriptRule {
+            when: Some(Expression::new("is_def_var(\"build\")")),
+            extract: None,
+            script: t!("echo hello"),
+            env: None,
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"build\")","extract":null,"script":"echo hello","env":null}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: ShellScriptRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"build\")","script":"echo hello"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.script, t!("echo hello"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_all_fields() -> Result<()> {
+        let mut env = HashMap::new();
+        env.insert("TEST".to_string(), "value".to_string());
+
+        let config = ShellScriptRule {
+            when: Some(Expression::new("is_def_var(\"build\")")),
+            extract: Some(vec!["branch:.*".to_string()]),
+            script: t!("echo hello"),
+            env: Some(env),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert!(serialized.contains("\"when\":\"is_def_var(\\\"build\\\")\""));
+        assert!(serialized.contains("\"extract\":[\"branch:.*\"]"));
+        assert!(serialized.contains("\"TEST\":\"value\""));
 
         Ok(())
     }

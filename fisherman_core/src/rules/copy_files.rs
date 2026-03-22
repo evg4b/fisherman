@@ -142,6 +142,72 @@ mod tests {
     }
 
     #[test]
+    fn serialize_test_without_src() -> Result<()> {
+        let config = CopyFilesRule {
+            when: None,
+            glob: "*.txt".into(),
+            src: None,
+            destination: "dist/".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":null,"glob":"*.txt","src":null,"destination":"dist/"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_without_src() -> Result<()> {
+        let config: CopyFilesRule = serde_json::from_str(
+            r#"{"glob":"*.txt","destination":"dist/"}"#,
+        )?;
+
+        assert!(config.when.is_none());
+        assert_eq!(config.glob, "*.txt".into());
+        assert!(config.src.is_none());
+        assert_eq!(config.destination, "dist/".into());
+
+        Ok(())
+    }
+
+    #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = CopyFilesRule {
+            when: Some(Expression::new("is_def_var(\"build\")")),
+            glob: "*.txt".into(),
+            src: Some("src/".into()),
+            destination: "dist/".into(),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"build\")","glob":"*.txt","src":"src/","destination":"dist/"}"#
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: CopyFilesRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"build\")","glob":"*.txt","src":"src/","destination":"dist/"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.glob, "*.txt".into());
+        assert_eq!(config.src, Some("src/".into()));
+        assert_eq!(config.destination, "dist/".into());
+
+        Ok(())
+    }
+
+    #[test]
     fn test_copy_files_with_src() -> Result<()> {
         // Create source directory structure
         let temp_src = tempdir()?;

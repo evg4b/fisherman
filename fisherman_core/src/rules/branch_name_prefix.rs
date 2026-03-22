@@ -80,6 +80,32 @@ mod tests {
     }
 
     #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = BranchNamePrefixRule {
+            when: Some(Expression::new("is_def_var(\"ticket\")")),
+            prefix: t!("feat/"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":"is_def_var(\"ticket\")","prefix":"feat/"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: BranchNamePrefixRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"ticket\")","prefix":"feat/"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.prefix, t!("feat/"));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_branch_name_prefix_success() -> Result<()> {
         let rule = BranchNamePrefixRule {
             when: None,

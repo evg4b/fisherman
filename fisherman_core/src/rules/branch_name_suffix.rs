@@ -77,6 +77,32 @@ mod tests {
     }
 
     #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = BranchNameSuffixRule {
+            when: Some(Expression::new("is_def_var(\"release\")")),
+            suffix: t!("-patch"),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":"is_def_var(\"release\")","suffix":"-patch"}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: BranchNameSuffixRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"release\")","suffix":"-patch"}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.suffix, t!("-patch"));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_branch_name_suffix_success() -> anyhow::Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()

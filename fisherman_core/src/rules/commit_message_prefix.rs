@@ -78,6 +78,32 @@ mod tests {
     }
 
     #[test]
+    fn serialize_test_with_when() -> Result<()> {
+        let config = CommitMessagePrefixRule {
+            when: Some(Expression::new("is_def_var(\"Ticket\")")),
+            prefix: t!("{{Ticket}}: "),
+        };
+
+        let serialized = serde_json::to_string(&config)?;
+
+        assert_eq!(serialized, r#"{"when":"is_def_var(\"Ticket\")","prefix":"{{Ticket}}: "}"#);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deserialize_test_with_when() -> Result<()> {
+        let config: CommitMessagePrefixRule = serde_json::from_str(
+            r#"{"when":"is_def_var(\"Ticket\")","prefix":"{{Ticket}}: "}"#,
+        )?;
+
+        assert!(config.when.is_some());
+        assert_eq!(config.prefix, t!("{{Ticket}}: "));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_commit_message_prefix_success() -> anyhow::Result<()> {
         let rule = CommitMessagePrefixRule {
             when: None,
