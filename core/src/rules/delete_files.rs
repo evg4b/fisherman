@@ -194,7 +194,11 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = DeleteFilesRule { when: None, glob: "*.log".into(), fail_if_not_found: false };
+        let rule = DeleteFilesRule {
+            when: None,
+            glob: "*.log".into(),
+            fail_if_not_found: false,
+        };
         assert_eq!(format!("{}", rule), "Delete files matching '`*.log`'");
     }
 }

@@ -8,7 +8,6 @@ mod copy_files;
 mod delete_files;
 mod exec_rule;
 mod helpers;
-mod helpers_rules;
 mod rule;
 mod shell_script;
 mod suppress_files;

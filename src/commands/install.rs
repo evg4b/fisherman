@@ -1,9 +1,9 @@
 use crate::commands::command::CliCommand;
-use core::Context;
-use core::GitHook;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
+use core::Context;
+use core::GitHook;
 use std::fs;
 
 #[derive(Debug, Parser)]

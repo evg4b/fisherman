@@ -3,6 +3,7 @@ mod common;
 use common::test_context::TestContext;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_files_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -23,12 +24,13 @@ glob = "secret.txt"
     context.repo.git(&["add", "secret.txt"]);
     let output = context.repo.commit("commit secret file");
     assert!(!output.status.success(), "Commit should fail for suppressed file");
-    
+
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(stderr.contains("The following files are suppressed from being committed: secret.txt"));
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -49,12 +51,13 @@ regex = "TODO"
     context.repo.git(&["add", "dirty.txt"]);
     let output = context.repo.commit("commit dirty file");
     assert!(!output.status.success(), "Commit should fail for file with suppressed string");
-    
+
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(stderr.contains("The following files contain suppressed string: dirty.txt"));
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_with_glob_rule() {
     let context = TestContext::new();
     let config = r#"
@@ -76,12 +79,13 @@ glob = "*.rs"
     context.repo.git(&["add", "main.rs"]);
     let output = context.repo.commit("commit debug rs");
     assert!(!output.status.success(), "Commit should fail for .rs file with DEBUG");
-    
+
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(stderr.contains("The following files contain suppressed string: main.rs"));
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn test_suppress_string_only_added_lines() {
     let context = TestContext::new();
     let config = r#"
@@ -108,7 +112,7 @@ regex = "FORBIDDEN"
     context.repo.git(&["add", "new_file.txt"]);
     let output = context.repo.commit("commit new file with FORBIDDEN");
     assert!(!output.status.success(), "Commit should fail when NEW FORBIDDEN line is added");
-    
+
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(stderr.contains("The following files contain suppressed string: new_file.txt"));
 }

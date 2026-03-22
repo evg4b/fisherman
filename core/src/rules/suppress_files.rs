@@ -129,7 +129,11 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = SuppressFilesRule { when: None, extract: None, glob: "*.secret".into() };
+        let rule = SuppressFilesRule {
+            when: None,
+            extract: None,
+            glob: "*.secret".into(),
+        };
         assert_eq!(format!("{}", rule), "Suppress files matching: `*.secret`");
     }
 }

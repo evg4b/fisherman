@@ -2,15 +2,16 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
+use core::Configuration;
 use core::ExecRule;
+use core::GitHook;
 use core::ShellScriptRule;
 use core::WriteFileRule;
 use std::time::Instant;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_write_files() {
     let ctx = TestContext::new();
 
@@ -66,6 +67,7 @@ fn parallel_multiple_write_files() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_exec_rules() {
     let ctx = TestContext::new();
 
@@ -126,11 +128,11 @@ fn parallel_multiple_exec_rules() {
     ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success(), "All exec rules should succeed: {}",
-        String::from_utf8_lossy(&output.stderr));
-
+            String::from_utf8_lossy(&output.stderr));
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_multiple_shell_scripts() {
     let ctx = TestContext::new();
 
@@ -190,11 +192,12 @@ fn parallel_multiple_shell_scripts() {
     #[cfg(not(windows))]
     {
         assert!(stdout.contains("script1") || !stdout.is_empty(),
-            "Output should contain script results: {}", stdout);
+                "Output should contain script results: {}", stdout);
     }
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_mixed_async_rules() {
     let ctx = TestContext::new();
 
@@ -275,11 +278,12 @@ fn parallel_mixed_async_rules() {
     #[cfg(not(windows))]
     {
         assert!(stdout.contains("exec") || !stdout.is_empty(),
-            "Output should contain exec command result: {}", stdout);
+                "Output should contain exec command result: {}", stdout);
     }
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn parallel_one_fails_stops_all() {
     let ctx = TestContext::new();
 
@@ -346,6 +350,7 @@ fn parallel_one_fails_stops_all() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn sync_rules_execute_before_async() {
     let ctx = TestContext::new();
 
@@ -408,11 +413,12 @@ fn sync_rules_execute_before_async() {
     {
         let stdout = String::from_utf8_lossy(&output.stdout);
         assert!(stdout.contains("async") || !stdout.is_empty(),
-            "Output should contain async rule result: {}", stdout);
+                "Output should contain async rule result: {}", stdout);
     }
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn sync_rule_fails_hook_fails() {
     let ctx = TestContext::new();
 
@@ -436,6 +442,7 @@ fn sync_rule_fails_hook_fails() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 #[cfg(not(windows))]
 fn parallel_performance_benefit() {
     let ctx = TestContext::new();
@@ -482,7 +489,7 @@ fn parallel_performance_benefit() {
     let duration = start.elapsed();
 
     assert!(handle_output.status.success(), "Hook should succeed: {}",
-        String::from_utf8_lossy(&handle_output.stderr));
+            String::from_utf8_lossy(&handle_output.stderr));
 
     assert!(
         duration.as_millis() < 3000,

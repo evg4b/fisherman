@@ -1,6 +1,6 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{Rule, RuleResult, ConditionalRule};
+use crate::rules::{ConditionalRule, Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
@@ -155,7 +155,13 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = BranchNameRegexRule { when: None, expression: "^feat/".into() };
-        assert_eq!(format!("{}", rule), "Branch name must match pattern: `^feat/`");
+        let rule = BranchNameRegexRule {
+            when: None,
+            expression: "^feat/".into(),
+        };
+        assert_eq!(
+            format!("{}", rule),
+            "Branch name must match pattern: `^feat/`"
+        );
     }
 }

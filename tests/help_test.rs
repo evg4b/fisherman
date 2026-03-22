@@ -3,6 +3,7 @@ use crate::common::{FishermanBinary, GitTestRepo};
 mod common;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn no_parameters() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();
@@ -18,6 +19,7 @@ fn no_parameters() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn help() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();
@@ -33,6 +35,7 @@ fn help() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn double_slash_help() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();
@@ -48,6 +51,7 @@ fn double_slash_help() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn slash_h() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();

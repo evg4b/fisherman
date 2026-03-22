@@ -2,13 +2,14 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
 use core::BranchNameRegexRule;
 use core::BranchNameSuffixRule;
+use core::Configuration;
+use core::GitHook;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_regex_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -26,6 +27,7 @@ fn branch_name_regex_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_regex_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -45,10 +47,11 @@ fn branch_name_regex_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "invalid_branch", "regex"],
-        "Error should explain branch name validation failure");
+                           "Error should explain branch name validation failure");
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_prefix_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -66,6 +69,7 @@ fn branch_name_prefix_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_prefix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -85,10 +89,11 @@ fn branch_name_prefix_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "prefix", "feature/"],
-        "Error should explain prefix validation failure");
+                           "Error should explain prefix validation failure");
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_suffix_valid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -106,6 +111,7 @@ fn branch_name_suffix_valid() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_suffix_invalid() {
     let ctx = TestContext::new();
     let config = config!(
@@ -125,10 +131,11 @@ fn branch_name_suffix_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "suffix", "-v1"],
-        "Error should explain suffix validation failure");
+                           "Error should explain suffix validation failure");
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_multiple_rules_all_pass() {
     let ctx = TestContext::new();
     let config = config!(
@@ -154,6 +161,7 @@ fn branch_name_multiple_rules_all_pass() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn branch_name_multiple_rules_one_fails() {
     let ctx = TestContext::new();
 

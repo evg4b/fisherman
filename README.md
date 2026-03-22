@@ -31,7 +31,7 @@
     <a title="Security Rating" href="https://sonarcloud.io/summary/new_code?id=evg4b_fisherman">
       <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=evg4b_fisherman&metric=security_rating">
     </a>
-    
+
 </div>
 
 ## Install using Cargo
@@ -44,9 +44,10 @@ cargo install --git https://github.com/evg4b/fisherman.git
 
 ## Install Precompiled Binaries
 
-1.	Go to the [Build](https://github.com/evg4b/fisherman/actions/workflows/build.yml?query=branch%3Amaster+is%3Asuccess) workflow.
-2.	Select the latest successful run.
-3.	Scroll down to the Artifacts section.
-4.	Download the binaries matching your system and architecture.
+1. Go to the [Build](https://github.com/evg4b/fisherman/actions/workflows/build.yml?query=branch%3Amaster+is%3Asuccess)
+   workflow.
+2. Select the latest successful run.
+3. Scroll down to the Artifacts section.
+4. Download the binaries matching your system and architecture.
 
 > **Note:** Fisherman is still in development, so you use it at your own risk.

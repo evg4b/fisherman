@@ -22,8 +22,16 @@ pub struct CopyFilesRule {
 impl std::fmt::Display for CopyFilesRule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.src {
-            None => write!(f, "Copy files matching '{}' to '{}'", self.glob, self.destination),
-            Some(ref src) => write!(f, "Copy files matching '{}' from '{}' to '{}'", self.glob, src, self.destination),
+            None => write!(
+                f,
+                "Copy files matching '{}' to '{}'",
+                self.glob, self.destination
+            ),
+            Some(ref src) => write!(
+                f,
+                "Copy files matching '{}' from '{}' to '{}'",
+                self.glob, src, self.destination
+            ),
         }
     }
 }
@@ -311,7 +319,10 @@ mod tests {
             src: None,
             destination: "dist/".into(),
         };
-        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' to '`dist/`'");
+        assert_eq!(
+            format!("{}", rule),
+            "Copy files matching '`*.txt`' to '`dist/`'"
+        );
     }
 
     #[test]
@@ -322,6 +333,9 @@ mod tests {
             src: Some("src/".into()),
             destination: "dist/".into(),
         };
-        assert_eq!(format!("{}", rule), "Copy files matching '`*.txt`' from '`src/`' to '`dist/`'");
+        assert_eq!(
+            format!("{}", rule),
+            "Copy files matching '`*.txt`' from '`src/`' to '`dist/`'"
+        );
     }
 }

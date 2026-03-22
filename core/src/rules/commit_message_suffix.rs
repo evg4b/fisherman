@@ -129,7 +129,13 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = CommitMessageSuffixRule { when: None, suffix: " [skip-ci]".into() };
-        assert_eq!(format!("{}", rule), "Commit message must end with: ` [skip-ci]`");
+        let rule = CommitMessageSuffixRule {
+            when: None,
+            suffix: " [skip-ci]".into(),
+        };
+        assert_eq!(
+            format!("{}", rule),
+            "Commit message must end with: ` [skip-ci]`"
+        );
     }
 }

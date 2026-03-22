@@ -163,7 +163,13 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = CommitMessageRegexRule { when: None, expression: "^feat:".into() };
-        assert_eq!(format!("{}", rule), "Commit message must match pattern: `^feat:`");
+        let rule = CommitMessageRegexRule {
+            when: None,
+            expression: "^feat:".into(),
+        };
+        assert_eq!(
+            format!("{}", rule),
+            "Commit message must match pattern: `^feat:`"
+        );
     }
 }

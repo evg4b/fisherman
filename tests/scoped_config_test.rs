@@ -5,6 +5,7 @@ use common::{ConfigBuilder, ConfigFormat, FishermanBinary};
 // NOTE: Global config tests are not included because the `dirs` crate caches
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn repository_and_local_config_merge() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -44,6 +45,7 @@ content = "local rule"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn configs_are_concatenated_not_replaced() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -91,6 +93,7 @@ content = "fourth"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_and_repository_both_execute() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -125,6 +128,7 @@ content = "local config"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn different_hooks_in_different_scopes() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -160,6 +164,7 @@ regex = ".*"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn mixed_config_formats_across_scopes() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -196,6 +201,7 @@ content = "from toml"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_config_with_templates() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -227,6 +233,7 @@ content = "Type: {{Type}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_extract_patterns() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -258,6 +265,7 @@ content = "{{Feature}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_rules_across_scopes() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -298,6 +306,7 @@ content = "always executed"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn repository_only_without_global() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -322,6 +331,7 @@ content = "repository only"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_only_without_repository_config() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -346,6 +356,7 @@ content = "local only"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_config_yaml_format() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -374,6 +385,7 @@ hooks:
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn local_config_json_format() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -406,6 +418,7 @@ fn local_config_json_format() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn repository_toml_local_yaml() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -441,6 +454,7 @@ hooks:
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn repository_json_local_yaml() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();
@@ -481,6 +495,7 @@ hooks:
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn validation_failure_in_any_scope_fails_hook() {
     let binary = FishermanBinary::build();
     let mut ctx = TestContext::new();

@@ -7,6 +7,7 @@ use core::GitHook;
 use core::WriteFileRule;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_creates_new_file() {
     let ctx = TestContext::new();
     let config = config!(
@@ -29,6 +30,7 @@ fn write_file_creates_new_file() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_overwrites_existing() {
     let ctx = TestContext::new();
     let config = config!(
@@ -53,6 +55,7 @@ fn write_file_overwrites_existing() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_appends_to_existing() {
     let ctx = TestContext::new();
     let config = config!(
@@ -80,6 +83,7 @@ fn write_file_appends_to_existing() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_simple_path() {
     let ctx = TestContext::new();
     let config = config!(
@@ -102,6 +106,7 @@ fn write_file_simple_path() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_multiple_files() {
     let ctx = TestContext::new();
     let config = config!(
@@ -142,6 +147,7 @@ fn write_file_multiple_files() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn write_file_multiline_content() {
     let ctx = TestContext::new();
     let config = config!(

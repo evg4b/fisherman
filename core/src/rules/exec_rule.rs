@@ -44,10 +44,16 @@ impl Rule for ExecRule {
 
         let variables = extract_vars!(self, ctx)?;
         let mut env_map: Env = env::vars().collect();
-        env_map.extend(replace_in_hashmap(&self.env.clone().unwrap_or_default(), &variables)?);
+        env_map.extend(replace_in_hashmap(
+            &self.env.clone().unwrap_or_default(),
+            &variables,
+        )?);
 
         let output = Command::new(self.command.clone())
-            .args(replace_in_vec(&self.args.clone().unwrap_or(vec![]), &variables)?)
+            .args(replace_in_vec(
+                &self.args.clone().unwrap_or(vec![]),
+                &variables,
+            )?)
             .envs(env_map)
             .output()?;
 
@@ -188,8 +194,14 @@ mod tests {
         };
 
         let result = rule.check(&mock_ctx()).err().unwrap();
+        let error_msg = result.to_string();
 
-        assert_eq!(result.to_string(), "No such file or directory (os error 2)");
+        // Check for platform-specific error messages
+        assert!(
+            error_msg.contains("No such file or directory") || error_msg.contains("program not found"),
+            "Error message should indicate command not found, got: {}",
+            error_msg
+        );
     }
 
     #[test]

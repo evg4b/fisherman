@@ -7,4 +7,4 @@ pub use logo::logo;
 
 pub use hook_display::hook_display;
 
-pub const ABOUT: About = About{};
+pub const ABOUT: About = About {};

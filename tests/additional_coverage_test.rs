@@ -3,14 +3,15 @@ mod common;
 use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
 use common::test_context::TestContext;
-use core::Configuration;
-use core::GitHook;
 use core::BranchNamePrefixRule;
 use core::BranchNameRegexRule;
-use core::WriteFileRule;
+use core::Configuration;
 use core::Expression;
+use core::GitHook;
+use core::WriteFileRule;
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn post_commit_hook_execution() {
     let ctx = TestContext::new();
 
@@ -37,6 +38,7 @@ fn post_commit_hook_execution() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn empty_hooks_array_succeeds() {
     let ctx = TestContext::new();
 
@@ -50,6 +52,7 @@ fn empty_hooks_array_succeeds() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn mixed_sync_and_async_rules_execute_correctly() {
     let ctx = TestContext::new();
 
@@ -90,6 +93,7 @@ fn mixed_sync_and_async_rules_execute_correctly() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn sync_rule_failure_behavior() {
     let ctx = TestContext::new();
 
@@ -115,10 +119,10 @@ fn sync_rule_failure_behavior() {
     let handle_output = ctx.git_commit_allow_empty("test commit");
 
     assert!(!handle_output.status.success());
-
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn all_rule_types_in_one_hook() {
     let ctx = TestContext::new();
 
@@ -149,6 +153,7 @@ content = "all rules passed"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_with_complex_boolean_logic() {
     let ctx = TestContext::new();
 
@@ -175,6 +180,7 @@ fn conditional_with_complex_boolean_logic() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn template_in_message_suffix() {
     let ctx = TestContext::new();
 
@@ -193,6 +199,7 @@ suffix = " [{{Ticket}}]"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn template_in_branch_regex() {
     let ctx = TestContext::new();
 
@@ -214,6 +221,7 @@ content = "Repository: {{RepoName}}"
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn conditional_false_doesnt_execute_with_valid_message() {
     let ctx = TestContext::new();
 

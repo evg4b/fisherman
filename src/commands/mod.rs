@@ -7,9 +7,9 @@ pub use crate::commands::command::CliCommand;
 pub use crate::commands::explain::ExplainCommand;
 pub use crate::commands::handle::HandleCommand;
 pub use crate::commands::install::InstallCommand;
-use core::Context;
 use anyhow::Result;
 use clap::Subcommand;
+use core::Context;
 
 #[derive(Subcommand, Debug)]
 pub enum Command {

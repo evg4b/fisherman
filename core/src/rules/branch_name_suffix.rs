@@ -63,7 +63,7 @@ mod tests {
             when: None,
             suffix: t!("feature"),
         }
-        .check(&ctx)?;
+            .check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
@@ -82,7 +82,7 @@ mod tests {
             when: None,
             suffix: t!("suffix"),
         }
-        .check(&ctx)?;
+            .check(&ctx)?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
@@ -123,7 +123,10 @@ mod tests {
 
     #[test]
     fn test_display() {
-        let rule = BranchNameSuffixRule { when: None, suffix: "-patch".into() };
+        let rule = BranchNameSuffixRule {
+            when: None,
+            suffix: "-patch".into(),
+        };
         assert_eq!(format!("{}", rule), "Branch name must end with: `-patch`");
     }
 }

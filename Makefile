@@ -10,12 +10,12 @@ default: lint test build
 .PHONY: lint
 lint:
 	@echo "Running Clippy..."
-	@cargo clippy --all-targets --all-features --fix --allow-dirty
+	@cargo clippy --all-targets --all-features --fix --allow-dirty -- -D warnings
 
 .PHONY: test
 test:
 	@echo "Running tests..."
-	@cargo test
+	@cargo test --workspace
 
 .PHONY: build
 build:

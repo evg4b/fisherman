@@ -57,10 +57,11 @@ impl Rule for SuppressStringRule {
 
             for line in diff_lines {
                 if let DiffLine::Added(content) = line
-                    && regex.is_match(&content) {
-                        matched_files.push(file.display().to_string());
-                        break;
-                    }
+                    && regex.is_match(&content)
+                {
+                    matched_files.push(file.display().to_string());
+                    break;
+                }
             }
         }
 

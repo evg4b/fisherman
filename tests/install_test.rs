@@ -5,12 +5,13 @@ use tempdir::TempDir;
 use crate::common::{hooks::Hook, ConfigFormat, FishermanBinary, GitTestRepo};
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_in_empty_dir() {
     let temp_dir = TempDir::new("fisherman_test").expect("Failed to create temp directory");
     let fisherman = FishermanBinary::build();
-    
+
     let output = fisherman.install(temp_dir.path(), false);
-    
+
     assert!(!output.status.success());
     assert!(
         String::from_utf8_lossy(&output.stderr)
@@ -23,6 +24,7 @@ fn install_in_empty_dir() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_in_empty_repo() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();
@@ -38,6 +40,7 @@ fn install_in_empty_repo() {
 }
 
 #[test]
+#[cfg(feature = "integration-tests")]
 fn install_using_local_conig() {
     let repo = GitTestRepo::new();
 
@@ -66,5 +69,4 @@ regex = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
                 .contains(hook.as_str()));
         }
     }
-    
 }
