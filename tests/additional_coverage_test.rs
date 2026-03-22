@@ -3,12 +3,12 @@ mod common;
 use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
 use common::test_context::TestContext;
-use core::Configuration;
-use core::GitHook;
-use core::BranchNamePrefixRule;
-use core::BranchNameRegexRule;
-use core::WriteFileRule;
-use core::Expression;
+use fisherman_core::BranchNamePrefixRule;
+use fisherman_core::BranchNameRegexRule;
+use fisherman_core::Configuration;
+use fisherman_core::Expression;
+use fisherman_core::GitHook;
+use fisherman_core::WriteFileRule;
 
 #[test]
 fn post_commit_hook_execution() {
@@ -115,7 +115,6 @@ fn sync_rule_failure_behavior() {
     let handle_output = ctx.git_commit_allow_empty("test commit");
 
     assert!(!handle_output.status.success());
-
 }
 
 #[test]
@@ -197,7 +196,7 @@ fn template_in_branch_regex() {
     let ctx = TestContext::new();
 
     let config = r#"
-extract = ["repo_path:.*/(?P<RepoName>[^/]+)$"]
+extract = ["repo_path:.*[\\/\\\\](?P<RepoName>[^\\/\\\\]+)$"]
 
 [[hooks.pre-commit]]
 type = "write-file"

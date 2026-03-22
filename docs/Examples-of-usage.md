@@ -109,9 +109,9 @@ args = ["build", "--release"]
 **Performance comparison:**
 
 | Execution Mode | Time for 4 rules @ 5s each |
-|----------------|---------------------------|
-| Sequential     | ~20 seconds               |
-| Parallel       | ~5 seconds                |
+|----------------|----------------------------|
+| Sequential     | ~20 seconds                |
+| Parallel       | ~5 seconds                 |
 
 This dramatically improves developer experience when multiple validation steps are required.
 

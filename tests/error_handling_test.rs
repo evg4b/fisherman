@@ -154,7 +154,7 @@ content = "Value: {{UndefinedVar}}"
 
         let stderr = String::from_utf8_lossy(&handle_output.stderr);
         assert_stderr_contains(&stderr, &["UndefinedVar", "variable", "template"],
-            "Error should mention the undefined variable");
+                               "Error should mention the undefined variable");
     }
 }
 
@@ -217,7 +217,7 @@ args = ["test"]
 
     let stderr = String::from_utf8_lossy(&handle_output.stderr);
     assert_stderr_contains(&stderr, &["nonexistent-command-12345", "not found", "No such"],
-        "Error should mention the command that wasn't found");
+                           "Error should mention the command that wasn't found");
 }
 
 #[test]

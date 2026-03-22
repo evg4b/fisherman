@@ -16,8 +16,10 @@ Rules are executed in two modes:
 
 - **Synchronous** - Rules that validate data (e.g., commit message validation, branch name checks). These execute
   quickly and block the Git operation. Synchronous rules run sequentially in the order they are defined.
-- **Asynchronous** - Rules that execute external commands (e.g., `exec`, `shell`, `write-file`). These may take longer and run
-  external processes. **Asynchronous rules execute in parallel** to improve performance when multiple async rules are configured.
+- **Asynchronous** - Rules that execute external commands (e.g., `exec`, `shell`, `write-file`). These may take longer
+  and run
+  external processes. **Asynchronous rules execute in parallel** to improve performance when multiple async rules are
+  configured.
 
 **Parallel Execution Benefits:**
 
@@ -26,6 +28,7 @@ concurrently using parallel threads. This significantly reduces total execution 
 sequentially.
 
 **Example:**
+
 ```toml
 # These three async rules will run in parallel
 [[hooks.pre-commit]]
@@ -578,11 +581,13 @@ args = ["test"]
 5. **Use conditional execution** - Avoid running unnecessary rules with `when` conditions
 6. **Leverage variables** - Extract information once and reuse it across rules
 7. **Keep scripts focused** - Each rule should have a single, clear responsibility
-8. **Consider performance** - Minimize expensive operations in frequently-used hooks; leverage parallel execution for async rules
+8. **Consider performance** - Minimize expensive operations in frequently-used hooks; leverage parallel execution for
+   async rules
 9. **Document complex regex** - Add comments explaining non-obvious patterns
 10. **Use appropriate hooks** - Match rules to the right Git hook for best results
 11. **Design for parallelism** - Ensure async rules are independent and can safely run concurrently
-12. **Avoid shared state** - When using multiple async rules, avoid operations that conflict (e.g., writing to the same file)
+12. **Avoid shared state** - When using multiple async rules, avoid operations that conflict (e.g., writing to the same
+    file)
 
 ---
 
@@ -610,6 +615,7 @@ args = ["test"]
 - Use `{{variable}}` syntax, not `${variable}`
 
 See [Examples](./Examples-of-usage) for more real-world use cases.
+
 ## `copy-files`
 
 Copies one or more files matching a glob into a destination, preserving the relative path when a source directory is

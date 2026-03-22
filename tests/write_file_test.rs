@@ -2,9 +2,9 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
-use core::WriteFileRule;
+use fisherman_core::Configuration;
+use fisherman_core::GitHook;
+use fisherman_core::WriteFileRule;
 
 #[test]
 fn write_file_creates_new_file() {

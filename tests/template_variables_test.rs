@@ -2,17 +2,17 @@ mod common;
 
 use common::test_context::TestContext;
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
-use core::BranchNamePrefixRule;
-use core::BranchNameRegexRule;
-use core::BranchNameSuffixRule;
-use core::CommitMessagePrefixRule;
-use core::CommitMessageSuffixRule;
-use core::ExecRule;
-use core::ShellScriptRule;
-use core::WriteFileRule;
-use core::Expression;
+use fisherman_core::BranchNamePrefixRule;
+use fisherman_core::BranchNameRegexRule;
+use fisherman_core::BranchNameSuffixRule;
+use fisherman_core::CommitMessagePrefixRule;
+use fisherman_core::CommitMessageSuffixRule;
+use fisherman_core::Configuration;
+use fisherman_core::ExecRule;
+use fisherman_core::Expression;
+use fisherman_core::GitHook;
+use fisherman_core::ShellScriptRule;
+use fisherman_core::WriteFileRule;
 
 #[test]
 fn template_branch_variable_in_message_prefix() {
@@ -81,7 +81,7 @@ fn template_repo_path_variable() {
             })
         ],
         extract = vec![
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 
@@ -109,8 +109,8 @@ fn template_multiple_variables() {
             })
         ],
         extract = vec![
-            String::from("branch:^(?P<Type>feature|bugfix)/(?P<Ticket>[A-Z]+-\\d+)"),
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"branch:^(?P<Type>feature|bugfix)/(?P<Ticket>[A-Z]+-\d+)"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 
@@ -629,7 +629,7 @@ fn template_combined_repo_and_branch_variables() {
         ],
         extract = vec![
             String::from("branch:^(?P<Type>feature|bugfix)/(?P<Name>[a-z-]+)"),
-            String::from("repo_path:.*/(?P<RepoName>[^/]+)$"),
+            String::from(r"repo_path:.*[\/\\](?P<RepoName>[^\/\\]+)$"),
         ]
     );
 

@@ -1,0 +1,124 @@
+name: Tests and Analyze
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore: [ '**/*.md' ]
+  pull_request:
+    branches: [ "master" ]
+    paths-ignore: [ '**/*.md' ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ubuntu-latest-lint
+      - name: Run cargo clippy
+        run: cargo clippy --all-targets --message-format=json -- -D warnings > clippy.json
+      - name: Upload clippy report
+        uses: actions/upload-artifact@v6
+        with:
+          name: clippy.json
+          path: clippy.json
+
+  unit-test:
+    name: Unit test [${{ matrix.platform.name }}]
+    strategy:
+      matrix:
+        platform:
+          # - name: MacOS
+          #   runs-on: macos-latest
+          - name: Windows
+            runs-on: windows-latest
+          - name: Linux
+            runs-on: ubuntu-latest
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ matrix.platform.target.name }}-test
+      - name: Install llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: Run unit tests with coverage
+        run: cargo llvm-cov -p fisherman_core --lcov --output-path ${{ matrix.platform.name }}-lcov.info
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.platform.name }}-coverage
+          path: ${{ matrix.platform.name }}-lcov.info
+
+  sonarqube:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    needs: [ unit-test, lint ]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Download coverage and clippy reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: "*"
+          merge-multiple: true
+          path: .
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  integration-tests:
+    name: Integration tests [${{ matrix.platform.name }}]
+    strategy:
+      matrix:
+        platform:
+          # - name: MacOS
+          #   runs-on: macos-latest
+          - name: Windows
+            runs-on: windows-latest
+          - name: Linux
+            runs-on: ubuntu-latest
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ matrix.platform.target.name }}-test
+      - name: Run integration tests
+        run: cargo test -p fisherman --no-fail-fast

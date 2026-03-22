@@ -2,11 +2,11 @@ mod common;
 
 use common::test_context::{assert_stderr_contains, TestContext};
 use common::ConfigFormat;
-use core::Configuration;
-use core::GitHook;
-use core::BranchNamePrefixRule;
-use core::BranchNameRegexRule;
-use core::BranchNameSuffixRule;
+use fisherman_core::BranchNamePrefixRule;
+use fisherman_core::BranchNameRegexRule;
+use fisherman_core::BranchNameSuffixRule;
+use fisherman_core::Configuration;
+use fisherman_core::GitHook;
 
 #[test]
 fn branch_name_regex_valid() {
@@ -45,7 +45,7 @@ fn branch_name_regex_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "invalid_branch", "regex"],
-        "Error should explain branch name validation failure");
+                           "Error should explain branch name validation failure");
 }
 
 #[test]
@@ -85,7 +85,7 @@ fn branch_name_prefix_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "prefix", "feature/"],
-        "Error should explain prefix validation failure");
+                           "Error should explain prefix validation failure");
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn branch_name_suffix_invalid() {
 
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert_stderr_contains(&stderr, &["branch", "suffix", "-v1"],
-        "Error should explain suffix validation failure");
+                           "Error should explain suffix validation failure");
 }
 
 #[test]
