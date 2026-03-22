@@ -5,7 +5,6 @@ use common::test_context::assert_stderr_contains;
 use common::{FishermanBinary, GitTestRepo};
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn invalid_toml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -23,7 +22,6 @@ regex = ".*"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn invalid_yaml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -43,7 +41,6 @@ hooks:
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn invalid_regex_in_message_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -73,7 +70,6 @@ regex = "(?P<unclosed"  # Invalid regex
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn invalid_regex_in_branch_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -102,7 +98,6 @@ regex = "[invalid("  # Invalid regex
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn invalid_regex_in_extract() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -134,7 +129,6 @@ content = "test"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_with_undefined_variable() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -165,7 +159,6 @@ content = "Value: {{UndefinedVar}}"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn missing_required_field_in_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -183,7 +176,6 @@ type = "message-regex"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn unknown_rule_type() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -201,7 +193,6 @@ some_field = "value"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn exec_command_not_found() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -230,7 +221,6 @@ args = ["test"]
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn write_file_to_invalid_path() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -251,7 +241,6 @@ content = "test"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn empty_config_file() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
@@ -268,7 +257,6 @@ fn empty_config_file() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn when_condition_syntax_error() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();

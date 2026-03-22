@@ -7,7 +7,6 @@ use fisherman_core::GitHook;
 use fisherman_core::{CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule};
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_regex_valid_pattern() {
     let ctx = TestContext::new();
 
@@ -25,7 +24,6 @@ fn message_regex_valid_pattern() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_regex_invalid_pattern() {
     let ctx = TestContext::new();
 
@@ -51,7 +49,6 @@ fn message_regex_invalid_pattern() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_prefix_valid() {
     let ctx = TestContext::new();
 
@@ -69,7 +66,6 @@ fn message_prefix_valid() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_prefix_invalid() {
     let ctx = TestContext::new();
 
@@ -96,7 +92,6 @@ fn message_prefix_invalid() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_suffix_valid() {
     let ctx = TestContext::new();
 
@@ -114,7 +109,6 @@ fn message_suffix_valid() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_suffix_invalid() {
     let ctx = TestContext::new();
 
@@ -141,7 +135,6 @@ fn message_suffix_invalid() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_multiple_rules_all_pass() {
     let ctx = TestContext::new();
 
@@ -167,7 +160,6 @@ fn message_multiple_rules_all_pass() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn message_multiple_rules_one_fails() {
     let ctx = TestContext::new();
 

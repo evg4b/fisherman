@@ -32,7 +32,7 @@ jobs:
             target/
           key: ubuntu-latest-lint
       - name: Run cargo clippy
-        run: cargo clippy --all-targets --message-format=json --features integration-tests -- -D warnings > clippy.json
+        run: cargo clippy --all-targets --message-format=json -- -D warnings > clippy.json
       - name: Upload clippy report
         uses: actions/upload-artifact@v6
         with:
@@ -69,7 +69,7 @@ jobs:
         with:
           tool: cargo-llvm-cov
       - name: Run unit tests with coverage
-        run: cargo llvm-cov --workspace --lcov --output-path ${{ matrix.platform.name }}-lcov.info
+        run: cargo llvm-cov -p fisherman_core --lcov --output-path ${{ matrix.platform.name }}-lcov.info
       - name: Upload coverage report
         uses: actions/upload-artifact@v6
         with:
@@ -121,4 +121,4 @@ jobs:
             target/
           key: ${{ matrix.platform.target.name }}-test
       - name: Run integration tests
-        run: cargo test --workspace --features integration-tests --no-fail-fast
+        run: cargo test -p fisherman --no-fail-fast

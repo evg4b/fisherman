@@ -22,6 +22,7 @@ glob = "0.3.2"
 typetag = "0.2.21"
 serde_json = "1.0.149"
 rules_derive = { path = "../rules_derive" }
+rayon = "1.10"
 
 [dev-dependencies]
 rstest = "0.26.1"
@@ -29,3 +30,4 @@ assert2 = "0.4.0"
 serde_json = "1.0.140"
 assertor = { version = "0.0.4", features = ["anyhow"] }
 tempfile = "3.19.1"
+tempdir = "0.3"

@@ -5,7 +5,6 @@ use crate::common::{FishermanBinary, GitTestRepo};
 mod common;
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn double_slash_version() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();
@@ -22,7 +21,6 @@ fn double_slash_version() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn slash_v() {
     let repo = GitTestRepo::new();
     let fisherman = FishermanBinary::build();

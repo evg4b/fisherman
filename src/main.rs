@@ -1,11 +1,8 @@
-mod commands;
-mod ui;
-
-use crate::commands::{CliCommand, Command};
+use fisherman_core::commands::{CliCommand, Command};
 use clap::Parser;
 use fisherman_core::GitRepoContext;
 use std::env;
-use ui::ABOUT;
+use fisherman_core::ui::ABOUT;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = ABOUT, long_about=None)]

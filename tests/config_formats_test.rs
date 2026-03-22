@@ -4,7 +4,6 @@ use crate::common::ConfigFormat;
 use common::test_context::TestContext;
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn yaml_config_format() {
     let ctx = TestContext::new();
 
@@ -32,7 +31,6 @@ hooks:
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn json_config_format() {
     let ctx = TestContext::new();
 
@@ -66,7 +64,6 @@ fn json_config_format() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn yaml_with_templates() {
     let ctx = TestContext::new();
 
@@ -91,7 +88,6 @@ hooks:
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn json_with_conditional() {
     let ctx = TestContext::new();
 
@@ -122,7 +118,6 @@ fn json_with_conditional() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn multiple_config_formats_error() {
     let ctx = TestContext::new();
 

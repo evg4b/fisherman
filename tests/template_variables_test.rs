@@ -15,7 +15,6 @@ use fisherman_core::ShellScriptRule;
 use fisherman_core::WriteFileRule;
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_branch_variable_in_message_prefix() {
     let ctx = TestContext::new();
 
@@ -38,7 +37,6 @@ fn template_branch_variable_in_message_prefix() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_branch_variable_in_write_file() {
     let ctx = TestContext::new();
 
@@ -69,7 +67,6 @@ fn template_branch_variable_in_write_file() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_repo_path_variable() {
     let ctx = TestContext::new();
 
@@ -98,7 +95,6 @@ fn template_repo_path_variable() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_multiple_variables() {
     let ctx = TestContext::new();
 
@@ -131,7 +127,6 @@ fn template_multiple_variables() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_exec_command() {
     let ctx = TestContext::new();
 
@@ -174,7 +169,6 @@ fn template_in_exec_command() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_optional_variable_present() {
     let ctx = TestContext::new();
 
@@ -201,7 +195,6 @@ fn template_optional_variable_present() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_optional_variable_missing() {
     let ctx = TestContext::new();
 
@@ -224,7 +217,6 @@ fn template_optional_variable_missing() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_file_path() {
     let ctx = TestContext::new();
 
@@ -255,7 +247,6 @@ fn template_in_file_path() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_file_path_multiple_vars() {
     let ctx = TestContext::new();
 
@@ -286,7 +277,6 @@ fn template_in_file_path_multiple_vars() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_message_suffix() {
     let ctx = TestContext::new();
 
@@ -310,7 +300,6 @@ fn template_in_message_suffix() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_branch_name_prefix() {
     let ctx = TestContext::new();
 
@@ -333,7 +322,6 @@ fn template_in_branch_name_prefix() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_branch_name_suffix() {
     let ctx = TestContext::new();
 
@@ -356,7 +344,6 @@ fn template_in_branch_name_suffix() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_shell_command() {
     let ctx = TestContext::new();
 
@@ -401,7 +388,6 @@ fn template_in_shell_command() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn multiple_templates_in_single_field() {
     let ctx = TestContext::new();
 
@@ -431,7 +417,6 @@ fn multiple_templates_in_single_field() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_rendering_failure_missing_variable() {
     let ctx = TestContext::new();
 
@@ -457,7 +442,6 @@ fn template_rendering_failure_missing_variable() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_optional_repo_path_no_match() {
     let ctx = TestContext::new();
 
@@ -478,7 +462,6 @@ fn template_optional_repo_path_no_match() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_with_special_characters() {
     let ctx = TestContext::new();
 
@@ -505,7 +488,6 @@ fn template_with_special_characters() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_conditional_with_defined_var() {
     let ctx = TestContext::new();
 
@@ -532,7 +514,6 @@ fn template_in_conditional_with_defined_var() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_conditional_skipped_undefined_var() {
     let ctx = TestContext::new();
 
@@ -559,7 +540,6 @@ fn template_conditional_skipped_undefined_var() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_complex_extraction_pattern() {
     let ctx = TestContext::new();
 
@@ -592,7 +572,6 @@ fn template_complex_extraction_pattern() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_in_multiple_exec_args() {
     let ctx = TestContext::new();
 
@@ -635,7 +614,6 @@ fn template_in_multiple_exec_args() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
 fn template_combined_repo_and_branch_variables() {
     let ctx = TestContext::new();
 

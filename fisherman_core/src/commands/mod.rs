@@ -9,7 +9,7 @@ pub use crate::commands::handle::HandleCommand;
 pub use crate::commands::install::InstallCommand;
 use anyhow::Result;
 use clap::Subcommand;
-use fisherman_core::Context;
+use crate::Context;
 
 #[derive(Subcommand, Debug)]
 pub enum Command {

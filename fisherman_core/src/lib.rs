@@ -4,6 +4,8 @@ mod hooks;
 mod rules;
 mod context;
 mod scripting;
+pub mod commands;
+pub mod ui;
 
 pub use crate::configuration::Configuration;
 pub use crate::context::{Context, GitRepoContext, MockContext};
