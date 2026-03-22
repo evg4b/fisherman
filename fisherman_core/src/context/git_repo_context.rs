@@ -72,7 +72,7 @@ impl Context for GitRepoContext {
     fn variables_new(&self) -> Result<HashMap<String, String>> {
         match &self.extract {
             None => self.variables(&[]),
-            Some(additional) => self.variables(&additional),
+            Some(additional) => self.variables(additional),
         }
     }
 
