@@ -1,15 +1,13 @@
 use crate::context::Context;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessageSuffixRule {
-    pub when: Option<Expression>,
     pub suffix: TemplateString,
 }
 
@@ -22,12 +20,6 @@ impl std::fmt::Display for CommitMessageSuffixRule {
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: MESSAGE_SUFFIX_RULE_NAME.to_string(),
-            });
-        }
-
         let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
         let commit_msg = ctx.commit_msg()?;
 

@@ -1,13 +1,11 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct BranchNameSuffixRule {
-    pub when: Option<Expression>,
     pub suffix: TemplateString,
 }
 
@@ -22,12 +20,6 @@ static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
 #[typetag::serde(name = "branch-name-suffix")]
 impl Rule for BranchNameSuffixRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: BRANCH_NAME_SUFFIX_RULE_NAME.to_string(),
-            });
-        }
-
         let suffix = compile_tmpl(ctx, &self.suffix, &[])?;
         let branch_name = ctx.current_branch()?;
 

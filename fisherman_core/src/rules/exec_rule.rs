@@ -1,10 +1,8 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
@@ -12,10 +10,8 @@ use std::process::Command;
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ExecRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub command: String,
     pub args: Option<Args>,
     pub env: Option<Env>,
@@ -36,13 +32,7 @@ impl std::fmt::Display for ExecRule {
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: "exec".into(),
-            });
-        }
-
-        let variables = extract_vars!(self, ctx)?;
+        let variables = ctx.variables_new()?;
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(
             &self.env.clone().unwrap_or_default(),

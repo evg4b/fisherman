@@ -1,17 +1,12 @@
 use crate::context::{Context, DiffLine};
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
 use regex::Regex;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct SuppressStringRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub regex: TemplateString,
     pub glob: Option<TemplateString>,
 }
@@ -25,13 +20,7 @@ impl std::fmt::Display for SuppressStringRule {
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: "suppress-string".into(),
-            });
-        }
-
-        let variables = extract_vars!(&self, ctx)?;
+        let variables = ctx.variables_new()?;
         let regex = Regex::new(&self.regex.compile(&variables)?)?;
 
         let pattern = match &self.glob {

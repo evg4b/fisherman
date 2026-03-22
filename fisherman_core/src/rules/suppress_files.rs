@@ -1,19 +1,15 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use serde::{Deserialize, Serialize};
 
 static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
 
-#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SuppressFilesRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub glob: TemplateString,
 }
 
@@ -26,14 +22,7 @@ impl std::fmt::Display for SuppressFilesRule {
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: SUPPRESS_FILES_RULE_NAME.to_string(),
-            });
-        }
-
-        let variables = extract_vars!(self, ctx)?;
-        let glob_pattern = self.glob.compile(&variables)?;
+        let glob_pattern = self.glob.compile(&ctx.variables_new()?)?;
         let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
 

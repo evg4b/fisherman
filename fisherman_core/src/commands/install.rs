@@ -23,7 +23,7 @@ impl CliCommand for InstallCommand {
         let selected_hooks = match self.hooks.as_ref() {
             Some(hooks) => hooks.clone(),
             None => context
-                .configuration()?
+                .configuration()
                 .get_configured_hooks()
                 .unwrap_or_else(|| GitHook::value_variants().into()),
         };
@@ -45,6 +45,7 @@ mod tests {
     use crate::MockContext;
     use std::collections::HashMap;
     use std::path::PathBuf;
+    use std::sync::Arc;
     use tempdir::TempDir;
 
     #[test]
@@ -85,7 +86,7 @@ mod tests {
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Ok(config));
+        ctx.expect_configuration().return_once(move || Arc::new(config));
         ctx.expect_hooks_dir()
             .return_const(dir.path().to_path_buf());
         ctx.expect_bin()
@@ -114,7 +115,7 @@ mod tests {
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Ok(config));
+        ctx.expect_configuration().return_once(move || Arc::new(config));
         ctx.expect_hooks_dir()
             .return_const(dir.path().to_path_buf());
         ctx.expect_bin()
@@ -126,22 +127,22 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_exec_configuration_error() {
-        let dir = TempDir::new("fisherman_test").unwrap();
-
-        let cmd = InstallCommand {
-            hooks: None,
-            force: false,
-        };
-
-        let mut ctx = MockContext::new();
-        ctx.expect_configuration()
-            .return_once(|| Err(anyhow::anyhow!("Config error")));
-        ctx.expect_hooks_dir()
-            .return_const(dir.path().to_path_buf());
-
-        let result = cmd.exec(&mut ctx);
-        assert!(result.is_err());
-    }
+    // #[test]
+    // fn test_exec_configuration_error() {
+    //     let dir = TempDir::new("fisherman_test").unwrap();
+    //
+    //     let cmd = InstallCommand {
+    //         hooks: None,
+    //         force: false,
+    //     };
+    //
+    //     let mut ctx = MockContext::new();
+    //     ctx.expect_configuration()
+    //         .return_once(|| Err(anyhow::anyhow!("Config error")));
+    //     ctx.expect_hooks_dir()
+    //         .return_const(dir.path().to_path_buf());
+    //
+    //     let result = cmd.exec(&mut ctx);
+    //     assert!(result.is_err());
+    // }
 }

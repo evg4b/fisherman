@@ -1,18 +1,16 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
 use regex::Regex;
-use rules_derive::ConditionalRule;
 use serde::{Deserialize, Serialize};
 
 static BRANCH_NAME_REGEX_RULE_NAME: &str = "branch-name-regex";
 
-#[derive(Debug, Deserialize, Serialize, ConditionalRule)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct BranchNameRegexRule {
-    pub when: Option<Expression>,
     #[serde(alias = "regex")]
     pub expression: TemplateString,
 }
@@ -26,12 +24,6 @@ impl std::fmt::Display for BranchNameRegexRule {
 #[typetag::serde(name = "branch-name-regex")]
 impl Rule for BranchNameRegexRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: BRANCH_NAME_REGEX_RULE_NAME.to_string(),
-            });
-        }
-
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let branch_name = ctx.current_branch()?;
 

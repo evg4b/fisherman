@@ -1,16 +1,14 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_PREFIX_RULE_NAME: &str = "message-prefix";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessagePrefixRule {
-    pub when: Option<Expression>,
     pub prefix: TemplateString,
 }
 
@@ -23,12 +21,6 @@ impl std::fmt::Display for CommitMessagePrefixRule {
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: MESSAGE_PREFIX_RULE_NAME.to_string(),
-            });
-        }
-
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let commit_msg = ctx.commit_msg()?;
 

@@ -1,19 +1,17 @@
 use crate::context::Context;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CopyFilesRule {
-    pub when: Option<Expression>,
     pub glob: TemplateString,
     pub src: Option<TemplateString>,
     pub destination: TemplateString,
@@ -48,12 +46,6 @@ fn ensure_parent_exists(path: &Path) -> Result<()> {
 #[typetag::serde(name = "copy-files")]
 impl Rule for CopyFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: COPY_FILES_RULE_NAME.to_string(),
-            });
-        }
-
         let variables = ctx.variables(&[])?;
         let compiled_glob = self.glob.compile(&variables)?;
         let compiled_src = self

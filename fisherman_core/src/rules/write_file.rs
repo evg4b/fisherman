@@ -1,17 +1,12 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct WriteFileRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub path: TemplateString,
     pub content: TemplateString,
     pub append: Option<bool>,
@@ -26,13 +21,7 @@ impl std::fmt::Display for WriteFileRule {
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: "write-file".into(),
-            });
-        }
-
-        let variables = extract_vars!(self, ctx)?;
+        let variables = ctx.variables_new()?;
         let path = self.path.compile(&variables)?;
         let content = self.content.compile(&variables)?;
 

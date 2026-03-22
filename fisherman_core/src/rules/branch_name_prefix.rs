@@ -1,18 +1,16 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
-#[derive(Debug, Deserialize, Serialize, ConditionalRule)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct BranchNamePrefixRule {
-    pub when: Option<Expression>,
     pub prefix: TemplateString,
 }
 
@@ -25,12 +23,6 @@ impl Display for BranchNamePrefixRule {
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
-            });
-        }
-
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -58,7 +50,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
 

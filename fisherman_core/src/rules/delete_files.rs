@@ -1,17 +1,15 @@
 use crate::context::Context;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct DeleteFilesRule {
-    pub when: Option<Expression>,
     pub glob: TemplateString,
     pub fail_if_not_found: bool,
 }
@@ -25,12 +23,6 @@ impl std::fmt::Display for DeleteFilesRule {
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: DELETE_FILES_RULE_NAME.to_string(),
-            });
-        }
-
         let variables = ctx.variables(&[])?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();

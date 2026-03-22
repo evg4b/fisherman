@@ -1,14 +1,13 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
+use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use regex::Regex;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
 static MESSAGE_REGEX_RULE_NAME: &str = "message-regex";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CommitMessageRegexRule {
     pub when: Option<Expression>,
     #[serde(alias = "regex")]
@@ -24,12 +23,6 @@ impl std::fmt::Display for CommitMessageRegexRule {
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
     fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: MESSAGE_REGEX_RULE_NAME.to_string(),
-            });
-        }
-
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let commit_msg = ctx.commit_msg()?;
 

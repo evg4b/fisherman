@@ -1,18 +1,13 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use run_script::{run, ScriptOptions};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ShellScriptRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub script: TemplateString,
     pub env: Option<HashMap<String, String>>,
 }
@@ -28,16 +23,10 @@ static SHELL_SCRIPT_NAME: &str = "shell";
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: SHELL_SCRIPT_NAME.into(),
-            });
-        }
-
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
-        let script = self.script.compile(&extract_vars!(&self, ctx)?)?;
+        let script = self.script.compile(&ctx.variables_new()?)?;
 
         let args = vec![];
         let (code, output, _) = run(script.as_str(), &args, &options)?;

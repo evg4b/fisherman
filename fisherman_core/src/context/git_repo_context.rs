@@ -7,13 +7,15 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 pub struct GitRepoContext {
+    configuration: Arc<Configuration>,
     repo: Mutex<Repository>,
     cwd: PathBuf,
     bin: PathBuf,
     message_file: Option<PathBuf>,
+    extract: Option<Vec<String>>,
 }
 
 impl Context for GitRepoContext {
@@ -52,13 +54,31 @@ impl Context for GitRepoContext {
         self.message_file = Some(message_file);
     }
 
-    fn configuration(&self) -> Result<Configuration> {
-        Configuration::load(self.repo_path())
+    fn configuration(&self) -> Arc<Configuration> {
+        self.configuration.clone()
+    }
+
+    fn extend(&mut self, extract: &[String]) -> Result<Box<dyn Context>> {
+        Ok(Box::new(GitRepoContext {
+            configuration: self.configuration.clone(),
+            repo: Mutex::new(Repository::open(self.repo_path())?),
+            cwd: self.cwd.clone(),
+            bin: self.bin.clone(),
+            message_file: self.message_file.clone(),
+            extract: Option::from(extract.to_vec()),
+        }))
+    }
+
+    fn variables_new(&self) -> Result<HashMap<String, String>> {
+        match &self.extract {
+            None => self.variables(&[]),
+            Some(additional) => self.variables(&additional),
+        }
     }
 
     fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
         let mut variables = additional.to_vec();
-        variables.extend(self.configuration()?.extract);
+        variables.extend(self.configuration().extract.clone());
         extract_variables(self, &variables)
     }
 
@@ -125,10 +145,12 @@ impl GitRepoContext {
         let bin = std::env::current_exe()?;
 
         Ok(Self {
+            configuration: Arc::new(Configuration::load(cwd.as_path())?),
             repo: Mutex::new(repo),
             cwd,
             bin,
             message_file: None,
+            extract: None,
         })
     }
 }
@@ -314,7 +336,7 @@ pub mod tests {
     fn test_configuration_empty_dir() -> Result<()> {
         let temp_dir = tempdir()?;
         let ctx = init_ctx(temp_dir.path())?;
-        let config = ctx.configuration()?;
+        let config = ctx.configuration();
         assert!(config.hooks.is_empty());
         Ok(())
     }

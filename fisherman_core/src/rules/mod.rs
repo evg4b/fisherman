@@ -23,7 +23,7 @@ pub use commit_message_suffix::CommitMessageSuffixRule;
 pub use copy_files::CopyFilesRule;
 pub use delete_files::DeleteFilesRule;
 pub use exec_rule::ExecRule;
-pub use rule::{ConditionalRule, Rule, RuleResult};
+pub use rule::{Rule, RuleContext, RuleResult};
 pub use shell_script::ShellScriptRule;
 pub use suppress_files::SuppressFilesRule;
 pub use suppress_string::SuppressStringRule;
