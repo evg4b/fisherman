@@ -44,8 +44,8 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - name: macos
-          #   runs-on: macos-latest
+          - name: macos
+            runs-on: macos-latest
           - name: windows
             runs-on: windows-latest
           - name: linux
@@ -58,12 +58,13 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ matrix.platform.target.name }}-test
+          key: ${{ matrix.platform.name }}-unit-tests-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ matrix.platform.name }}-unit-tests-cargo-
       - name: Install llvm-cov
         uses: taiki-e/install-action@v2
         with:
@@ -100,8 +101,8 @@ jobs:
     strategy:
       matrix:
         platform:
-          # - name: MacOS
-          #   runs-on: macos-latest
+          - name: macos
+            runs-on: macos-latest
           - name: windows
             runs-on: windows-latest
           - name: linux
@@ -114,11 +115,12 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ matrix.platform.target.name }}-test
+          key: ${{ matrix.platform.name }}-e2e-tests-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ matrix.platform.name }}-e2e-tests-cargo-
       - name: Run integration tests
         run: cargo test -p fisherman --no-fail-fast
