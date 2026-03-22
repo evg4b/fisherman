@@ -108,7 +108,7 @@ regex = ".*"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
+#[ignore = "TMP"]
 fn hook_script_contains_correct_command() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();

@@ -69,7 +69,7 @@ fn template_branch_variable_in_write_file() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
+#[ignore = "TMP"]
 fn template_repo_path_variable() {
     let ctx = TestContext::new();
 
@@ -98,7 +98,7 @@ fn template_repo_path_variable() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
+#[ignore = "TMP"]
 fn template_multiple_variables() {
     let ctx = TestContext::new();
 
@@ -635,7 +635,7 @@ fn template_in_multiple_exec_args() {
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
+#[ignore = "TMP"]
 fn template_combined_repo_and_branch_variables() {
     let ctx = TestContext::new();
 

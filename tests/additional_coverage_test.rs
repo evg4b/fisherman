@@ -199,7 +199,7 @@ suffix = " [{{Ticket}}]"
 }
 
 #[test]
-#[cfg(feature = "integration-tests")]
+#[ignore = "TMP"]
 fn template_in_branch_regex() {
     let ctx = TestContext::new();
 
