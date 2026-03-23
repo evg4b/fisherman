@@ -1,18 +1,13 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use run_script::{run, ScriptOptions};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ShellScriptRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub script: TemplateString,
     pub env: Option<HashMap<String, String>>,
 }
@@ -28,16 +23,10 @@ static SHELL_SCRIPT_NAME: &str = "shell";
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: SHELL_SCRIPT_NAME.into(),
-            });
-        }
-
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
-        let script = self.script.compile(&extract_vars!(&self, ctx)?)?;
+        let script = self.script.compile(&ctx.variables()?)?;
 
         let args = vec![];
         let (code, output, _) = run(script.as_str(), &args, &options)?;
@@ -61,7 +50,6 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::shell_script::ShellScriptRule;
     use crate::rules::{Rule, RuleResult};
-    use crate::scripting::Expression;
     use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
@@ -69,8 +57,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("echo hello"),
             env: None,
         };
@@ -79,7 +65,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"script":"echo hello","env":null}"#
+            r#"{"script":"echo hello","env":null}"#
         );
 
         Ok(())
@@ -89,8 +75,6 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: ShellScriptRule = serde_json::from_str(r#"{"script":"echo hello"}"#)?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.script, t!("echo hello"));
         assert!(config.env.is_none());
 
@@ -103,8 +87,6 @@ mod tests {
         env.insert("TEST".to_string(), "value".to_string());
 
         let config = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("echo hello"),
             env: Some(env),
         };
@@ -123,8 +105,6 @@ mod tests {
             r#"{"script":"echo hello","env":{"TEST":"value"}}"#,
         )?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.script, t!("echo hello"));
         assert!(config.env.is_some());
         assert_eq!(config.env.unwrap().get("TEST"), Some(&"value".to_string()));
@@ -132,94 +112,12 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_extract() -> Result<()> {
-        let config = ShellScriptRule {
-            when: None,
-            extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
-            script: t!("echo hello"),
-            env: None,
-        };
 
-        let serialized = serde_json::to_string(&config)?;
 
-        assert!(serialized.contains("\"extract\":[\"branch:^(?P<Type>feat|fix)\"]"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_extract() -> Result<()> {
-        let config: ShellScriptRule = serde_json::from_str(
-            r#"{"script":"echo hello","extract":["branch:^(?P<Type>feat|fix)"]}"#,
-        )?;
-
-        assert!(config.when.is_none());
-        assert!(config.extract.is_some());
-        assert_eq!(config.script, t!("echo hello"));
-        assert_eq!(
-            config.extract.unwrap(),
-            vec!["branch:^(?P<Type>feat|fix)".to_string()]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = ShellScriptRule {
-            when: Some(Expression::new("is_def_var(\"build\")")),
-            extract: None,
-            script: t!("echo hello"),
-            env: None,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"build\")","extract":null,"script":"echo hello","env":null}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: ShellScriptRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"build\")","script":"echo hello"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.script, t!("echo hello"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_all_fields() -> Result<()> {
-        let mut env = HashMap::new();
-        env.insert("TEST".to_string(), "value".to_string());
-
-        let config = ShellScriptRule {
-            when: Some(Expression::new("is_def_var(\"build\")")),
-            extract: Some(vec!["branch:.*".to_string()]),
-            script: t!("echo hello"),
-            env: Some(env),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert!(serialized.contains("\"when\":\"is_def_var(\\\"build\\\")\""));
-        assert!(serialized.contains("\"extract\":[\"branch:.*\"]"));
-        assert!(serialized.contains("\"TEST\":\"value\""));
-
-        Ok(())
-    }
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
         ctx
     }
 
@@ -230,8 +128,6 @@ mod tests {
     #[test]
     fn test_shell_script() {
         let script = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("echo 'Test'"),
             env: None,
         };
@@ -250,8 +146,6 @@ mod tests {
     #[test]
     fn test_shell_script_failure() {
         let script = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("exit 1"),
             env: None,
         };
@@ -270,8 +164,6 @@ mod tests {
         variables.insert("name".to_string(), "Test".to_string());
 
         let script = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("echo 'Hello {{name}}'"),
             env: None,
         };
@@ -293,8 +185,6 @@ mod tests {
         env.insert("TEST".to_string(), "Test".to_string());
 
         let script = ShellScriptRule {
-            when: None,
-            extract: None,
             #[cfg(not(windows))]
             script: t!("echo $TEST"),
             #[cfg(windows)]
@@ -316,8 +206,6 @@ mod tests {
     #[test]
     fn test_shell_script_rule_new() {
         let rule = ShellScriptRule {
-            when: None,
-            extract: None,
             script: "echo 'Test'".into(),
             env: None,
         };
@@ -336,8 +224,6 @@ mod tests {
     #[test]
     fn test_shell_script_template_error() {
         let script = ShellScriptRule {
-            when: None,
-            extract: None,
             env: None,
             script: t!("echo '{{missing}}'"),
         };
@@ -349,8 +235,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = ShellScriptRule {
-            when: None,
-            extract: None,
             script: t!("echo hello"),
             env: None,
         };

@@ -1,18 +1,15 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use rules_derive::ConditionalRule;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
-#[derive(Debug, Deserialize, Serialize, ConditionalRule)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct BranchNamePrefixRule {
-    pub when: Option<Expression>,
     pub prefix: TemplateString,
 }
 
@@ -25,12 +22,6 @@ impl Display for BranchNamePrefixRule {
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: BRANCH_NAME_PREFIX_RULE_NAME.to_string(),
-            });
-        }
-
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -54,17 +45,17 @@ mod tests {
     use crate::t;
     use assert2::assert;
     use std::collections::HashMap;
+    use anyhow::anyhow;
 
     #[test]
     fn serialize_test() -> Result<()> {
         let config = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(serialized, r#"{"when":null,"prefix":"feat/"}"#);
+        assert_eq!(serialized, r#"{"prefix":"feat/"}"#);
 
         Ok(())
     }
@@ -73,33 +64,6 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: BranchNamePrefixRule = serde_json::from_str(r#"{"prefix":"feat/"}"#)?;
 
-        assert!(config.when.is_none());
-        assert_eq!(config.prefix, t!("feat/"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = BranchNamePrefixRule {
-            when: Some(Expression::new("is_def_var(\"ticket\")")),
-            prefix: t!("feat/"),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(serialized, r#"{"when":"is_def_var(\"ticket\")","prefix":"feat/"}"#);
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: BranchNamePrefixRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"ticket\")","prefix":"feat/"}"#,
-        )?;
-
-        assert!(config.when.is_some());
         assert_eq!(config.prefix, t!("feat/"));
 
         Ok(())
@@ -108,14 +72,13 @@ mod tests {
     #[test]
     fn test_branch_name_prefix_success() -> Result<()> {
         let rule = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
         let RuleResult::Success { name, .. } = result else {
@@ -127,16 +90,15 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_failure() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_failure() -> Result<()> {
         let rule = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
         let RuleResult::Failure { name, message } = result else {
@@ -149,16 +111,15 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_variables_error() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_variables_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -167,16 +128,15 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_branch_error() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_branch_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
-            when: None,
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
-            .returning(|| Err(anyhow::anyhow!("Branch error")));
+            .returning(|| Err(anyhow!("Branch error")));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -187,7 +147,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = BranchNamePrefixRule {
-            when: None,
             prefix: "feat/".into(),
         };
         assert_eq!(format!("{}", rule), "Branch should start with: `feat/`");

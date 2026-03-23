@@ -1,17 +1,12 @@
 use crate::context::{Context, DiffLine};
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
 use regex::Regex;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct SuppressStringRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub regex: TemplateString,
     pub glob: Option<TemplateString>,
 }
@@ -25,13 +20,7 @@ impl std::fmt::Display for SuppressStringRule {
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: "suppress-string".into(),
-            });
-        }
-
-        let variables = extract_vars!(&self, ctx)?;
+        let variables = ctx.variables()?;
         let regex = Regex::new(&self.regex.compile(&variables)?)?;
 
         let pattern = match &self.glob {
@@ -91,8 +80,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = SuppressStringRule {
-            when: None,
-            extract: None,
             regex: "TODO".into(),
             glob: None,
         };
@@ -101,7 +88,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"regex":"TODO","glob":null}"#
+            r#"{"regex":"TODO","glob":null}"#
         );
 
         Ok(())
@@ -111,8 +98,6 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: SuppressStringRule = serde_json::from_str(r#"{"regex":"TODO"}"#)?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.regex, "TODO".into());
         assert!(config.glob.is_none());
 
@@ -122,8 +107,6 @@ mod tests {
     #[test]
     fn serialize_test_with_glob() -> Result<()> {
         let config = SuppressStringRule {
-            when: None,
-            extract: None,
             regex: "TODO".into(),
             glob: Some("*.rs".into()),
         };
@@ -132,7 +115,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"regex":"TODO","glob":"*.rs"}"#
+            r#"{"regex":"TODO","glob":"*.rs"}"#
         );
 
         Ok(())
@@ -143,115 +126,16 @@ mod tests {
         let config: SuppressStringRule =
             serde_json::from_str(r#"{"regex":"TODO","glob":"*.rs"}"#)?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.regex, "TODO".into());
         assert_eq!(config.glob, Some("*.rs".into()));
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_extract() -> Result<()> {
-        let config = SuppressStringRule {
-            when: None,
-            extract: Some(vec!["branch:.*".to_string()]),
-            regex: "TODO".into(),
-            glob: None,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":null,"extract":["branch:.*"],"regex":"TODO","glob":null}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_extract() -> Result<()> {
-        let config: SuppressStringRule =
-            serde_json::from_str(r#"{"regex":"TODO","extract":["branch:.*"]}"#)?;
-
-        assert!(config.when.is_none());
-        assert!(config.extract.is_some());
-        assert_eq!(config.extract.unwrap(), vec!["branch:.*".to_string()]);
-        assert_eq!(config.regex, "TODO".into());
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = SuppressStringRule {
-            when: Some(Expression::new("is_def_var(\"strict\")")),
-            extract: None,
-            regex: "TODO".into(),
-            glob: None,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"strict\")","extract":null,"regex":"TODO","glob":null}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: SuppressStringRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"strict\")","regex":"TODO"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.regex, "TODO".into());
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_all_fields() -> Result<()> {
-        let config = SuppressStringRule {
-            when: Some(Expression::new("is_def_var(\"strict\")")),
-            extract: Some(vec!["branch:.*".to_string()]),
-            regex: "TODO".into(),
-            glob: Some("*.rs".into()),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"strict\")","extract":["branch:.*"],"regex":"TODO","glob":"*.rs"}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_all_fields() -> Result<()> {
-        let config: SuppressStringRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"strict\")","extract":["branch:.*"],"regex":"TODO","glob":"*.rs"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert!(config.extract.is_some());
-        assert_eq!(config.regex, "TODO".into());
-        assert_eq!(config.glob, Some("*.rs".into()));
-
-        Ok(())
-    }
 
     #[test]
     fn test_suppress_string_success() -> Result<()> {
         let rule = SuppressStringRule {
-            when: None,
-            extract: None,
             regex: "TODO".into(),
             glob: None,
         };
@@ -259,7 +143,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
@@ -277,14 +161,12 @@ mod tests {
         let rule = SuppressStringRule {
             regex: tmpl!("TODO"),
             glob: None,
-            when: None,
-            extract: None,
         };
 
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
@@ -310,14 +192,12 @@ mod tests {
         let rule = SuppressStringRule {
             regex: tmpl!("TODO"),
             glob: Some(tmpl!("*.rs")),
-            when: None,
-            extract: None,
         };
 
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
@@ -330,8 +210,6 @@ mod tests {
     #[test]
     fn test_suppress_string_rule_success() -> Result<()> {
         let rule = SuppressStringRule {
-            when: None,
-            extract: None,
             regex: "TODO".into(),
             glob: None,
         };
@@ -339,7 +217,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
@@ -355,8 +233,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = SuppressStringRule {
-            when: None,
-            extract: None,
             regex: "TODO".into(),
             glob: None,
         };

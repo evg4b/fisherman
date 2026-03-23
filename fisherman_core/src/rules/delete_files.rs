@@ -1,17 +1,14 @@
 use crate::context::Context;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct DeleteFilesRule {
-    pub when: Option<Expression>,
     pub glob: TemplateString,
     pub fail_if_not_found: bool,
 }
@@ -25,13 +22,7 @@ impl std::fmt::Display for DeleteFilesRule {
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: DELETE_FILES_RULE_NAME.to_string(),
-            });
-        }
-
-        let variables = ctx.variables(&[])?;
+        let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
 
@@ -60,6 +51,7 @@ impl Rule for DeleteFilesRule {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
@@ -69,7 +61,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: false,
         };
@@ -78,7 +69,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.log","fail_if_not_found":false}"#
+            r#"{"glob":"*.log","fail_if_not_found":false}"#
         );
 
         Ok(())
@@ -89,7 +80,6 @@ mod tests {
         let config: DeleteFilesRule =
             serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":true}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.log".into());
         assert_eq!(config.fail_if_not_found, true);
 
@@ -99,7 +89,6 @@ mod tests {
     #[test]
     fn serialize_test_with_fail_if_not_found_true() -> Result<()> {
         let config = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: true,
         };
@@ -108,7 +97,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.log","fail_if_not_found":true}"#
+            r#"{"glob":"*.log","fail_if_not_found":true}"#
         );
 
         Ok(())
@@ -119,43 +108,12 @@ mod tests {
         let config: DeleteFilesRule =
             serde_json::from_str(r#"{"glob":"*.log","fail_if_not_found":false}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.log".into());
         assert_eq!(config.fail_if_not_found, false);
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = DeleteFilesRule {
-            when: Some(Expression::new("is_def_var(\"cleanup\")")),
-            glob: "*.tmp".into(),
-            fail_if_not_found: false,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":false}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: DeleteFilesRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"cleanup\")","glob":"*.tmp","fail_if_not_found":true}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.glob, "*.tmp".into());
-        assert_eq!(config.fail_if_not_found, true);
-
-        Ok(())
-    }
 
     #[test]
     fn test_delete_files_success() -> Result<()> {
@@ -165,7 +123,6 @@ mod tests {
         File::create(&file_path)?;
 
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!(file_path.display()),
             fail_if_not_found: true,
         };
@@ -173,7 +130,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
 
         match result {
@@ -188,7 +145,6 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_with_failure() -> Result<()> {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: true,
         };
@@ -196,7 +152,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
 
         match result {
@@ -213,7 +169,6 @@ mod tests {
     #[test]
     fn test_delete_files_no_matches_without_failure() -> Result<()> {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: false,
         };
@@ -221,7 +176,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -244,7 +199,6 @@ mod tests {
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!(glob_pattern),
             fail_if_not_found: true,
         };
@@ -252,7 +206,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -269,7 +223,6 @@ mod tests {
     #[test]
     fn test_delete_files_glob_error() {
         let rule = DeleteFilesRule {
-            when: None,
             glob: tmpl!("[invalid-glob"),
             fail_if_not_found: true,
         };
@@ -277,7 +230,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());
@@ -286,7 +239,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = DeleteFilesRule {
-            when: None,
             glob: "*.log".into(),
             fail_if_not_found: false,
         };

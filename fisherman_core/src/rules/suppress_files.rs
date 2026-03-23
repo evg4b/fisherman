@@ -1,19 +1,14 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use glob::Pattern;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use serde::{Deserialize, Serialize};
 
 static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
 
-#[derive(Debug, Serialize, Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SuppressFilesRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub glob: TemplateString,
 }
 
@@ -26,14 +21,7 @@ impl std::fmt::Display for SuppressFilesRule {
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: SUPPRESS_FILES_RULE_NAME.to_string(),
-            });
-        }
-
-        let variables = extract_vars!(self, ctx)?;
-        let glob_pattern = self.glob.compile(&variables)?;
+        let glob_pattern = self.glob.compile(&ctx.variables()?)?;
         let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
 
@@ -71,8 +59,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = SuppressFilesRule {
-            when: None,
-            extract: None,
             glob: "*.secret".into(),
         };
 
@@ -80,7 +66,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"glob":"*.secret"}"#
+            r#"{"glob":"*.secret"}"#
         );
 
         Ok(())
@@ -90,104 +76,23 @@ mod tests {
     fn deserialize_test() -> Result<()> {
         let config: SuppressFilesRule = serde_json::from_str(r#"{"glob":"*.secret"}"#)?;
 
-        assert!(config.when.is_none());
-        assert!(config.extract.is_none());
         assert_eq!(config.glob, "*.secret".into());
 
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_extract() -> Result<()> {
-        let config = SuppressFilesRule {
-            when: None,
-            extract: Some(vec!["branch:.*".to_string()]),
-            glob: "*.secret".into(),
-        };
 
-        let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"when":null,"extract":["branch:.*"],"glob":"*.secret"}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_extract() -> Result<()> {
-        let config: SuppressFilesRule = serde_json::from_str(
-            r#"{"glob":"*.secret","extract":["branch:.*"]}"#,
-        )?;
-
-        assert!(config.when.is_none());
-        assert!(config.extract.is_some());
-        assert_eq!(config.extract.unwrap(), vec!["branch:.*".to_string()]);
-        assert_eq!(config.glob, "*.secret".into());
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = SuppressFilesRule {
-            when: Some(Expression::new("is_def_var(\"sensitive\")")),
-            extract: None,
-            glob: "*.secret".into(),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"sensitive\")","extract":null,"glob":"*.secret"}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: SuppressFilesRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"sensitive\")","glob":"*.secret"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.glob, "*.secret".into());
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_all_fields() -> Result<()> {
-        let config = SuppressFilesRule {
-            when: Some(Expression::new("is_def_var(\"sensitive\")")),
-            extract: Some(vec!["branch:.*".to_string()]),
-            glob: "*.secret".into(),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"sensitive\")","extract":["branch:.*"],"glob":"*.secret"}"#
-        );
-
-        Ok(())
-    }
 
     #[test]
     fn test_suppress_files_success() -> Result<()> {
         let rule = SuppressFilesRule {
-            when: None,
             glob: tmpl!("*.txt"),
-            extract: None,
         };
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context.expect_staged_files().returning(|| {
             Ok(vec![
                 PathBuf::from("README.md"),
@@ -206,14 +111,12 @@ mod tests {
     #[test]
     fn test_suppress_files_failure() -> Result<()> {
         let rule = SuppressFilesRule {
-            when: None,
-            extract: None,
             glob: tmpl!("*.txt"),
         };
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(std::collections::HashMap::new()));
         context.expect_staged_files().returning(|| {
             Ok(vec![
                 PathBuf::from("test.txt"),
@@ -239,8 +142,6 @@ mod tests {
     #[test]
     fn test_display() {
         let rule = SuppressFilesRule {
-            when: None,
-            extract: None,
             glob: "*.secret".into(),
         };
         assert_eq!(format!("{}", rule), "Suppress files matching: `*.secret`");

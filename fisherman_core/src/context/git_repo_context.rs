@@ -7,13 +7,15 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 pub struct GitRepoContext {
+    configuration: Arc<Configuration>,
     repo: Mutex<Repository>,
     cwd: PathBuf,
     bin: PathBuf,
     message_file: Option<PathBuf>,
+    extract: Option<Vec<String>>,
 }
 
 impl Context for GitRepoContext {
@@ -52,14 +54,26 @@ impl Context for GitRepoContext {
         self.message_file = Some(message_file);
     }
 
-    fn configuration(&self) -> Result<Configuration> {
-        Configuration::load(self.repo_path())
+    fn configuration(&self) -> Arc<Configuration> {
+        self.configuration.clone()
     }
 
-    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
-        let mut variables = additional.to_vec();
-        variables.extend(self.configuration()?.extract);
-        extract_variables(self, &variables)
+    fn extend(&mut self, extract: &[String]) -> Result<Box<dyn Context>> {
+        Ok(Box::new(GitRepoContext {
+            configuration: self.configuration.clone(),
+            repo: Mutex::new(Repository::open(self.repo_path())?),
+            cwd: self.cwd.clone(),
+            bin: self.bin.clone(),
+            message_file: self.message_file.clone(),
+            extract: Option::from(extract.to_vec()),
+        }))
+    }
+
+    fn variables(&self) -> Result<HashMap<String, String>> {
+        match &self.extract {
+            None => self.compute_variables(&[]),
+            Some(additional) => self.compute_variables(additional),
+        }
     }
 
     fn staged_files(&self) -> Result<Vec<PathBuf>> {
@@ -125,11 +139,19 @@ impl GitRepoContext {
         let bin = std::env::current_exe()?;
 
         Ok(Self {
+            configuration: Arc::new(Configuration::load(cwd.as_path())?),
             repo: Mutex::new(repo),
             cwd,
             bin,
             message_file: None,
+            extract: None,
         })
+    }
+
+    fn compute_variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
+        let mut variables = additional.to_vec();
+        variables.extend(self.configuration().extract.clone());
+        extract_variables(self, &variables)
     }
 }
 
@@ -296,8 +318,86 @@ pub mod tests {
     fn test_variables_empty_extract() -> Result<()> {
         let temp_dir = tempdir()?;
         let ctx = init_ctx(temp_dir.path())?;
-        let vars = ctx.variables(&[])?;
+        let vars = ctx.compute_variables(&[])?;
         assert!(vars.is_empty());
+        Ok(())
+    }
+
+    fn init_ctx_with_commit(path: &std::path::Path) -> Result<GitRepoContext> {
+        let repo = Repository::init(path)?;
+        let sig = git2::Signature::now("Test", "test@test.com")?;
+        let tree_id = repo.index()?.write_tree()?;
+        let tree = repo.find_tree(tree_id)?;
+        repo.commit(Some("HEAD"), &sig, &sig, "initial", &tree, &[])?;
+        GitRepoContext::new(path.to_path_buf())
+    }
+
+    #[test]
+    fn test_variables_none_extract_returns_empty() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let ctx = init_ctx(temp_dir.path())?;
+        // extract is None by default after new()
+        let vars = ctx.variables()?;
+        assert!(vars.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn test_variables_with_extract_from_branch() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let repo = Repository::init(temp_dir.path())?;
+        let sig = git2::Signature::now("Test", "test@test.com")?;
+        let tree_id = repo.index()?.write_tree()?;
+        let tree = repo.find_tree(tree_id)?;
+        repo.commit(Some("HEAD"), &sig, &sig, "initial", &tree, &[])?;
+        // rename branch to feat/my-ticket
+        repo.branch("feat/my-ticket", &repo.head()?.peel_to_commit()?, false)?;
+        repo.set_head("refs/heads/feat/my-ticket")?;
+
+        let mut ctx = GitRepoContext::new(temp_dir.path().to_path_buf())?;
+        let extended = ctx.extend(&["branch:^(?P<Type>feat|fix)/(?P<Name>.+)".to_string()])?;
+        let vars = extended.variables()?;
+
+        assert_eq!(vars.get("Type"), Some(&"feat".to_string()));
+        assert_eq!(vars.get("Name"), Some(&"my-ticket".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn test_extend_creates_new_context_with_extract() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx_with_commit(temp_dir.path())?;
+        let extract = vec!["branch:^(?P<Name>.+)".to_string()];
+
+        let extended = ctx.extend(&extract)?;
+        let vars = extended.variables()?;
+
+        assert!(vars.contains_key("Name"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_extend_inherits_message_file() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx_with_commit(temp_dir.path())?;
+        let msg_file = temp_dir.path().join("COMMIT_EDITMSG");
+        fs::write(&msg_file, "feat: something\n")?;
+        ctx.set_commit_msg_path(msg_file);
+
+        let extended = ctx.extend(&[])?;
+        assert_eq!(extended.commit_msg()?, "feat: something");
+        Ok(())
+    }
+
+    #[test]
+    fn test_extend_fails_on_invalid_repo() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let mut ctx = init_ctx(temp_dir.path())?;
+        // Remove .git to make Repository::open fail
+        std::fs::remove_dir_all(temp_dir.path().join(".git"))?;
+
+        let result = ctx.extend(&[]);
+        assert!(result.is_err());
         Ok(())
     }
 
@@ -314,7 +414,7 @@ pub mod tests {
     fn test_configuration_empty_dir() -> Result<()> {
         let temp_dir = tempdir()?;
         let ctx = init_ctx(temp_dir.path())?;
-        let config = ctx.configuration()?;
+        let config = ctx.configuration();
         assert!(config.hooks.is_empty());
         Ok(())
     }

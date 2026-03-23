@@ -1,10 +1,10 @@
 use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
-use anyhow::Result;
-use clap::Parser;
 use crate::Context;
 use crate::GitHook;
 use crate::RuleResult;
+use anyhow::{anyhow, Result};
+use clap::Parser;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -22,14 +22,14 @@ impl CliCommand for HandleCommand {
             context.set_commit_msg_path(PathBuf::from(message));
         }
 
-        let config = context.configuration()?;
-        println!("{}", hook_display(&self.hook, config.files));
+        let config = context.configuration();
+        println!("{}", hook_display(&self.hook, config.files.clone()));
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
                 let results = rules
                     .iter()
-                    .map(|r| r.check(context))
+                    .map(|r| r.check_rule(context))
                     .collect::<Result<Vec<RuleResult>>>()?;
 
                 for rule in &results {
@@ -55,7 +55,7 @@ impl CliCommand for HandleCommand {
                     .iter()
                     .any(|r| matches!(r, RuleResult::Failure { .. }))
                 {
-                    return Err(anyhow::anyhow!("Hook failed"));
+                    return Err(anyhow!("Hook failed"));
                 }
             }
             None => println!("No rules found for hook {}", self.hook),
@@ -68,11 +68,12 @@ impl CliCommand for HandleCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde::{Deserialize, Serialize};
-    use std::fmt::Display;
-    use crate::Configuration;
     use crate::MockContext;
     use crate::Rule;
+    use crate::{Configuration, RuleContext};
+    use serde::{Deserialize, Serialize};
+    use std::fmt::Display;
+    use std::sync::Arc;
 
     #[derive(Debug, Serialize, Deserialize)]
     struct FakeRule {
@@ -101,7 +102,7 @@ mod tests {
                 false => Ok(RuleResult::Failure {
                     name: "FakeRule".into(),
                     message: "FakeRule failed".into(),
-                })
+                }),
             }
         }
 
@@ -122,20 +123,24 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context.expect_configuration()
-            .returning(move || {
-                let mut config = Configuration {
-                    hooks: Default::default(),
-                    extract: vec![],
-                    files: vec![],
-                };
+        context.expect_configuration().returning(move || {
+            let mut config = Configuration {
+                hooks: Default::default(),
+                extract: vec![],
+                files: vec![],
+            };
 
-                config.hooks.insert(GitHook::PreCommit, vec![
-                    Box::new(FakeRule::new(true)),
-                ]);
+            config.hooks.insert(
+                GitHook::PreCommit,
+                vec![RuleContext {
+                    when: None,
+                    extract: None,
+                    rule: Box::new(FakeRule::new(true)),
+                }],
+            );
 
-                Ok(config)
-            });
+            Arc::new(config)
+        });
 
         let result = command.exec(&mut context);
 
@@ -150,20 +155,24 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context.expect_configuration()
-            .returning(move || {
-                let mut config = Configuration {
-                    hooks: Default::default(),
-                    extract: vec![],
-                    files: vec![],
-                };
+        context.expect_configuration().returning(move || {
+            let mut config = Configuration {
+                hooks: Default::default(),
+                extract: vec![],
+                files: vec![],
+            };
 
-                config.hooks.insert(GitHook::PreCommit, vec![
-                    Box::new(FakeRule::new(false)),
-                ]);
+            config.hooks.insert(
+                GitHook::PreCommit,
+                vec![RuleContext {
+                    when: None,
+                    extract: None,
+                    rule: Box::new(FakeRule::new(false)),
+                }],
+            );
 
-                Ok(config)
-            });
+            Arc::new(config)
+        });
 
         let result = command.exec(&mut context);
 

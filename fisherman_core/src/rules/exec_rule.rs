@@ -1,10 +1,7 @@
 use crate::context::Context;
-use crate::extract_vars;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::collections::HashMap;
 use std::env;
 use std::process::Command;
@@ -12,10 +9,8 @@ use std::process::Command;
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ExecRule {
-    pub when: Option<Expression>,
-    pub extract: Option<Vec<String>>,
     pub command: String,
     pub args: Option<Args>,
     pub env: Option<Env>,
@@ -36,13 +31,7 @@ impl std::fmt::Display for ExecRule {
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: "exec".into(),
-            });
-        }
-
-        let variables = extract_vars!(self, ctx)?;
+        let variables = ctx.variables()?;
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(
             &self.env.clone().unwrap_or_default(),
@@ -91,8 +80,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = ExecRule {
-            when: None,
-            extract: None,
             command: "echo".to_string(),
             args: Some(vec!["hello".to_string()]),
             env: None,
@@ -102,7 +89,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"command":"echo","args":["hello"],"env":null}"#
+            r#"{"command":"echo","args":["hello"],"env":null}"#
         );
 
         Ok(())
@@ -114,7 +101,6 @@ mod tests {
             r#"{"command":"echo","args":["hello"]}"#,
         )?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.command, "echo");
         assert_eq!(config.args, Some(vec!["hello".to_string()]));
         assert!(config.env.is_none());
@@ -125,8 +111,6 @@ mod tests {
     #[test]
     fn serialize_test_without_args() -> Result<()> {
         let config = ExecRule {
-            when: None,
-            extract: None,
             command: "ls".to_string(),
             args: None,
             env: None,
@@ -136,7 +120,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"extract":null,"command":"ls","args":null,"env":null}"#
+            r#"{"command":"ls","args":null,"env":null}"#
         );
 
         Ok(())
@@ -146,11 +130,9 @@ mod tests {
     fn deserialize_test_without_args() -> Result<()> {
         let config: ExecRule = serde_json::from_str(r#"{"command":"ls"}"#)?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.command, "ls");
         assert!(config.args.is_none());
         assert!(config.env.is_none());
-        assert!(config.extract.is_none());
 
         Ok(())
     }
@@ -161,8 +143,6 @@ mod tests {
         env.insert("VAR".to_string(), "value".to_string());
 
         let config = ExecRule {
-            when: None,
-            extract: None,
             command: "echo".to_string(),
             args: Some(vec!["hello".to_string()]),
             env: Some(env),
@@ -182,7 +162,6 @@ mod tests {
             r#"{"command":"echo","args":["hello"],"env":{"VAR":"value"}}"#,
         )?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.command, "echo");
         assert_eq!(config.args, Some(vec!["hello".to_string()]));
         assert!(config.env.is_some());
@@ -191,76 +170,11 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_extract() -> Result<()> {
-        let config = ExecRule {
-            when: None,
-            extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
-            command: "echo".to_string(),
-            args: None,
-            env: None,
-        };
 
-        let serialized = serde_json::to_string(&config)?;
-
-        assert!(serialized.contains("\"extract\":[\"branch:^(?P<Type>feat|fix)\"]"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_extract() -> Result<()> {
-        let config: ExecRule = serde_json::from_str(
-            r#"{"command":"echo","extract":["branch:^(?P<Type>feat|fix)"]}"#,
-        )?;
-
-        assert!(config.when.is_none());
-        assert_eq!(config.command, "echo");
-        assert!(config.extract.is_some());
-        assert_eq!(
-            config.extract.unwrap(),
-            vec!["branch:^(?P<Type>feat|fix)".to_string()]
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = ExecRule {
-            when: Some(Expression::new("is_def_var(\"Ticket\")")),
-            extract: None,
-            command: "echo".to_string(),
-            args: Some(vec!["hello".to_string()]),
-            env: None,
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"Ticket\")","extract":null,"command":"echo","args":["hello"],"env":null}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: ExecRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"Ticket\")","command":"echo","args":["hello"]}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.command, "echo");
-        assert_eq!(config.args, Some(vec!["hello".to_string()]));
-
-        Ok(())
-    }
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
         ctx
     }
 
@@ -274,8 +188,6 @@ mod tests {
             command: TEST_COMMAND.into(),
             args: Some(test_args()),
             env: None,
-            when: None,
-            extract: None,
         };
 
         let result = rule.check(&mock_ctx());
@@ -302,8 +214,6 @@ mod tests {
         let (command, args) = ("sh", vec!["-c", "echo $HELLO"]);
 
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: command.into(),
             args: Some(args.into_iter().map(String::from).collect()),
             env: Some(env),
@@ -327,8 +237,6 @@ mod tests {
 
         #[cfg(not(windows))]
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "echo".into(),
             args: Some(vec!["hello".into(), "{{HELLO}}".into()]),
             env: None,
@@ -336,8 +244,6 @@ mod tests {
 
         #[cfg(windows)]
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "cmd".into(),
             args: Some(vec![
                 "/C".into(),
@@ -364,8 +270,6 @@ mod tests {
     fn test_exec_rule_failure_on_missing_file() {
         #[cfg(not(windows))]
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "cat".into(),
             args: Some(vec!["./unknown.txt".into()]),
             env: None,
@@ -373,8 +277,6 @@ mod tests {
 
         #[cfg(windows)]
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "cmd".into(),
             args: Some(vec![
                 "/C".into(),
@@ -398,8 +300,6 @@ mod tests {
     #[test]
     fn test_return_error() {
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "XXXXXXXXXXXX".into(),
             args: None,
             env: None,
@@ -422,8 +322,6 @@ mod tests {
         env.insert("VAR".into(), "{{missing}}".into());
 
         let rule = ExecRule {
-            when: None,
-            extract: None,
             command: "echo".into(),
             args: Some(vec!["{{VAR}}".into()]),
             env: Some(env),
@@ -439,8 +337,6 @@ mod tests {
             command: "echo".into(),
             args: Some(vec!["{{VAR}}".into()]),
             env: None,
-            when: None,
-            extract: None,
         };
 
         let result = rule.check(&mock_ctx());
@@ -453,8 +349,6 @@ mod tests {
             command: "echo".into(),
             args: Some(vec!["hello".into(), "world".into()]),
             env: None,
-            when: None,
-            extract: None,
         };
         assert_eq!(format!("{}", rule), "Execute command: echo hello world");
     }
@@ -465,8 +359,6 @@ mod tests {
             command: "ls".into(),
             args: None,
             env: None,
-            when: None,
-            extract: None,
         };
         assert_eq!(format!("{}", rule), "Execute command: ls");
     }

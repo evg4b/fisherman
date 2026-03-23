@@ -14,7 +14,6 @@ fn branch_name_regex_valid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^(feature|bugfix|hotfix)/[a-z0-9-]+".into(),
             })
         ]
@@ -31,7 +30,6 @@ fn branch_name_regex_invalid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^(feature|bugfix|hotfix)/[a-z0-9-]+".into(),
             })
         ]
@@ -54,7 +52,6 @@ fn branch_name_prefix_valid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "feature/".into(),
             })
         ]
@@ -71,7 +68,6 @@ fn branch_name_prefix_invalid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "feature/".into(),
             })
         ]
@@ -94,7 +90,6 @@ fn branch_name_suffix_valid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameSuffixRule {
-                when: None,
                 suffix: "-v1".into(),
             })
         ]
@@ -111,7 +106,6 @@ fn branch_name_suffix_invalid() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNameSuffixRule {
-                when: None,
                 suffix: "-v1".into(),
             })
         ]
@@ -134,15 +128,12 @@ fn branch_name_multiple_rules_all_pass() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "feature/".into(),
             }),
             rule!(BranchNameSuffixRule {
-                when: None,
                 suffix: "-dev".into(),
             }),
             rule!(BranchNameRegexRule {
-                when: None,
                 expression: "^feature/[a-z-]+-dev$".into(),
             })
         ]
@@ -160,11 +151,9 @@ fn branch_name_multiple_rules_one_fails() {
     let config = config!(
         GitHook::PreCommit => [
             rule!(BranchNamePrefixRule {
-                when: None,
                 prefix: "feature/".into(),
             }),
             rule!(BranchNameSuffixRule {
-                when: None,
                 suffix: "-dev".into(),
             })
         ]

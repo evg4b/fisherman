@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use rhai::{Engine, Scope};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
@@ -49,7 +49,7 @@ impl Expression {
 
             engine
                 .eval_expression_with_scope::<bool>(&mut scope, &self.condition)
-                .map_err(|err| anyhow::anyhow!("Expression error: {}", err))
+                .map_err(|err| anyhow!("Expression error: {}", err))
         })
     }
 }

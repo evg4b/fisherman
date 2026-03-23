@@ -1,19 +1,16 @@
 use crate::context::Context;
-use crate::rules::{ConditionalRule, Rule, RuleResult};
-use crate::scripting::Expression;
+use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
-use rules_derive::ConditionalRule as ConditionalRuleDerive;
 use std::fs;
 use std::fs::create_dir_all;
 use std::path::Path;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, ConditionalRuleDerive)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CopyFilesRule {
-    pub when: Option<Expression>,
     pub glob: TemplateString,
     pub src: Option<TemplateString>,
     pub destination: TemplateString,
@@ -48,13 +45,7 @@ fn ensure_parent_exists(path: &Path) -> Result<()> {
 #[typetag::serde(name = "copy-files")]
 impl Rule for CopyFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        if self.when.is_some() && !self.check_condition(ctx)? {
-            return Ok(RuleResult::Skipped {
-                name: COPY_FILES_RULE_NAME.to_string(),
-            });
-        }
-
-        let variables = ctx.variables(&[])?;
+        let variables = ctx.variables()?;
         let compiled_glob = self.glob.compile(&variables)?;
         let compiled_src = self
             .src
@@ -98,10 +89,11 @@ impl Rule for CopyFilesRule {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use assertor::{assert_that, EqualityAssertion};
     use std::env;
     use std::fs::File;
@@ -111,7 +103,6 @@ mod tests {
     #[test]
     fn serialize_test() -> Result<()> {
         let config = CopyFilesRule {
-            when: None,
             glob: "*.txt".into(),
             src: Some("src/".into()),
             destination: "dist/".into(),
@@ -121,7 +112,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.txt","src":"src/","destination":"dist/"}"#
+            r#"{"glob":"*.txt","src":"src/","destination":"dist/"}"#
         );
 
         Ok(())
@@ -133,7 +124,6 @@ mod tests {
             r#"{"glob":"*.txt","src":"src/","destination":"dist/"}"#,
         )?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.txt".into());
         assert_eq!(config.src, Some("src/".into()));
         assert_eq!(config.destination, "dist/".into());
@@ -144,7 +134,6 @@ mod tests {
     #[test]
     fn serialize_test_without_src() -> Result<()> {
         let config = CopyFilesRule {
-            when: None,
             glob: "*.txt".into(),
             src: None,
             destination: "dist/".into(),
@@ -154,7 +143,7 @@ mod tests {
 
         assert_eq!(
             serialized,
-            r#"{"when":null,"glob":"*.txt","src":null,"destination":"dist/"}"#
+            r#"{"glob":"*.txt","src":null,"destination":"dist/"}"#
         );
 
         Ok(())
@@ -166,7 +155,6 @@ mod tests {
             r#"{"glob":"*.txt","destination":"dist/"}"#,
         )?;
 
-        assert!(config.when.is_none());
         assert_eq!(config.glob, "*.txt".into());
         assert!(config.src.is_none());
         assert_eq!(config.destination, "dist/".into());
@@ -174,38 +162,6 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn serialize_test_with_when() -> Result<()> {
-        let config = CopyFilesRule {
-            when: Some(Expression::new("is_def_var(\"build\")")),
-            glob: "*.txt".into(),
-            src: Some("src/".into()),
-            destination: "dist/".into(),
-        };
-
-        let serialized = serde_json::to_string(&config)?;
-
-        assert_eq!(
-            serialized,
-            r#"{"when":"is_def_var(\"build\")","glob":"*.txt","src":"src/","destination":"dist/"}"#
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn deserialize_test_with_when() -> Result<()> {
-        let config: CopyFilesRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"build\")","glob":"*.txt","src":"src/","destination":"dist/"}"#,
-        )?;
-
-        assert!(config.when.is_some());
-        assert_eq!(config.glob, "*.txt".into());
-        assert_eq!(config.src, Some("src/".into()));
-        assert_eq!(config.destination, "dist/".into());
-
-        Ok(())
-    }
 
     #[test]
     fn test_copy_files_with_src() -> Result<()> {
@@ -224,7 +180,6 @@ mod tests {
 
         // Create rule with explicit source
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: Some(tmpl!(src_path)),
             destination: tmpl!(dest_path),
@@ -234,7 +189,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
         match result {
             RuleResult::Success { name, output } => {
@@ -268,7 +223,6 @@ mod tests {
 
         // Create rule without source (should use current directory)
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("test-no-src.txt".to_string()),
             src: None,
             destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
@@ -278,7 +232,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
         match result {
             RuleResult::Success { name, output } => {
@@ -317,7 +271,6 @@ mod tests {
         let temp_dest = tempdir()?;
 
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("*.nonexistent".to_string()),
             src: Some(tmpl!(temp_src.path().to_str().unwrap().to_string())),
             destination: tmpl!(temp_dest.path().to_str().unwrap().to_string()),
@@ -326,7 +279,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
         match result {
             RuleResult::Success { name, output } => {
@@ -342,7 +295,6 @@ mod tests {
     #[test]
     fn test_copy_files_variables_error() {
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: None,
             destination: tmpl!("/tmp/dest".to_string()),
@@ -351,7 +303,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&context);
         assert!(result.is_err());
@@ -360,7 +312,6 @@ mod tests {
     #[test]
     fn test_copy_files_glob_template_error() {
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("{{missing_var}}/*.txt".to_string()),
             src: None,
             destination: tmpl!("/tmp/dest".to_string()),
@@ -369,7 +320,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());
@@ -378,7 +329,6 @@ mod tests {
     #[test]
     fn test_copy_files_destination_template_error() {
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: None,
             destination: tmpl!("{{missing_dest}}".to_string()),
@@ -387,7 +337,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());
@@ -396,7 +346,6 @@ mod tests {
     #[test]
     fn test_copy_files_src_template_error() {
         let rule = CopyFilesRule {
-            when: None,
             glob: tmpl!("*.txt".to_string()),
             src: Some(tmpl!("{{missing_src}}".to_string())),
             destination: tmpl!("/tmp/dest".to_string()),
@@ -405,7 +354,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());
@@ -414,7 +363,6 @@ mod tests {
     #[test]
     fn test_display_without_src() {
         let rule = CopyFilesRule {
-            when: None,
             glob: "*.txt".into(),
             src: None,
             destination: "dist/".into(),
@@ -428,7 +376,6 @@ mod tests {
     #[test]
     fn test_display_with_src() {
         let rule = CopyFilesRule {
-            when: None,
             glob: "*.txt".into(),
             src: Some("src/".into()),
             destination: "dist/".into(),

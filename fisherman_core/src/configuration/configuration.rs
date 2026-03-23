@@ -1,7 +1,7 @@
 use crate::configuration::errors::ConfigurationError;
 use crate::configuration::files::find_config_files;
 use crate::hooks::GitHook;
-use crate::rules::Rule;
+use crate::rules::RuleContext;
 use anyhow::{bail, Result};
 use figment::providers::{Format, Json, Toml, Yaml};
 use figment::Figment;
@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 #[derive(Default, Deserialize, Serialize)]
 pub struct Configuration {
     #[serde(default)]
-    pub hooks: HashMap<GitHook, Vec<Box<dyn Rule>>>,
+    pub hooks: HashMap<GitHook, Vec<RuleContext>>,
     #[serde(default)]
     pub extract: Vec<String>,
     #[serde(skip)]
