@@ -45,16 +45,17 @@ make build
 
 Three crates:
 
-| Crate            | Path                    | Role                                                              |
-|------------------|-------------------------|-------------------------------------------------------------------|
-| `fisherman`      | `src/`                  | Binary — thin `main.rs` entry point; integration tests in `tests/` |
-| `fisherman_core` | `fisherman_core/src/`   | Library — all business logic, commands, UI; unit tests live here  |
-| `rules_derive`   | `rules_derive/src/`     | Proc-macro — `#[derive(ConditionalRule)]`                         |
+| Crate            | Path                  | Role                                                               |
+|------------------|-----------------------|--------------------------------------------------------------------|
+| `fisherman`      | `src/`                | Binary — thin `main.rs` entry point; integration tests in `tests/` |
+| `fisherman_core` | `fisherman_core/src/` | Library — all business logic, commands, UI; unit tests live here   |
 
-- **Unit tests** live in `fisherman_core` (`fisherman_core/src/`), inline in each module under `#[cfg(test)]`, using `MockContext`.
+- **Unit tests** live in `fisherman_core` (`fisherman_core/src/`), inline in each module under `#[cfg(test)]`, using
+  `MockContext`.
 - **Integration tests** live in `fisherman` (`tests/`), using a real Git binary via helpers in `tests/common/`.
 
-`fisherman`'s `src/main.rs` is now a minimal entry point — it just creates `GitRepoContext` and delegates to `FishermanCli::exec()` from `fisherman_core`. All commands, UI, and CLI parsing live in `fisherman_core/src/commands/`.
+`fisherman`'s `src/main.rs` is now a minimal entry point — it just creates `GitRepoContext` and delegates to
+`FishermanCli::exec()` from `fisherman_core`. All commands, UI, and CLI parsing live in `fisherman_core/src/commands/`.
 
 ## Architecture
 
@@ -153,7 +154,8 @@ All implement `CliCommand::exec(&self, ctx: &mut impl Context) -> Result<()>`.
 - `handle` — runs rules for a hook; exits 1 on any failure
 - `explain` — prints rules for a hook using their `Display` impl
 
-`FishermanCli` (in `entry_point.rs`) owns CLI parsing via `clap` and dispatches to the above commands. It is the only public entry point exported from `fisherman_core`.
+`FishermanCli` (in `entry_point.rs`) owns CLI parsing via `clap` and dispatches to the above commands. It is the only
+public entry point exported from `fisherman_core`.
 
 ### UI (`fisherman_core/src/ui/`)
 
@@ -161,7 +163,8 @@ ASCII logo, hook display formatting, and version/about rendering used by `explai
 
 ## Adding a New Rule Type
 
-1. Create `fisherman_core/src/rules/<rule_name>.rs` with a struct that derives `serde::Serialize/Deserialize` and (if it has a `when` field) `ConditionalRuleDerive`.
+1. Create `fisherman_core/src/rules/<rule_name>.rs` with a struct that derives `serde::Serialize/Deserialize` and (if it
+   has a `when` field) `ConditionalRuleDerive`.
 2. Implement `Display` for the rule (used by `explain`).
 3. Implement `Rule` with `#[typetag::serde(name = "your-type-name")]`.
 4. Register the rule in `fisherman_core/src/commands/handle.rs` — rules run sequentially, no sync/async split.
@@ -170,7 +173,10 @@ ASCII logo, hook display formatting, and version/about rendering used by `explai
 
 ## Testing Patterns
 
-- **Unit tests** (`fisherman_core`): `MockContext` + `rstest` for parameterised cases, inline `#[cfg(test)]` modules in each rule/module file
-- **Integration tests** (`fisherman`): `tests/` directory, `GitTestRepo` helper creates a real temp repo using a real Git binary
+- **Unit tests** (`fisherman_core`): `MockContext` + `rstest` for parameterised cases, inline `#[cfg(test)]` modules in
+  each rule/module file
+- **Integration tests** (`fisherman`): `tests/` directory, `GitTestRepo` helper creates a real temp repo using a real
+  Git binary
 - Doc-tests are **disabled** for `fisherman_core` (`[lib] doctest = false`)
-- CI runs unit tests and integration tests as **separate jobs** (`unit-test` and `integration-tests` in `test-and-analyze.yml`), on Linux and Windows; unit test job also collects lcov coverage for SonarCloud
+- CI runs unit tests and integration tests as **separate jobs** (`unit-test` and `integration-tests` in
+  `test-and-analyze.yml`), on Linux and Windows; unit test job also collects lcov coverage for SonarCloud

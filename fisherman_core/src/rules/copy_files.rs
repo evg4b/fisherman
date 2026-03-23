@@ -93,7 +93,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use assertor::{assert_that, EqualityAssertion};
     use std::env;
     use std::fs::File;
@@ -303,7 +303,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&context);
         assert!(result.is_err());

@@ -44,7 +44,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use assert2::assert;
     use std::collections::HashMap;
 
@@ -81,7 +81,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_regex_success() -> anyhow::Result<()> {
+    fn test_branch_name_regex_success() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*-feature$"),
         };
@@ -101,7 +101,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_regex_failure() -> anyhow::Result<()> {
+    fn test_branch_name_regex_failure() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*-bugfix$"),
         };
@@ -122,7 +122,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_regex_variables_error() -> anyhow::Result<()> {
+    fn test_branch_name_regex_variables_error() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*$"),
         };
@@ -130,7 +130,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("feat/test".to_string()));
         ctx.expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -139,13 +139,13 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_regex_branch_error() -> anyhow::Result<()> {
+    fn test_branch_name_regex_branch_error() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*$"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
-            .returning(|| Err(anyhow::anyhow!("Branch error")));
+            .returning(|| Err(anyhow!("Branch error")));
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
@@ -156,7 +156,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_regex_invalid_regex() -> anyhow::Result<()> {
+    fn test_branch_name_regex_invalid_regex() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/["),
         };

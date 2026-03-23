@@ -65,6 +65,7 @@ mod tests {
     use crate::scripting::Expression;
     use crate::t;
     use std::collections::HashMap;
+    use anyhow::anyhow;
 
     #[test]
     fn test_deserialize() {
@@ -198,7 +199,7 @@ mod tests {
             rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(|| Err(anyhow::anyhow!("variables error")));
+        ctx.expect_variables().returning(|| Err(anyhow!("variables error")));
 
         let result = rule_ctx.check_rule(&mut ctx);
         assert!(result.is_err());
@@ -214,7 +215,7 @@ mod tests {
             rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_extend().returning(|_| Err(anyhow::anyhow!("extend error")));
+        ctx.expect_extend().returning(|_| Err(anyhow!("extend error")));
 
         let result = rule_ctx.check_rule(&mut ctx);
         assert!(result.is_err());

@@ -94,18 +94,4 @@ mod tests {
 
         Ok(())
     }
-
-    // #[test]
-    // fn test_exec_configuration_error() {
-    //     let cmd = ExplainCommand {
-    //         hook: GitHook::PreCommit,
-    //     };
-    //
-    //     let mut ctx = MockContext::new();
-    //     ctx.expect_configuration()
-    //         .return_once(|| Err(anyhow::anyhow!("Config error")));
-    //
-    //     let result = cmd.exec(&mut ctx);
-    //     assert!(result.is_err());
-    // }
 }

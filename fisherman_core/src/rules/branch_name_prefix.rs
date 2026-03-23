@@ -45,6 +45,7 @@ mod tests {
     use crate::t;
     use assert2::assert;
     use std::collections::HashMap;
+    use anyhow::anyhow;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -89,7 +90,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_failure() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_failure() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -110,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_variables_error() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_variables_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -118,7 +119,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -127,13 +128,13 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_prefix_branch_error() -> anyhow::Result<()> {
+    fn test_branch_name_prefix_branch_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
-            .returning(|| Err(anyhow::anyhow!("Branch error")));
+            .returning(|| Err(anyhow!("Branch error")));
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 

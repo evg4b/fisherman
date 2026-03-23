@@ -40,7 +40,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use assert2::assert;
     use std::collections::HashMap;
 
@@ -117,7 +117,7 @@ mod tests {
         ctx.expect_commit_msg()
             .returning(|| Ok("message suffix".to_string()));
         ctx.expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -130,7 +130,7 @@ mod tests {
         };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
-            .returning(|| Err(anyhow::anyhow!("Commit message error")));
+            .returning(|| Err(anyhow!("Commit message error")));
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 

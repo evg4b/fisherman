@@ -4,6 +4,7 @@ use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use regex::Regex;
+use anyhow::Result;
 
 static MESSAGE_REGEX_RULE_NAME: &str = "message-regex";
 
@@ -22,7 +23,7 @@ impl std::fmt::Display for CommitMessageRegexRule {
 
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -46,7 +47,7 @@ mod tests {
     use crate::rules::{Rule, RuleResult};
     use crate::scripting::Expression;
     use crate::t;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use std::collections::HashMap;
 
     #[test]
@@ -186,7 +187,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_commit_msg()
-            .returning(|| Err(anyhow::anyhow!("Error")));
+            .returning(|| Err(anyhow!("Error")));
         context
             .expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
@@ -206,7 +207,7 @@ mod tests {
             .returning(|| Ok("Test message".to_string()));
         context
             .expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
         let result = rule.check(&context);
         assert!(result.is_err());
     }

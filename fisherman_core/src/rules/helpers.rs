@@ -17,6 +17,7 @@ mod tests {
     use crate::context::MockContext;
     use crate::t;
     use std::collections::HashMap;
+    use anyhow::anyhow;
 
     #[test]
     fn test_compile_tmpl_success() {
@@ -48,7 +49,7 @@ mod tests {
     fn test_compile_tmpl_variables_error() {
         let mut ctx = MockContext::new();
         ctx.expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let template = t!("Hello {{name}}");
         let result = compile_tmpl(&ctx, &template, &[]);

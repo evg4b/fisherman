@@ -3,7 +3,7 @@ use crate::ui::hook_display;
 use crate::Context;
 use crate::GitHook;
 use crate::RuleResult;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -55,7 +55,7 @@ impl CliCommand for HandleCommand {
                     .iter()
                     .any(|r| matches!(r, RuleResult::Failure { .. }))
                 {
-                    return Err(anyhow::anyhow!("Hook failed"));
+                    return Err(anyhow!("Hook failed"));
                 }
             }
             None => println!("No rules found for hook {}", self.hook),

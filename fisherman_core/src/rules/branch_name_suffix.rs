@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
+use anyhow::Result;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct BranchNameSuffixRule {
@@ -18,7 +19,7 @@ static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
 
 #[typetag::serde(name = "branch-name-suffix")]
 impl Rule for BranchNameSuffixRule {
-    fn check(&self, ctx: &dyn Context) -> anyhow::Result<RuleResult> {
+    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let suffix = compile_tmpl(ctx, &self.suffix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -40,7 +41,7 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::t;
-    use anyhow::Result;
+    use anyhow::{anyhow, Result};
     use std::collections::HashMap;
 
     #[test]
@@ -67,7 +68,7 @@ mod tests {
 
 
     #[test]
-    fn test_branch_name_suffix_success() -> anyhow::Result<()> {
+    fn test_branch_name_suffix_success() -> Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -85,7 +86,7 @@ mod tests {
     }
 
     #[test]
-    fn test_branch_name_suffix_failure() -> anyhow::Result<()> {
+    fn test_branch_name_suffix_failure() -> Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -111,7 +112,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("my-suffix".to_string()));
         ctx.expect_variables()
-            .returning(|| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -124,7 +125,7 @@ mod tests {
         };
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
-            .returning(|| Err(anyhow::anyhow!("Branch error")));
+            .returning(|| Err(anyhow!("Branch error")));
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 

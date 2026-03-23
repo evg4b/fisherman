@@ -126,23 +126,4 @@ mod tests {
 
         Ok(())
     }
-
-    // #[test]
-    // fn test_exec_configuration_error() {
-    //     let dir = TempDir::new("fisherman_test").unwrap();
-    //
-    //     let cmd = InstallCommand {
-    //         hooks: None,
-    //         force: false,
-    //     };
-    //
-    //     let mut ctx = MockContext::new();
-    //     ctx.expect_configuration()
-    //         .return_once(|| Err(anyhow::anyhow!("Config error")));
-    //     ctx.expect_hooks_dir()
-    //         .return_const(dir.path().to_path_buf());
-    //
-    //     let result = cmd.exec(&mut ctx);
-    //     assert!(result.is_err());
-    // }
 }

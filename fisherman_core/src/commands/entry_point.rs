@@ -2,6 +2,7 @@ use crate::commands::{CliCommand, ExplainCommand, HandleCommand, InstallCommand}
 use crate::ui::ABOUT;
 use crate::Context;
 use clap::{Parser, Subcommand};
+use anyhow::Result;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = ABOUT, long_about=None)]
@@ -21,7 +22,7 @@ pub enum Command {
 }
 
 impl FishermanCli {
-    pub fn exec(context: &mut impl Context) -> anyhow::Result<()> {
+    pub fn exec(context: &mut impl Context) -> Result<()> {
         let cli = FishermanCli::parse();
         match &cli.command {
             Command::Install(cmd) => cmd.exec(context),
