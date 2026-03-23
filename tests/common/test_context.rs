@@ -55,15 +55,6 @@ impl TestContext {
         );
     }
 
-    pub fn setup_and_install_old(&self, config: &str) {
-        let output = self.setup_with_config(config);
-        assert!(
-            output.status.success(),
-            "Installation failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
-
     pub fn git_commit_allow_empty(&self, message: &str) -> Output {
         self.repo.commit_with_hooks_allow_empty(message)
     }

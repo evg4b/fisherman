@@ -202,6 +202,42 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
+    pub fn repository_config(self, config: &fisherman_core::Configuration) -> Self {
+        self.repository_with_format(
+            ConfigFormat::Toml,
+            &crate::common::configuration::serialize_configuration(config, ConfigFormat::Toml),
+        )
+    }
+
+    pub fn repository_config_with_format(
+        self,
+        config: &fisherman_core::Configuration,
+        format: ConfigFormat,
+    ) -> Self {
+        self.repository_with_format(
+            format,
+            &crate::common::configuration::serialize_configuration(config, format),
+        )
+    }
+
+    pub fn local_config(self, config: &fisherman_core::Configuration) -> Self {
+        self.local_with_format(
+            ConfigFormat::Toml,
+            &crate::common::configuration::serialize_configuration(config, ConfigFormat::Toml),
+        )
+    }
+
+    pub fn local_config_with_format(
+        self,
+        config: &fisherman_core::Configuration,
+        format: ConfigFormat,
+    ) -> Self {
+        self.local_with_format(
+            format,
+            &crate::common::configuration::serialize_configuration(config, format),
+        )
+    }
+
     pub fn build(self) {
         for (format, content, is_local) in self.configs {
             if is_local {

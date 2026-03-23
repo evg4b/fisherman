@@ -3,6 +3,7 @@ mod common;
 use tempdir::TempDir;
 
 use crate::common::{hooks::Hook, ConfigFormat, FishermanBinary, GitTestRepo};
+use fisherman_core::{BranchNameRegexRule, CommitMessageRegexRule, GitHook, Configuration};
 
 #[test]
 fn install_in_empty_dir() {
@@ -43,14 +44,28 @@ fn install_using_local_conig() {
 
     let fisherman = FishermanBinary::build();
 
-    repo.create_config(r#"[[hooks.commit-msg]]
-type = "message-regex"
-regex = "^(feat|fix|docs|style|refactor|test|chore):\\s.+"
+    let mut config = config!(
+        GitHook::CommitMsg => [
+            rule!(CommitMessageRegexRule {
+                when: None,
+                expression: "^(feat|fix|docs|style|refactor|test|chore):\\s.+".into(),
+            })
+        ]
+    );
 
-[[hooks.pre-push]]
-type = "branch-name-regex"
-regex = "^(feature|bugfix)/[a-zA-Z0-9-_]+$"
-"#, ConfigFormat::Toml);
+    config.hooks.insert(
+        GitHook::PrePush,
+        vec![fisherman_core::RuleContext {
+            extract: None,
+            when: None,
+            rule: Box::new(BranchNameRegexRule {
+                expression: "^(feature|bugfix)/[a-zA-Z0-9-_]+$".into(),
+            }),
+        }],
+    );
+
+    let config_string = common::configuration::serialize_configuration(&config, ConfigFormat::Toml);
+    repo.create_config(&config_string, ConfigFormat::Toml);
 
     let ouput = fisherman.install(repo.path(), false);
 

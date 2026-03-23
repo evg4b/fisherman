@@ -3,12 +3,8 @@ mod common;
 use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
 use common::test_context::TestContext;
-use fisherman_core::BranchNamePrefixRule;
-use fisherman_core::BranchNameRegexRule;
-use fisherman_core::Configuration;
-use fisherman_core::Expression;
-use fisherman_core::GitHook;
-use fisherman_core::WriteFileRule;
+use fisherman_core::{t, BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule, CommitMessageSuffixRule};
+use fisherman_core::{Configuration, Expression, GitHook, WriteFileRule};
 
 #[test]
 fn post_commit_hook_execution() {
@@ -110,26 +106,26 @@ fn sync_rule_failure_behavior() {
 fn all_rule_types_in_one_hook() {
     let ctx = TestContext::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "^feature/"
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(BranchNameRegexRule {
+                expression: "^feature/".into(),
+            }),
+            rule!(BranchNamePrefixRule {
+                prefix: "feature/".into(),
+            }),
+            rule!(BranchNameSuffixRule {
+                suffix: "-test".into(),
+            }),
+            rule!(WriteFileRule {
+                path: "all-rules.txt".into(),
+                content: "all rules passed".into(),
+                append: None,
+            })
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "branch-name-prefix"
-prefix = "feature/"
-
-[[hooks.pre-commit]]
-type = "branch-name-suffix"
-suffix = "-test"
-
-[[hooks.pre-commit]]
-type = "write-file"
-path = "all-rules.txt"
-content = "all rules passed"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/new-test");
 
     ctx.git_commit_allow_empty_success("test commit");
@@ -164,15 +160,18 @@ fn conditional_with_complex_boolean_logic() {
 fn template_in_message_suffix() {
     let ctx = TestContext::new();
 
-    let config = r#"
-extract = ["branch:^feature/(?P<Ticket>[A-Z]+-\\d+)"]
+    let config = config!(
+        GitHook::CommitMsg => [
+            rule!(CommitMessageSuffixRule {
+                suffix: t!("[{{Ticket}}]")
+            })
+        ],
+        extract = vec![
+            String::from("branch:^feature/(?P<Ticket>[A-Z]+-\\d+)"),
+        ]
+    );
 
-[[hooks.commit-msg]]
-type = "message-suffix"
-suffix = " [{{Ticket}}]"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("feature/PROJ-123");
 
     ctx.git_commit_allow_empty_success("Add new feature [PROJ-123]");
@@ -182,16 +181,20 @@ suffix = " [{{Ticket}}]"
 fn template_in_branch_regex() {
     let ctx = TestContext::new();
 
-    let config = r#"
-extract = ["repo_path:.*[\\/\\\\](?P<RepoName>[^\\/\\\\]+)$"]
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(WriteFileRule {
+                path: "repo-check.txt".into(),
+                content: t!("Repository: {{RepoName}}"),
+                append: None,
+            })
+        ],
+        extract = vec![
+            String::from("repo_path:.*[\\/\\\\](?P<RepoName>[^\\/\\\\]+)$"),
+        ]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "repo-check.txt"
-content = "Repository: {{RepoName}}"
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
 
     ctx.git_commit_allow_empty_success("test commit");
     assert!(ctx.repo.file_exists("repo-check.txt"));
@@ -203,16 +206,18 @@ content = "Repository: {{RepoName}}"
 fn conditional_false_doesnt_execute_with_valid_message() {
     let ctx = TestContext::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    let config = config!(
+        GitHook::CommitMsg => [
+            rule!(fisherman_core::CommitMessagePrefixRule {
+                prefix: "feat: ".into(),
+            }, when = Expression::new("Type == \"feature\""))
+        ],
+        extract = vec![
+            String::from("branch:^(?P<Type>feature|bugfix)"),
+        ]
+    );
 
-[[hooks.commit-msg]]
-type = "message-prefix"
-prefix = "feat: "
-when = "Type == \"feature\""
-"#;
-
-    ctx.setup_and_install_old(config);
+    ctx.setup_and_install(&config, ConfigFormat::Toml);
     ctx.repo.create_branch("bugfix/test");
 
     ctx.git_commit_allow_empty_success("bugfix: fix the bug");

@@ -1,16 +1,20 @@
 mod common;
 
 use common::test_context::TestContext;
+use common::ConfigFormat;
+use fisherman_core::{Configuration, GitHook, SuppressFilesRule, SuppressStringRule};
 
 #[test]
 fn test_suppress_files_rule() {
     let context = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "suppress-files"
-glob = "secret.txt"
-"#;
-    context.setup_and_install_old(config);
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(SuppressFilesRule {
+                glob: "secret.txt".into(),
+            })
+        ]
+    );
+    context.setup_and_install(&config, ConfigFormat::Toml);
 
     // Create a normal file and commit - should succeed
     context.repo.create_file("normal.txt", "content");
@@ -31,12 +35,15 @@ glob = "secret.txt"
 #[test]
 fn test_suppress_string_rule() {
     let context = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "suppress-string"
-regex = "TODO"
-"#;
-    context.setup_and_install_old(config);
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(SuppressStringRule {
+                regex: "TODO".into(),
+                glob: None,
+            })
+        ]
+    );
+    context.setup_and_install(&config, ConfigFormat::Toml);
 
     // Create a clean file and commit - should succeed
     context.repo.create_file("clean.txt", "No tasks here");
@@ -57,13 +64,15 @@ regex = "TODO"
 #[test]
 fn test_suppress_string_with_glob_rule() {
     let context = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "suppress-string"
-regex = "DEBUG"
-glob = "*.rs"
-"#;
-    context.setup_and_install_old(config);
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(SuppressStringRule {
+                regex: "DEBUG".into(),
+                glob: Some("*.rs".into()),
+            })
+        ]
+    );
+    context.setup_and_install(&config, ConfigFormat::Toml);
 
     // Create a .txt file with DEBUG - should succeed because glob is *.rs
     context.repo.create_file("debug.txt", "DEBUG logging");
@@ -84,12 +93,15 @@ glob = "*.rs"
 #[test]
 fn test_suppress_string_only_added_lines() {
     let context = TestContext::new();
-    let config = r#"
-[[hooks.pre-commit]]
-type = "suppress-string"
-regex = "FORBIDDEN"
-"#;
-    context.setup_and_install_old(config);
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(SuppressStringRule {
+                regex: "FORBIDDEN".into(),
+                glob: None,
+            })
+        ]
+    );
+    context.setup_and_install(&config, ConfigFormat::Toml);
 
     // 1. Create a file with pre-existing FORBIDDEN string using --no-verify to skip hook
     context.repo.create_file("old_file.txt", "Pre-existing FORBIDDEN content\n");

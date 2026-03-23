@@ -3,12 +3,18 @@ mod common;
 use crate::common::ConfigFormat;
 use common::test_context::assert_stderr_contains;
 use common::{FishermanBinary, GitTestRepo};
+use fisherman_core::{
+    BranchNameRegexRule, CommitMessageRegexRule, Configuration, ExecRule, Expression, GitHook,
+    WriteFileRule,
+};
 
 #[test]
 fn invalid_toml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Malformed TOML syntax (missing closing bracket) - tests TOML parser error
+    // Cannot be converted to macros as the invalidity is in the syntax itself
     let invalid_config = r#"
 [[hooks.pre-commit]
 type = "branch-name-regex"  # Missing closing bracket
@@ -26,6 +32,8 @@ fn invalid_yaml_config_fails_gracefully() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Malformed YAML syntax (bad indentation) - tests YAML parser error
+    // Cannot be converted to macros as the invalidity is in the syntax itself
     let invalid_config = r#"
 hooks:
   pre-commit:
@@ -45,13 +53,17 @@ fn invalid_regex_in_message_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-[[hooks.commit-msg]]
-type = "message-regex"
-regex = "(?P<unclosed"  # Invalid regex
-"#;
+    // Invalid regex pattern - tests regex compilation error at runtime
+    let config = config!(
+        GitHook::CommitMsg => [
+            rule!(CommitMessageRegexRule {
+                when: None,
+                expression: "(?P<unclosed".into(),
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -74,13 +86,16 @@ fn invalid_regex_in_branch_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "branch-name-regex"
-regex = "[invalid("  # Invalid regex
-"#;
+    // Invalid regex pattern - tests regex compilation error at runtime
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(BranchNameRegexRule {
+                expression: "[invalid(".into(),
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -102,6 +117,8 @@ fn invalid_regex_in_extract() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Invalid regex pattern in extract configuration - tests extract regex parsing error
+    // Kept as raw string to test parser-level validation of extract patterns
     let config = r#"
 extract = ["branch:(?P<Invalid"]
 
@@ -133,14 +150,18 @@ fn template_with_undefined_variable() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "output.txt"
-content = "Value: {{UndefinedVar}}"
-"#;
+    // Valid structure but uses undefined template variable - tests template resolution error
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(WriteFileRule {
+                path: "output.txt".into(),
+                content: "Value: {{UndefinedVar}}".into(),
+                append: None,
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
@@ -163,6 +184,8 @@ fn missing_required_field_in_rule() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Missing required field in deserialization - tests config deserialization error
+    // Cannot be converted to macros as we cannot create a struct without required fields
     let config = r#"
 [[hooks.pre-commit]]
 type = "message-regex"
@@ -180,6 +203,8 @@ fn unknown_rule_type() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Unknown rule type - tests deserialization error for unregistered rule type
+    // Cannot be converted to macros as we cannot create a struct for non-existent rule type
     let config = r#"
 [[hooks.pre-commit]]
 type = "unknown-rule-type"
@@ -197,14 +222,18 @@ fn exec_command_not_found() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "exec"
-command = "nonexistent-command-12345"
-args = ["test"]
-"#;
+    // Valid structure, tests runtime error when command doesn't exist
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(ExecRule {
+                command: "nonexistent-command-12345".into(),
+                args: Some(vec!["test".into()]),
+                env: None,
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -225,14 +254,18 @@ fn write_file_to_invalid_path() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-[[hooks.pre-commit]]
-type = "write-file"
-path = "/root/cannot-write-here.txt"
-content = "test"
-"#;
+    // Valid structure, tests runtime error when path is not writable
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(WriteFileRule {
+                path: "/root/cannot-write-here.txt".into(),
+                content: "test".into(),
+                append: None,
+            })
+        ]
+    );
 
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(repo.path(), false);
@@ -245,6 +278,7 @@ fn empty_config_file() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
+    // Empty configuration file - tests parser handling of empty input
     repo.create_config("", ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
@@ -261,17 +295,19 @@ fn when_condition_syntax_error() {
     let binary = FishermanBinary::build();
     let repo = GitTestRepo::new();
 
-    let config = r#"
-extract = ["branch:^(?P<Type>feature|bugfix)"]
+    // Invalid Rhai syntax in when condition - tests script parsing error
+    let config = config!(
+        GitHook::PreCommit => [
+            rule!(WriteFileRule {
+                path: "test.txt".into(),
+                content: "test".into(),
+                append: None,
+            }, when = Expression::new("Type == "))
+        ],
+        extract = vec!["branch:^(?P<Type>feature|bugfix)".into()]
+    );
 
-[[hooks.pre-commit]]
-type = "write-file"
-path = "test.txt"
-content = "test"
-when = "Type == "  # Invalid syntax
-"#;
-
-    repo.create_config(config, ConfigFormat::Toml);
+    repo.create_config(&common::configuration::serialize_configuration(&config, ConfigFormat::Toml), ConfigFormat::Toml);
     repo.git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = binary.install(repo.path(), false);
