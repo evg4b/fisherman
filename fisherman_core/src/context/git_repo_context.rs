@@ -69,17 +69,11 @@ impl Context for GitRepoContext {
         }))
     }
 
-    fn variables_new(&self) -> Result<HashMap<String, String>> {
+    fn variables(&self) -> Result<HashMap<String, String>> {
         match &self.extract {
             None => self.variables(&[]),
             Some(additional) => self.variables(additional),
         }
-    }
-
-    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
-        let mut variables = additional.to_vec();
-        variables.extend(self.configuration().extract.clone());
-        extract_variables(self, &variables)
     }
 
     fn staged_files(&self) -> Result<Vec<PathBuf>> {
@@ -152,6 +146,12 @@ impl GitRepoContext {
             message_file: None,
             extract: None,
         })
+    }
+
+    fn variables(&self, additional: &[String]) -> Result<HashMap<String, String>> {
+        let mut variables = additional.to_vec();
+        variables.extend(self.configuration().extract.clone());
+        extract_variables(self, &variables)
     }
 }
 

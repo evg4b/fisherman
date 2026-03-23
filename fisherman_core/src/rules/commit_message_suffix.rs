@@ -19,7 +19,7 @@ impl std::fmt::Display for CommitMessageSuffixRule {
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let suffix = self.suffix.compile(&ctx.variables(&[])?)?;
+        let suffix = self.suffix.compile(&ctx.variables()?)?;
         let commit_msg = ctx.commit_msg()?;
 
         match commit_msg.ends_with(&suffix) {
@@ -76,7 +76,7 @@ mod tests {
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
         match result {
@@ -96,7 +96,7 @@ mod tests {
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx).unwrap();
         match result {
@@ -117,7 +117,7 @@ mod tests {
         ctx.expect_commit_msg()
             .returning(|| Ok("message suffix".to_string()));
         ctx.expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow::anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -132,7 +132,7 @@ mod tests {
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow::anyhow!("Commit message error")));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());

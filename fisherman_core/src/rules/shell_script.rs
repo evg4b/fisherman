@@ -26,7 +26,7 @@ impl Rule for ShellScriptRule {
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
-        let script = self.script.compile(&ctx.variables_new()?)?;
+        let script = self.script.compile(&ctx.variables()?)?;
 
         let args = vec![];
         let (code, output, _) = run(script.as_str(), &args, &options)?;
@@ -117,7 +117,7 @@ mod tests {
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables_new().returning(move || Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
         ctx
     }
 

@@ -20,7 +20,7 @@ impl std::fmt::Display for SuppressStringRule {
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables_new()?;
+        let variables = ctx.variables()?;
         let regex = Regex::new(&self.regex.compile(&variables)?)?;
 
         let pattern = match &self.glob {
@@ -142,7 +142,7 @@ mod tests {
 
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
@@ -165,7 +165,7 @@ mod tests {
 
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
@@ -196,7 +196,7 @@ mod tests {
 
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()
@@ -216,7 +216,7 @@ mod tests {
 
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context
             .expect_staged_files()

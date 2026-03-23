@@ -22,8 +22,7 @@ pub trait Context: Send + Sync + Any {
     fn set_commit_msg_path(&mut self, message_file: PathBuf);
     fn configuration(&self) -> Arc<Configuration>;
     fn extend(&mut self, extract: &[String]) -> Result<Box<dyn Context>>;
-    fn variables(&self, extract: &[String]) -> Result<HashMap<String, String>>;
-    fn variables_new(&self) -> Result<HashMap<String, String>>;
+    fn variables(&self) -> Result<HashMap<String, String>>;
     fn staged_files(&self) -> Result<Vec<PathBuf>>;
     fn staged_diff(&self, path: &Path) -> Result<Vec<DiffLine>>;
 }

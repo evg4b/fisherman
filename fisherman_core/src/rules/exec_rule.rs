@@ -31,7 +31,7 @@ impl std::fmt::Display for ExecRule {
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables_new()?;
+        let variables = ctx.variables()?;
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(
             &self.env.clone().unwrap_or_default(),
@@ -174,7 +174,7 @@ mod tests {
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables_new().returning(move || Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
         ctx
     }
 

@@ -133,7 +133,7 @@ mod tests {
             .returning(|| Ok("Test commit message".to_string()));
         context
             .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {
@@ -161,7 +161,7 @@ mod tests {
             .returning(|| Ok("Invalid commit message".to_string()));
         context
             .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context).unwrap();
         match result {
             RuleResult::Success { name, output } => {
@@ -189,7 +189,7 @@ mod tests {
             .returning(|| Err(anyhow::anyhow!("Error")));
         context
             .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context);
         assert!(result.is_err());
     }
@@ -206,7 +206,7 @@ mod tests {
             .returning(|| Ok("Test message".to_string()));
         context
             .expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow::anyhow!("Variables error")));
         let result = rule.check(&context);
         assert!(result.is_err());
     }
@@ -223,7 +223,7 @@ mod tests {
             .returning(|| Ok("Test message".to_string()));
         context
             .expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
         let result = rule.check(&context);
         assert!(result.is_err());
     }

@@ -22,7 +22,7 @@ impl std::fmt::Display for DeleteFilesRule {
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables(&[])?;
+        let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
 
@@ -51,6 +51,7 @@ impl Rule for DeleteFilesRule {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
@@ -129,7 +130,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
 
         match result {
@@ -151,7 +152,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
         let result = rule.check(&context)?;
 
         match result {
@@ -175,7 +176,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -205,7 +206,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context)?;
 
@@ -229,7 +230,7 @@ mod tests {
         let mut context = MockContext::new();
         context
             .expect_variables()
-            .returning(|_| Ok(std::collections::HashMap::new()));
+            .returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context);
         assert!(result.is_err());

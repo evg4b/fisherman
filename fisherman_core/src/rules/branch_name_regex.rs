@@ -89,7 +89,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("feat/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
         let RuleResult::Success { name, .. } = result else {
@@ -109,7 +109,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx)?;
         let RuleResult::Failure { name, message } = result else {
@@ -130,7 +130,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("feat/test".to_string()));
         ctx.expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow::anyhow!("Variables error")));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -147,7 +147,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Err(anyhow::anyhow!("Branch error")));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());
@@ -164,7 +164,7 @@ mod tests {
         ctx.expect_current_branch()
             .returning(|| Ok("feat/test".to_string()));
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let result = rule.check(&ctx);
         assert!(result.is_err());

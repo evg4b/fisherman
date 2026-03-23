@@ -5,9 +5,9 @@ use anyhow::Result;
 pub fn compile_tmpl(
     ctx: &dyn Context,
     string: &TemplateString,
-    additional: &[String],
+    _: &[String],
 ) -> Result<String> {
-    let variables = ctx.variables(additional)?;
+    let variables = ctx.variables()?;
     Ok(string.compile(&variables)?)
 }
 
@@ -23,7 +23,7 @@ mod tests {
         let mut ctx = MockContext::new();
         let mut vars = HashMap::new();
         vars.insert("name".to_string(), "test".to_string());
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
 
         let template = t!("Hello {{name}}");
         let result = compile_tmpl(&ctx, &template, &[]);
@@ -36,7 +36,7 @@ mod tests {
         let mut ctx = MockContext::new();
         let mut vars = HashMap::new();
         vars.insert("name".to_string(), "test".to_string());
-        ctx.expect_variables().returning(move |_| Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
 
         let template = t!("Hello {{name}}");
         let result = compile_tmpl(&ctx, &template, &["extra".to_string()]);
@@ -48,7 +48,7 @@ mod tests {
     fn test_compile_tmpl_variables_error() {
         let mut ctx = MockContext::new();
         ctx.expect_variables()
-            .returning(|_| Err(anyhow::anyhow!("Variables error")));
+            .returning(|| Err(anyhow::anyhow!("Variables error")));
 
         let template = t!("Hello {{name}}");
         let result = compile_tmpl(&ctx, &template, &[]);
@@ -59,7 +59,7 @@ mod tests {
     fn test_compile_tmpl_template_error() {
         let mut ctx = MockContext::new();
         ctx.expect_variables()
-            .returning(|_| Ok(HashMap::<String, String>::new()));
+            .returning(|| Ok(HashMap::<String, String>::new()));
 
         let template = t!("Hello {{missing}}");
         let result = compile_tmpl(&ctx, &template, &[]);

@@ -21,7 +21,7 @@ impl std::fmt::Display for SuppressFilesRule {
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let glob_pattern = self.glob.compile(&ctx.variables_new()?)?;
+        let glob_pattern = self.glob.compile(&ctx.variables()?)?;
         let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
 
@@ -91,7 +91,7 @@ mod tests {
         };
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context.expect_staged_files().returning(|| {
             Ok(vec![
@@ -115,7 +115,7 @@ mod tests {
         };
         let mut context = MockContext::new();
         context
-            .expect_variables_new()
+            .expect_variables()
             .returning(|| Ok(std::collections::HashMap::new()));
         context.expect_staged_files().returning(|| {
             Ok(vec![

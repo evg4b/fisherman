@@ -21,7 +21,7 @@ impl std::fmt::Display for WriteFileRule {
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
-        let variables = ctx.variables_new()?;
+        let variables = ctx.variables()?;
         let path = self.path.compile(&variables)?;
         let content = self.content.compile(&variables)?;
 
@@ -171,7 +171,7 @@ mod tests {
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
-        ctx.expect_variables_new().returning(move || Ok(vars.clone()));
+        ctx.expect_variables().returning(move || Ok(vars.clone()));
         ctx
     }
 

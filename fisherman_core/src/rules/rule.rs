@@ -52,7 +52,7 @@ impl RuleContext {
     fn check_condition(&self, ctx: &dyn Context) -> Result<bool> {
         self.when
             .as_ref()
-            .map(|expr| expr.check(ctx.variables(&[])))
+            .map(|expr| expr.check(ctx.variables()))
             .unwrap_or(Ok(false))
     }
 }
@@ -67,5 +67,33 @@ mod tests {
         let rule: RuleContext = serde_json::from_str(json).unwrap();
         assert_eq!(rule.extract, None);
         assert_eq!(rule.rule.typetag_name(), "branch-name-prefix");
+    }
+
+    #[test]
+    fn test_deserialize_with_extract() -> Result<()> {
+        let json = r#"{
+            "extract":["branch:^(?P<Type>feature|bugfix)"],
+            "type":"branch-name-prefix",
+            "prefix":"feat:"
+        }"#;
+        let rule: RuleContext = serde_json::from_str(json)?;
+        assert_eq!(rule.extract, Some(vec!["branch:^(?P<Type>feature|bugfix)".into()]));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_with_when() -> Result<()> {
+        let json = r#"{
+            "extract":["branch:^(?P<Type>feature|bugfix)"],
+            "type":"branch-name-prefix",
+            "prefix":"feat:",
+            "when": "branch.startsWith('feat')"
+        }"#;
+
+        let rule: RuleContext = serde_json::from_str(json)?;
+
+        assert_eq!(rule.extract, Some(vec!["branch:^(?P<Type>feature|bugfix)".into()]));
+        Ok(())
     }
 }
