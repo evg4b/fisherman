@@ -60,6 +60,11 @@ impl RuleContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::context::{Context, MockContext};
+    use crate::rules::BranchNamePrefixRule;
+    use crate::scripting::Expression;
+    use crate::t;
+    use std::collections::HashMap;
 
     #[test]
     fn test_deserialize() {
@@ -94,6 +99,126 @@ mod tests {
         let rule: RuleContext = serde_json::from_str(json)?;
 
         assert_eq!(rule.extract, Some(vec!["branch:^(?P<Type>feature|bugfix)".into()]));
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_no_extract_no_when_success() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: None,
+            when: None,
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+        ctx.expect_variables().returning(|| Ok(HashMap::new()));
+
+        let result = rule_ctx.check_rule(&mut ctx)?;
+        assert!(matches!(result, RuleResult::Success { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_no_extract_no_when_failure() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: None,
+            when: None,
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_current_branch().returning(|| Ok("bugfix/something".to_string()));
+        ctx.expect_variables().returning(|| Ok(HashMap::new()));
+
+        let result = rule_ctx.check_rule(&mut ctx)?;
+        assert!(matches!(result, RuleResult::Failure { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_with_extract_extends_context() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
+            when: None,
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_extend().returning(|_| {
+            let mut inner = MockContext::new();
+            inner.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+            inner.expect_variables().returning(|| Ok(HashMap::new()));
+            Ok(Box::new(inner) as Box<dyn Context>)
+        });
+
+        let result = rule_ctx.check_rule(&mut ctx)?;
+        assert!(matches!(result, RuleResult::Success { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_with_when_false_returns_skipped() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: None,
+            when: Some(Expression::new("1 < 0")),
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(|| Ok(HashMap::new()));
+
+        let result = rule_ctx.check_rule(&mut ctx)?;
+        assert!(matches!(result, RuleResult::Skipped { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_with_when_true_runs_rule() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: None,
+            when: Some(Expression::new("1 > 0")),
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(|| Ok(HashMap::new()));
+        ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+
+        let result = rule_ctx.check_rule(&mut ctx)?;
+        assert!(matches!(result, RuleResult::Success { .. }));
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_condition_error_propagates() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: None,
+            when: Some(Expression::new("1 > 0")),
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_variables().returning(|| Err(anyhow::anyhow!("variables error")));
+
+        let result = rule_ctx.check_rule(&mut ctx);
+        assert!(result.is_err());
+
+        Ok(())
+    }
+
+    #[test]
+    fn check_rule_extend_error_propagates() -> Result<()> {
+        let rule_ctx = RuleContext {
+            extract: Some(vec!["branch:something".to_string()]),
+            when: None,
+            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+        };
+        let mut ctx = MockContext::new();
+        ctx.expect_extend().returning(|_| Err(anyhow::anyhow!("extend error")));
+
+        let result = rule_ctx.check_rule(&mut ctx);
+        assert!(result.is_err());
+
         Ok(())
     }
 }
