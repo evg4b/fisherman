@@ -34,7 +34,7 @@ jobs:
       - name: Run cargo clippy
         run: cargo clippy --all-targets --message-format=json -- -D warnings > clippy.json
       - name: Upload clippy report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: clippy.json
           path: clippy.json
@@ -72,7 +72,7 @@ jobs:
       - name: Run unit tests with coverage
         run: cargo llvm-cov -p fisherman_core --lcov --output-path ${{ matrix.platform.name }}-lcov.info
       - name: Upload coverage report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform.name }}-coverage
           path: ${{ matrix.platform.name }}-lcov.info
