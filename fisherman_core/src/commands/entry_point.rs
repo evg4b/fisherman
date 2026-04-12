@@ -21,10 +21,15 @@ pub enum Command {
     Explain(ExplainCommand),
 }
 
+impl Default for FishermanCli {
+    fn default() -> Self {
+        FishermanCli::parse()
+    }
+}
+
 impl FishermanCli {
-    pub fn exec(context: &mut impl Context) -> Result<()> {
-        let cli = FishermanCli::parse();
-        match &cli.command {
+    pub fn run(self, context: &mut impl Context) -> Result<()> {
+        match &self.command {
             Command::Install(cmd) => cmd.exec(context),
             Command::Handle(cmd) => cmd.exec(context),
             Command::Explain(cmd) => cmd.exec(context),

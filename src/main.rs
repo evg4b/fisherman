@@ -4,8 +4,9 @@ use fisherman_core::GitRepoContext;
 use std::env;
 
 fn main() -> Result<()> {
+    let cli = FishermanCli::default();
     let mut context = GitRepoContext::new(env::current_dir()?)?;
-    match FishermanCli::exec(&mut context) {
+    match cli.run(&mut context) {
         Ok(()) => Ok(()),
         Err(err) => {
             eprintln!("Error: {err}");
