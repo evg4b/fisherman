@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use std::fs::OpenOptions;
@@ -20,6 +20,10 @@ impl std::fmt::Display for WriteFileRule {
 
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let path = self.path.compile(&variables)?;

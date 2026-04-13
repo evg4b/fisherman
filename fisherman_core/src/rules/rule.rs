@@ -4,6 +4,19 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
+/// Determines how a rule is scheduled during hook execution.
+///
+/// Sync rules run sequentially in a single thread. Async rules run
+/// concurrently in a thread pool (bounded by [`MAX_CONCURRENT_ASYNC_RULES`]).
+/// Both groups execute in parallel with each other.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExecutionMode {
+    /// Run sequentially in the caller's thread, one after another.
+    Sync,
+    /// Run concurrently in a dedicated thread, limited by the global semaphore.
+    Async,
+}
+
 #[derive(Debug)]
 pub enum RuleResult {
     Success {
@@ -22,6 +35,15 @@ pub enum RuleResult {
 #[typetag::serde(tag = "type")]
 pub trait Rule: Send + Sync + Display {
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
+
+    /// Returns how this rule should be scheduled at execution time.
+    ///
+    /// The default is [`ExecutionMode::Sync`]. Override to return
+    /// [`ExecutionMode::Async`] for rules that perform file I/O or
+    /// run external processes and can safely run in parallel.
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Sync
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,24 +56,26 @@ pub struct RuleContext {
 
 impl RuleContext {
     pub fn check_rule(&self, ctx: &mut dyn Context) -> Result<RuleResult> {
-        let extended = self.extract.as_ref().map(|e| ctx.extend(e)).transpose()?;
-        let correct_ctx: &dyn Context = match &extended {
+        let extended = self.extract.as_ref()
+            .map(|e| ctx.extend(e))
+            .transpose()?;
+
+        let actual_ctx: &dyn Context = match extended.as_ref() {
             Some(boxed) => boxed.as_ref(),
             None => ctx,
         };
 
-        if self.when.is_some() && !self.check_condition(correct_ctx)? {
+        if self.when.is_some() && !self.check_condition(actual_ctx)? {
             return Ok(RuleResult::Skipped {
                 name: self.rule.typetag_name().into(),
             });
         }
 
-        self.rule.check(correct_ctx)
+        self.rule.check(actual_ctx)
     }
 
     fn check_condition(&self, ctx: &dyn Context) -> Result<bool> {
-        self.when
-            .as_ref()
+        self.when.as_ref()
             .map(|expr| expr.check(ctx.variables()))
             .unwrap_or(Ok(false))
     }
@@ -61,7 +85,12 @@ impl RuleContext {
 mod tests {
     use super::*;
     use crate::context::{Context, MockContext};
-    use crate::rules::BranchNamePrefixRule;
+    use crate::rules::{
+        BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule,
+        CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule,
+        CopyFilesRule, DeleteFilesRule, ExecRule, ShellScriptRule,
+        SuppressFilesRule, SuppressStringRule, WriteFileRule,
+    };
     use crate::scripting::Expression;
     use crate::t;
     use std::collections::HashMap;
@@ -221,5 +250,81 @@ mod tests {
         assert!(result.is_err());
 
         Ok(())
+    }
+
+    // ── ExecutionMode default and overrides ───────────────────────────────────
+
+    #[test]
+    fn sync_rules_default_to_sync_mode() {
+        assert_eq!(
+            BranchNamePrefixRule { prefix: t!("feat/") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            BranchNameSuffixRule { suffix: t!("-ok") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            BranchNameRegexRule { expression: t!(".*") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            CommitMessagePrefixRule { prefix: t!("fix:") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            CommitMessageSuffixRule { suffix: t!(".") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            CommitMessageRegexRule { expression: t!(".*"), when: None }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            SuppressFilesRule { glob: t!("*.log") }.execution_mode(),
+            ExecutionMode::Sync
+        );
+        assert_eq!(
+            SuppressStringRule { regex: t!("TODO"), glob: None }.execution_mode(),
+            ExecutionMode::Sync
+        );
+    }
+
+    #[test]
+    fn async_rules_return_async_mode() {
+        assert_eq!(
+            ExecRule { command: "echo".into(), args: None, env: None }.execution_mode(),
+            ExecutionMode::Async
+        );
+        assert_eq!(
+            ShellScriptRule { script: t!("echo hi"), env: None }.execution_mode(),
+            ExecutionMode::Async
+        );
+        assert_eq!(
+            WriteFileRule {
+                path: t!("out.txt"),
+                content: t!("hello"),
+                append: None,
+            }
+            .execution_mode(),
+            ExecutionMode::Async
+        );
+        assert_eq!(
+            CopyFilesRule {
+                glob: t!("*.txt"),
+                src: None,
+                destination: t!("dst/"),
+            }
+            .execution_mode(),
+            ExecutionMode::Async
+        );
+        assert_eq!(
+            DeleteFilesRule {
+                glob: t!("*.tmp"),
+                fail_if_not_found: false,
+            }
+            .execution_mode(),
+            ExecutionMode::Async
+        );
     }
 }

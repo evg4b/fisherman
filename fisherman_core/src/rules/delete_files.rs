@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::{glob, GlobResult};
@@ -21,6 +21,10 @@ impl std::fmt::Display for DeleteFilesRule {
 
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;

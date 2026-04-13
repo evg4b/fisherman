@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
 use std::collections::HashMap;
@@ -30,6 +30,10 @@ impl std::fmt::Display for ExecRule {
 
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let mut env_map: Env = env::vars().collect();
