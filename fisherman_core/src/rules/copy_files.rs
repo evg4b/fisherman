@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use glob::glob;
@@ -44,6 +44,10 @@ fn ensure_parent_exists(path: &Path) -> Result<()> {
 
 #[typetag::serde(name = "copy-files")]
 impl Rule for CopyFilesRule {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let compiled_glob = self.glob.compile(&variables)?;
