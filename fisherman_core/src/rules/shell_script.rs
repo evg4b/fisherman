@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use run_script::{run, ScriptOptions};
@@ -22,6 +22,10 @@ static SHELL_SCRIPT_NAME: &str = "shell";
 
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
     fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
