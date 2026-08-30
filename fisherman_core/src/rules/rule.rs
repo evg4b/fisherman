@@ -3,6 +3,7 @@ use crate::Expression;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
+use async_trait::async_trait;
 
 /// Determines how a rule is scheduled during hook execution.
 ///
@@ -32,9 +33,10 @@ pub enum RuleResult {
     },
 }
 
+#[async_trait]
 #[typetag::serde(tag = "type")]
 pub trait Rule: Send + Sync + Display {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult>;
 
     /// Returns how this rule should be scheduled at execution time.
     ///
@@ -55,7 +57,7 @@ pub struct RuleContext {
 }
 
 impl RuleContext {
-    pub fn check_rule(&self, ctx: &mut dyn Context) -> Result<RuleResult> {
+    pub async fn check_rule(&self, ctx: &mut dyn Context) -> Result<RuleResult> {
         let extended = self.extract.as_ref()
             .map(|e| ctx.extend(e))
             .transpose()?;
@@ -71,7 +73,7 @@ impl RuleContext {
             });
         }
 
-        self.rule.check(actual_ctx)
+        self.rule.check(actual_ctx).await
     }
 
     fn check_condition(&self, ctx: &dyn Context) -> Result<bool> {
@@ -132,8 +134,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn check_rule_no_extract_no_when_success() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_no_extract_no_when_success() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: None,
             when: None,
@@ -143,14 +145,14 @@ mod tests {
         ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
 
-        let result = rule_ctx.check_rule(&mut ctx)?;
+        let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_no_extract_no_when_failure() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_no_extract_no_when_failure() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: None,
             when: None,
@@ -160,14 +162,14 @@ mod tests {
         ctx.expect_current_branch().returning(|| Ok("bugfix/something".to_string()));
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
 
-        let result = rule_ctx.check_rule(&mut ctx)?;
+        let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Failure { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_with_extract_extends_context() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_with_extract_extends_context() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
             when: None,
@@ -181,14 +183,14 @@ mod tests {
             Ok(Box::new(inner) as Box<dyn Context>)
         });
 
-        let result = rule_ctx.check_rule(&mut ctx)?;
+        let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_with_when_false_returns_skipped() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_with_when_false_returns_skipped() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 < 0")),
@@ -197,14 +199,14 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
 
-        let result = rule_ctx.check_rule(&mut ctx)?;
+        let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Skipped { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_with_when_true_runs_rule() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_with_when_true_runs_rule() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 > 0")),
@@ -214,14 +216,14 @@ mod tests {
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
         ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
 
-        let result = rule_ctx.check_rule(&mut ctx)?;
+        let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_condition_error_propagates() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_condition_error_propagates() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 > 0")),
@@ -230,14 +232,14 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(|| Err(anyhow!("variables error")));
 
-        let result = rule_ctx.check_rule(&mut ctx);
+        let result = rule_ctx.check_rule(&mut ctx).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn check_rule_extend_error_propagates() -> Result<()> {
+    #[tokio::test]
+    async fn check_rule_extend_error_propagates() -> Result<()> {
         let rule_ctx = RuleContext {
             extract: Some(vec!["branch:something".to_string()]),
             when: None,
@@ -246,7 +248,7 @@ mod tests {
         let mut ctx = MockContext::new();
         ctx.expect_extend().returning(|_| Err(anyhow!("extend error")));
 
-        let result = rule_ctx.check_rule(&mut ctx);
+        let result = rule_ctx.check_rule(&mut ctx).await;
         assert!(result.is_err());
 
         Ok(())
@@ -254,8 +256,8 @@ mod tests {
 
     // ── ExecutionMode default and overrides ───────────────────────────────────
 
-    #[test]
-    fn sync_rules_default_to_sync_mode() {
+    #[tokio::test]
+    async fn sync_rules_default_to_sync_mode() {
         assert_eq!(
             BranchNamePrefixRule { prefix: t!("feat/") }.execution_mode(),
             ExecutionMode::Sync

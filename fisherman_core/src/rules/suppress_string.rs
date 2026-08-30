@@ -2,6 +2,7 @@ use crate::context::{Context, DiffLine};
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 use glob::Pattern;
 use regex::Regex;
 
@@ -17,9 +18,10 @@ impl std::fmt::Display for SuppressStringRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "suppress-string")]
 impl Rule for SuppressStringRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let regex = Regex::new(&self.regex.compile(&variables)?)?;
 
@@ -133,8 +135,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_suppress_string_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_string_success() -> Result<()> {
         let rule = SuppressStringRule {
             regex: "TODO".into(),
             glob: None,
@@ -151,13 +153,13 @@ mod tests {
             .expect_staged_diff()
             .returning(|_| Ok(vec![DiffLine::Added("clean content".to_string())]));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
         Ok(())
     }
 
-    #[test]
-    fn test_suppress_string_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_string_failure() -> Result<()> {
         let rule = SuppressStringRule {
             regex: tmpl!("TODO"),
             glob: None,
@@ -174,7 +176,7 @@ mod tests {
             .expect_staged_diff()
             .returning(|_| Ok(vec![DiffLine::Added("this has a TODO item".to_string())]));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Failure { name, message } => {
                 assert_eq!(name, "suppress-string");
@@ -187,8 +189,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_suppress_string_with_glob() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_string_with_glob() -> Result<()> {
         let rule = SuppressStringRule {
             regex: tmpl!("TODO"),
             glob: Some(tmpl!("*.rs")),
@@ -202,13 +204,13 @@ mod tests {
             .expect_staged_files()
             .returning(|| Ok(vec![std::path::PathBuf::from("test.txt")]));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
         Ok(())
     }
 
-    #[test]
-    fn test_suppress_string_rule_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_string_rule_success() -> Result<()> {
         let rule = SuppressStringRule {
             regex: "TODO".into(),
             glob: None,
@@ -225,7 +227,7 @@ mod tests {
             .expect_staged_diff()
             .returning(|_| Ok(vec![DiffLine::Added("clean content".to_string())]));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
         Ok(())
     }

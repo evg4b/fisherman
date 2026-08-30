@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
+use async_trait::async_trait;
 use glob::{glob, GlobResult};
 use std::fs;
 
@@ -19,13 +20,14 @@ impl std::fmt::Display for DeleteFilesRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
     fn execution_mode(&self) -> ExecutionMode {
         ExecutionMode::Async
     }
 
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;
         let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
@@ -119,8 +121,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_delete_files_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_success() -> Result<()> {
         let temp_dir = tempdir()?;
         let file_path = temp_dir.path().join("test_file.txt");
 
@@ -135,7 +137,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -146,8 +148,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_no_matches_with_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_no_matches_with_failure() -> Result<()> {
         let rule = DeleteFilesRule {
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: true,
@@ -157,7 +159,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Failure { name, message } => {
@@ -170,8 +172,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_no_matches_without_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_no_matches_without_failure() -> Result<()> {
         let rule = DeleteFilesRule {
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: false,
@@ -182,7 +184,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -192,8 +194,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_multiple_files() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_multiple_files() -> Result<()> {
         let temp_dir = tempdir()?;
         let file_path1 = temp_dir.path().join("test_file1.txt");
         let file_path2 = temp_dir.path().join("test_file2.txt");
@@ -212,7 +214,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -224,8 +226,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_glob_error() {
+    #[tokio::test]
+    async fn test_delete_files_glob_error() {
         let rule = DeleteFilesRule {
             glob: tmpl!("[invalid-glob"),
             fail_if_not_found: true,
@@ -236,7 +238,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 

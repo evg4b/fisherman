@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 use glob::Pattern;
 use serde::{Deserialize, Serialize};
 
@@ -18,9 +19,10 @@ impl std::fmt::Display for SuppressFilesRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "suppress-files")]
 impl Rule for SuppressFilesRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let glob_pattern = self.glob.compile(&ctx.variables()?)?;
         let pattern = Pattern::new(glob_pattern.as_str())?;
         let staged_files = ctx.staged_files()?;
@@ -84,8 +86,8 @@ mod tests {
 
 
 
-    #[test]
-    fn test_suppress_files_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_files_success() -> Result<()> {
         let rule = SuppressFilesRule {
             glob: tmpl!("*.txt"),
         };
@@ -100,7 +102,7 @@ mod tests {
             ])
         });
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { .. } => {}
             _ => panic!("Expected Success"),
@@ -108,8 +110,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_suppress_files_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_suppress_files_failure() -> Result<()> {
         let rule = SuppressFilesRule {
             glob: tmpl!("*.txt"),
         };
@@ -124,7 +126,7 @@ mod tests {
             ])
         });
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Failure { name, message } => {
                 assert_eq!(name, "suppress-files");

@@ -3,6 +3,7 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct BranchNameSuffixRule {
@@ -17,9 +18,10 @@ impl std::fmt::Display for BranchNameSuffixRule {
 
 static BRANCH_NAME_SUFFIX_RULE_NAME: &str = "branch-name-suffix";
 
+#[async_trait]
 #[typetag::serde(name = "branch-name-suffix")]
 impl Rule for BranchNameSuffixRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let suffix = compile_tmpl(ctx, &self.suffix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -67,8 +69,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_branch_name_suffix_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_suffix_success() -> Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -78,15 +80,15 @@ mod tests {
         let result = BranchNameSuffixRule {
             suffix: t!("feature"),
         }
-            .check(&ctx)?;
+            .check(&ctx).await?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_suffix_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_suffix_failure() -> Result<()> {
         let mut ctx = MockContext::new();
         ctx.expect_current_branch()
             .returning(|| Ok("bugfix/my-feature".to_string()));
@@ -96,15 +98,15 @@ mod tests {
         let result = BranchNameSuffixRule {
             suffix: t!("suffix"),
         }
-            .check(&ctx)?;
+            .check(&ctx).await?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_suffix_variables_error() {
+    #[tokio::test]
+    async fn test_branch_name_suffix_variables_error() {
         let rule = BranchNameSuffixRule {
             suffix: t!("suffix"),
         };
@@ -114,12 +116,12 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_branch_name_suffix_branch_error() {
+    #[tokio::test]
+    async fn test_branch_name_suffix_branch_error() {
         let rule = BranchNameSuffixRule {
             suffix: t!("suffix"),
         };
@@ -129,7 +131,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
     }
 

@@ -3,6 +3,7 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 
 static MESSAGE_PREFIX_RULE_NAME: &str = "message-prefix";
 
@@ -17,9 +18,10 @@ impl std::fmt::Display for CommitMessagePrefixRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "message-prefix")]
 impl Rule for CommitMessagePrefixRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -68,8 +70,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_commit_message_prefix_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_commit_message_prefix_success() -> Result<()> {
         let rule = CommitMessagePrefixRule {
             prefix: t!("feat"),
         };
@@ -79,7 +81,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -89,8 +91,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_commit_message_prefix_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_commit_message_prefix_failure() -> Result<()> {
         let rule = CommitMessagePrefixRule {
             prefix: t!("feat"),
         };
@@ -100,7 +102,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -110,8 +112,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_commit_message_prefix_variables_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_commit_message_prefix_variables_error() -> Result<()> {
         let rule = CommitMessagePrefixRule {
             prefix: t!("feat"),
         };
@@ -121,14 +123,14 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn test_commit_message_prefix_commit_msg_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_commit_message_prefix_commit_msg_error() -> Result<()> {
         let rule = CommitMessagePrefixRule {
             prefix: t!("feat"),
         };
@@ -138,7 +140,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())

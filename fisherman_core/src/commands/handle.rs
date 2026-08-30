@@ -27,10 +27,10 @@ impl CliCommand for HandleCommand {
 
         match config.hooks.get(&self.hook) {
             Some(rules) => {
-                let results = rules
-                    .iter()
-                    .map(|r| r.check_rule(context))
-                    .collect::<Result<Vec<RuleResult>>>()?;
+                let mut results = Vec::<RuleResult>::with_capacity(rules.len());
+                for rule in rules {
+                    results.push(rule.check_rule(context).await?);
+                }
 
                 for rule in &results {
                     match rule {
@@ -70,6 +70,7 @@ mod tests {
     use super::*;
     use crate::MockContext;
     use crate::Rule;
+    use async_trait::async_trait;
     use crate::{Configuration, RuleContext};
     use serde::{Deserialize, Serialize};
     use std::fmt::Display;
@@ -92,8 +93,9 @@ mod tests {
         }
     }
 
+    #[async_trait]
     impl Rule for FakeRule {
-        fn check(&self, _: &dyn Context) -> Result<RuleResult> {
+        async fn check(&self, _: &dyn Context) -> Result<RuleResult> {
             match self.success {
                 true => Ok(RuleResult::Success {
                     name: "FakeRule".into(),
