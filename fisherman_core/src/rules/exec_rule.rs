@@ -5,7 +5,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::env;
-use std::process::Command;
+use tokio::process::Command;
 
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
@@ -50,7 +50,8 @@ impl Rule for ExecRule {
                 &variables,
             )?)
             .envs(env_map)
-            .output()?;
+            .output()
+            .await?;
 
         match output.status.success() {
             true => Ok(RuleResult::Success {

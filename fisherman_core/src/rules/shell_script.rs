@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use run_script::{run, ScriptOptions};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use tokio::task::spawn_blocking;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ShellScriptRule {
@@ -34,8 +35,10 @@ impl Rule for ShellScriptRule {
 
         let script = self.script.compile(&ctx.variables()?)?;
 
-        let args = vec![];
-        let (code, output, _) = run(script.as_str(), &args, &options)?;
+        // `run_script` has no async API and blocks until the shell exits, so it
+        // must not run on a runtime worker thread.
+        let (code, output, _) =
+            spawn_blocking(move || run(script.as_str(), &vec![], &options)).await??;
 
         if code != 0 {
             return Ok(RuleResult::Failure {

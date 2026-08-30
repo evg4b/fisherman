@@ -4,7 +4,8 @@ use crate::templates::TemplateString;
 use anyhow::{bail, Result};
 use async_trait::async_trait;
 use glob::{glob, GlobResult};
-use std::fs;
+use tokio::fs;
+use tokio::task::spawn_blocking;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
@@ -30,7 +31,10 @@ impl Rule for DeleteFilesRule {
     async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;
-        let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
+        // Walking the filesystem is blocking work; keep it off the runtime worker.
+        let pattern = glob_pattern.clone();
+        let paths =
+            spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<GlobResult>>())).await??;
 
         if paths.is_empty() && self.fail_if_not_found {
             return Ok(RuleResult::Failure {
@@ -41,7 +45,7 @@ impl Rule for DeleteFilesRule {
 
         for path in paths {
             match path {
-                Ok(path) => fs::remove_file(path.as_path())?,
+                Ok(path) => fs::remove_file(path.as_path()).await?,
                 Err(err) => {
                     bail!("Error deleting file: {}", err);
                 }

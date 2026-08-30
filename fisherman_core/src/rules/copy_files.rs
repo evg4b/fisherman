@@ -1,12 +1,12 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use async_trait::async_trait;
 use glob::glob;
-use std::fs;
-use std::fs::create_dir_all;
 use std::path::Path;
+use tokio::fs;
+use tokio::task::spawn_blocking;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
@@ -34,11 +34,9 @@ impl std::fmt::Display for CopyFilesRule {
     }
 }
 
-fn ensure_parent_exists(path: &Path) -> Result<()> {
-    if let Some(parent) = path.parent()
-        && !parent.exists()
-    {
-        create_dir_all(parent)?;
+async fn ensure_parent_exists(path: &Path) -> Result<()> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).await?;
     }
     Ok(())
 }
@@ -66,7 +64,20 @@ impl Rule for CopyFilesRule {
 
         let mut copied_files = 0;
 
-        for entry in glob(compiled_pattern.to_str().unwrap())? {
+        let pattern = compiled_pattern
+            .to_str()
+            .ok_or_else(|| {
+                anyhow!(
+                    "Glob pattern is not valid UTF-8: {}",
+                    compiled_pattern.display()
+                )
+            })?
+            .to_string();
+
+        // Walking the filesystem is blocking work; keep it off the runtime worker.
+        let entries = spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<_>>())).await??;
+
+        for entry in entries {
             match entry {
                 Ok(path) => {
                     let new_name = match compiled_src.as_ref() {
@@ -75,8 +86,8 @@ impl Rule for CopyFilesRule {
                     };
                     let destination_path = Path::join(compiled_destination.as_ref(), new_name);
 
-                    ensure_parent_exists(&destination_path)?;
-                    fs::copy(&path, &destination_path)?;
+                    ensure_parent_exists(&destination_path).await?;
+                    fs::copy(&path, &destination_path).await?;
 
                     copied_files += 1;
                 }
@@ -258,12 +269,12 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_ensure_parent_exists() -> Result<()> {
+    #[tokio::test]
+    async fn test_ensure_parent_exists() -> Result<()> {
         let temp_dir = tempdir()?;
         let nested_path = temp_dir.path().join("nested").join("dir").join("file.txt");
 
-        ensure_parent_exists(&nested_path)?;
+        ensure_parent_exists(&nested_path).await?;
 
         let parent = nested_path.parent().unwrap();
         assert_that!(parent.exists()).is_equal_to(true);

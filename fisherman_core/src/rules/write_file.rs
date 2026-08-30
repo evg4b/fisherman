@@ -3,8 +3,8 @@ use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
-use std::fs::OpenOptions;
-use std::io::Write;
+use tokio::fs::OpenOptions;
+use tokio::io::AsyncWriteExt;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct WriteFileRule {
@@ -37,9 +37,11 @@ impl Rule for WriteFileRule {
             .write(true)
             .create(true)
             .append(append)
-            .open(path)?;
+            .open(path)
+            .await?;
 
-        file.write_all(content.as_bytes())?;
+        file.write_all(content.as_bytes()).await?;
+        file.flush().await?;
 
         Ok(RuleResult::Success {
             name: "write-file".into(),
