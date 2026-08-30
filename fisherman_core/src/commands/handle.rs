@@ -1,9 +1,9 @@
-use crate::commands::command::CliCommand;
-use crate::ui::hook_display;
 use crate::Context;
 use crate::GitHook;
 use crate::RuleResult;
-use anyhow::{anyhow, Result};
+use crate::commands::command::CliCommand;
+use crate::ui::hook_display;
+use anyhow::{Result, anyhow};
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -17,7 +17,7 @@ pub struct HandleCommand {
 }
 
 impl CliCommand for HandleCommand {
-    fn exec(&self, context: &mut impl Context) -> Result<()> {
+    async fn exec(&self, context: &mut impl Context) -> Result<()> {
         if let Some(message) = &self.message {
             context.set_commit_msg_path(PathBuf::from(message));
         }
@@ -115,8 +115,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_run() {
+    #[tokio::test]
+    async fn test_run() {
         let command = HandleCommand {
             hook: GitHook::PreCommit,
             message: None,
@@ -142,13 +142,13 @@ mod tests {
             Arc::new(config)
         });
 
-        let result = command.exec(&mut context);
+        let result = command.exec(&mut context).await;
 
         assert!(result.is_ok());
     }
 
-    #[test]
-    fn test_run_with_message() {
+    #[tokio::test]
+    async fn test_run_with_message() {
         let command = HandleCommand {
             hook: GitHook::PreCommit,
             message: None,
@@ -174,7 +174,7 @@ mod tests {
             Arc::new(config)
         });
 
-        let result = command.exec(&mut context);
+        let result = command.exec(&mut context).await;
 
         assert!(result.is_err());
     }

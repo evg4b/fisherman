@@ -1,9 +1,9 @@
+use crate::Context;
+use crate::GitHook;
 use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use crate::Context;
-use crate::GitHook;
 
 #[derive(Debug, Parser)]
 pub struct ExplainCommand {
@@ -13,7 +13,7 @@ pub struct ExplainCommand {
 }
 
 impl CliCommand for ExplainCommand {
-    fn exec(&self, context: &mut impl Context) -> Result<()> {
+    async fn exec(&self, context: &mut impl Context) -> Result<()> {
         let config = context.configuration();
 
         println!("{}", hook_display(&self.hook, config.files.clone()));
@@ -34,16 +34,16 @@ impl CliCommand for ExplainCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{t, RuleContext};
     use crate::CommitMessageRegexRule;
     use crate::Configuration;
     use crate::MockContext;
     use crate::Rule;
+    use crate::{RuleContext, t};
     use std::collections::HashMap;
     use std::sync::Arc;
 
-    #[test]
-    fn test_exec_no_rules_for_hook() -> Result<()> {
+    #[tokio::test]
+    async fn test_exec_no_rules_for_hook() -> Result<()> {
         let cmd = ExplainCommand {
             hook: GitHook::PreCommit,
         };
@@ -55,16 +55,17 @@ mod tests {
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Arc::new(config));
+        ctx.expect_configuration()
+            .return_once(move || Arc::new(config));
 
-        let result = cmd.exec(&mut ctx);
+        let result = cmd.exec(&mut ctx).await;
         assert!(result.is_ok());
 
         Ok(())
     }
 
-    #[test]
-    fn test_exec_with_rules_for_hook() -> Result<()> {
+    #[tokio::test]
+    async fn test_exec_with_rules_for_hook() -> Result<()> {
         let cmd = ExplainCommand {
             hook: GitHook::PreCommit,
         };
@@ -75,21 +76,23 @@ mod tests {
         };
 
         let config = Configuration {
-            hooks: HashMap::from([(GitHook::PreCommit, vec![
-                RuleContext {
+            hooks: HashMap::from([(
+                GitHook::PreCommit,
+                vec![RuleContext {
                     extract: None,
                     when: None,
-                    rule: Box::new(rule) as Box<dyn Rule>
-                },
-            ])]),
+                    rule: Box::new(rule) as Box<dyn Rule>,
+                }],
+            )]),
             extract: vec![],
             files: vec![],
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Arc::new(config));
+        ctx.expect_configuration()
+            .return_once(move || Arc::new(config));
 
-        let result = cmd.exec(&mut ctx);
+        let result = cmd.exec(&mut ctx).await;
         assert!(result.is_ok());
 
         Ok(())

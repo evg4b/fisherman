@@ -7,7 +7,7 @@ use std::env;
 async fn main() -> Result<()> {
     let cli = FishermanCli::default();
     let mut context = GitRepoContext::new(env::current_dir()?)?;
-    match cli.run(&mut context) {
+    match cli.run(&mut context).await {
         Ok(()) => Ok(()),
         Err(err) => {
             eprintln!("Error: {err}");

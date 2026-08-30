@@ -1,9 +1,9 @@
+use crate::Context;
+use crate::GitHook;
 use crate::commands::command::CliCommand;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
-use crate::Context;
-use crate::GitHook;
 use std::fs;
 
 #[derive(Debug, Parser)]
@@ -17,7 +17,7 @@ pub struct InstallCommand {
 }
 
 impl CliCommand for InstallCommand {
-    fn exec(&self, context: &mut impl Context) -> Result<()> {
+    async fn exec(&self, context: &mut impl Context) -> Result<()> {
         println!("{}", logo());
 
         let selected_hooks = match self.hooks.as_ref() {
@@ -48,8 +48,8 @@ mod tests {
     use std::sync::Arc;
     use tempdir::TempDir;
 
-    #[test]
-    fn test_exec_with_explicit_hooks() -> Result<()> {
+    #[tokio::test]
+    async fn test_exec_with_explicit_hooks() -> Result<()> {
         let dir = TempDir::new("fisherman_test")?;
 
         let cmd = InstallCommand {
@@ -63,15 +63,15 @@ mod tests {
         ctx.expect_bin()
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
-        let result = cmd.exec(&mut ctx);
+        let result = cmd.exec(&mut ctx).await;
         assert!(result.is_ok());
         assert!(dir.path().join("pre-commit").exists());
 
         Ok(())
     }
 
-    #[test]
-    fn test_exec_with_configured_hooks() -> Result<()> {
+    #[tokio::test]
+    async fn test_exec_with_configured_hooks() -> Result<()> {
         let dir = TempDir::new("fisherman_test")?;
 
         let cmd = InstallCommand {
@@ -86,21 +86,22 @@ mod tests {
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Arc::new(config));
+        ctx.expect_configuration()
+            .return_once(move || Arc::new(config));
         ctx.expect_hooks_dir()
             .return_const(dir.path().to_path_buf());
         ctx.expect_bin()
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
-        let result = cmd.exec(&mut ctx);
+        let result = cmd.exec(&mut ctx).await;
         assert!(result.is_ok());
         assert!(dir.path().join("pre-commit").exists());
 
         Ok(())
     }
 
-    #[test]
-    fn test_exec_with_no_configured_hooks_installs_all() -> Result<()> {
+    #[tokio::test]
+    async fn test_exec_with_no_configured_hooks_installs_all() -> Result<()> {
         let dir = TempDir::new("fisherman_test")?;
 
         let cmd = InstallCommand {
@@ -115,13 +116,14 @@ mod tests {
         };
 
         let mut ctx = MockContext::new();
-        ctx.expect_configuration().return_once(move || Arc::new(config));
+        ctx.expect_configuration()
+            .return_once(move || Arc::new(config));
         ctx.expect_hooks_dir()
             .return_const(dir.path().to_path_buf());
         ctx.expect_bin()
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
-        let result = cmd.exec(&mut ctx);
+        let result = cmd.exec(&mut ctx).await;
         assert!(result.is_ok());
 
         Ok(())

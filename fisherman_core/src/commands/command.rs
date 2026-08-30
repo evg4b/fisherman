@@ -1,6 +1,6 @@
-use anyhow::Result;
 use crate::Context;
+use anyhow::Result;
 
 pub trait CliCommand {
-    fn exec(&self, context: &mut impl Context) -> Result<()>;
+    async fn exec(&self, context: &mut impl Context) -> Result<()>;
 }
