@@ -57,7 +57,7 @@ mod tests {
     use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
-    use std::fs;
+    use tokio::fs;
     use tempfile::TempDir;
 
     #[test]
@@ -207,7 +207,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())
@@ -218,7 +218,7 @@ mod tests {
         let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test")?;
+        fs::write(&path, "Test").await?;
 
         let content = "Hello, world!".to_string();
 
@@ -236,7 +236,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())
@@ -247,7 +247,7 @@ mod tests {
         let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test")?;
+        fs::write(&path, "Test").await?;
 
         let content = "Hello, world!".to_string();
 
@@ -265,7 +265,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, "TestHello, world!");
 
         Ok(())
@@ -295,7 +295,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(dir.path().join("test.txt"))?;
+        let file_content = fs::read_to_string(dir.path().join("test.txt")).await?;
         assert_eq!(file_content, content);
 
         Ok(())
@@ -324,7 +324,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, "Hello, world!");
 
         Ok(())
@@ -401,7 +401,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())

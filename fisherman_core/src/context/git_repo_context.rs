@@ -88,9 +88,7 @@ impl Context for GitRepoContext {
 
         let mut files = Vec::new();
         for entry in statuses.iter() {
-            if let Some(path) = entry.path() {
-                files.push(PathBuf::from(path));
-            }
+            files.push(PathBuf::from(entry.path()?));
         }
         Ok(files)
     }

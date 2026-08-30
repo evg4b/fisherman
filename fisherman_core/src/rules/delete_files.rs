@@ -65,7 +65,6 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use std::fs::File;
     use tempfile::tempdir;
 
     #[test]
@@ -130,7 +129,7 @@ mod tests {
         let temp_dir = tempdir()?;
         let file_path = temp_dir.path().join("test_file.txt");
 
-        File::create(&file_path)?;
+        fs::write(&file_path, "").await?;
 
         let rule = DeleteFilesRule {
             glob: tmpl!(file_path.display()),
@@ -204,8 +203,8 @@ mod tests {
         let file_path1 = temp_dir.path().join("test_file1.txt");
         let file_path2 = temp_dir.path().join("test_file2.txt");
 
-        File::create(&file_path1)?;
-        File::create(&file_path2)?;
+        fs::write(&file_path1, "").await?;
+        fs::write(&file_path2, "").await?;
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
         let rule = DeleteFilesRule {

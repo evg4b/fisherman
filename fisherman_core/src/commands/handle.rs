@@ -2,10 +2,13 @@ use crate::Context;
 use crate::GitHook;
 use crate::RuleResult;
 use crate::commands::command::CliCommand;
+use crate::rules::{ExecutionMode, MAX_CONCURRENT_ASYNC_RULES};
 use crate::ui::hook_display;
 use anyhow::{Result, anyhow};
 use clap::Parser;
 use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::Semaphore;
 
 #[derive(Debug, Parser)]
 pub struct HandleCommand {
@@ -25,40 +28,64 @@ impl CliCommand for HandleCommand {
         let config = context.configuration();
         println!("{}", hook_display(&self.hook, config.files.clone()));
 
-        match config.hooks.get(&self.hook) {
-            Some(rules) => {
-                let mut results = Vec::<RuleResult>::with_capacity(rules.len());
-                for rule in rules {
-                    results.push(rule.check_rule(context).await?);
-                }
+        let Some(rules) = config.hooks.get(&self.hook) else {
+            println!("No rules found for hook {}", self.hook);
+            return Ok(());
+        };
 
-                for rule in &results {
-                    match rule {
-                        RuleResult::Success { name, output } => {
-                            println!("{name} executed successfully");
-                            if let Some(value) = output
-                                && !value.is_empty()
-                            {
-                                println!("{value}");
-                            }
-                        }
-                        RuleResult::Failure { message, name } => {
-                            eprintln!("{name}: {message}");
-                        }
-                        RuleResult::Skipped { name } => {
-                            println!("{name}: skipped");
-                        }
+        let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_ASYNC_RULES));
+        let mut handles = Vec::with_capacity(rules.len());
+
+        for index in 0..rules.len() {
+            // Every task needs its own context, so each rule gets a detached copy.
+            let mut rule_context = context.extend(&[])?;
+            let config = config.clone();
+            let semaphore = semaphore.clone();
+            let hook = self.hook;
+
+            handles.push(tokio::spawn(async move {
+                let rule = &config.hooks[&hook][index];
+
+                // Sync rules are cheap and stay unbounded; async rules do file I/O
+                // or spawn processes, so their concurrency is capped.
+                let _permit = match rule.rule.execution_mode() {
+                    ExecutionMode::Async => Some(semaphore.acquire().await?),
+                    ExecutionMode::Sync => None,
+                };
+
+                rule.check_rule(rule_context.as_mut()).await
+            }));
+        }
+
+        let mut results = Vec::<RuleResult>::with_capacity(handles.len());
+        for handle in handles {
+            results.push(handle.await??);
+        }
+
+        for rule in &results {
+            match rule {
+                RuleResult::Success { name, output } => {
+                    println!("{name} executed successfully");
+                    if let Some(value) = output
+                        && !value.is_empty()
+                    {
+                        println!("{value}");
                     }
                 }
-
-                if results
-                    .iter()
-                    .any(|r| matches!(r, RuleResult::Failure { .. }))
-                {
-                    return Err(anyhow!("Hook failed"));
+                RuleResult::Failure { message, name } => {
+                    eprintln!("{name}: {message}");
+                }
+                RuleResult::Skipped { name } => {
+                    println!("{name}: skipped");
                 }
             }
-            None => println!("No rules found for hook {}", self.hook),
+        }
+
+        if results
+            .iter()
+            .any(|r| matches!(r, RuleResult::Failure { .. }))
+        {
+            return Err(anyhow!("Hook failed"));
         }
 
         Ok(())
@@ -125,6 +152,9 @@ mod tests {
         };
 
         let mut context = MockContext::new();
+        context
+            .expect_extend()
+            .returning(|_| Ok(Box::new(MockContext::new()) as Box<dyn Context>));
         context.expect_configuration().returning(move || {
             let mut config = Configuration {
                 hooks: Default::default(),
@@ -157,6 +187,9 @@ mod tests {
         };
 
         let mut context = MockContext::new();
+        context
+            .expect_extend()
+            .returning(|_| Ok(Box::new(MockContext::new()) as Box<dyn Context>));
         context.expect_configuration().returning(move || {
             let mut config = Configuration {
                 hooks: Default::default(),

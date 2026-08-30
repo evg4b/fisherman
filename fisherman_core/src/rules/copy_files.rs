@@ -113,8 +113,6 @@ mod tests {
     use anyhow::{anyhow, Result};
     use assertor::{assert_that, EqualityAssertion};
     use std::env;
-    use std::fs::File;
-    use std::io::Write;
     use tempfile::tempdir;
 
     #[test]
@@ -192,8 +190,7 @@ mod tests {
 
         // Create test file in source directory
         let test_file_path = temp_src.path().join("test.txt");
-        let mut file = File::create(&test_file_path)?;
-        writeln!(file, "test content")?;
+        fs::write(&test_file_path, "test content\n").await?;
 
         // Create rule with explicit source
         let rule = CopyFilesRule {
@@ -217,7 +214,7 @@ mod tests {
         }
 
         // Check that file was copied
-        let copied_file = std::fs::read_to_string(temp_dest.path().join("test.txt"))?;
+        let copied_file = fs::read_to_string(temp_dest.path().join("test.txt")).await?;
         assert_that!(copied_file).is_equal_to("test content\n".to_string());
 
         Ok(())
@@ -235,8 +232,7 @@ mod tests {
 
         // Create test file in current directory
         let test_file_path = Path::new("test-no-src.txt");
-        let mut file = File::create(test_file_path)?;
-        writeln!(file, "content without src")?;
+        fs::write(test_file_path, "content without src\n").await?;
 
         // Create rule without source (should use current directory)
         let rule = CopyFilesRule {
@@ -260,7 +256,7 @@ mod tests {
         }
 
         // Check that file was copied
-        let copied_file = std::fs::read_to_string(temp_dest.path().join("test-no-src.txt"))?;
+        let copied_file = fs::read_to_string(temp_dest.path().join("test-no-src.txt")).await?;
         assert_that!(copied_file).is_equal_to("content without src\n".to_string());
 
         // Return to original directory

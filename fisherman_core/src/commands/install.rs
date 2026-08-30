@@ -4,7 +4,7 @@ use crate::commands::command::CliCommand;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
-use std::fs;
+use tokio::fs;
 
 #[derive(Debug, Parser)]
 pub struct InstallCommand {
@@ -28,9 +28,9 @@ impl CliCommand for InstallCommand {
                 .unwrap_or_else(|| GitHook::value_variants().into()),
         };
 
-        fs::create_dir_all(context.hooks_dir())?;
+        fs::create_dir_all(context.hooks_dir()).await?;
         for hook in selected_hooks {
-            hook.install(context, self.force)?;
+            hook.install(context, self.force).await?;
             println!("Hook {} installed", hook);
         }
 
