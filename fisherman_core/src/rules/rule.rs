@@ -5,14 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use async_trait::async_trait;
 
-/// Maximum number of async rules allowed to run at the same time.
-pub const MAX_CONCURRENT_ASYNC_RULES: usize = 8;
-
 /// Determines how a rule is scheduled during hook execution.
-///
-/// Sync rules run sequentially in a single thread. Async rules run
-/// concurrently in a thread pool (bounded by [`MAX_CONCURRENT_ASYNC_RULES`]).
-/// Both groups execute in parallel with each other.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExecutionMode {
     /// Run sequentially in the caller's thread, one after another.
