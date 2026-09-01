@@ -154,7 +154,7 @@ impl GitHook {
 
     #[cfg(unix)]
     async fn set_executable(path: &std::path::Path) -> io::Result<()> {
-        let perm = std::fs::Permissions::from_mode(0o755);
+        let perm = std::fs::Permissions::from_mode(0o700);
         fs::set_permissions(path, perm).await
     }
 
@@ -298,6 +298,31 @@ mod tests {
 
         assert!(fs::metadata(&hook_bkp_path).await?.is_file());
         assert_eq!(fs::read_to_string(hook_bkp_path).await?, original_hook_content);
+
+        Ok(())
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn install_sets_owner_only_executable_permissions() -> Result<()> {
+        let dir = TempDir::new()?;
+
+        let mut ctx = MockContext::new();
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let hook = GitHook::PreCommit;
+        hook.install(&ctx, false).await?;
+
+        let mode = fs::metadata(dir.path().join(hook.to_string()))
+            .await?
+            .permissions()
+            .mode();
+
+        // Executable by the owner, inaccessible to group and others.
+        assert_eq!(mode & 0o777, 0o700);
 
         Ok(())
     }
