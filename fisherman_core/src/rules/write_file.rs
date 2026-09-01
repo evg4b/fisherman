@@ -1,9 +1,10 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
-use std::fs::OpenOptions;
-use std::io::Write;
+use async_trait::async_trait;
+use tokio::fs::OpenOptions;
+use tokio::io::AsyncWriteExt;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct WriteFileRule {
@@ -18,9 +19,14 @@ impl std::fmt::Display for WriteFileRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "write-file")]
 impl Rule for WriteFileRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let path = self.path.compile(&variables)?;
         let content = self.content.compile(&variables)?;
@@ -31,9 +37,11 @@ impl Rule for WriteFileRule {
             .write(true)
             .create(true)
             .append(append)
-            .open(path)?;
+            .open(path)
+            .await?;
 
-        file.write_all(content.as_bytes())?;
+        file.write_all(content.as_bytes()).await?;
+        file.flush().await?;
 
         Ok(RuleResult::Success {
             name: "write-file".into(),
@@ -49,7 +57,7 @@ mod tests {
     use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
-    use std::fs;
+    use tokio::fs;
     use tempfile::TempDir;
 
     #[test]
@@ -179,8 +187,8 @@ mod tests {
         mock_ctx_with_vars(HashMap::new())
     }
 
-    #[test]
-    fn write_file_when_file_doesnt_exist() -> Result<()> {
+    #[tokio::test]
+    async fn write_file_when_file_doesnt_exist() -> Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
@@ -191,7 +199,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx())?;
+        let result = rule.check(&mock_ctx()).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -199,18 +207,18 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())
     }
 
-    #[test]
-    fn write_file_when_file_exists() -> Result<()> {
+    #[tokio::test]
+    async fn write_file_when_file_exists() -> Result<()> {
         let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test")?;
+        fs::write(&path, "Test").await?;
 
         let content = "Hello, world!".to_string();
 
@@ -220,7 +228,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx())?;
+        let result = rule.check(&mock_ctx()).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -228,18 +236,18 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())
     }
 
-    #[test]
-    fn append_file_when_file_exists() -> Result<()> {
+    #[tokio::test]
+    async fn append_file_when_file_exists() -> Result<()> {
         let dir = TempDir::new()?;
 
         let path = dir.path().join("test.txt");
-        fs::write(&path, "Test")?;
+        fs::write(&path, "Test").await?;
 
         let content = "Hello, world!".to_string();
 
@@ -249,7 +257,7 @@ mod tests {
             append: Some(true),
         };
 
-        let result = rule.check(&mock_ctx())?;
+        let result = rule.check(&mock_ctx()).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -257,14 +265,14 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, "TestHello, world!");
 
         Ok(())
     }
 
-    #[test]
-    fn write_file_when_path_template_literal() -> Result<()> {
+    #[tokio::test]
+    async fn write_file_when_path_template_literal() -> Result<()> {
         let dir = TempDir::new()?;
 
         let path = dir.path().join("{{FILE_NAME}}.txt");
@@ -279,7 +287,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx_with_vars(variables))?;
+        let result = rule.check(&mock_ctx_with_vars(variables)).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -287,14 +295,14 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(dir.path().join("test.txt"))?;
+        let file_content = fs::read_to_string(dir.path().join("test.txt")).await?;
         assert_eq!(file_content, content);
 
         Ok(())
     }
 
-    #[test]
-    fn write_file_when_content_template_literal() -> Result<()> {
+    #[tokio::test]
+    async fn write_file_when_content_template_literal() -> Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, {{WHO}}!".to_string();
@@ -308,7 +316,7 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx_with_vars(variables))?;
+        let result = rule.check(&mock_ctx_with_vars(variables)).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -316,26 +324,26 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, "Hello, world!");
 
         Ok(())
     }
 
-    #[test]
-    fn test_write_file_path_template_error() {
+    #[tokio::test]
+    async fn test_write_file_path_template_error() {
         let rule = WriteFileRule {
             path: t!("{{missing}}/file.txt"),
             content: t!("content"),
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_write_file_content_template_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_write_file_content_template_error() -> Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
 
@@ -345,21 +353,21 @@ mod tests {
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn test_write_file_io_error() {
+    #[tokio::test]
+    async fn test_write_file_io_error() {
         let rule = WriteFileRule {
             path: t!("/invalid/path/that/does/not/exist/file.txt"),
             content: t!("content"),
             append: Some(false),
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
         assert!(result.is_err());
     }
 
@@ -373,8 +381,8 @@ mod tests {
         assert_eq!(format!("{}", rule), "Write file: `/tmp/output.txt`");
     }
 
-    #[test]
-    fn test_write_file_rule_new() -> Result<()> {
+    #[tokio::test]
+    async fn test_write_file_rule_new() -> Result<()> {
         let dir = TempDir::new()?;
         let path = dir.path().join("test.txt");
         let content = "Hello, world!".to_string();
@@ -385,7 +393,7 @@ mod tests {
             append: None,
         };
 
-        let result = rule.check(&mock_ctx())?;
+        let result = rule.check(&mock_ctx()).await?;
 
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
@@ -393,7 +401,7 @@ mod tests {
         assert_eq!(name, "write-file");
         assert_eq!(output, None);
 
-        let file_content = fs::read_to_string(path)?;
+        let file_content = fs::read_to_string(path).await?;
         assert_eq!(file_content, content);
 
         Ok(())

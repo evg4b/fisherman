@@ -1,10 +1,12 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 use run_script::{run, ScriptOptions};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use tokio::task::spawn_blocking;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ShellScriptRule {
@@ -20,16 +22,23 @@ impl std::fmt::Display for ShellScriptRule {
 
 static SHELL_SCRIPT_NAME: &str = "shell";
 
+#[async_trait]
 #[typetag::serde(name = "shell")]
 impl Rule for ShellScriptRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let mut options = ScriptOptions::new();
         options.env_vars = self.env.clone();
 
         let script = self.script.compile(&ctx.variables()?)?;
 
-        let args = vec![];
-        let (code, output, _) = run(script.as_str(), &args, &options)?;
+        // `run_script` has no async API and blocks until the shell exits, so it
+        // must not run on a runtime worker thread.
+        let (code, output, _) =
+            spawn_blocking(move || run(script.as_str(), &vec![], &options)).await??;
 
         if code != 0 {
             return Ok(RuleResult::Failure {
@@ -125,14 +134,14 @@ mod tests {
         mock_ctx_with_vars(HashMap::new())
     }
 
-    #[test]
-    fn test_shell_script() {
+    #[tokio::test]
+    async fn test_shell_script() {
         let script = ShellScriptRule {
             script: t!("echo 'Test'"),
             env: None,
         };
 
-        let result = script.check(&mock_ctx()).unwrap();
+        let result = script.check(&mock_ctx()).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -143,14 +152,14 @@ mod tests {
         assert_eq!(&output.unwrap(), "'Test'\r\n");
     }
 
-    #[test]
-    fn test_shell_script_failure() {
+    #[tokio::test]
+    async fn test_shell_script_failure() {
         let script = ShellScriptRule {
             script: t!("exit 1"),
             env: None,
         };
 
-        let result = script.check(&mock_ctx()).unwrap();
+        let result = script.check(&mock_ctx()).await.unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -158,8 +167,8 @@ mod tests {
         assert_eq!(message, "exit code: 1");
     }
 
-    #[test]
-    fn test_shell_script_with_variables() {
+    #[tokio::test]
+    async fn test_shell_script_with_variables() {
         let mut variables = HashMap::new();
         variables.insert("name".to_string(), "Test".to_string());
 
@@ -168,7 +177,7 @@ mod tests {
             env: None,
         };
 
-        let result = script.check(&mock_ctx_with_vars(variables)).unwrap();
+        let result = script.check(&mock_ctx_with_vars(variables)).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -179,8 +188,8 @@ mod tests {
         assert_eq!(&output.unwrap(), "'Hello Test'\r\n");
     }
 
-    #[test]
-    fn test_shell_script_with_env() {
+    #[tokio::test]
+    async fn test_shell_script_with_env() {
         let mut env = HashMap::new();
         env.insert("TEST".to_string(), "Test".to_string());
 
@@ -192,7 +201,7 @@ mod tests {
             env: Some(env),
         };
 
-        let result = script.check(&mock_ctx()).unwrap();
+        let result = script.check(&mock_ctx()).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -203,14 +212,14 @@ mod tests {
         assert_eq!(&output.unwrap(), "Test\r\n");
     }
 
-    #[test]
-    fn test_shell_script_rule_new() {
+    #[tokio::test]
+    async fn test_shell_script_rule_new() {
         let rule = ShellScriptRule {
             script: "echo 'Test'".into(),
             env: None,
         };
 
-        let result = rule.check(&mock_ctx()).unwrap();
+        let result = rule.check(&mock_ctx()).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -221,14 +230,14 @@ mod tests {
         assert_eq!(&output.unwrap(), "'Test'\r\n");
     }
 
-    #[test]
-    fn test_shell_script_template_error() {
+    #[tokio::test]
+    async fn test_shell_script_template_error() {
         let script = ShellScriptRule {
             env: None,
             script: t!("echo '{{missing}}'"),
         };
 
-        let result = script.check(&mock_ctx());
+        let result = script.check(&mock_ctx()).await;
         assert!(result.is_err());
     }
 

@@ -11,6 +11,7 @@ repository = "https://github.com/evg4b/fisherman"
 [dependencies]
 fisherman_core = { path = "./fisherman_core" }
 anyhow = "1.0.44"
+tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 tempdir = "0.3"

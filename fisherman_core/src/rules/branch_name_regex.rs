@@ -3,6 +3,7 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -20,9 +21,10 @@ impl std::fmt::Display for BranchNameRegexRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "branch-name-regex")]
 impl Rule for BranchNameRegexRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let branch_name = ctx.current_branch()?;
 
@@ -80,8 +82,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_regex_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_regex_success() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*-feature$"),
         };
@@ -91,7 +93,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
@@ -100,8 +102,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_regex_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_regex_failure() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*-bugfix$"),
         };
@@ -111,7 +113,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -121,8 +123,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_regex_variables_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_regex_variables_error() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*$"),
         };
@@ -132,14 +134,14 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_regex_branch_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_regex_branch_error() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/.*$"),
         };
@@ -149,14 +151,14 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_regex_invalid_regex() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_regex_invalid_regex() -> Result<()> {
         let rule = BranchNameRegexRule {
             expression: t!(r"^feat/["),
         };
@@ -166,7 +168,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())

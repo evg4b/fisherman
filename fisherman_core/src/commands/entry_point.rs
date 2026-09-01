@@ -1,8 +1,8 @@
+use crate::Context;
 use crate::commands::{CliCommand, ExplainCommand, HandleCommand, InstallCommand};
 use crate::ui::ABOUT;
-use crate::Context;
-use clap::{Parser, Subcommand};
 use anyhow::Result;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = ABOUT, long_about=None)]
@@ -28,11 +28,11 @@ impl Default for FishermanCli {
 }
 
 impl FishermanCli {
-    pub fn run(self, context: &mut impl Context) -> Result<()> {
+    pub async fn run(self, context: &mut impl Context) -> Result<()> {
         match &self.command {
-            Command::Install(cmd) => cmd.exec(context),
-            Command::Handle(cmd) => cmd.exec(context),
-            Command::Explain(cmd) => cmd.exec(context),
+            Command::Install(cmd) => cmd.exec(context).await,
+            Command::Handle(cmd) => cmd.exec(context).await,
+            Command::Explain(cmd) => cmd.exec(context).await,
         }
     }
 }

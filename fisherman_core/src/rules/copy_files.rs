@@ -1,11 +1,12 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
+use async_trait::async_trait;
 use glob::glob;
-use std::fs;
-use std::fs::create_dir_all;
 use std::path::Path;
+use tokio::fs;
+use tokio::task::spawn_blocking;
 
 static COPY_FILES_RULE_NAME: &str = "copy-files";
 
@@ -33,18 +34,21 @@ impl std::fmt::Display for CopyFilesRule {
     }
 }
 
-fn ensure_parent_exists(path: &Path) -> Result<()> {
-    if let Some(parent) = path.parent()
-        && !parent.exists()
-    {
-        create_dir_all(parent)?;
+async fn ensure_parent_exists(path: &Path) -> Result<()> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).await?;
     }
     Ok(())
 }
 
+#[async_trait]
 #[typetag::serde(name = "copy-files")]
 impl Rule for CopyFilesRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let compiled_glob = self.glob.compile(&variables)?;
         let compiled_src = self
@@ -60,7 +64,20 @@ impl Rule for CopyFilesRule {
 
         let mut copied_files = 0;
 
-        for entry in glob(compiled_pattern.to_str().unwrap())? {
+        let pattern = compiled_pattern
+            .to_str()
+            .ok_or_else(|| {
+                anyhow!(
+                    "Glob pattern is not valid UTF-8: {}",
+                    compiled_pattern.display()
+                )
+            })?
+            .to_string();
+
+        // Walking the filesystem is blocking work; keep it off the runtime worker.
+        let entries = spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<_>>())).await??;
+
+        for entry in entries {
             match entry {
                 Ok(path) => {
                     let new_name = match compiled_src.as_ref() {
@@ -69,8 +86,8 @@ impl Rule for CopyFilesRule {
                     };
                     let destination_path = Path::join(compiled_destination.as_ref(), new_name);
 
-                    ensure_parent_exists(&destination_path)?;
-                    fs::copy(&path, &destination_path)?;
+                    ensure_parent_exists(&destination_path).await?;
+                    fs::copy(&path, &destination_path).await?;
 
                     copied_files += 1;
                 }
@@ -96,8 +113,6 @@ mod tests {
     use anyhow::{anyhow, Result};
     use assertor::{assert_that, EqualityAssertion};
     use std::env;
-    use std::fs::File;
-    use std::io::Write;
     use tempfile::tempdir;
 
     #[test]
@@ -163,8 +178,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_copy_files_with_src() -> Result<()> {
+    #[tokio::test]
+    async fn test_copy_files_with_src() -> Result<()> {
         // Create source directory structure
         let temp_src = tempdir()?;
         let src_path = temp_src.path().to_str().unwrap().to_string();
@@ -175,8 +190,7 @@ mod tests {
 
         // Create test file in source directory
         let test_file_path = temp_src.path().join("test.txt");
-        let mut file = File::create(&test_file_path)?;
-        writeln!(file, "test content")?;
+        fs::write(&test_file_path, "test content\n").await?;
 
         // Create rule with explicit source
         let rule = CopyFilesRule {
@@ -190,7 +204,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
                 assert_that!(name).is_equal_to("copy-files".to_string());
@@ -200,14 +214,14 @@ mod tests {
         }
 
         // Check that file was copied
-        let copied_file = std::fs::read_to_string(temp_dest.path().join("test.txt"))?;
+        let copied_file = fs::read_to_string(temp_dest.path().join("test.txt")).await?;
         assert_that!(copied_file).is_equal_to("test content\n".to_string());
 
         Ok(())
     }
 
-    #[test]
-    fn test_copy_files_without_src() -> Result<()> {
+    #[tokio::test]
+    async fn test_copy_files_without_src() -> Result<()> {
         // Create temp directory and save current directory
         let current_dir = env::current_dir()?;
         let temp_dir = tempdir()?;
@@ -218,8 +232,7 @@ mod tests {
 
         // Create test file in current directory
         let test_file_path = Path::new("test-no-src.txt");
-        let mut file = File::create(test_file_path)?;
-        writeln!(file, "content without src")?;
+        fs::write(test_file_path, "content without src\n").await?;
 
         // Create rule without source (should use current directory)
         let rule = CopyFilesRule {
@@ -233,7 +246,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
                 assert_that!(name).is_equal_to("copy-files".to_string());
@@ -243,7 +256,7 @@ mod tests {
         }
 
         // Check that file was copied
-        let copied_file = std::fs::read_to_string(temp_dest.path().join("test-no-src.txt"))?;
+        let copied_file = fs::read_to_string(temp_dest.path().join("test-no-src.txt")).await?;
         assert_that!(copied_file).is_equal_to("content without src\n".to_string());
 
         // Return to original directory
@@ -252,12 +265,12 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_ensure_parent_exists() -> Result<()> {
+    #[tokio::test]
+    async fn test_ensure_parent_exists() -> Result<()> {
         let temp_dir = tempdir()?;
         let nested_path = temp_dir.path().join("nested").join("dir").join("file.txt");
 
-        ensure_parent_exists(&nested_path)?;
+        ensure_parent_exists(&nested_path).await?;
 
         let parent = nested_path.parent().unwrap();
         assert_that!(parent.exists()).is_equal_to(true);
@@ -265,8 +278,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_copy_files_no_matches() -> Result<()> {
+    #[tokio::test]
+    async fn test_copy_files_no_matches() -> Result<()> {
         let temp_src = tempdir()?;
         let temp_dest = tempdir()?;
 
@@ -280,7 +293,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
                 assert_that!(name).is_equal_to("copy-files".to_string());
@@ -292,8 +305,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_copy_files_variables_error() {
+    #[tokio::test]
+    async fn test_copy_files_variables_error() {
         let rule = CopyFilesRule {
             glob: tmpl!("*.txt".to_string()),
             src: None,
@@ -305,12 +318,12 @@ mod tests {
             .expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_copy_files_glob_template_error() {
+    #[tokio::test]
+    async fn test_copy_files_glob_template_error() {
         let rule = CopyFilesRule {
             glob: tmpl!("{{missing_var}}/*.txt".to_string()),
             src: None,
@@ -322,12 +335,12 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_copy_files_destination_template_error() {
+    #[tokio::test]
+    async fn test_copy_files_destination_template_error() {
         let rule = CopyFilesRule {
             glob: tmpl!("*.txt".to_string()),
             src: None,
@@ -339,12 +352,12 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_copy_files_src_template_error() {
+    #[tokio::test]
+    async fn test_copy_files_src_template_error() {
         let rule = CopyFilesRule {
             glob: tmpl!("*.txt".to_string()),
             src: Some(tmpl!("{{missing_src}}".to_string())),
@@ -356,7 +369,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 

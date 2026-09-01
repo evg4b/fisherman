@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 
 static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
 
@@ -16,9 +17,10 @@ impl std::fmt::Display for CommitMessageSuffixRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "message-suffix")]
 impl Rule for CommitMessageSuffixRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let suffix = self.suffix.compile(&ctx.variables()?)?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -67,8 +69,8 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_commit_message_suffix() {
+    #[tokio::test]
+    async fn test_commit_message_suffix() {
         let rule = CommitMessageSuffixRule {
             suffix: t!("feat"),
         };
@@ -78,7 +80,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx).unwrap();
+        let result = rule.check(&ctx).await.unwrap();
         match result {
             RuleResult::Success { name, .. } => {
                 assert_eq!(name, "message-suffix");
@@ -87,8 +89,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_commit_message_suffix_failure() {
+    #[tokio::test]
+    async fn test_commit_message_suffix_failure() {
         let rule = CommitMessageSuffixRule {
             suffix: t!("feat"),
         };
@@ -98,7 +100,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx).unwrap();
+        let result = rule.check(&ctx).await.unwrap();
         match result {
             RuleResult::Failure { name, message } => {
                 assert_eq!(name, "message-suffix");
@@ -108,8 +110,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_commit_message_suffix_variables_error() {
+    #[tokio::test]
+    async fn test_commit_message_suffix_variables_error() {
         let rule = CommitMessageSuffixRule {
             suffix: t!("suffix"),
         };
@@ -119,12 +121,12 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_commit_message_suffix_commit_msg_error() {
+    #[tokio::test]
+    async fn test_commit_message_suffix_commit_msg_error() {
         let rule = CommitMessageSuffixRule {
             suffix: t!("suffix"),
         };
@@ -134,7 +136,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
     }
 

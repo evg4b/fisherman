@@ -1,9 +1,11 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::{bail, Result};
+use async_trait::async_trait;
 use glob::{glob, GlobResult};
-use std::fs;
+use tokio::fs;
+use tokio::task::spawn_blocking;
 
 static DELETE_FILES_RULE_NAME: &str = "delete-files";
 
@@ -19,12 +21,20 @@ impl std::fmt::Display for DeleteFilesRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "delete-files")]
 impl Rule for DeleteFilesRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let glob_pattern = self.glob.compile(&variables)?;
-        let paths = glob(glob_pattern.as_str())?.collect::<Vec<GlobResult>>();
+        // Walking the filesystem is blocking work; keep it off the runtime worker.
+        let pattern = glob_pattern.clone();
+        let paths =
+            spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<GlobResult>>())).await??;
 
         if paths.is_empty() && self.fail_if_not_found {
             return Ok(RuleResult::Failure {
@@ -35,7 +45,7 @@ impl Rule for DeleteFilesRule {
 
         for path in paths {
             match path {
-                Ok(path) => fs::remove_file(path.as_path())?,
+                Ok(path) => fs::remove_file(path.as_path()).await?,
                 Err(err) => {
                     bail!("Error deleting file: {}", err);
                 }
@@ -55,7 +65,6 @@ mod tests {
     use super::*;
     use crate::context::MockContext;
     use crate::tmpl;
-    use std::fs::File;
     use tempfile::tempdir;
 
     #[test]
@@ -115,12 +124,12 @@ mod tests {
     }
 
 
-    #[test]
-    fn test_delete_files_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_success() -> Result<()> {
         let temp_dir = tempdir()?;
         let file_path = temp_dir.path().join("test_file.txt");
 
-        File::create(&file_path)?;
+        fs::write(&file_path, "").await?;
 
         let rule = DeleteFilesRule {
             glob: tmpl!(file_path.display()),
@@ -131,7 +140,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -142,8 +151,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_no_matches_with_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_no_matches_with_failure() -> Result<()> {
         let rule = DeleteFilesRule {
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: true,
@@ -153,7 +162,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Failure { name, message } => {
@@ -166,8 +175,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_no_matches_without_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_files_no_matches_without_failure() -> Result<()> {
         let rule = DeleteFilesRule {
             glob: tmpl!("path/that/does/not/exist/*.txt"),
             fail_if_not_found: false,
@@ -178,7 +187,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -188,14 +197,14 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_multiple_files() -> Result<()> {
+    #[tokio::test]
+    async fn test_delete_multiple_files() -> Result<()> {
         let temp_dir = tempdir()?;
         let file_path1 = temp_dir.path().join("test_file1.txt");
         let file_path2 = temp_dir.path().join("test_file2.txt");
 
-        File::create(&file_path1)?;
-        File::create(&file_path2)?;
+        fs::write(&file_path1, "").await?;
+        fs::write(&file_path2, "").await?;
 
         let glob_pattern = format!("{}/*.txt", temp_dir.path().display());
         let rule = DeleteFilesRule {
@@ -208,7 +217,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context)?;
+        let result = rule.check(&context).await?;
 
         match result {
             RuleResult::Success { .. } => {}
@@ -220,8 +229,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_delete_files_glob_error() {
+    #[tokio::test]
+    async fn test_delete_files_glob_error() {
         let rule = DeleteFilesRule {
             glob: tmpl!("[invalid-glob"),
             fail_if_not_found: true,
@@ -232,7 +241,7 @@ mod tests {
             .expect_variables()
             .returning(|| Ok(HashMap::new()));
 
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 

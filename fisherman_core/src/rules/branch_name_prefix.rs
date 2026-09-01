@@ -3,6 +3,7 @@ use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::templates::TemplateString;
 use anyhow::Result;
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -19,9 +20,10 @@ impl Display for BranchNamePrefixRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "branch-name-prefix")]
 impl Rule for BranchNamePrefixRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let prefix = compile_tmpl(ctx, &self.prefix, &[])?;
         let branch_name = ctx.current_branch()?;
 
@@ -69,8 +71,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_prefix_success() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_prefix_success() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -80,7 +82,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Success { name, .. } = result else {
             unreachable!("Expected Success");
         };
@@ -89,8 +91,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_prefix_failure() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_prefix_failure() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -100,7 +102,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx)?;
+        let result = rule.check(&ctx).await?;
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -110,8 +112,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_prefix_variables_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_prefix_variables_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -121,14 +123,14 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())
     }
 
-    #[test]
-    fn test_branch_name_prefix_branch_error() -> Result<()> {
+    #[tokio::test]
+    async fn test_branch_name_prefix_branch_error() -> Result<()> {
         let rule = BranchNamePrefixRule {
             prefix: t!("feat/"),
         };
@@ -138,7 +140,7 @@ mod tests {
         ctx.expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
 
-        let result = rule.check(&ctx);
+        let result = rule.check(&ctx).await;
         assert!(result.is_err());
 
         Ok(())

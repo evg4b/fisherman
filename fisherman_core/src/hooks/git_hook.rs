@@ -2,7 +2,8 @@ use crate::hooks::errors::HookError;
 use anyhow::{bail, Result};
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
-use std::fs;
+use tokio::fs;
+use tokio::io;
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
@@ -130,9 +131,9 @@ impl GitHook {
         }
     }
 
-    pub fn install(&self, context: &impl crate::context::Context, force: bool) -> Result<()> {
+    pub async fn install(&self, context: &impl crate::context::Context, force: bool) -> Result<()> {
         let hook_path = &context.hooks_dir().join(self.as_str());
-        let hook_exists = hook_path.exists();
+        let hook_exists = fs::try_exists(hook_path).await?;
         if hook_exists && !force {
             bail!(HookError::AlreadyExists {
                 name: self.as_str(),
@@ -141,25 +142,24 @@ impl GitHook {
         }
 
         if hook_exists {
-            fs::copy(hook_path, hook_path.with_extension("bkp"))?;
-            fs::remove_file(hook_path)?;
+            fs::copy(hook_path, hook_path.with_extension("bkp")).await?;
+            fs::remove_file(hook_path).await?;
         }
 
-        fs::write(hook_path, self.content(context))?;
-        GitHook::set_executable(hook_path)?;
+        fs::write(hook_path, self.content(context)).await?;
+        GitHook::set_executable(hook_path).await?;
 
         Ok(())
     }
 
     #[cfg(unix)]
-    fn set_executable(path: &std::path::Path) -> std::io::Result<()> {
-        use std::fs;
-        let perm = fs::Permissions::from_mode(0o755);
-        fs::set_permissions(path, perm)
+    async fn set_executable(path: &std::path::Path) -> io::Result<()> {
+        let perm = std::fs::Permissions::from_mode(0o700);
+        fs::set_permissions(path, perm).await
     }
 
     #[cfg(windows)]
-    fn set_executable(_path: &std::path::Path) -> std::io::Result<()> {
+    async fn set_executable(_path: &std::path::Path) -> io::Result<()> {
         Ok(())
     }
 
@@ -220,7 +220,8 @@ mod tests {
     #[case(P4_POST_CHANGELIST)]
     #[case(P4_PRE_SUBMIT)]
     #[case(POST_INDEX_CHANGE)]
-    fn install_test(#[case] hook_name: &str) -> Result<()> {
+    #[tokio::test]
+    async fn install_test(#[case] hook_name: &str) -> Result<()> {
         let hook = GitHook::from_str(hook_name, false).unwrap();
         let dir = TempDir::new()?;
 
@@ -230,13 +231,12 @@ mod tests {
         ctx.expect_bin()
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
-        hook.install(&ctx, false)?;
+        hook.install(&ctx, false).await?;
 
         let hook_path = dir.path().join(hook.to_string());
 
-        assert!(hook_path.exists());
-        assert!(hook_path.is_file());
-        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
+        assert!(fs::metadata(&hook_path).await?.is_file());
+        assert_eq!(fs::read_to_string(hook_path).await?, hook.content(&ctx));
 
         Ok(())
     }
@@ -270,7 +270,8 @@ mod tests {
     #[case(P4_POST_CHANGELIST)]
     #[case(P4_PRE_SUBMIT)]
     #[case(POST_INDEX_CHANGE)]
-    fn install_force_test(#[case] hook_name: &str) -> Result<()> {
+    #[tokio::test]
+    async fn install_force_test(#[case] hook_name: &str) -> Result<()> {
         let hook = GitHook::from_str(hook_name, false).unwrap();
         let dir = TempDir::new()?;
 
@@ -284,26 +285,26 @@ mod tests {
         fs::write(
             dir.path().join(hook.to_string()),
             original_hook_content.clone(),
-        )?;
+        )
+        .await?;
 
-        hook.install(&ctx, true)?;
+        hook.install(&ctx, true).await?;
 
         let hook_path = dir.path().join(hook.to_string());
         let hook_bkp_path = hook_path.with_extension("bkp");
 
-        assert!(hook_path.exists());
-        assert!(hook_path.is_file());
-        assert_eq!(fs::read_to_string(hook_path).unwrap(), hook.content(&ctx));
+        assert!(fs::metadata(&hook_path).await?.is_file());
+        assert_eq!(fs::read_to_string(hook_path).await?, hook.content(&ctx));
 
-        assert!(hook_bkp_path.exists());
-        assert!(hook_bkp_path.is_file());
-        assert_eq!(fs::read_to_string(hook_bkp_path).unwrap(), original_hook_content);
+        assert!(fs::metadata(&hook_bkp_path).await?.is_file());
+        assert_eq!(fs::read_to_string(hook_bkp_path).await?, original_hook_content);
 
         Ok(())
     }
 
-    #[test]
-    fn install_already_exists_without_force_returns_error() -> Result<()> {
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn install_sets_owner_only_executable_permissions() -> Result<()> {
         let dir = TempDir::new()?;
 
         let mut ctx = MockContext::new();
@@ -313,9 +314,33 @@ mod tests {
             .return_const(PathBuf::from("/usr/bin/fisherman"));
 
         let hook = GitHook::PreCommit;
-        fs::write(dir.path().join("pre-commit"), "existing hook content")?;
+        hook.install(&ctx, false).await?;
 
-        let result = hook.install(&ctx, false);
+        let mode = fs::metadata(dir.path().join(hook.to_string()))
+            .await?
+            .permissions()
+            .mode();
+
+        // Executable by the owner, inaccessible to group and others.
+        assert_eq!(mode & 0o777, 0o700);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn install_already_exists_without_force_returns_error() -> Result<()> {
+        let dir = TempDir::new()?;
+
+        let mut ctx = MockContext::new();
+        ctx.expect_hooks_dir()
+            .return_const(dir.path().to_path_buf());
+        ctx.expect_bin()
+            .return_const(PathBuf::from("/usr/bin/fisherman"));
+
+        let hook = GitHook::PreCommit;
+        fs::write(dir.path().join("pre-commit"), "existing hook content").await?;
+
+        let result = hook.install(&ctx, false).await;
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("pre-commit"));

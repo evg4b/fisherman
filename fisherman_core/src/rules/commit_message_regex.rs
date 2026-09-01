@@ -5,6 +5,7 @@ use crate::scripting::Expression;
 use crate::templates::TemplateString;
 use regex::Regex;
 use anyhow::Result;
+use async_trait::async_trait;
 
 static MESSAGE_REGEX_RULE_NAME: &str = "message-regex";
 
@@ -21,9 +22,10 @@ impl std::fmt::Display for CommitMessageRegexRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "message-regex")]
 impl Rule for CommitMessageRegexRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let expression = Regex::new(&compile_tmpl(ctx, &self.expression, &[])?)?;
         let commit_msg = ctx.commit_msg()?;
 
@@ -122,8 +124,8 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_commit_message_regex() {
+    #[tokio::test]
+    async fn test_commit_message_regex() {
         let rule = CommitMessageRegexRule {
             when: None,
             expression: t!("^Test"),
@@ -135,7 +137,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context).await.unwrap();
         match result {
             RuleResult::Success { name, output } => {
                 assert_eq!(name, "message-regex");
@@ -150,8 +152,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_commit_message_regex_failure() {
+    #[tokio::test]
+    async fn test_commit_message_regex_failure() {
         let rule = CommitMessageRegexRule {
             when: None,
             expression: t!("^Test"),
@@ -163,7 +165,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context).unwrap();
+        let result = rule.check(&context).await.unwrap();
         match result {
             RuleResult::Success { name, output } => {
                 panic!("Expected failure, got success: {} - {:?}", name, output);
@@ -178,8 +180,8 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_commit_message_regex_error() {
+    #[tokio::test]
+    async fn test_commit_message_regex_error() {
         let rule = CommitMessageRegexRule {
             when: None,
             expression: t!("^Test"),
@@ -191,12 +193,12 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_commit_message_regex_variables_error() {
+    #[tokio::test]
+    async fn test_commit_message_regex_variables_error() {
         let rule = CommitMessageRegexRule {
             when: None,
             expression: t!("^Test"),
@@ -208,12 +210,12 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Err(anyhow!("Variables error")));
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_commit_message_regex_invalid_regex() {
+    #[tokio::test]
+    async fn test_commit_message_regex_invalid_regex() {
         let rule = CommitMessageRegexRule {
             when: None,
             expression: t!("^Test["),
@@ -225,7 +227,7 @@ mod tests {
         context
             .expect_variables()
             .returning(|| Ok(HashMap::<String, String>::new()));
-        let result = rule.check(&context);
+        let result = rule.check(&context).await;
         assert!(result.is_err());
     }
 

@@ -1,10 +1,11 @@
 use crate::context::Context;
-use crate::rules::{Rule, RuleResult};
+use crate::rules::{ExecutionMode, Rule, RuleResult};
 use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
+use async_trait::async_trait;
 use std::collections::HashMap;
 use std::env;
-use std::process::Command;
+use tokio::process::Command;
 
 pub(crate) type Args = Vec<String>;
 pub(crate) type Env = HashMap<String, String>;
@@ -28,9 +29,14 @@ impl std::fmt::Display for ExecRule {
     }
 }
 
+#[async_trait]
 #[typetag::serde(name = "exec")]
 impl Rule for ExecRule {
-    fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
+    fn execution_mode(&self) -> ExecutionMode {
+        ExecutionMode::Async
+    }
+
+    async fn check(&self, ctx: &dyn Context) -> Result<RuleResult> {
         let variables = ctx.variables()?;
         let mut env_map: Env = env::vars().collect();
         env_map.extend(replace_in_hashmap(
@@ -44,7 +50,8 @@ impl Rule for ExecRule {
                 &variables,
             )?)
             .envs(env_map)
-            .output()?;
+            .output()
+            .await?;
 
         match output.status.success() {
             true => Ok(RuleResult::Success {
@@ -182,15 +189,15 @@ mod tests {
         mock_ctx_with_vars(HashMap::new())
     }
 
-    #[test]
-    fn test_exec_rule() {
+    #[tokio::test]
+    async fn test_exec_rule() {
         let rule = ExecRule {
             command: TEST_COMMAND.into(),
             args: Some(test_args()),
             env: None,
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
 
         let RuleResult::Success { name, output } = result.unwrap() else {
             unreachable!("Expected Success");
@@ -202,8 +209,8 @@ mod tests {
         assert_eq!(output.unwrap(), "hello\n");
     }
 
-    #[test]
-    fn test_exec_rule_with_env() {
+    #[tokio::test]
+    async fn test_exec_rule_with_env() {
         let mut env = HashMap::new();
         env.insert("HELLO".into(), "world".into());
 
@@ -219,7 +226,7 @@ mod tests {
             env: Some(env),
         };
 
-        let result = rule.check(&mock_ctx()).unwrap();
+        let result = rule.check(&mock_ctx()).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -230,8 +237,8 @@ mod tests {
         assert_eq!(output.unwrap(), "world\r\n");
     }
 
-    #[test]
-    fn test_exec_rule_with_variables() {
+    #[tokio::test]
+    async fn test_exec_rule_with_variables() {
         let mut vars = HashMap::new();
         vars.insert("HELLO".into(), "world".into());
 
@@ -254,7 +261,7 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&mock_ctx_with_vars(vars)).unwrap();
+        let result = rule.check(&mock_ctx_with_vars(vars)).await.unwrap();
         let RuleResult::Success { name, output } = result else {
             unreachable!("Expected Success");
         };
@@ -266,8 +273,8 @@ mod tests {
         assert_eq!(output.unwrap(), "hello world\r\n");
     }
 
-    #[test]
-    fn test_exec_rule_failure_on_missing_file() {
+    #[tokio::test]
+    async fn test_exec_rule_failure_on_missing_file() {
         #[cfg(not(windows))]
         let rule = ExecRule {
             command: "cat".into(),
@@ -286,7 +293,7 @@ mod tests {
             env: None,
         };
 
-        let result = rule.check(&mock_ctx()).unwrap();
+        let result = rule.check(&mock_ctx()).await.unwrap();
         let RuleResult::Failure { name, message } = result else {
             unreachable!("Expected Failure");
         };
@@ -297,15 +304,15 @@ mod tests {
         assert!(message.contains("The system cannot find the file specified."));
     }
 
-    #[test]
-    fn test_return_error() {
+    #[tokio::test]
+    async fn test_return_error() {
         let rule = ExecRule {
             command: "XXXXXXXXXXXX".into(),
             args: None,
             env: None,
         };
 
-        let result = rule.check(&mock_ctx()).err().unwrap();
+        let result = rule.check(&mock_ctx()).await.err().unwrap();
         let error_msg = result.to_string();
 
         // Check for platform-specific error messages
@@ -316,8 +323,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_exec_rule_env_template_error() {
+    #[tokio::test]
+    async fn test_exec_rule_env_template_error() {
         let mut env = HashMap::new();
         env.insert("VAR".into(), "{{missing}}".into());
 
@@ -327,19 +334,19 @@ mod tests {
             env: Some(env),
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_exec_rule_args_template_error() {
+    #[tokio::test]
+    async fn test_exec_rule_args_template_error() {
         let rule = ExecRule {
             command: "echo".into(),
             args: Some(vec!["{{VAR}}".into()]),
             env: None,
         };
 
-        let result = rule.check(&mock_ctx());
+        let result = rule.check(&mock_ctx()).await;
         assert!(result.is_err());
     }
 
