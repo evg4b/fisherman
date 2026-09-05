@@ -1,8 +1,8 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
+use template_str::TemplateString;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 
@@ -54,11 +54,11 @@ impl Rule for WriteFileRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
-    use tokio::fs;
     use tempfile::TempDir;
+    use template_str::t;
+    use tokio::fs;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -80,9 +80,8 @@ mod tests {
 
     #[test]
     fn deserialize_test() -> Result<()> {
-        let config: WriteFileRule = serde_json::from_str(
-            r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#,
-        )?;
+        let config: WriteFileRule =
+            serde_json::from_str(r#"{"path":"/tmp/output.txt","content":"hello","append":true}"#)?;
 
         assert_eq!(config.path, t!("/tmp/output.txt"));
         assert_eq!(config.content, t!("hello"));
@@ -129,9 +128,8 @@ mod tests {
 
     #[test]
     fn deserialize_test_with_append_none() -> Result<()> {
-        let config: WriteFileRule = serde_json::from_str(
-            r#"{"path":"/tmp/output.txt","content":"hello"}"#,
-        )?;
+        let config: WriteFileRule =
+            serde_json::from_str(r#"{"path":"/tmp/output.txt","content":"hello"}"#)?;
 
         assert_eq!(config.path, t!("/tmp/output.txt"));
         assert_eq!(config.content, t!("hello"));
@@ -139,7 +137,6 @@ mod tests {
 
         Ok(())
     }
-
 
     #[test]
     fn serialize_test_with_append() -> Result<()> {

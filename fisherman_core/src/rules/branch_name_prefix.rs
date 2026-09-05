@@ -1,11 +1,11 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
+use template_str::TemplateString;
 
 static BRANCH_NAME_PREFIX_RULE_NAME: &str = "branch-name-prefix";
 
@@ -44,10 +44,10 @@ impl Rule for BranchNamePrefixRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
+    use anyhow::anyhow;
     use assert2::assert;
     use std::collections::HashMap;
-    use anyhow::anyhow;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {

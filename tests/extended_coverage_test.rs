@@ -1,9 +1,13 @@
 mod common;
 
-use common::test_context::TestContext;
 use common::ConfigFormat;
-use fisherman_core::{t, CommitMessageRegexRule, BranchNameRegexRule, BranchNamePrefixRule, BranchNameSuffixRule, Configuration, Expression, ExecRule, GitHook, ShellScriptRule, WriteFileRule};
+use common::test_context::TestContext;
+use fisherman_core::{
+    BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule, CommitMessageRegexRule,
+    Configuration, ExecRule, Expression, GitHook, ShellScriptRule, WriteFileRule,
+};
 use std::collections::HashMap;
+use template_str::t;
 
 #[test]
 fn unicode_in_commit_message() {
@@ -320,7 +324,10 @@ fn whitespace_only_commit_message_rejected_by_git() {
 
     ctx.setup_and_install(&config, ConfigFormat::Toml);
     let output = ctx.git_commit_allow_empty("   \n   \t   ");
-    assert!(!output.status.success(), "Git should reject whitespace-only commit messages");
+    assert!(
+        !output.status.success(),
+        "Git should reject whitespace-only commit messages"
+    );
 }
 
 #[test]

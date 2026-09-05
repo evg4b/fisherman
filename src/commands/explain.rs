@@ -1,9 +1,8 @@
-use crate::Context;
-use crate::GitHook;
 use crate::commands::command::CliCommand;
 use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
+use fisherman_core::{Context, GitHook};
 
 #[derive(Debug, Parser)]
 pub struct ExplainCommand {
@@ -34,13 +33,14 @@ impl CliCommand for ExplainCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::CommitMessageRegexRule;
-    use crate::Configuration;
-    use crate::MockContext;
-    use crate::Rule;
-    use crate::{RuleContext, t};
+    use fisherman_core::CommitMessageRegexRule;
+    use fisherman_core::Configuration;
+    use fisherman_core::MockContext;
+    use fisherman_core::Rule;
+    use fisherman_core::RuleContext;
     use std::collections::HashMap;
     use std::sync::Arc;
+    use template_str::t;
 
     #[tokio::test]
     async fn test_exec_no_rules_for_hook() -> Result<()> {

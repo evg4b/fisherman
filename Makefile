@@ -21,6 +21,7 @@ unit-test:
 unit-test-coverage:
 	@echo "Generating code coverage..."
 	@cargo llvm-cov -p fisherman_core --no-fail-fast
+	@cargo llvm-cov -p template_str --no-fail-fast
 
 .PHONY: e2e-test
 e2e-test:

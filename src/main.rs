@@ -1,17 +1,21 @@
+mod commands;
+mod ui;
+
 use anyhow::Result;
-use fisherman_core::FishermanCli;
+use commands::FishermanCli;
 use fisherman_core::GitRepoContext;
 use std::env;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = FishermanCli::default();
-    let mut context = GitRepoContext::new(env::current_dir()?)?;
-    match cli.run(&mut context).await {
-        Ok(()) => Ok(()),
-        Err(err) => {
-            eprintln!("Error: {err}");
-            std::process::exit(1);
-        }
+    let cwd = env::current_dir()?;
+    let mut context = GitRepoContext::new(cwd)?;
+
+    if let Err(err) = cli.run(&mut context).await {
+        eprintln!("Error: {err}");
+        std::process::exit(1);
     }
+
+    Ok(())
 }

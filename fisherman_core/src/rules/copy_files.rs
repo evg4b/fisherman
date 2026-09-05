@@ -1,10 +1,10 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
-use crate::templates::TemplateString;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use async_trait::async_trait;
 use glob::glob;
 use std::path::Path;
+use template_str::TemplateString;
 use tokio::fs;
 use tokio::task::spawn_blocking;
 
@@ -75,7 +75,8 @@ impl Rule for CopyFilesRule {
             .to_string();
 
         // Walking the filesystem is blocking work; keep it off the runtime worker.
-        let entries = spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<_>>())).await??;
+        let entries =
+            spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<_>>())).await??;
 
         for entry in entries {
             match entry {
@@ -106,14 +107,14 @@ impl Rule for CopyFilesRule {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
-    use anyhow::{anyhow, Result};
-    use assertor::{assert_that, EqualityAssertion};
+    use anyhow::{Result, anyhow};
+    use assertor::{EqualityAssertion, assert_that};
+    use std::collections::HashMap;
     use std::env;
     use tempfile::tempdir;
+    use template_str::tmpl;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -135,9 +136,8 @@ mod tests {
 
     #[test]
     fn deserialize_test() -> Result<()> {
-        let config: CopyFilesRule = serde_json::from_str(
-            r#"{"glob":"*.txt","src":"src/","destination":"dist/"}"#,
-        )?;
+        let config: CopyFilesRule =
+            serde_json::from_str(r#"{"glob":"*.txt","src":"src/","destination":"dist/"}"#)?;
 
         assert_eq!(config.glob, "*.txt".into());
         assert_eq!(config.src, Some("src/".into()));
@@ -166,9 +166,8 @@ mod tests {
 
     #[test]
     fn deserialize_test_without_src() -> Result<()> {
-        let config: CopyFilesRule = serde_json::from_str(
-            r#"{"glob":"*.txt","destination":"dist/"}"#,
-        )?;
+        let config: CopyFilesRule =
+            serde_json::from_str(r#"{"glob":"*.txt","destination":"dist/"}"#)?;
 
         assert_eq!(config.glob, "*.txt".into());
         assert!(config.src.is_none());
@@ -176,7 +175,6 @@ mod tests {
 
         Ok(())
     }
-
 
     #[tokio::test]
     async fn test_copy_files_with_src() -> Result<()> {
@@ -201,9 +199,7 @@ mod tests {
 
         // Run the rule
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
         let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
@@ -243,9 +239,7 @@ mod tests {
 
         // Run the rule
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
         let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
@@ -290,9 +284,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
         let result = rule.check(&context).await?;
         match result {
             RuleResult::Success { name, output } => {
@@ -331,9 +323,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await;
         assert!(result.is_err());
@@ -348,9 +338,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await;
         assert!(result.is_err());
@@ -365,9 +353,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await;
         assert!(result.is_err());

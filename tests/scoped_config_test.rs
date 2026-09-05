@@ -2,7 +2,12 @@ mod common;
 
 use common::test_context::TestContext;
 use common::{ConfigBuilder, ConfigFormat, FishermanBinary};
-use fisherman_core::{BranchNamePrefixRule, BranchNameSuffixRule, CommitMessageRegexRule, Configuration, Expression, GitHook, WriteFileRule, t};
+use fisherman_core::{
+    BranchNamePrefixRule, BranchNameSuffixRule, CommitMessageRegexRule, Configuration, Expression,
+    GitHook, WriteFileRule,
+};
+use template_str::t;
+
 // NOTE: Global config tests are not included because the `dirs` crate caches
 
 #[test]
@@ -35,7 +40,8 @@ fn repository_and_local_config_merge() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -46,8 +52,14 @@ fn repository_and_local_config_merge() {
         String::from_utf8_lossy(&output.stderr)
     );
 
-    assert!(ctx.repo.file_exists("repo.txt"), "Repo config rule should execute");
-    assert!(ctx.repo.file_exists("local.txt"), "Local config rule should execute");
+    assert!(
+        ctx.repo.file_exists("repo.txt"),
+        "Repo config rule should execute"
+    );
+    assert!(
+        ctx.repo.file_exists("local.txt"),
+        "Local config rule should execute"
+    );
 }
 
 #[test]
@@ -90,7 +102,8 @@ fn configs_are_concatenated_not_replaced() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -133,7 +146,8 @@ fn local_and_repository_both_execute() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -172,7 +186,8 @@ fn different_hooks_in_different_scopes() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -209,15 +224,18 @@ fn mixed_config_formats_across_scopes() {
         ]
     );
 
-    let yaml_string = crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
-    let toml_string = crate::common::configuration::serialize_configuration(&toml_config, ConfigFormat::Toml);
+    let yaml_string =
+        crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
+    let toml_string =
+        crate::common::configuration::serialize_configuration(&toml_config, ConfigFormat::Toml);
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository_with_format(ConfigFormat::Yaml, &yaml_string)
         .local_with_format(ConfigFormat::Toml, &toml_string)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -250,7 +268,8 @@ fn local_config_with_templates() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -285,7 +304,8 @@ fn local_extract_patterns() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -331,7 +351,8 @@ fn conditional_rules_across_scopes() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     binary.install(ctx.repo.path(), false);
 
@@ -340,8 +361,14 @@ fn conditional_rules_across_scopes() {
     let output = ctx.git_commit_allow_empty("test commit");
     assert!(output.status.success());
 
-    assert!(ctx.repo.file_exists("features-only.txt"), "Conditional rule should execute");
-    assert!(ctx.repo.file_exists("always.txt"), "Unconditional rule should execute");
+    assert!(
+        ctx.repo.file_exists("features-only.txt"),
+        "Conditional rule should execute"
+    );
+    assert!(
+        ctx.repo.file_exists("always.txt"),
+        "Unconditional rule should execute"
+    );
 }
 
 #[test]
@@ -363,7 +390,8 @@ fn repository_only_without_global() {
         .repository_config(&repo_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -390,7 +418,8 @@ fn local_only_without_repository_config() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -413,13 +442,15 @@ fn local_config_yaml_format() {
         ]
     );
 
-    let yaml_string = crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
+    let yaml_string =
+        crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
 
     ConfigBuilder::new(&mut ctx.repo)
         .local_with_format(ConfigFormat::Yaml, &yaml_string)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -445,13 +476,15 @@ fn local_config_json_format() {
         ]
     );
 
-    let json_string = crate::common::configuration::serialize_configuration(&json_config, ConfigFormat::Json);
+    let json_string =
+        crate::common::configuration::serialize_configuration(&json_config, ConfigFormat::Json);
 
     ConfigBuilder::new(&mut ctx.repo)
         .local_with_format(ConfigFormat::Json, &json_string)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -487,15 +520,18 @@ fn repository_toml_local_yaml() {
         ]
     );
 
-    let toml_string = crate::common::configuration::serialize_configuration(&toml_config, ConfigFormat::Toml);
-    let yaml_string = crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
+    let toml_string =
+        crate::common::configuration::serialize_configuration(&toml_config, ConfigFormat::Toml);
+    let yaml_string =
+        crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository_with_format(ConfigFormat::Toml, &toml_string)
         .local_with_format(ConfigFormat::Yaml, &yaml_string)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -530,15 +566,18 @@ fn repository_json_local_yaml() {
         ]
     );
 
-    let json_string = crate::common::configuration::serialize_configuration(&json_config, ConfigFormat::Json);
-    let yaml_string = crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
+    let json_string =
+        crate::common::configuration::serialize_configuration(&json_config, ConfigFormat::Json);
+    let yaml_string =
+        crate::common::configuration::serialize_configuration(&yaml_config, ConfigFormat::Yaml);
 
     ConfigBuilder::new(&mut ctx.repo)
         .repository_with_format(ConfigFormat::Json, &json_string)
         .local_with_format(ConfigFormat::Yaml, &yaml_string)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     let output = ctx.git_commit_allow_empty("test commit");
@@ -574,14 +613,21 @@ fn validation_failure_in_any_scope_fails_hook() {
         .local_config(&local_config)
         .build();
 
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
     binary.install(ctx.repo.path(), false);
 
     ctx.repo.create_branch("bugfix/test-dev");
 
     let output = ctx.git_commit_allow_empty("test commit");
-    assert!(!output.status.success(), "Hook should fail when repository validation fails");
+    assert!(
+        !output.status.success(),
+        "Hook should fail when repository validation fails"
+    );
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(stderr.contains("feature/"), "Error should mention the failed prefix requirement");
+    assert!(
+        stderr.contains("feature/"),
+        "Error should mention the failed prefix requirement"
+    );
 }

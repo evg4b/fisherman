@@ -1,10 +1,10 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
-use crate::templates::{replace_in_hashmap, replace_in_vec};
 use anyhow::Result;
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::env;
+use template_str::{replace_in_hashmap, replace_in_vec};
 use tokio::process::Command;
 
 pub(crate) type Args = Vec<String>;
@@ -104,9 +104,7 @@ mod tests {
 
     #[test]
     fn deserialize_test() -> Result<()> {
-        let config: ExecRule = serde_json::from_str(
-            r#"{"command":"echo","args":["hello"]}"#,
-        )?;
+        let config: ExecRule = serde_json::from_str(r#"{"command":"echo","args":["hello"]}"#)?;
 
         assert_eq!(config.command, "echo");
         assert_eq!(config.args, Some(vec!["hello".to_string()]));
@@ -125,10 +123,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"command":"ls","args":null,"env":null}"#
-        );
+        assert_eq!(serialized, r#"{"command":"ls","args":null,"env":null}"#);
 
         Ok(())
     }
@@ -165,9 +160,8 @@ mod tests {
 
     #[test]
     fn deserialize_test_with_env() -> Result<()> {
-        let config: ExecRule = serde_json::from_str(
-            r#"{"command":"echo","args":["hello"],"env":{"VAR":"value"}}"#,
-        )?;
+        let config: ExecRule =
+            serde_json::from_str(r#"{"command":"echo","args":["hello"],"env":{"VAR":"value"}}"#)?;
 
         assert_eq!(config.command, "echo");
         assert_eq!(config.args, Some(vec!["hello".to_string()]));
@@ -176,8 +170,6 @@ mod tests {
 
         Ok(())
     }
-
-
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();
@@ -256,7 +248,7 @@ mod tests {
                 "/C".into(),
                 "echo".into(),
                 "hello".into(),
-                 "{{HELLO}}".into(),
+                "{{HELLO}}".into(),
             ]),
             env: None,
         };
@@ -266,7 +258,7 @@ mod tests {
             unreachable!("Expected Success");
         };
         assert_eq!(name, "exec");
-        
+
         #[cfg(not(windows))]
         assert_eq!(output.unwrap(), "hello world\n");
         #[cfg(windows)]
@@ -285,11 +277,7 @@ mod tests {
         #[cfg(windows)]
         let rule = ExecRule {
             command: "cmd".into(),
-            args: Some(vec![
-                "/C".into(),
-                "type".into(),
-                "unknown.txt".into(),
-            ]),
+            args: Some(vec!["/C".into(), "type".into(), "unknown.txt".into()]),
             env: None,
         };
 
@@ -317,7 +305,8 @@ mod tests {
 
         // Check for platform-specific error messages
         assert!(
-            error_msg.contains("No such file or directory") || error_msg.contains("program not found"),
+            error_msg.contains("No such file or directory")
+                || error_msg.contains("program not found"),
             "Error message should indicate command not found, got: {}",
             error_msg
         );
@@ -371,8 +360,6 @@ mod tests {
     }
 
     fn test_args() -> Vec<String> {
-        return TEST_COMMAN_ARGS.iter()
-            .map(|arg| arg.to_string())
-            .collect()
+        return TEST_COMMAN_ARGS.iter().map(|arg| arg.to_string()).collect();
     }
 }

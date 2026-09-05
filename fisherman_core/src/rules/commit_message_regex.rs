@@ -2,10 +2,10 @@ use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
 use crate::scripting::Expression;
-use crate::templates::TemplateString;
-use regex::Regex;
 use anyhow::Result;
 use async_trait::async_trait;
+use regex::Regex;
+use template_str::TemplateString;
 
 static MESSAGE_REGEX_RULE_NAME: &str = "message-regex";
 
@@ -48,9 +48,9 @@ mod tests {
     use crate::rules::CommitMessageRegexRule;
     use crate::rules::{Rule, RuleResult};
     use crate::scripting::Expression;
-    use crate::t;
-    use anyhow::{anyhow, Result};
+    use anyhow::{Result, anyhow};
     use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -85,16 +85,18 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(serialized, r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#);
+        assert_eq!(
+            serialized,
+            r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#
+        );
 
         Ok(())
     }
 
     #[test]
     fn deserialize_test_with_when() -> Result<()> {
-        let config: CommitMessageRegexRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#,
-        )?;
+        let config: CommitMessageRegexRule =
+            serde_json::from_str(r#"{"when":"is_def_var(\"Ticket\")","expression":"^feat:"}"#)?;
 
         assert!(config.when.is_some());
         assert_eq!(config.expression, t!(r"^feat:"));
@@ -114,9 +116,8 @@ mod tests {
 
     #[test]
     fn deserialize_test_with_regex_alias_and_when() -> Result<()> {
-        let config: CommitMessageRegexRule = serde_json::from_str(
-            r#"{"when":"is_def_var(\"Ticket\")","regex":"^feat:"}"#,
-        )?;
+        let config: CommitMessageRegexRule =
+            serde_json::from_str(r#"{"when":"is_def_var(\"Ticket\")","regex":"^feat:"}"#)?;
 
         assert!(config.when.is_some());
         assert_eq!(config.expression, t!(r"^feat:"));

@@ -1,5 +1,4 @@
-use crate::t;
-use crate::templates::TemplateError;
+use crate::{errors::TemplateError, t};
 use std::collections::HashMap;
 
 pub fn replace_in_hashmap(

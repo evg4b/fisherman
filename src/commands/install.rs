@@ -1,9 +1,9 @@
-use crate::Context;
-use crate::GitHook;
 use crate::commands::command::CliCommand;
 use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
+use fisherman_core::Context;
+use fisherman_core::GitHook;
 use tokio::fs;
 
 #[derive(Debug, Parser)]
@@ -41,8 +41,8 @@ impl CliCommand for InstallCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Configuration;
-    use crate::MockContext;
+    use fisherman_core::Configuration;
+    use fisherman_core::MockContext;
     use std::collections::HashMap;
     use std::path::PathBuf;
     use std::sync::Arc;

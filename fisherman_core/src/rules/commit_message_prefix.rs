@@ -1,9 +1,9 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
+use template_str::TemplateString;
 
 static MESSAGE_PREFIX_RULE_NAME: &str = "message-prefix";
 
@@ -42,10 +42,10 @@ impl Rule for CommitMessagePrefixRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
+    use anyhow::anyhow;
     use assert2::assert;
     use std::collections::HashMap;
-    use anyhow::anyhow;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -69,12 +69,9 @@ mod tests {
         Ok(())
     }
 
-
     #[tokio::test]
     async fn test_commit_message_prefix_success() -> Result<()> {
-        let rule = CommitMessagePrefixRule {
-            prefix: t!("feat"),
-        };
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: my commit message".to_string()));
@@ -93,9 +90,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_commit_message_prefix_failure() -> Result<()> {
-        let rule = CommitMessagePrefixRule {
-            prefix: t!("feat"),
-        };
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("fix: my commit message".to_string()));
@@ -114,9 +109,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_commit_message_prefix_variables_error() -> Result<()> {
-        let rule = CommitMessagePrefixRule {
-            prefix: t!("feat"),
-        };
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("feat: message".to_string()));
@@ -131,9 +124,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_commit_message_prefix_commit_msg_error() -> Result<()> {
-        let rule = CommitMessagePrefixRule {
-            prefix: t!("feat"),
-        };
+        let rule = CommitMessagePrefixRule { prefix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Err(anyhow!("Commit message error")));

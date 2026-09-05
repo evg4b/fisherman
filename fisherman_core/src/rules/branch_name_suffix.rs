@@ -1,9 +1,9 @@
 use crate::context::Context;
 use crate::rules::helpers::compile_tmpl;
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
+use template_str::TemplateString;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct BranchNameSuffixRule {
@@ -42,9 +42,9 @@ impl Rule for BranchNameSuffixRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
-    use anyhow::{anyhow, Result};
+    use anyhow::{Result, anyhow};
     use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -68,7 +68,6 @@ mod tests {
         Ok(())
     }
 
-
     #[tokio::test]
     async fn test_branch_name_suffix_success() -> Result<()> {
         let mut ctx = MockContext::new();
@@ -80,7 +79,8 @@ mod tests {
         let result = BranchNameSuffixRule {
             suffix: t!("feature"),
         }
-            .check(&ctx).await?;
+        .check(&ctx)
+        .await?;
 
         assert!(matches!(result, RuleResult::Success { .. }));
 
@@ -98,7 +98,8 @@ mod tests {
         let result = BranchNameSuffixRule {
             suffix: t!("suffix"),
         }
-            .check(&ctx).await?;
+        .check(&ctx)
+        .await?;
 
         assert!(matches!(result, RuleResult::Failure { .. }));
 

@@ -1,10 +1,13 @@
 mod common;
 
-use crate::common::configuration::serialize_configuration;
 use crate::common::ConfigFormat;
+use crate::common::configuration::serialize_configuration;
 use common::test_context::TestContext;
-use fisherman_core::{t, BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule, CommitMessageSuffixRule};
+use fisherman_core::{
+    BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule, CommitMessageSuffixRule,
+};
 use fisherman_core::{Configuration, Expression, GitHook, WriteFileRule};
+use template_str::t;
 
 #[test]
 fn post_commit_hook_execution() {
@@ -38,9 +41,8 @@ fn empty_hooks_array_succeeds() {
         GitHook::PreCommit => []
     );
 
-    let _install_output = ctx.setup_with_config(
-        serialize_configuration(&config, ConfigFormat::Toml).as_str()
-    );
+    let _install_output =
+        ctx.setup_with_config(serialize_configuration(&config, ConfigFormat::Toml).as_str());
 }
 
 #[test]

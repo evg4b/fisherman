@@ -1,10 +1,10 @@
 use crate::context::Context;
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
 use glob::Pattern;
 use serde::{Deserialize, Serialize};
+use template_str::TemplateString;
 
 static SUPPRESS_FILES_RULE_NAME: &str = "suppress-files";
 
@@ -55,8 +55,8 @@ impl Rule for SuppressFilesRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
     use std::path::PathBuf;
+    use template_str::tmpl;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -66,10 +66,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"glob":"*.secret"}"#
-        );
+        assert_eq!(serialized, r#"{"glob":"*.secret"}"#);
 
         Ok(())
     }
@@ -82,9 +79,6 @@ mod tests {
 
         Ok(())
     }
-
-
-
 
     #[tokio::test]
     async fn test_suppress_files_success() -> Result<()> {

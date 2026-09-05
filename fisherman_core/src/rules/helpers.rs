@@ -1,12 +1,8 @@
 use crate::context::Context;
-use crate::templates::TemplateString;
 use anyhow::Result;
+use template_str::TemplateString;
 
-pub fn compile_tmpl(
-    ctx: &dyn Context,
-    string: &TemplateString,
-    _: &[String],
-) -> Result<String> {
+pub fn compile_tmpl(ctx: &dyn Context, string: &TemplateString, _: &[String]) -> Result<String> {
     let variables = ctx.variables()?;
     Ok(string.compile(&variables)?)
 }
@@ -15,9 +11,9 @@ pub fn compile_tmpl(
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
-    use std::collections::HashMap;
     use anyhow::anyhow;
+    use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn test_compile_tmpl_success() {
