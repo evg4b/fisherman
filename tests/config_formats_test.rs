@@ -3,7 +3,8 @@ mod common;
 use crate::common::ConfigFormat;
 use crate::common::configuration::serialize_configuration;
 use common::test_context::TestContext;
-use fisherman_core::{t, Configuration, GitHook, WriteFileRule};
+use fisherman_core::{Configuration, GitHook, WriteFileRule};
+use template_str::t;
 
 #[test]
 fn yaml_config_format() {
@@ -21,7 +22,8 @@ fn yaml_config_format() {
 
     let yaml_string = serialize_configuration(&config, ConfigFormat::Yaml);
     ctx.repo.create_yaml_config(&yaml_string);
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = ctx.binary.install(ctx.repo.path(), false);
     assert!(
@@ -51,7 +53,8 @@ fn json_config_format() {
 
     let json_string = serialize_configuration(&config, ConfigFormat::Json);
     ctx.repo.create_json_config(&json_string);
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = ctx.binary.install(ctx.repo.path(), false);
     assert!(
@@ -82,7 +85,8 @@ fn yaml_with_templates() {
 
     let yaml_string = serialize_configuration(&config, ConfigFormat::Yaml);
     ctx.repo.create_yaml_config(&yaml_string);
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     ctx.binary.install(ctx.repo.path(), false);
     ctx.repo.create_branch("feature/test");
@@ -111,7 +115,8 @@ fn json_with_conditional() {
 
     let json_string = serialize_configuration(&config, ConfigFormat::Json);
     ctx.repo.create_json_config(&json_string);
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     ctx.binary.install(ctx.repo.path(), false);
     ctx.repo.create_branch("feature/test");
@@ -149,7 +154,8 @@ fn multiple_config_formats_error() {
 
     ctx.repo.create_config(&toml_string, ConfigFormat::Toml);
     ctx.repo.create_yaml_config(&yaml_string);
-    ctx.repo.git_history(&[("initial", &[("test.txt", "initial")])]);
+    ctx.repo
+        .git_history(&[("initial", &[("test.txt", "initial")])]);
 
     let install_output = ctx.binary.install(ctx.repo.path(), false);
 

@@ -1,11 +1,11 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
-use run_script::{run, ScriptOptions};
+use run_script::{ScriptOptions, run};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use template_str::TemplateString;
 use tokio::task::spawn_blocking;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -59,9 +59,9 @@ mod tests {
     use crate::context::MockContext;
     use crate::rules::shell_script::ShellScriptRule;
     use crate::rules::{Rule, RuleResult};
-    use crate::t;
     use anyhow::Result;
     use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -72,10 +72,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"script":"echo hello","env":null}"#
-        );
+        assert_eq!(serialized, r#"{"script":"echo hello","env":null}"#);
 
         Ok(())
     }
@@ -110,9 +107,8 @@ mod tests {
 
     #[test]
     fn deserialize_test_with_env() -> Result<()> {
-        let config: ShellScriptRule = serde_json::from_str(
-            r#"{"script":"echo hello","env":{"TEST":"value"}}"#,
-        )?;
+        let config: ShellScriptRule =
+            serde_json::from_str(r#"{"script":"echo hello","env":{"TEST":"value"}}"#)?;
 
         assert_eq!(config.script, t!("echo hello"));
         assert!(config.env.is_some());
@@ -120,9 +116,6 @@ mod tests {
 
         Ok(())
     }
-
-
-
 
     fn mock_ctx_with_vars(vars: HashMap<String, String>) -> MockContext {
         let mut ctx = MockContext::new();

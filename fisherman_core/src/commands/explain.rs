@@ -38,9 +38,10 @@ mod tests {
     use crate::Configuration;
     use crate::MockContext;
     use crate::Rule;
-    use crate::{RuleContext, t};
+    use crate::RuleContext;
     use std::collections::HashMap;
     use std::sync::Arc;
+    use template_str::t;
 
     #[tokio::test]
     async fn test_exec_no_rules_for_hook() -> Result<()> {

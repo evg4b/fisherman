@@ -1,10 +1,10 @@
 use crate::context::{Context, DiffLine};
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
 use glob::Pattern;
 use regex::Regex;
+use template_str::TemplateString;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct SuppressStringRule {
@@ -77,7 +77,7 @@ impl Rule for SuppressStringRule {
 mod tests {
     use super::*;
     use crate::context::{DiffLine, MockContext};
-    use crate::tmpl;
+    use template_str::tmpl;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -88,10 +88,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"regex":"TODO","glob":null}"#
-        );
+        assert_eq!(serialized, r#"{"regex":"TODO","glob":null}"#);
 
         Ok(())
     }
@@ -115,25 +112,20 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"regex":"TODO","glob":"*.rs"}"#
-        );
+        assert_eq!(serialized, r#"{"regex":"TODO","glob":"*.rs"}"#);
 
         Ok(())
     }
 
     #[test]
     fn deserialize_test_with_glob() -> Result<()> {
-        let config: SuppressStringRule =
-            serde_json::from_str(r#"{"regex":"TODO","glob":"*.rs"}"#)?;
+        let config: SuppressStringRule = serde_json::from_str(r#"{"regex":"TODO","glob":"*.rs"}"#)?;
 
         assert_eq!(config.regex, "TODO".into());
         assert_eq!(config.glob, Some("*.rs".into()));
 
         Ok(())
     }
-
 
     #[tokio::test]
     async fn test_suppress_string_success() -> Result<()> {

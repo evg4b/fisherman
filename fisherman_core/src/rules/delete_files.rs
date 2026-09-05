@@ -1,9 +1,9 @@
 use crate::context::Context;
 use crate::rules::{ExecutionMode, Rule, RuleResult};
-use crate::templates::TemplateString;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use async_trait::async_trait;
-use glob::{glob, GlobResult};
+use glob::{GlobResult, glob};
+use template_str::TemplateString;
 use tokio::fs;
 use tokio::task::spawn_blocking;
 
@@ -33,8 +33,8 @@ impl Rule for DeleteFilesRule {
         let glob_pattern = self.glob.compile(&variables)?;
         // Walking the filesystem is blocking work; keep it off the runtime worker.
         let pattern = glob_pattern.clone();
-        let paths =
-            spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<GlobResult>>())).await??;
+        let paths = spawn_blocking(move || glob(&pattern).map(|p| p.collect::<Vec<GlobResult>>()))
+            .await??;
 
         if paths.is_empty() && self.fail_if_not_found {
             return Ok(RuleResult::Failure {
@@ -61,11 +61,11 @@ impl Rule for DeleteFilesRule {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::context::MockContext;
-    use crate::tmpl;
+    use std::collections::HashMap;
     use tempfile::tempdir;
+    use template_str::tmpl;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -76,10 +76,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"glob":"*.log","fail_if_not_found":false}"#
-        );
+        assert_eq!(serialized, r#"{"glob":"*.log","fail_if_not_found":false}"#);
 
         Ok(())
     }
@@ -104,10 +101,7 @@ mod tests {
 
         let serialized = serde_json::to_string(&config)?;
 
-        assert_eq!(
-            serialized,
-            r#"{"glob":"*.log","fail_if_not_found":true}"#
-        );
+        assert_eq!(serialized, r#"{"glob":"*.log","fail_if_not_found":true}"#);
 
         Ok(())
     }
@@ -123,7 +117,6 @@ mod tests {
         Ok(())
     }
 
-
     #[tokio::test]
     async fn test_delete_files_success() -> Result<()> {
         let temp_dir = tempdir()?;
@@ -137,9 +130,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
         let result = rule.check(&context).await?;
 
         match result {
@@ -159,9 +150,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
         let result = rule.check(&context).await?;
 
         match result {
@@ -183,9 +172,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await?;
 
@@ -213,9 +200,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await?;
 
@@ -237,9 +222,7 @@ mod tests {
         };
 
         let mut context = MockContext::new();
-        context
-            .expect_variables()
-            .returning(|| Ok(HashMap::new()));
+        context.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule.check(&context).await;
         assert!(result.is_err());

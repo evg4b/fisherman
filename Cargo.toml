@@ -10,6 +10,7 @@ repository = "https://github.com/evg4b/fisherman"
 
 [dependencies]
 fisherman_core = { path = "./fisherman_core" }
+template_str = { path = "./template_str" }
 anyhow = "1.0.44"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
 
@@ -20,4 +21,4 @@ serde_yaml = "0.9.33"
 toml = "1.0.6"
 
 [workspace]
-members = ["fisherman_core"]
+members = ["fisherman_core", "template_str"]

@@ -1,8 +1,8 @@
 use crate::context::Context;
 use crate::rules::{Rule, RuleResult};
-use crate::templates::TemplateString;
 use anyhow::Result;
 use async_trait::async_trait;
+use template_str::TemplateString;
 
 static MESSAGE_SUFFIX_RULE_NAME: &str = "message-suffix";
 
@@ -41,10 +41,10 @@ impl Rule for CommitMessageSuffixRule {
 mod tests {
     use super::*;
     use crate::context::MockContext;
-    use crate::t;
-    use anyhow::{anyhow, Result};
+    use anyhow::{Result, anyhow};
     use assert2::assert;
     use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn serialize_test() -> Result<()> {
@@ -68,12 +68,9 @@ mod tests {
         Ok(())
     }
 
-
     #[tokio::test]
     async fn test_commit_message_suffix() {
-        let rule = CommitMessageSuffixRule {
-            suffix: t!("feat"),
-        };
+        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message feat".to_string()));
@@ -91,9 +88,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_commit_message_suffix_failure() {
-        let rule = CommitMessageSuffixRule {
-            suffix: t!("feat"),
-        };
+        let rule = CommitMessageSuffixRule { suffix: t!("feat") };
         let mut ctx = MockContext::new();
         ctx.expect_commit_msg()
             .returning(|| Ok("my commit message".to_string()));

@@ -1,5 +1,5 @@
+use crate::TemplateError;
 use crate::t;
-use crate::templates::TemplateError;
 use std::collections::HashMap;
 
 pub fn replace_in_vec(

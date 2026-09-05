@@ -1,4 +1,4 @@
-use crate::templates::TemplateError;
+use crate::TemplateError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::LazyLock;

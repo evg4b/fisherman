@@ -1,9 +1,9 @@
-use crate::context::Context;
 use crate::Expression;
+use crate::context::Context;
 use anyhow::Result;
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
-use async_trait::async_trait;
 
 /// Determines how a rule is scheduled during hook execution.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -54,9 +54,7 @@ pub struct RuleContext {
 
 impl RuleContext {
     pub async fn check_rule(&self, ctx: &mut dyn Context) -> Result<RuleResult> {
-        let extended = self.extract.as_ref()
-            .map(|e| ctx.extend(e))
-            .transpose()?;
+        let extended = self.extract.as_ref().map(|e| ctx.extend(e)).transpose()?;
 
         let actual_ctx: &dyn Context = match extended.as_ref() {
             Some(boxed) => boxed.as_ref(),
@@ -73,7 +71,8 @@ impl RuleContext {
     }
 
     fn check_condition(&self, ctx: &dyn Context) -> Result<bool> {
-        self.when.as_ref()
+        self.when
+            .as_ref()
             .map(|expr| expr.check(ctx.variables()))
             .unwrap_or(Ok(false))
     }
@@ -84,15 +83,14 @@ mod tests {
     use super::*;
     use crate::context::{Context, MockContext};
     use crate::rules::{
-        BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule,
-        CommitMessagePrefixRule, CommitMessageRegexRule, CommitMessageSuffixRule,
-        CopyFilesRule, DeleteFilesRule, ExecRule, ShellScriptRule,
-        SuppressFilesRule, SuppressStringRule, WriteFileRule,
+        BranchNamePrefixRule, BranchNameRegexRule, BranchNameSuffixRule, CommitMessagePrefixRule,
+        CommitMessageRegexRule, CommitMessageSuffixRule, CopyFilesRule, DeleteFilesRule, ExecRule,
+        ShellScriptRule, SuppressFilesRule, SuppressStringRule, WriteFileRule,
     };
     use crate::scripting::Expression;
-    use crate::t;
-    use std::collections::HashMap;
     use anyhow::anyhow;
+    use std::collections::HashMap;
+    use template_str::t;
 
     #[test]
     fn test_deserialize() {
@@ -110,7 +108,10 @@ mod tests {
             "prefix":"feat:"
         }"#;
         let rule: RuleContext = serde_json::from_str(json)?;
-        assert_eq!(rule.extract, Some(vec!["branch:^(?P<Type>feature|bugfix)".into()]));
+        assert_eq!(
+            rule.extract,
+            Some(vec!["branch:^(?P<Type>feature|bugfix)".into()])
+        );
 
         Ok(())
     }
@@ -126,7 +127,10 @@ mod tests {
 
         let rule: RuleContext = serde_json::from_str(json)?;
 
-        assert_eq!(rule.extract, Some(vec!["branch:^(?P<Type>feature|bugfix)".into()]));
+        assert_eq!(
+            rule.extract,
+            Some(vec!["branch:^(?P<Type>feature|bugfix)".into()])
+        );
         Ok(())
     }
 
@@ -135,10 +139,13 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: None,
             when: None,
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+        ctx.expect_current_branch()
+            .returning(|| Ok("feat/something".to_string()));
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule_ctx.check_rule(&mut ctx).await?;
@@ -152,10 +159,13 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: None,
             when: None,
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_current_branch().returning(|| Ok("bugfix/something".to_string()));
+        ctx.expect_current_branch()
+            .returning(|| Ok("bugfix/something".to_string()));
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
 
         let result = rule_ctx.check_rule(&mut ctx).await?;
@@ -169,12 +179,16 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: Some(vec!["branch:^(?P<Type>feat|fix)".to_string()]),
             when: None,
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
         ctx.expect_extend().returning(|_| {
             let mut inner = MockContext::new();
-            inner.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+            inner
+                .expect_current_branch()
+                .returning(|| Ok("feat/something".to_string()));
             inner.expect_variables().returning(|| Ok(HashMap::new()));
             Ok(Box::new(inner) as Box<dyn Context>)
         });
@@ -190,7 +204,9 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 < 0")),
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
@@ -206,11 +222,14 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 > 0")),
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
         ctx.expect_variables().returning(|| Ok(HashMap::new()));
-        ctx.expect_current_branch().returning(|| Ok("feat/something".to_string()));
+        ctx.expect_current_branch()
+            .returning(|| Ok("feat/something".to_string()));
 
         let result = rule_ctx.check_rule(&mut ctx).await?;
         assert!(matches!(result, RuleResult::Success { .. }));
@@ -223,10 +242,13 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: None,
             when: Some(Expression::new("1 > 0")),
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_variables().returning(|| Err(anyhow!("variables error")));
+        ctx.expect_variables()
+            .returning(|| Err(anyhow!("variables error")));
 
         let result = rule_ctx.check_rule(&mut ctx).await;
         assert!(result.is_err());
@@ -239,10 +261,13 @@ mod tests {
         let rule_ctx = RuleContext {
             extract: Some(vec!["branch:something".to_string()]),
             when: None,
-            rule: Box::new(BranchNamePrefixRule { prefix: t!("feat/") }),
+            rule: Box::new(BranchNamePrefixRule {
+                prefix: t!("feat/"),
+            }),
         };
         let mut ctx = MockContext::new();
-        ctx.expect_extend().returning(|_| Err(anyhow!("extend error")));
+        ctx.expect_extend()
+            .returning(|_| Err(anyhow!("extend error")));
 
         let result = rule_ctx.check_rule(&mut ctx).await;
         assert!(result.is_err());
@@ -255,7 +280,10 @@ mod tests {
     #[tokio::test]
     async fn sync_rules_default_to_sync_mode() {
         assert_eq!(
-            BranchNamePrefixRule { prefix: t!("feat/") }.execution_mode(),
+            BranchNamePrefixRule {
+                prefix: t!("feat/")
+            }
+            .execution_mode(),
             ExecutionMode::Sync
         );
         assert_eq!(
@@ -263,7 +291,10 @@ mod tests {
             ExecutionMode::Sync
         );
         assert_eq!(
-            BranchNameRegexRule { expression: t!(".*") }.execution_mode(),
+            BranchNameRegexRule {
+                expression: t!(".*")
+            }
+            .execution_mode(),
             ExecutionMode::Sync
         );
         assert_eq!(
@@ -275,7 +306,11 @@ mod tests {
             ExecutionMode::Sync
         );
         assert_eq!(
-            CommitMessageRegexRule { expression: t!(".*"), when: None }.execution_mode(),
+            CommitMessageRegexRule {
+                expression: t!(".*"),
+                when: None
+            }
+            .execution_mode(),
             ExecutionMode::Sync
         );
         assert_eq!(
@@ -283,7 +318,11 @@ mod tests {
             ExecutionMode::Sync
         );
         assert_eq!(
-            SuppressStringRule { regex: t!("TODO"), glob: None }.execution_mode(),
+            SuppressStringRule {
+                regex: t!("TODO"),
+                glob: None
+            }
+            .execution_mode(),
             ExecutionMode::Sync
         );
     }
@@ -291,11 +330,20 @@ mod tests {
     #[test]
     fn async_rules_return_async_mode() {
         assert_eq!(
-            ExecRule { command: "echo".into(), args: None, env: None }.execution_mode(),
+            ExecRule {
+                command: "echo".into(),
+                args: None,
+                env: None
+            }
+            .execution_mode(),
             ExecutionMode::Async
         );
         assert_eq!(
-            ShellScriptRule { script: t!("echo hi"), env: None }.execution_mode(),
+            ShellScriptRule {
+                script: t!("echo hi"),
+                env: None
+            }
+            .execution_mode(),
             ExecutionMode::Async
         );
         assert_eq!(

@@ -1,8 +1,9 @@
 mod common;
 
-use common::test_context::TestContext;
 use common::ConfigFormat;
-use fisherman_core::{t, BranchNameRegexRule, Configuration, Expression, GitHook, WriteFileRule};
+use common::test_context::TestContext;
+use fisherman_core::{BranchNameRegexRule, Configuration, Expression, GitHook, WriteFileRule};
+use template_str::t;
 
 #[test]
 fn post_merge_hook_execution() {
@@ -34,7 +35,10 @@ fn post_merge_hook_execution() {
         "Merge should succeed: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(ctx.repo.file_exists("merge-executed.txt"), "post-merge hook should have created file");
+    assert!(
+        ctx.repo.file_exists("merge-executed.txt"),
+        "post-merge hook should have created file"
+    );
 }
 
 #[test]
@@ -189,7 +193,8 @@ fn commit_message_with_newlines() {
 
     ctx.setup_and_install(&config, ConfigFormat::Toml);
 
-    let multiline_msg = "feat: add new feature\n\nThis is a longer description\nwith multiple lines";
+    let multiline_msg =
+        "feat: add new feature\n\nThis is a longer description\nwith multiple lines";
     ctx.git_commit_allow_empty_success(multiline_msg);
 }
 
