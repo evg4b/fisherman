@@ -1,9 +1,9 @@
 use crate::commands::command::CliCommand;
+use crate::ui::logo;
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
 use fisherman_core::Context;
 use fisherman_core::GitHook;
-use fisherman_core::logo;
 use tokio::fs;
 
 #[derive(Debug, Parser)]

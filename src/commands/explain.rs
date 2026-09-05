@@ -1,7 +1,8 @@
 use crate::commands::command::CliCommand;
+use crate::ui::hook_display;
 use anyhow::Result;
 use clap::Parser;
-use fisherman_core::{Context, GitHook, hook_display};
+use fisherman_core::{Context, GitHook};
 
 #[derive(Debug, Parser)]
 pub struct ExplainCommand {

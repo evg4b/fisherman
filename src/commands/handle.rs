@@ -1,10 +1,10 @@
 use crate::commands::command::CliCommand;
+use crate::ui::hook_display;
 use anyhow::{Result, anyhow};
 use clap::Parser;
 use fisherman_core::Context;
 use fisherman_core::GitHook;
 use fisherman_core::RuleResult;
-use fisherman_core::hook_display;
 use fisherman_core::{ExecutionMode, RuleExecutionPool};
 use std::path::PathBuf;
 

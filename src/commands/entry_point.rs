@@ -1,7 +1,7 @@
 use crate::commands::{CliCommand, ExplainCommand, HandleCommand, InstallCommand};
+use crate::ui::ABOUT;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use fisherman_core::ABOUT;
 use fisherman_core::Context;
 
 #[derive(Parser, Debug)]

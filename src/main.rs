@@ -1,4 +1,5 @@
 mod commands;
+mod ui;
 
 use anyhow::Result;
 use commands::FishermanCli;
