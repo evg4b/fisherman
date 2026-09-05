@@ -1,11 +1,11 @@
-use crate::Context;
-use crate::GitHook;
-use crate::RuleResult;
 use crate::commands::command::CliCommand;
-use crate::rules::{ExecutionMode, RuleExecutionPool};
-use crate::ui::hook_display;
 use anyhow::{Result, anyhow};
 use clap::Parser;
+use fisherman_core::Context;
+use fisherman_core::GitHook;
+use fisherman_core::RuleResult;
+use fisherman_core::hook_display;
+use fisherman_core::{ExecutionMode, RuleExecutionPool};
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -106,10 +106,10 @@ impl CliCommand for HandleCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::MockContext;
-    use crate::Rule;
     use async_trait::async_trait;
-    use crate::{Configuration, RuleContext};
+    use fisherman_core::MockContext;
+    use fisherman_core::Rule;
+    use fisherman_core::{Configuration, RuleContext};
     use serde::{Deserialize, Serialize};
     use std::fmt::Display;
     use std::sync::{Arc, Mutex};
@@ -213,7 +213,10 @@ mod tests {
     /// `(name, succeeds, is_async)`
     type RuleSpec = (&'static str, bool, bool);
 
-    fn tracked_context(specs: &'static [RuleSpec], executed: Arc<Mutex<Vec<String>>>) -> MockContext {
+    fn tracked_context(
+        specs: &'static [RuleSpec],
+        executed: Arc<Mutex<Vec<String>>>,
+    ) -> MockContext {
         let mut context = MockContext::new();
         context
             .expect_extend()

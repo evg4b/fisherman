@@ -13,12 +13,32 @@ fisherman_core = { path = "./fisherman_core" }
 template_str = { path = "./template_str" }
 anyhow = "1.0.44"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
+regex = "1.11.1"
+thiserror = "2.0.12"
+dirs = "6.0.0"
+figment = { version = "0.10.19", features = ["toml", "yaml", "json"] }
+serde = { version = "1.0.217", features = ["derive"] }
+clap = { version = "4.5.23", features = ["derive"] }
+mockall = "0.15.0"
+git2 = "0.21.0"
+run_script = "0.11.0"
+rhai = "1.21.0"
+glob = "0.3.2"
+typetag = "0.2.21"
+serde_json = "1.0.149"
+once_cell = "1"
+async-trait = "0.1.92"
 
 [dev-dependencies]
 tempdir = "0.3"
 serde_json = "1.0.149"
 serde_yaml = "0.9.33"
 toml = "1.0.6"
+rstest = "0.26.1"
+assert2 = "0.4.0"
+assertor = { version = "0.0.4", features = ["anyhow"] }
+tempfile = "3.19.1"
+
 
 [workspace]
 members = ["fisherman_core", "template_str"]

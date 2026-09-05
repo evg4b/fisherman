@@ -354,13 +354,31 @@ name = "fisherman"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "assert2",
+ "assertor",
+ "async-trait",
+ "clap",
+ "dirs",
+ "figment",
  "fisherman_core",
+ "git2",
+ "glob",
+ "mockall",
+ "once_cell",
+ "regex",
+ "rhai",
+ "rstest",
+ "run_script",
+ "serde",
  "serde_json",
  "serde_yaml",
  "tempdir",
+ "tempfile",
  "template_str",
+ "thiserror",
  "tokio",
  "toml 1.1.4+spec-1.1.0",
+ "typetag",
 ]
 
 [[package]]
